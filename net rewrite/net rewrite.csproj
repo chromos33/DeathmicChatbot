@@ -46,8 +46,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>E:\Program Files (x86)\Google\Google Data API SDK\Redist\Google.GData.YouTube.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp">
-      <HintPath>..\packages\RestSharp.104.1\lib\net4-client\RestSharp.dll</HintPath>
+    <Reference Include="RestSharp, Version=104.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="Sharkbite.Thresher">
       <HintPath>lib\Sharkbite.Thresher.dll</HintPath>
@@ -66,9 +67,6 @@
     <Compile Include="StreamInfo.cs" />
     <Compile Include="TwitchManager.cs" />
     <Compile Include="YotubeManager.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
