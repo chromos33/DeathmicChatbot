@@ -86,7 +86,7 @@ namespace net_rewrite
 				else
 				{
 					command = command_string;
-					command_args = "";
+					command_args = null;
 				}
 				
 				if (this.commands.ContainsKey(command))
