@@ -25,7 +25,7 @@ namespace net_rewrite.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#ytbottest")]
+        [global::System.Configuration.DefaultSettingValueAttribute("#deathmic")]
         public string Channel {
             get {
                 return ((string)(this["Channel"]));
@@ -34,7 +34,7 @@ namespace net_rewrite.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("bottester")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Youtube Bot")]
         public string Name {
             get {
                 return ((string)(this["Name"]));
