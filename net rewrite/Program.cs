@@ -13,6 +13,7 @@ namespace net_rewrite
     {
         private static Connection con;
         private static YotubeManager youtube;
+        private static WebsiteManager website;
         private static String channel = Settings.Default.Channel;
         private static String nick = Settings.Default.Name;
         private static String server = Settings.Default.Server;
@@ -20,7 +21,8 @@ namespace net_rewrite
         static void Main(string[] args)
         {
             youtube = new YotubeManager();
-
+            website = new WebsiteManager();
+            
             ConnectionArgs cona = new ConnectionArgs(nick, server);
             con = new Connection(Encoding.UTF8, cona, false, false);
             con.Listener.OnRegistered += new RegisteredEventHandler(OnRegistered);
@@ -42,6 +44,17 @@ namespace net_rewrite
             {
                 Video vid = youtube.getVideoInfo(link);
                 con.Sender.PublicMessage(channel, youtube.getInfoString(vid));
+                return;
+            }
+            link = website.isWebpage(message);
+            if (link != null)
+            {
+            	if(!link.StartsWith("http://"))
+            	{
+            		link = "http://" + link;
+            	}
+            	con.Sender.PublicMessage(channel, website.getPageTitle(link));
+                return;
             }
         }
 

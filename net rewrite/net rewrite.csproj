@@ -47,6 +47,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Google.GData.YouTube.dll</HintPath>
     </Reference>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>lib\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp, Version=104.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\RestSharp.dll</HintPath>
@@ -74,6 +77,7 @@
     <Compile Include="Settings.cs" />
     <Compile Include="StreamInfo.cs" />
     <Compile Include="TwitchManager.cs" />
+    <Compile Include="WebsiteManager.cs" />
     <Compile Include="YotubeManager.cs" />
   </ItemGroup>
   <ItemGroup>
