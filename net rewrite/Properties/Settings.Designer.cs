@@ -34,19 +34,19 @@ namespace net_rewrite.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Youtube Bot")]
-        public string Name {
+        [global::System.Configuration.DefaultSettingValueAttribute("irc.quakenet.org")]
+        public string Server {
             get {
-                return ((string)(this["Name"]));
+                return ((string)(this["Server"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("irc.quakenet.org")]
-        public string Server {
+        [global::System.Configuration.DefaultSettingValueAttribute("YoutubeBot")]
+        public string Name {
             get {
-                return ((string)(this["Server"]));
+                return ((string)(this["Name"]));
             }
         }
     }
