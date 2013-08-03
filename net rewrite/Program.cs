@@ -5,6 +5,7 @@ using System.Text;
 using Sharkbite.Irc;
 using net_rewrite.StreamInfo;
 using Google.YouTube;
+using net_rewrite.Properties;
 
 namespace net_rewrite
 {
@@ -12,13 +13,15 @@ namespace net_rewrite
     {
         private static Connection con;
         private static YotubeManager youtube;
-        private static String channel = "#deathmic";
+        private static String channel = Settings.Default.Channel;
+        private static String nick = Settings.Default.Name;
+        private static String server = Settings.Default.Server;
 
         static void Main(string[] args)
         {
             youtube = new YotubeManager();
 
-            ConnectionArgs cona = new ConnectionArgs("YoutubeBot", "irc.quakenet.org");
+            ConnectionArgs cona = new ConnectionArgs(nick, server);
             con = new Connection(Encoding.UTF8, cona, false, false);
             con.Listener.OnRegistered += new RegisteredEventHandler(OnRegistered);
             con.Listener.OnPublic += new PublicMessageEventHandler(OnPublic);
