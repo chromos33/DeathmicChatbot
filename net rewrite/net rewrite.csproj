@@ -36,15 +36,15 @@
   <ItemGroup>
     <Reference Include="Google.GData.Client, Version=2.2.0.0, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\Program Files (x86)\Google\Google Data API SDK\Redist\Google.GData.Client.dll</HintPath>
+      <HintPath>lib\Google.GData.Client.dll</HintPath>
     </Reference>
     <Reference Include="Google.GData.Extensions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=0b4c5df2ebf20876, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\Program Files (x86)\Google\Google Data API SDK\Redist\Google.GData.Extensions.dll</HintPath>
+      <HintPath>lib\Google.GData.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="Google.GData.YouTube, Version=2.2.0.0, Culture=neutral, PublicKeyToken=af04a32718ae8833, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\Program Files (x86)\Google\Google Data API SDK\Redist\Google.GData.YouTube.dll</HintPath>
+      <HintPath>lib\Google.GData.YouTube.dll</HintPath>
     </Reference>
     <Reference Include="RestSharp, Version=104.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
