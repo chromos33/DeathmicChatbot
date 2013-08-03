@@ -18,8 +18,8 @@ namespace net_rewrite
         {
             youtube = new YotubeManager();
 
-            ConnectionArgs cona = new ConnectionArgs("YotubeBot", "irc.quakenet.org");
-            con = new Connection(cona, false, false);
+            ConnectionArgs cona = new ConnectionArgs("YoutubeBot", "irc.quakenet.org");
+            con = new Connection(Encoding.UTF8, cona, false, false);
             con.Listener.OnRegistered += new RegisteredEventHandler(OnRegistered);
             con.Listener.OnPublic += new PublicMessageEventHandler(OnPublic);
             con.Listener.OnPrivate += new PrivateMessageEventHandler(OnPrivate);

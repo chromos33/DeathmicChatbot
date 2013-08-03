@@ -44,7 +44,7 @@ namespace net_rewrite
 
         public string getInfoString(Video vi)
         {
-            return vi.Title + " " + vi.RatingAverage + "Ø";
+            return vi.Title + " " + Math.Round(vi.RatingAverage, 2) + "Ø";
         }
     }
 }
