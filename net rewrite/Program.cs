@@ -49,10 +49,6 @@ namespace net_rewrite
             link = website.isWebpage(message);
             if (link != null)
             {
-            	if(!link.StartsWith("http://"))
-            	{
-            		link = "http://" + link;
-            	}
             	con.Sender.PublicMessage(channel, website.getPageTitle(link));
                 return;
             }
