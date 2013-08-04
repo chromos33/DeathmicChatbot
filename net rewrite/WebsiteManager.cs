@@ -45,8 +45,7 @@ namespace net_rewrite
 			    	return HttpUtility.HtmlDecode(metaTags[0].InnerText).Replace("\r\n", "");
 			    }			
 			}
-			return null;
-			
+			return null;			
 		}
 	}
 }
