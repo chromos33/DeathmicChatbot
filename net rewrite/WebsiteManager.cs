@@ -36,7 +36,15 @@ namespace net_rewrite
 		public string getPageTitle(string url)
 		{
 			var webGet = new HtmlWeb();
-			HtmlDocument doc = webGet.Load(url);
+			HtmlDocument doc;
+			try
+			{
+				doc = webGet.Load(url);
+			}
+			catch (System.UriFormatException)
+			{
+				doc = webGet.Load("http://" + url);						
+			}
 			if (doc != null)
 			{
 				HtmlNodeCollection metaTags = doc.DocumentNode.SelectNodes("//title");
@@ -45,8 +53,7 @@ namespace net_rewrite
 			    	return HttpUtility.HtmlDecode(metaTags[0].InnerText).Replace("\r\n", "");
 			    }			
 			}
-			return null;
-			
+			return null;			
 		}
 	}
 }
