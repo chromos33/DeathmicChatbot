@@ -4,7 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # SharpDevelop 4.3
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{08633025-AB59-4B32-9F8C-1B8C32284400}"
 	ProjectSection(SolutionItems) = postProject
-		net rewrite\CommandManager.cs = net rewrite\CommandManager.cs
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "net rewrite", "net rewrite\net rewrite.csproj", "{8F2CE5B0-CE5D-446D-9D96-20D57B217782}"
