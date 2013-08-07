@@ -25,7 +25,7 @@ namespace net_rewrite
 		public string isWebpage(string txt)
 		{
             Match mt = this.reg.Match(txt);
-            string url=null;
+            string url="";
             while (mt.Success)
             {
             	url += mt.Value;
@@ -59,9 +59,9 @@ namespace net_rewrite
 			}
 			catch (System.Net.WebException)
 			{
-				return null;
+				return "";
 			}
-			return null;			
+			return "";			
 		}
 	}
 }
