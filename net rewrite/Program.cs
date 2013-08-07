@@ -49,7 +49,7 @@ namespace net_rewrite
             link = website.isWebpage(message);
             if (link != null)
             {
-		    	string title = website.getPageTitle(link);
+            	string title = website.getPageTitle(link).Trim();
 		    	if (!string.IsNullOrEmpty(title)) con.Sender.PublicMessage(channel, title);
                 return;
             }
