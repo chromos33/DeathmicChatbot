@@ -1,4 +1,4 @@
 ﻿DeathmicChatbot
 ===============
 
-Ein Chatbot für deathmic's irc
+Ein Chatbot für deathmics irc
