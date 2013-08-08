@@ -47,7 +47,7 @@ namespace net_rewrite
                 return;
             }
             link = website.isWebpage(message);
-            if (link != null)
+            if (link != "")
             {
             	string title = website.getPageTitle(link).Trim();
 		    	if (!string.IsNullOrEmpty(title)) con.Sender.PublicMessage(channel, title);
