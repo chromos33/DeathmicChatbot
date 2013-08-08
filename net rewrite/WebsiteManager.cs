@@ -46,7 +46,15 @@ namespace net_rewrite
 				}
 				catch (System.UriFormatException)
 				{
-					doc = webGet.Load("http://" + url);						
+                    try
+                    {
+                        doc = webGet.Load("http://" + url);
+                    }
+                    catch (System.UriFormatException)
+                    {
+                        Console.WriteLine(url);
+                        doc = null;
+                    }
 				}
 				if (doc != null)
 				{
