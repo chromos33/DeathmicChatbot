@@ -26,8 +26,8 @@ namespace net_rewrite
             log = new LogManager(logfile);
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(OnError);
             youtube = new YotubeManager();
-            website = new WebsiteManager();
-            
+            website = new WebsiteManager(log);
+
             ConnectionArgs cona = new ConnectionArgs(nick, server);
             con = new Connection(Encoding.UTF8, cona, false, false);
             con.Listener.OnRegistered += new RegisteredEventHandler(OnRegistered);
