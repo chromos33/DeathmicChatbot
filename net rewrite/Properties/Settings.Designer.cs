@@ -49,5 +49,14 @@ namespace net_rewrite.Properties {
                 return ((string)(this["Name"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("log.txt")]
+        public string Logfile {
+            get {
+                return ((string)(this["Logfile"]));
+            }
+        }
     }
 }

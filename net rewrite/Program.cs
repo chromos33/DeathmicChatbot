@@ -6,6 +6,7 @@ using Sharkbite.Irc;
 using net_rewrite.StreamInfo;
 using Google.YouTube;
 using net_rewrite.Properties;
+using System.Diagnostics;
 
 namespace net_rewrite
 {
@@ -13,13 +14,17 @@ namespace net_rewrite
     {
         private static Connection con;
         private static YotubeManager youtube;
+        private static LogManager log;
         private static WebsiteManager website;
         private static String channel = Settings.Default.Channel;
         private static String nick = Settings.Default.Name;
         private static String server = Settings.Default.Server;
+        private static String logfile = Settings.Default.Logfile;
 
         static void Main(string[] args)
         {
+            log = new LogManager(logfile);
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(OnError);
             youtube = new YotubeManager();
             website = new WebsiteManager();
             
@@ -29,6 +34,14 @@ namespace net_rewrite
             con.Listener.OnPublic += new PublicMessageEventHandler(OnPublic);
             con.Listener.OnPrivate += new PrivateMessageEventHandler(OnPrivate);
             con.Connect();
+
+        }
+
+        public static void OnError(object sender, UnhandledExceptionEventArgs e)
+        {
+            Exception ex = ((Exception)e.ExceptionObject);
+            StackTrace st = new StackTrace(ex, true);
+            log.WriteToLog("Error", ex.Message, st);
         }
 
         public static void OnRegistered()
