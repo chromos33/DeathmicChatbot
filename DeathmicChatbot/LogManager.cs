@@ -22,7 +22,7 @@ namespace DeathmicChatbot
 
             string source = trace.GetFrame(1).GetMethod().ToString();
 
-            StreamWriter log = File.AppendText(this.path);
+            StreamWriter log = File.AppendText(path);
 
             string logtext = String.Format("[{0:s}] [{1}] [{2}] {3}", DateTime.Now, source, level, text);
 

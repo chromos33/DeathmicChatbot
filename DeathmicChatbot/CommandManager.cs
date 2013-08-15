@@ -5,14 +5,14 @@ namespace DeathmicChatbot
 {
     public class CommandManager
     {
-        private static string activator = "!";
-        private Dictionary<string, Command> commands;
+        private const string ACTIVATOR = "!";
+        private readonly Dictionary<string, Command> _commands;
 
-        public delegate void Command(UserInfo user, string channel, string text, string command_args);
+        public delegate void Command(UserInfo user, string channel, string text, string commandArgs);
 
         public CommandManager()
         {
-            this.commands = new Dictionary<string, CommandManager.Command>();
+            _commands = new Dictionary<string, Command>();
         }
 
         /* Sets a command
@@ -28,11 +28,11 @@ namespace DeathmicChatbot
 		 * true if the command was set, false if there was already an command with that name.
 		 */
 
-        public bool setCommand(string name, Command callback, bool overwrite = false)
+        public bool SetCommand(string name, Command callback, bool overwrite = false)
         {
-            if (!this.commands.ContainsKey(name) || overwrite)
+            if (!_commands.ContainsKey(name) || overwrite)
             {
-                this.commands[name] = callback;
+                _commands[name] = callback;
                 return true;
             }
             return false;
@@ -49,11 +49,11 @@ namespace DeathmicChatbot
 		 * true if the command was unset, false if there was no such command.
  		 */
 
-        public bool unsetCommand(string name)
+        public bool UnsetCommand(string name)
         {
-            if (!this.commands.ContainsKey(name))
+            if (!_commands.ContainsKey(name))
             {
-                this.commands.Remove(name);
+                _commands.Remove(name);
                 return true;
             }
             return false;
@@ -72,28 +72,28 @@ namespace DeathmicChatbot
 		 * or no command with that name was found.
 		 */
 
-        public bool checkCommand(UserInfo user, string channel, string text)
+        public bool CheckCommand(UserInfo user, string channel, string text)
         {
-            if (text.StartsWith(activator))
+            if (text.StartsWith(ACTIVATOR))
             {
-                string command_string = text.Remove(0, 1);
-                int command_end = command_string.IndexOf(' ');
+                string commandString = text.Remove(0, 1);
+                int commandEnd = commandString.IndexOf(' ');
                 string command;
-                string command_args;
-                if (command_end != -1)
+                string commandArgs;
+                if (commandEnd != -1)
                 {
-                    command = command_string.Remove(command_end);
-                    command_args = command_string.Remove(0, command_end + 1);
+                    command = commandString.Remove(commandEnd);
+                    commandArgs = commandString.Remove(0, commandEnd + 1);
                 }
                 else
                 {
-                    command = command_string;
-                    command_args = null;
+                    command = commandString;
+                    commandArgs = null;
                 }
 
-                if (this.commands.ContainsKey(command))
+                if (_commands.ContainsKey(command))
                 {
-                    this.commands[command](user, channel, text, command_args);
+                    _commands[command](user, channel, text, commandArgs);
                 }
             }
             return false;

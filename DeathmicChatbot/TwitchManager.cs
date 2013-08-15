@@ -7,38 +7,38 @@ namespace DeathmicChatbot
 {
     public class TwitchManager
     {
-        private List<string> streams;
-        private RestClient client;
+        private readonly List<string> _streams;
+        private readonly RestClient _client;
 
         public TwitchManager()
         {
-            this.client = new RestClient("https://api.twitch.tv");
-            this.streams = new List<string>();
+            _client = new RestClient("https://api.twitch.tv");
+            _streams = new List<string>();
         }
 
-        public RootObject getOnlineStreams()
+        public RootObject GetOnlineStreams()
         {
             RestRequest req = new RestRequest("/kraken/streams", Method.GET);
-            req.AddParameter("channel", arrayToString(streams));
+            req.AddParameter("channel", ArrayToString(_streams));
 
-            IRestResponse response = client.Execute(req);
+            IRestResponse response = _client.Execute(req);
 
             JsonDeserializer des = new JsonDeserializer();
             RootObject data = des.Deserialize<RootObject>(response);
             return data;
         }
 
-        public void addStream(string stream)
+        public void AddStream(string stream)
         {
-            this.streams.Add(stream);
+            _streams.Add(stream);
         }
 
-        public void removeStream(string stream)
+        public void RemoveStream(string stream)
         {
-            this.streams.Remove(stream);
+            _streams.Remove(stream);
         }
 
-        private string arrayToString(List<string> arr)
+        private static string ArrayToString(IEnumerable<string> arr)
         {
             return string.Join(",", arr);
         }

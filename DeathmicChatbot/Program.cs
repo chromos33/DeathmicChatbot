@@ -9,59 +9,56 @@ namespace DeathmicChatbot
 {
     internal class Program
     {
-        private static Connection con;
-        private static YotubeManager youtube;
-        private static LogManager log;
-        private static WebsiteManager website;
-        private static String channel = Settings.Default.Channel;
-        private static String nick = Settings.Default.Name;
-        private static String server = Settings.Default.Server;
-        private static String logfile = Settings.Default.Logfile;
+        private static Connection _con;
+        private static YotubeManager _youtube;
+        private static LogManager _log;
+        private static WebsiteManager _website;
+        private static readonly String Channel = Settings.Default.Channel;
+        private static readonly String Nick = Settings.Default.Name;
+        private static readonly String Server = Settings.Default.Server;
+        private static readonly String Logfile = Settings.Default.Logfile;
 
         private static void Main(string[] args)
         {
-            log = new LogManager(logfile);
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(OnError);
-            youtube = new YotubeManager();
-            website = new WebsiteManager(log);
+            _log = new LogManager(Logfile);
+            AppDomain.CurrentDomain.UnhandledException += OnError;
+            _youtube = new YotubeManager();
+            _website = new WebsiteManager(_log);
 
-            ConnectionArgs cona = new ConnectionArgs(nick, server);
-            con = new Connection(Encoding.UTF8, cona, false, false);
-            con.Listener.OnRegistered += new RegisteredEventHandler(OnRegistered);
-            con.Listener.OnPublic += new PublicMessageEventHandler(OnPublic);
-            con.Listener.OnPrivate += new PrivateMessageEventHandler(OnPrivate);
-            con.Connect();
+            ConnectionArgs cona = new ConnectionArgs(Nick, Server);
+            _con = new Connection(Encoding.UTF8, cona, false, false);
+            _con.Listener.OnRegistered += OnRegistered;
+            _con.Listener.OnPublic += OnPublic;
+            _con.Listener.OnPrivate += OnPrivate;
+            _con.Connect();
         }
 
         public static void OnError(object sender, UnhandledExceptionEventArgs e)
         {
             Exception ex = ((Exception) e.ExceptionObject);
             StackTrace st = new StackTrace(ex, true);
-            log.WriteToLog("Error", ex.Message, st);
+            _log.WriteToLog("Error", ex.Message, st);
         }
 
         public static void OnRegistered()
         {
-            con.Sender.Join(channel);
+            _con.Sender.Join(Channel);
         }
 
 
         public static void OnPublic(UserInfo user, string channel, string message)
         {
-            string link = youtube.isYtLink(message);
+            string link = _youtube.IsYtLink(message);
             if (link != null)
             {
-                Video vid = youtube.getVideoInfo(link);
-                con.Sender.PublicMessage(channel, youtube.getInfoString(vid));
+                Video vid = _youtube.GetVideoInfo(link);
+                _con.Sender.PublicMessage(channel, _youtube.GetInfoString(vid));
                 return;
             }
-            link = website.isWebpage(message);
-            if (link != "")
-            {
-                string title = website.getPageTitle(link).Trim();
-                if (!string.IsNullOrEmpty(title)) con.Sender.PublicMessage(channel, title);
-                return;
-            }
+            link = _website.IsWebpage(message);
+            if (link == "") return;
+            string title = _website.GetPageTitle(link).Trim();
+            if (!string.IsNullOrEmpty(title)) _con.Sender.PublicMessage(channel, title);
         }
 
         public static void OnPrivate(UserInfo user, string message)
