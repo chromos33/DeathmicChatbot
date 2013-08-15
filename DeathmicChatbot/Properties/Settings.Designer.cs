@@ -43,7 +43,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("YoutubeBot")]
+        [global::System.Configuration.DefaultSettingValueAttribute("BotDeathmic")]
         public string Name {
             get {
                 return ((string)(this["Name"]));
