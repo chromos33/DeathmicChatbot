@@ -1,12 +1,10 @@
-﻿using System;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using Google.GData.Client;
 using HtmlAgilityPack;
 using System.Diagnostics;
 
-namespace net_rewrite
+namespace DeathmicChatbot
 {
 	/// <summary>
 	/// Description of WebsiteManager.

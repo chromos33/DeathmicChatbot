@@ -1,4 +1,5 @@
-﻿namespace net_rewrite.Properties {
+﻿namespace DeathmicChatbot.Properties
+{
     
     
     // Diese Klasse ermöglicht die Behandlung bestimmter Ereignisse der Einstellungsklasse:

@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using DeathmicChatbot.Properties;
 using Sharkbite.Irc;
-using net_rewrite.StreamInfo;
 using Google.YouTube;
-using net_rewrite.Properties;
 using System.Diagnostics;
 
-namespace net_rewrite
+namespace DeathmicChatbot
 {
     class Program
     {

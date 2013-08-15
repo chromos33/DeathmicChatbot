@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
-[assembly: AssemblyTitle("net rewrite")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("DeathmicChatbot")]
+[assembly: AssemblyDescription("IRC Chatbot for channel Deathmic @Quakenet")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("net rewrite")]
-[assembly: AssemblyCopyright("Copyright ©  2013")]
+[assembly: AssemblyProduct("DeathmicChatbot")]
+[assembly: AssemblyCopyright("OpenSource @ Github")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

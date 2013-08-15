@@ -1,11 +1,9 @@
-﻿using System;
+﻿using DeathmicChatbot.StreamInfo;
 using RestSharp;
 using RestSharp.Deserializers;
-using System.Text;
 using System.Collections.Generic;
-using net_rewrite.StreamInfo;
 
-namespace net_rewrite
+namespace DeathmicChatbot
 {
     public class TwitchManager
     {

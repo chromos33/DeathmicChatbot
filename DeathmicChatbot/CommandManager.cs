@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Sharkbite.Irc;
 
-namespace net_rewrite
+namespace DeathmicChatbot
 {
 	public class CommandManager
 	{
