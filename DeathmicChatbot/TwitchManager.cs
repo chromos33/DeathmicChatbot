@@ -11,10 +11,10 @@ namespace DeathmicChatbot
         private RestClient client;
 
         public TwitchManager()
-	    {
+        {
             this.client = new RestClient("https://api.twitch.tv");
             this.streams = new List<string>();
-	    }
+        }
 
         public RootObject getOnlineStreams()
         {

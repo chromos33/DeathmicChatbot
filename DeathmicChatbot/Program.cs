@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace DeathmicChatbot
 {
-    class Program
+    internal class Program
     {
         private static Connection con;
         private static YotubeManager youtube;
@@ -18,7 +18,7 @@ namespace DeathmicChatbot
         private static String server = Settings.Default.Server;
         private static String logfile = Settings.Default.Logfile;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             log = new LogManager(logfile);
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(OnError);
@@ -31,12 +31,11 @@ namespace DeathmicChatbot
             con.Listener.OnPublic += new PublicMessageEventHandler(OnPublic);
             con.Listener.OnPrivate += new PrivateMessageEventHandler(OnPrivate);
             con.Connect();
-
         }
 
         public static void OnError(object sender, UnhandledExceptionEventArgs e)
         {
-            Exception ex = ((Exception)e.ExceptionObject);
+            Exception ex = ((Exception) e.ExceptionObject);
             StackTrace st = new StackTrace(ex, true);
             log.WriteToLog("Error", ex.Message, st);
         }
@@ -59,8 +58,8 @@ namespace DeathmicChatbot
             link = website.isWebpage(message);
             if (link != "")
             {
-            	string title = website.getPageTitle(link).Trim();
-		    	if (!string.IsNullOrEmpty(title)) con.Sender.PublicMessage(channel, title);
+                string title = website.getPageTitle(link).Trim();
+                if (!string.IsNullOrEmpty(title)) con.Sender.PublicMessage(channel, title);
                 return;
             }
         }
@@ -69,6 +68,5 @@ namespace DeathmicChatbot
         {
             Console.WriteLine(user.Nick + ": " + message);
         }
-
     }
 }
