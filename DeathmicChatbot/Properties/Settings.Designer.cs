@@ -58,5 +58,14 @@ namespace DeathmicChatbot.Properties {
                 return ((string)(this["Logfile"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("15")]
+        public int StreamcheckIntervalSeconds {
+            get {
+                return ((int)(this["StreamcheckIntervalSeconds"]));
+            }
+        }
     }
 }
