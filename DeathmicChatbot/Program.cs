@@ -33,13 +33,24 @@ namespace DeathmicChatbot
             _con.Listener.OnPrivate += OnPrivate;
             _con.Listener.OnJoin += OnJoin;
             _con.Connect();
+            while (true)
+            {
+                if (!_con.Connected) _con.Connect();
+            }
         }
 
         private static void AddStream(UserInfo user, string channel, string text, string commandArgs)
         {
-            _log.WriteToLog("Information", String.Format("{0} added {1} to the streamlist", user.Nick, commandArgs));
-            _con.Sender.PublicMessage(channel, String.Format("{0} added {1} to the streamlist", user.Nick, commandArgs));
-            _twitch.AddStream(commandArgs);
+            if (_twitch.AddStream(commandArgs))
+            {
+                _log.WriteToLog("Information", String.Format("{0} added {1} to the streamlist", user.Nick, commandArgs));
+                _con.Sender.PublicMessage(channel, String.Format("{0} added {1} to the streamlist", user.Nick, commandArgs));
+            }
+            else
+            {
+                _log.WriteToLog("Information", String.Format("{0} wanted to readd {1} to the streamlist", user.Nick, commandArgs));
+                _con.Sender.PublicMessage(channel, String.Format("{2}{0} slaps {1} around for being an idiot{2}", "ACTION", user.Nick, "\x01"));
+            }
         }
 
         private static void DelStream(UserInfo user, string channel, string text, string commandArgs)
@@ -48,6 +59,17 @@ namespace DeathmicChatbot
             _con.Sender.PublicMessage(channel, String.Format("{0} removed {1} from the streamlist", user.Nick, commandArgs));
             _twitch.RemoveStream(commandArgs);
         }
+
+        private static void StreamCheck(UserInfo user, string channel, string text, string commandArgs)
+        {
+            _twitch.CheckStreams();
+            RootObject streams = _twitch.GetOnlineStreams();
+            foreach (Stream stream in streams.Streams)
+            {
+                _con.Sender.PrivateMessage(user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Channel.Name));
+            }
+        }
+
 
         private static void TwitchOnStreamStopped(object sender, StreamEventArgs args)
         {
@@ -99,9 +121,11 @@ namespace DeathmicChatbot
             _commands = new CommandManager();
             CommandManager.Command addstream = AddStream;
             CommandManager.Command delstream = DelStream;
+            CommandManager.Command streamcheck = StreamCheck;
             _commands.SetCommand("addstream", addstream);
             _commands.SetCommand("delstream", delstream);
             _commands.SetCommand("streamwegschreinen", delstream);
+            _commands.SetCommand("streamcheck", streamcheck);
             Thread streamCheckThread = new Thread(CheckAllStreamsThreaded);
             streamCheckThread.Start();
         }
@@ -125,7 +149,7 @@ namespace DeathmicChatbot
 
         public static void OnPrivate(UserInfo user, string message)
         {
-            Console.WriteLine(user.Nick + ": " + message);
+            _commands.CheckCommand(user, Channel, message);
         }
     }
 }

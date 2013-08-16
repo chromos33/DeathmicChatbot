@@ -76,10 +76,18 @@ namespace DeathmicChatbot
             return data;
         }
 
-        public void AddStream(string stream)
+        public bool AddStream(string stream)
         {
-            if (!_streams.Contains((stream))) _streams.Add(stream);
-            WriteStreamsToFile();
+            if (!_streams.Contains(stream))
+            {
+                _streams.Add(stream);
+                return true;
+            }
+            else
+            {
+                WriteStreamsToFile();
+                return false;
+            }
         }
 
         public void RemoveStream(string stream)
