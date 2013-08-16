@@ -5,7 +5,6 @@ using DeathmicChatbot.Properties;
 using Sharkbite.Irc;
 using Google.YouTube;
 using System.Diagnostics;
-using DeathmicChatbot.StreamInfo;
 
 namespace DeathmicChatbot
 {
@@ -44,19 +43,23 @@ namespace DeathmicChatbot
             if (_twitch.AddStream(commandArgs))
             {
                 _log.WriteToLog("Information", String.Format("{0} added {1} to the streamlist", user.Nick, commandArgs));
-                _con.Sender.PublicMessage(channel, String.Format("{0} added {1} to the streamlist", user.Nick, commandArgs));
+                _con.Sender.PublicMessage(
+                    channel, String.Format("{0} added {1} to the streamlist", user.Nick, commandArgs));
             }
             else
             {
-                _log.WriteToLog("Information", String.Format("{0} wanted to readd {1} to the streamlist", user.Nick, commandArgs));
-                _con.Sender.PublicMessage(channel, String.Format("{2}{0} slaps {1} around for being an idiot{2}", "ACTION", user.Nick, "\x01"));
+                _log.WriteToLog(
+                    "Information", String.Format("{0} wanted to readd {1} to the streamlist", user.Nick, commandArgs));
+                _con.Sender.PublicMessage(
+                    channel, String.Format("{2}{0} slaps {1} around for being an idiot{2}", "ACTION", user.Nick, "\x01"));
             }
         }
 
         private static void DelStream(UserInfo user, string channel, string text, string commandArgs)
         {
             _log.WriteToLog("Information", String.Format("{0} removed {1} from the streamlist", user.Nick, commandArgs));
-            _con.Sender.PublicMessage(channel, String.Format("{0} removed {1} from the streamlist", user.Nick, commandArgs));
+            _con.Sender.PublicMessage(
+                channel, String.Format("{0} removed {1} from the streamlist", user.Nick, commandArgs));
             _twitch.RemoveStream(commandArgs);
         }
 
@@ -64,7 +67,8 @@ namespace DeathmicChatbot
         {
             foreach (StreamData stream in _twitch._streamData.Values)
             {
-                _con.Sender.PrivateMessage(user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Stream.Channel.Name));
+                _con.Sender.PrivateMessage(
+                    user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Stream.Channel.Name));
             }
         }
 
@@ -72,13 +76,16 @@ namespace DeathmicChatbot
         private static void TwitchOnStreamStopped(object sender, StreamEventArgs args)
         {
             Console.WriteLine("{0}: Stream stopped: {1}", DateTime.Now, args.StreamData.Stream.Channel.Name);
-            _con.Sender.PublicMessage(Channel, String.Format("Stream stopped: {0}", args.StreamData.Stream.Channel.Name));
+            _con.Sender.PublicMessage(
+                Channel, String.Format("Stream stopped: {0}", args.StreamData.Stream.Channel.Name));
         }
 
         private static void TwitchOnStreamStarted(object sender, StreamEventArgs args)
         {
             Console.WriteLine("{0}: Stream started: {1}", DateTime.Now, args.StreamData.Stream.Channel.Name);
-            _con.Sender.PublicMessage(Channel, String.Format("Stream started: {0} at http://www.twitch.tv/{0}", args.StreamData.Stream.Channel.Name));
+            _con.Sender.PublicMessage(
+                Channel,
+                String.Format("Stream started: {0} at http://www.twitch.tv/{0}", args.StreamData.Stream.Channel.Name));
         }
 
         private static void CheckAllStreamsThreaded()
@@ -99,8 +106,10 @@ namespace DeathmicChatbot
 
         public static void OnJoin(UserInfo user, string channel)
         {
-            foreach (StreamData stream in _twitch._streamData.Values) {
-                _con.Sender.PrivateMessage(user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Stream.Channel.Name));
+            foreach (StreamData stream in _twitch._streamData.Values)
+            {
+                _con.Sender.PrivateMessage(
+                    user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Stream.Channel.Name));
             }
         }
 

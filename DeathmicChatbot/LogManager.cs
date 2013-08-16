@@ -6,11 +6,11 @@ namespace DeathmicChatbot
 {
     internal class LogManager
     {
-        private String path;
+        private readonly String _path;
 
         public LogManager(string path)
         {
-            this.path = path;
+            _path = path;
         }
 
         public void WriteToLog(string level, string text, StackTrace trace = null)
@@ -22,7 +22,7 @@ namespace DeathmicChatbot
 
             string source = trace.GetFrame(1).GetMethod().ToString();
 
-            StreamWriter log = File.AppendText(path);
+            StreamWriter log = File.AppendText(_path);
 
             string logtext = String.Format("[{0:s}] [{1}] [{2}] {3}", DateTime.Now, source, level, text);
 
