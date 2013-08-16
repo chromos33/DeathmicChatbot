@@ -26,19 +26,6 @@ namespace DeathmicChatbot
 
         private static void Main(string[] args)
         {
-            _log = new LogManager(Logfile);
-            AppDomain.CurrentDomain.UnhandledException += OnError;
-            _youtube = new YotubeManager();
-            _website = new WebsiteManager(_log);
-            _twitch = new TwitchManager();
-            _twitch.StreamStarted += TwitchOnStreamStarted;
-            _twitch.StreamStopped += TwitchOnStreamStopped;
-            _commands = new CommandManager();
-            CommandManager.Command addstream = AddStream;
-            CommandManager.Command delstream = DelStream;
-            _commands.SetCommand("addstream", addstream);
-            _commands.SetCommand("delstream", delstream);
-            _commands.SetCommand("streamwegschreinen", delstream);
             ConnectionArgs cona = new ConnectionArgs(Nick, Server);
             _con = new Connection(Encoding.UTF8, cona, false, false);
             _con.Listener.OnRegistered += OnRegistered;
@@ -46,9 +33,6 @@ namespace DeathmicChatbot
             _con.Listener.OnPrivate += OnPrivate;
             _con.Listener.OnJoin += OnJoin;
             _con.Connect();
-
-            Thread streamCheckThread = new Thread(CheckAllStreamsThreaded);
-            streamCheckThread.Start();
         }
 
         private static void AddStream(UserInfo user, string channel, string text, string commandArgs)
@@ -105,6 +89,21 @@ namespace DeathmicChatbot
         public static void OnRegistered()
         {
             _con.Sender.Join(Channel);
+            _log = new LogManager(Logfile);
+            AppDomain.CurrentDomain.UnhandledException += OnError;
+            _youtube = new YotubeManager();
+            _website = new WebsiteManager(_log);
+            _twitch = new TwitchManager();
+            _twitch.StreamStarted += TwitchOnStreamStarted;
+            _twitch.StreamStopped += TwitchOnStreamStopped;
+            _commands = new CommandManager();
+            CommandManager.Command addstream = AddStream;
+            CommandManager.Command delstream = DelStream;
+            _commands.SetCommand("addstream", addstream);
+            _commands.SetCommand("delstream", delstream);
+            _commands.SetCommand("streamwegschreinen", delstream);
+            Thread streamCheckThread = new Thread(CheckAllStreamsThreaded);
+            streamCheckThread.Start();
         }
 
 
