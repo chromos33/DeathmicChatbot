@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace net_rewrite.Properties {
+namespace DeathmicChatbot.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -43,7 +43,7 @@ namespace net_rewrite.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("YoutubeBot")]
+        [global::System.Configuration.DefaultSettingValueAttribute("BotDeathmic")]
         public string Name {
             get {
                 return ((string)(this["Name"]));
@@ -56,6 +56,15 @@ namespace net_rewrite.Properties {
         public string Logfile {
             get {
                 return ((string)(this["Logfile"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("15")]
+        public int StreamcheckIntervalSeconds {
+            get {
+                return ((int)(this["StreamcheckIntervalSeconds"]));
             }
         }
     }
