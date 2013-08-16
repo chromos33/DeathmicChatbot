@@ -78,6 +78,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="StreamData.cs" />
+    <Compile Include="StreamEventArgs.cs" />
     <Compile Include="StreamInfo.cs" />
     <Compile Include="TwitchManager.cs" />
     <Compile Include="WebsiteManager.cs" />
