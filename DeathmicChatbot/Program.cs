@@ -5,6 +5,7 @@ using DeathmicChatbot.Properties;
 using Sharkbite.Irc;
 using Google.YouTube;
 using System.Diagnostics;
+using DeathmicChatbot.StreamInfo;
 
 namespace DeathmicChatbot
 {
@@ -43,6 +44,7 @@ namespace DeathmicChatbot
             _con.Listener.OnRegistered += OnRegistered;
             _con.Listener.OnPublic += OnPublic;
             _con.Listener.OnPrivate += OnPrivate;
+            _con.Listener.OnJoin += OnJoin;
             _con.Connect();
 
             Thread streamCheckThread = new Thread(CheckAllStreamsThreaded);
@@ -51,11 +53,15 @@ namespace DeathmicChatbot
 
         private static void AddStream(UserInfo user, string channel, string text, string commandArgs)
         {
+            _log.WriteToLog("Information", String.Format("{0} added {1} to the streamlist", user.Nick, commandArgs));
+            _con.Sender.PublicMessage(channel, String.Format("{0} added {1} to the streamlist", user.Nick, commandArgs));
             _twitch.AddStream(commandArgs);
         }
 
         private static void DelStream(UserInfo user, string channel, string text, string commandArgs)
         {
+            _log.WriteToLog("Information", String.Format("{0} removed {1} from the streamlist", user.Nick, commandArgs));
+            _con.Sender.PublicMessage(channel, String.Format("{0} removed {1} from the streamlist", user.Nick, commandArgs));
             _twitch.RemoveStream(commandArgs);
         }
 
@@ -68,7 +74,7 @@ namespace DeathmicChatbot
         private static void TwitchOnStreamStarted(object sender, StreamEventArgs args)
         {
             Console.WriteLine("{0}: Stream started: {1}", DateTime.Now, args.StreamData.Stream.Channel.Name);
-            _con.Sender.PublicMessage(Channel, String.Format("Stream started: {0} at http://www.twitch.tv/{1}", args.StreamData.Stream.Channel.Name, args.StreamData.Stream.Channel.Name));
+            _con.Sender.PublicMessage(Channel, String.Format("Stream started: {0} at http://www.twitch.tv/{0}", args.StreamData.Stream.Channel.Name));
         }
 
         private static void CheckAllStreamsThreaded()
@@ -85,6 +91,15 @@ namespace DeathmicChatbot
             Exception ex = ((Exception) e.ExceptionObject);
             StackTrace st = new StackTrace(ex, true);
             _log.WriteToLog("Error", ex.Message, st);
+        }
+
+        public static void OnJoin(UserInfo user, string channel)
+        {
+            _twitch.CheckStreams();
+            RootObject streams = _twitch.GetOnlineStreams();
+            foreach (Stream stream in streams.Streams) {
+                _con.Sender.PrivateMessage(user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Channel.Name));
+            }
         }
 
         public static void OnRegistered()
