@@ -62,13 +62,13 @@ namespace DeathmicChatbot
         private static void TwitchOnStreamStopped(object sender, StreamEventArgs args)
         {
             Console.WriteLine("{0}: Stream stopped: {1}", DateTime.Now, args.StreamData.Stream.Channel.Name);
-            _con.Sender.PublicNotice(Channel, String.Format("Stream stopped: {0}", args.StreamData.Stream.Channel.Name));
+            _con.Sender.PublicMessage(Channel, String.Format("Stream stopped: {0}", args.StreamData.Stream.Channel.Name));
         }
 
         private static void TwitchOnStreamStarted(object sender, StreamEventArgs args)
         {
             Console.WriteLine("{0}: Stream started: {1}", DateTime.Now, args.StreamData.Stream.Channel.Name);
-            _con.Sender.PublicNotice(Channel, String.Format("Stream started: {0} at http://www.twitch.tv/{1}", args.StreamData.Stream.Channel.Name, args.StreamData.Stream.Channel.Name));
+            _con.Sender.PublicMessage(Channel, String.Format("Stream started: {0} at http://www.twitch.tv/{1}", args.StreamData.Stream.Channel.Name, args.StreamData.Stream.Channel.Name));
         }
 
         private static void CheckAllStreamsThreaded()
