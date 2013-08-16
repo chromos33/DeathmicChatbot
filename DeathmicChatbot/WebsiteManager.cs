@@ -2,6 +2,7 @@
 using Google.GData.Client;
 using HtmlAgilityPack;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace DeathmicChatbot
 {
@@ -23,31 +24,34 @@ namespace DeathmicChatbot
             _log = log;
         }
 
-        public string IsWebpage(string txt)
+		public List<string> ContainsLinks(string txt)
         {
             Match mt = _reg.Match(txt);
-            string url = "";
+			List<string> urls = new List<string>();
             while (mt.Success)
             {
-                url += mt.Value;
+				urls.Add(mt.Value);
                 mt = mt.NextMatch();
             }
-            if (url != "")
+			if (urls.Count > 0) 
             {
-                _log.WriteToLog("Information", "URL found: " + url);
+				foreach (string url in urls)
+				{
+					_log.WriteToLog ("Information", "URL found: " + url);					                     
+				}
             }
             else
             {
                 _log.WriteToLog("Information", "No URL found.");
             }
-            return url;
+			return urls;
         }
 
         public string GetPageTitle(string url)
         {
             try
             {
-                var webGet = new HtmlWeb();
+				var webGet = new HtmlWeb();
                 HtmlDocument doc;
                 try
                 {

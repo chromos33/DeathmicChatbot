@@ -4,6 +4,7 @@ using DeathmicChatbot.Properties;
 using Sharkbite.Irc;
 using Google.YouTube;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace DeathmicChatbot
 {
@@ -55,10 +56,14 @@ namespace DeathmicChatbot
                 _con.Sender.PublicMessage(channel, _youtube.GetInfoString(vid));
                 return;
             }
-            link = _website.IsWebpage(message);
-            if (link == "") return;
-            string title = _website.GetPageTitle(link).Trim();
-            if (!string.IsNullOrEmpty(title)) _con.Sender.PublicMessage(channel, title);
+			List<string> urls = _website.ContainsLinks(message);
+			foreach (string url in urls)
+			{
+				string title = _website.GetPageTitle(url).Trim();
+				if (!string.IsNullOrEmpty(title)) _con.Sender.PublicMessage(channel, title);
+			}
+			if (urls.Count > 0)
+				return;
         }
 
         public static void OnPrivate(UserInfo user, string message)
