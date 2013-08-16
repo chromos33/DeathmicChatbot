@@ -8,8 +8,8 @@
     <ProjectGuid>{8F2CE5B0-CE5D-446D-9D96-20D57B217782}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>net_rewrite</RootNamespace>
-    <AssemblyName>net rewrite</AssemblyName>
+    <RootNamespace>DeathmicChatbot</RootNamespace>
+    <AssemblyName>DeathmicChatbot</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -33,6 +33,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>DeathmicChatbot.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Google.GData.Client, Version=2.2.0.0, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL">
@@ -75,7 +78,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
+    <Compile Include="StreamData.cs" />
+    <Compile Include="StreamEventArgs.cs" />
     <Compile Include="StreamInfo.cs" />
     <Compile Include="TwitchManager.cs" />
     <Compile Include="WebsiteManager.cs" />
