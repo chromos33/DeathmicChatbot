@@ -42,10 +42,6 @@ namespace DeathmicChatbot
 					_log.WriteToLog ("Information", "URL found: " + url);					                     
 				}
             }
-            else
-            {
-                _log.WriteToLog("Information", "No URL found.");
-            }
 			return urls;
         }
 
