@@ -15,6 +15,7 @@ namespace DeathmicChatbot
         private static LogManager _log;
         private static WebsiteManager _website;
         private static TwitchManager _twitch;
+        private static CommandManager _commands;
         private static readonly String Channel = Settings.Default.Channel;
         private static readonly String Nick = Settings.Default.Name;
         private static readonly String Server = Settings.Default.Server;
@@ -31,16 +32,31 @@ namespace DeathmicChatbot
             _twitch = new TwitchManager();
             _twitch.StreamStarted += TwitchOnStreamStarted;
             _twitch.StreamStopped += TwitchOnStreamStopped;
-
+            _commands = new CommandManager();
+            CommandManager.Command addstream = AddStream;
+            CommandManager.Command delstream = DelStream;
+            _commands.SetCommand("addstream", addstream);
+            _commands.SetCommand("delstream", delstream);
+            _commands.SetCommand("streamwegschreinen", delstream);
             ConnectionArgs cona = new ConnectionArgs(Nick, Server);
             _con = new Connection(Encoding.UTF8, cona, false, false);
             _con.Listener.OnRegistered += OnRegistered;
             _con.Listener.OnPublic += OnPublic;
             _con.Listener.OnPrivate += OnPrivate;
-            //_con.Connect();
+            _con.Connect();
 
             Thread streamCheckThread = new Thread(CheckAllStreamsThreaded);
             streamCheckThread.Start();
+        }
+
+        private static void AddStream(UserInfo user, string channel, string text, string commandArgs)
+        {
+            _twitch.AddStream(commandArgs);
+        }
+
+        private static void DelStream(UserInfo user, string channel, string text, string commandArgs)
+        {
+            _twitch.RemoveStream(commandArgs);
         }
 
         private static void TwitchOnStreamStopped(object sender, StreamEventArgs args)
@@ -77,6 +93,7 @@ namespace DeathmicChatbot
 
         public static void OnPublic(UserInfo user, string channel, string message)
         {
+            if (_commands.CheckCommand(user, channel, message)) return;
             string link = _youtube.IsYtLink(message);
             if (link != null)
             {
