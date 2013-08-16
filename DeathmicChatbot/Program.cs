@@ -62,11 +62,9 @@ namespace DeathmicChatbot
 
         private static void StreamCheck(UserInfo user, string channel, string text, string commandArgs)
         {
-            _twitch.CheckStreams();
-            RootObject streams = _twitch.GetOnlineStreams();
-            foreach (Stream stream in streams.Streams)
+            foreach (StreamData stream in _twitch._streamData.Values)
             {
-                _con.Sender.PrivateMessage(user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Channel.Name));
+                _con.Sender.PrivateMessage(user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Stream.Channel.Name));
             }
         }
 
@@ -101,10 +99,8 @@ namespace DeathmicChatbot
 
         public static void OnJoin(UserInfo user, string channel)
         {
-            _twitch.CheckStreams();
-            RootObject streams = _twitch.GetOnlineStreams();
-            foreach (Stream stream in streams.Streams) {
-                _con.Sender.PrivateMessage(user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Channel.Name));
+            foreach (StreamData stream in _twitch._streamData.Values) {
+                _con.Sender.PrivateMessage(user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Stream.Channel.Name));
             }
         }
 

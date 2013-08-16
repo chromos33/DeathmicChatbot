@@ -14,7 +14,7 @@ namespace DeathmicChatbot
     {
         private readonly List<string> _streams;
         private readonly RestClient _client;
-        private Dictionary<string, StreamData> _streamData = new Dictionary<string, StreamData>();
+        public Dictionary<string, StreamData> _streamData = new Dictionary<string, StreamData>();
 
         private const string STREAMS_FILE = "streams.txt";
         private const string STREAMDATA_FILE = "streamdata.txt";
