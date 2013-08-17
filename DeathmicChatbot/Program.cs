@@ -151,7 +151,6 @@ namespace DeathmicChatbot
         public static void OnPublic(UserInfo user, string channel, string message)
         {
             if (_commands.CheckCommand(user, channel, message)) return;
-			return;
             string link = _youtube.IsYtLink(message);
             if (link != null)
             {
