@@ -7,6 +7,7 @@ using RestSharp.Deserializers;
 using System.Collections.Generic;
 using RestSharp.Serializers;
 using Stream = DeathmicChatbot.StreamInfo.Stream;
+using System.Collections.Concurrent;
 
 namespace DeathmicChatbot
 {
@@ -14,7 +15,7 @@ namespace DeathmicChatbot
     {
         private readonly List<string> _streams;
         private readonly RestClient _client;
-        public volatile Dictionary<string, StreamData> _streamData = new Dictionary<string, StreamData>();
+        public ConcurrentDictionary<string, StreamData> _streamData = new ConcurrentDictionary<string, StreamData>();
 
         private const string STREAMS_FILE = "streams.txt";
         private const string STREAMDATA_FILE = "streamdata.txt";
@@ -59,7 +60,7 @@ namespace DeathmicChatbot
                 StreamData streamData = deserializer.Deserialize<StreamData>(response);
 
                 if (!_streamData.ContainsKey(streamData.Stream.Channel.Name))
-                    _streamData.Add(streamData.Stream.Channel.Name, streamData);
+                    _streamData.TryAdd(streamData.Stream.Channel.Name, streamData);
             }
             reader.Close();
         }
@@ -121,14 +122,15 @@ namespace DeathmicChatbot
                                                               where !bFound && StreamStopped != null
                                                               select pair)
             {
-                _streamData.Remove(pair.Key);
+                StreamData sd;
+                _streamData.TryRemove(pair.Key,out sd);
                 StreamStopped(this, new StreamEventArgs(pair.Value));
             }
 
             // Add new streams that have started
             foreach (Stream stream in obj.Streams.Where(stream => !_streamData.ContainsKey(stream.Channel.Name)))
             {
-                _streamData.Add(stream.Channel.Name, new StreamData {Started = DateTime.Now, Stream = stream});
+                _streamData.TryAdd(stream.Channel.Name, new StreamData {Started = DateTime.Now, Stream = stream});
                 if (StreamStarted != null) StreamStarted(this, new StreamEventArgs(_streamData[stream.Channel.Name]));
             }
 
