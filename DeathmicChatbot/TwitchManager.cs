@@ -110,8 +110,10 @@ namespace DeathmicChatbot
 
         public void CheckStreams()
         {
+            // Get all live streams from server
             RootObject obj = GetOnlineStreams();
 
+            // Remove streams that have stopped
             foreach (KeyValuePair<string, StreamData> pair in from pair in _streamData
                                                               let bFound =
                                                                   obj.Streams.Any(
@@ -122,12 +124,14 @@ namespace DeathmicChatbot
                 StreamStopped(this, new StreamEventArgs(pair.Value));
             }
 
+            // Add new streams that have started
             foreach (Stream stream in obj.Streams.Where(stream => !_streamData.ContainsKey(stream.Channel.Name)))
             {
                 _streamData.Add(stream.Channel.Name, new StreamData {Started = DateTime.Now, Stream = stream});
                 if (StreamStarted != null) StreamStarted(this, new StreamEventArgs(_streamData[stream.Channel.Name]));
             }
 
+            // Write all running streams to file
             WriteStreamDataToFile();
         }
 
