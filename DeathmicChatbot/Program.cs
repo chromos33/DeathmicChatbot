@@ -123,7 +123,10 @@ namespace DeathmicChatbot
                         stream.Stream.Channel.Game,
                         stream.Stream.Channel.Status,
                         stream.Started.ToString("t"),
-                        string.Format("{0}:{1}", stream.TimeSinceStart.TotalHours, stream.TimeSinceStart.TotalMinutes)));
+                        string.Format(
+                            "{0}:{1}",
+                            Math.Floor(stream.TimeSinceStart.TotalHours),
+                            Math.Floor(stream.TimeSinceStart.TotalMinutes))));
             }
         }
 
@@ -174,7 +177,7 @@ namespace DeathmicChatbot
 
         public static void OnPrivate(UserInfo user, string message)
         {
-			_commands.CheckCommand(user, Channel, message, true);
+            _commands.CheckCommand(user, Channel, message, true);
         }
     }
 }
