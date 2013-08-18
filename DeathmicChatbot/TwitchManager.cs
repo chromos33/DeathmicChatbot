@@ -112,23 +112,20 @@ namespace DeathmicChatbot
         {
             RootObject obj = GetOnlineStreams();
 
-            Dictionary<string, StreamData> runningStreams = new Dictionary<string, StreamData>();
-
-            foreach (Stream stream in obj.Streams)
-            {
-                runningStreams.Add(stream.Channel.Name, new StreamData {Stream = stream, Started = DateTime.Now});
-                if (!_streamData.ContainsKey(stream.Channel.Name) && StreamStarted != null)
-                    StreamStarted(this, new StreamEventArgs(new StreamData {Stream = stream, Started = DateTime.Now}));
-            }
-
-            foreach (
-                KeyValuePair<string, StreamData> pair in
-                    _streamData.Where(pair => !runningStreams.ContainsKey(pair.Key) && StreamStopped != null))
+            foreach (KeyValuePair<string, StreamData> pair in from pair in _streamData
+                                                              let bFound =
+                                                                  obj.Streams.Any(
+                                                                      stream => pair.Key == stream.Channel.Name)
+                                                              where !bFound && StreamStopped != null
+                                                              select pair)
             {
                 StreamStopped(this, new StreamEventArgs(pair.Value));
             }
 
-            _streamData = runningStreams;
+            foreach (Stream stream in obj.Streams.Where(stream => !_streamData.ContainsKey(stream.Channel.Name)))
+            {
+                _streamData.Add(stream.Channel.Name, new StreamData {Started = DateTime.Now, Stream = stream});
+            }
 
             WriteStreamDataToFile();
         }
