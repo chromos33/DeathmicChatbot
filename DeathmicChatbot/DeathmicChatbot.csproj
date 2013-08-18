@@ -38,24 +38,8 @@
     <StartupObject>DeathmicChatbot.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Google.GData.Client, Version=2.2.0.0, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\Google.GData.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.GData.Extensions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=0b4c5df2ebf20876, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\Google.GData.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.GData.YouTube, Version=2.2.0.0, Culture=neutral, PublicKeyToken=af04a32718ae8833, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\Google.GData.YouTube.dll</HintPath>
-    </Reference>
     <Reference Include="HtmlAgilityPack">
       <HintPath>lib\HtmlAgilityPack.dll</HintPath>
-    </Reference>
-    <Reference Include="RestSharp, Version=104.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="Sharkbite.Thresher">
       <HintPath>lib\Sharkbite.Thresher.dll</HintPath>
@@ -67,6 +51,18 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Google.GData.Client">
+      <HintPath>lib\Google.GData.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.GData.Extensions">
+      <HintPath>lib\Google.GData.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.GData.YouTube">
+      <HintPath>lib\Google.GData.YouTube.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>lib\RestSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandManager.cs" />
@@ -84,6 +80,8 @@
     <Compile Include="TwitchManager.cs" />
     <Compile Include="WebsiteManager.cs" />
     <Compile Include="YotubeManager.cs" />
+    <Compile Include="VotingManager.cs" />
+    <Compile Include="VotingEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
