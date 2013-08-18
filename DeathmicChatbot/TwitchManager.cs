@@ -121,6 +121,7 @@ namespace DeathmicChatbot
                                                               where !bFound && StreamStopped != null
                                                               select pair)
             {
+                _streamData.Remove(pair.Key);
                 StreamStopped(this, new StreamEventArgs(pair.Value));
             }
 

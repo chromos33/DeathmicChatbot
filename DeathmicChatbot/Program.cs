@@ -80,7 +80,12 @@ namespace DeathmicChatbot
             _con.Sender.PublicMessage(
                 Channel,
                 String.Format(
-                    "Stream stopped after {1}: {0}", args.StreamData.Stream.Channel.Name, args.StreamData.TimeSinceStart));
+                    "Stream stopped after {1}: {0}",
+                    args.StreamData.Stream.Channel.Name,
+                    string.Format(
+                        "{0}:{1}",
+                        Math.Floor(args.StreamData.TimeSinceStart.TotalHours),
+                        Math.Floor(args.StreamData.TimeSinceStart.TotalMinutes))));
         }
 
         private static void TwitchOnStreamStarted(object sender, StreamEventArgs args)
