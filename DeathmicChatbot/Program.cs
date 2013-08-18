@@ -126,9 +126,9 @@ namespace DeathmicChatbot
             _twitch.StreamStarted += TwitchOnStreamStarted;
             _twitch.StreamStopped += TwitchOnStreamStopped;
             _commands = new CommandManager();
-            CommandManager.Command addstream = AddStream;
-            CommandManager.Command delstream = DelStream;
-            CommandManager.Command streamcheck = StreamCheck;
+            CommandManager.PublicCommand addstream = AddStream;
+            CommandManager.PublicCommand delstream = DelStream;
+            CommandManager.PublicCommand streamcheck = StreamCheck;
             _commands.SetCommand("addstream", addstream);
             _commands.SetCommand("delstream", delstream);
             _commands.SetCommand("streamwegschreinen", delstream);
@@ -160,7 +160,7 @@ namespace DeathmicChatbot
 
         public static void OnPrivate(UserInfo user, string message)
         {
-            _commands.CheckCommand(user, Channel, message);
+			_commands.CheckCommand(user, Channel, message, true);
         }
     }
 }
