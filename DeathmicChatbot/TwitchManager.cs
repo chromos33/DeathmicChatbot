@@ -112,16 +112,6 @@ namespace DeathmicChatbot
         {
             RootObject obj = GetOnlineStreams();
 
-            string sStreams = obj.Streams.Aggregate(
-                "",
-                (current, stream) =>
-                current
-                + (((obj.Streams.IndexOf(stream) != 0) ? ", " : " (")
-                   + stream.Channel.Name
-                   + ((obj.Streams.IndexOf(stream) == obj.Streams.Count - 1) ? ")" : "")));
-
-            Console.WriteLine("{0}: {1} Streams online{2}.", DateTime.Now, obj.Streams.Count, sStreams);
-
             Dictionary<string, StreamData> runningStreams = new Dictionary<string, StreamData>();
 
             foreach (Stream stream in obj.Streams)
