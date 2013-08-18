@@ -52,8 +52,8 @@ namespace DeathmicChatbot
             {
                 _log.WriteToLog(
                     "Information", String.Format("{0} wanted to readd {1} to the streamlist", user.Nick, commandArgs));
-                _con.Sender.PublicMessage(
-                    channel, String.Format("{2}{0} slaps {1} around for being an idiot{2}", "ACTION", user.Nick, "\x01"));
+                _con.Sender.Action(
+                    channel, String.Format("slaps {0} around for being an idiot", user.Nick));
             }
         }
 
@@ -69,7 +69,7 @@ namespace DeathmicChatbot
         {
             foreach (StreamData stream in _twitch._streamData.Values)
             {
-                _con.Sender.PrivateMessage(
+                _con.Sender.PrivateNotice(
                     user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Stream.Channel.Name));
             }
         }
@@ -115,7 +115,7 @@ namespace DeathmicChatbot
         {
             foreach (StreamData stream in _twitch._streamData.Values)
             {
-                _con.Sender.PrivateMessage(
+                _con.Sender.PrivateNotice(
                     user.Nick,
                     String.Format(
                         "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3} o'clock ({4} ago) ===== Link: http://www.twitch.tv/{0}",
