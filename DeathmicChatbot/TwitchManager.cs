@@ -125,6 +125,7 @@ namespace DeathmicChatbot
             foreach (Stream stream in obj.Streams.Where(stream => !_streamData.ContainsKey(stream.Channel.Name)))
             {
                 _streamData.Add(stream.Channel.Name, new StreamData {Started = DateTime.Now, Stream = stream});
+                if (StreamStarted != null) StreamStarted(this, new StreamEventArgs(_streamData[stream.Channel.Name]));
             }
 
             WriteStreamDataToFile();
