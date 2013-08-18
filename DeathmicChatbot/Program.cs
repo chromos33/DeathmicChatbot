@@ -118,12 +118,12 @@ namespace DeathmicChatbot
                 _con.Sender.PrivateMessage(
                     user.Nick,
                     String.Format(
-                        "{0} is streaming {1} ({2}) since {3} ({4})at http://www.twitch.tv/{0}",
+                        "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3} o'clock ({4} ago) ===== Link: http://www.twitch.tv/{0}",
                         stream.Stream.Channel.Name,
                         stream.Stream.Channel.Game,
                         stream.Stream.Channel.Status,
-                        stream.Started,
-                        stream.TimeSinceStart));
+                        stream.Started.ToString("t"),
+                        string.Format("{0}:{1}", stream.TimeSinceStart.TotalHours, stream.TimeSinceStart.TotalMinutes)));
             }
         }
 
