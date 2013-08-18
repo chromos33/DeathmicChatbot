@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using DeathmicChatbot.Properties;
@@ -6,7 +7,6 @@ using Sharkbite.Irc;
 using Google.YouTube;
 using System.Diagnostics;
 using System.Collections.Generic;
-using DeathmicChatbot.StreamInfo;
 
 namespace DeathmicChatbot
 {
@@ -73,7 +73,6 @@ namespace DeathmicChatbot
                     user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Stream.Channel.Name));
             }
         }
-
 
         private static void TwitchOnStreamStopped(object sender, StreamEventArgs args)
         {
@@ -150,25 +149,27 @@ namespace DeathmicChatbot
             streamCheckThread.Start();
         }
 
-
         public static void OnPublic(UserInfo user, string channel, string message)
         {
             if (_commands.CheckCommand(user, channel, message)) return;
+
             string link = _youtube.IsYtLink(message);
+
             if (link != null)
             {
                 Video vid = _youtube.GetVideoInfo(link);
                 _con.Sender.PublicMessage(channel, _youtube.GetInfoString(vid));
                 return;
             }
-			List<string> urls = _website.ContainsLinks(message);
-			foreach (string url in urls)
-			{
-				string title = _website.GetPageTitle(url).Trim();
-				if (!string.IsNullOrEmpty(title)) _con.Sender.PublicMessage(channel, title);
-			}
-			if (urls.Count > 0)
-				return;
+
+            List<string> urls = _website.ContainsLinks(message);
+
+            foreach (
+                string title in
+                    urls.Select(url => _website.GetPageTitle(url).Trim()).Where(title => !string.IsNullOrEmpty(title)))
+            {
+                _con.Sender.PublicMessage(channel, title);
+            }
         }
 
         public static void OnPrivate(UserInfo user, string message)
