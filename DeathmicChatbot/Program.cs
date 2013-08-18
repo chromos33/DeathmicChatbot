@@ -79,7 +79,9 @@ namespace DeathmicChatbot
         {
             Console.WriteLine("{0}: Stream stopped: {1}", DateTime.Now, args.StreamData.Stream.Channel.Name);
             _con.Sender.PublicMessage(
-                Channel, String.Format("Stream stopped: {0}", args.StreamData.Stream.Channel.Name));
+                Channel,
+                String.Format(
+                    "Stream stopped after {1}: {0}", args.StreamData.Stream.Channel.Name, args.StreamData.TimeSinceStart));
         }
 
         private static void TwitchOnStreamStarted(object sender, StreamEventArgs args)
@@ -87,7 +89,11 @@ namespace DeathmicChatbot
             Console.WriteLine("{0}: Stream started: {1}", DateTime.Now, args.StreamData.Stream.Channel.Name);
             _con.Sender.PublicMessage(
                 Channel,
-                String.Format("Stream started: {0} at http://www.twitch.tv/{0}", args.StreamData.Stream.Channel.Name));
+                String.Format(
+                    "Stream started: {0} ({1}: {2}) at http://www.twitch.tv/{0}",
+                    args.StreamData.Stream.Channel.Name,
+                    args.StreamData.Stream.Channel.Game,
+                    args.StreamData.Stream.Channel.Status));
         }
 
         private static void CheckAllStreamsThreaded()
@@ -111,7 +117,14 @@ namespace DeathmicChatbot
             foreach (StreamData stream in _twitch._streamData.Values)
             {
                 _con.Sender.PrivateMessage(
-                    user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Stream.Channel.Name));
+                    user.Nick,
+                    String.Format(
+                        "{0} is streaming {1} ({2}) since {3} ({4})at http://www.twitch.tv/{0}",
+                        stream.Stream.Channel.Name,
+                        stream.Stream.Channel.Game,
+                        stream.Stream.Channel.Status,
+                        stream.Started,
+                        stream.TimeSinceStart));
             }
         }
 
