@@ -65,12 +65,6 @@ namespace DeathmicChatbot
             _twitch.RemoveStream(commandArgs);
         }
 
-		private static string FormatStreamInfo(String message, StreamData stream)
-		{
-			return String.Format(message, stream.Stream.Channel.Name,
-			                     stream.Stream.Channel.Status, stream.Stream.Channel.Game);
-		}
-
         private static void StreamCheck(UserInfo user, string channel, string text, string commandArgs)
         {
 			if (_twitch._streamData.Values.Count == 0)
@@ -80,9 +74,11 @@ namespace DeathmicChatbot
 			foreach (StreamData stream in _twitch._streamData.Values)
             {
                 _con.Sender.PrivateMessage(
-					user.Nick, FormatStreamInfo("{0} is streaming at http://www.twitch.tv/{0} : {1} - {2}", stream));
+					user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0} : {1} - {2}", stream.Stream.Channel.Name, 
+				                         stream.Stream.Channel.Status, stream.Stream.Channel.Game));
             }
         }
+
 
         private static void TwitchOnStreamStopped(object sender, StreamEventArgs args)
         {
@@ -96,8 +92,9 @@ namespace DeathmicChatbot
             Console.WriteLine("{0}: Stream started: {1}", DateTime.Now, args.StreamData.Stream.Channel.Name);
             _con.Sender.PublicMessage(
                 Channel,
-				FormatStreamInfo("Stream started: {0} at http://www.twitch.tv/{0} : {1} - {2}", 
-			              args.StreamData));
+				String.Format("Stream started: {0} at http://www.twitch.tv/{0} : {1} - {2}", 
+			              args.StreamData.Stream.Channel.Name, args.StreamData.Stream.Channel.Status,
+			              args.StreamData.Stream.Channel.Game));
         }
 
         private static void CheckAllStreamsThreaded()
@@ -121,7 +118,7 @@ namespace DeathmicChatbot
             foreach (StreamData stream in _twitch._streamData.Values)
             {
                 _con.Sender.PrivateMessage(
-					user.Nick, FormatStreamInfo("{0} is streaming at http://www.twitch.tv/{0} : {1} - {2}", stream));
+                    user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Stream.Channel.Name));
             }
         }
 
@@ -151,7 +148,6 @@ namespace DeathmicChatbot
         public static void OnPublic(UserInfo user, string channel, string message)
         {
             if (_commands.CheckCommand(user, channel, message)) return;
-			return;
             string link = _youtube.IsYtLink(message);
             if (link != null)
             {
