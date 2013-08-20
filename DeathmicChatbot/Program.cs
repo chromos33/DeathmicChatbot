@@ -177,7 +177,7 @@ namespace DeathmicChatbot
                           args.voting.question));
         }
 
-        private static void StartVote(UserInfo user, string channel, string text, string commandArgs)
+        private static void StartVoting(UserInfo user, string channel, string text, string commandArgs)
         {
             string[] args = commandArgs.Split('|');
             if (args.Length < 3)
@@ -415,7 +415,7 @@ namespace DeathmicChatbot
             CommandManager.PublicCommand addstream = AddStream;
             CommandManager.PublicCommand delstream = DelStream;
             CommandManager.PublicCommand streamcheck = StreamCheck;
-            CommandManager.PublicCommand startvote = StartVote;
+            CommandManager.PublicCommand startvote = StartVoting;
             CommandManager.PublicCommand endvote = EndVoting;
             CommandManager.PrivateCommand vote = Vote;
             CommandManager.PrivateCommand removevote = RemoveVote;
