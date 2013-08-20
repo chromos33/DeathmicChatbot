@@ -17,6 +17,7 @@ namespace DeathmicChatbot
         public event EventHandler<VotingEventArgs> VotingStarted;
         public event EventHandler<VotingEventArgs> VotingEnded;
         public event EventHandler<VotingEventArgs> Voted;
+        public event EventHandler<VotingEventArgs> VoteRemoved;
 
         public VoteManager()
         {
@@ -104,6 +105,7 @@ namespace DeathmicChatbot
                 throw new ArgumentOutOfRangeException(string.Format("There is no voting with the id {0}", index));
             Voting voting = _votings[index];
             voting.votes.Remove(user.Nick.ToLower());
+            VoteRemoved(this, new VotingEventArgs(voting, user));
         }
         /* Checks all vote if they have reached their end time.
          */

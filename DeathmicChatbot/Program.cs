@@ -169,6 +169,14 @@ namespace DeathmicChatbot
                               args.voting.question));
         }
 
+        private static void VotingOnVoteRemoved(object sender, VotingEventArgs args)
+        {
+            _con.Sender.PrivateNotice(
+                args.user.Nick,
+                String.Format("Your vote for '{0}' has been removed.",
+                          args.voting.question));
+        }
+
         private static void StartVote(UserInfo user, string channel, string text, string commandArgs)
         {
             string[] args = commandArgs.Split('|');
@@ -402,6 +410,7 @@ namespace DeathmicChatbot
             _voting.VotingStarted += VotingOnVotingStarted;
             _voting.VotingEnded += VotingOnVotingEnded;
             _voting.Voted += VotingOnVoted;
+            _voting.VoteRemoved += VotingOnVoteRemoved;
             _commands = new CommandManager();
             CommandManager.PublicCommand addstream = AddStream;
             CommandManager.PublicCommand delstream = DelStream;
