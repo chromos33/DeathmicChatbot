@@ -189,8 +189,9 @@ namespace DeathmicChatbot
                     CommandManager.ACTIVATOR));
                 return;
             }
-            Regex timeRegex = new Regex(@"(\d+d)?(\d+h)?(\d+m)?(\d+s)?");
-            Match timeMatch = timeRegex.Match(args[0]);
+            string timeString = args[0];
+            Regex timeRegex = new Regex(@"^(\d+d)?(\d+h)?(\d+m)?(\d+s)?$");
+            Match timeMatch = timeRegex.Match(timeString);
             if (!timeMatch.Success)
             {
                 _con.Sender.PrivateNotice(
@@ -202,40 +203,39 @@ namespace DeathmicChatbot
                 return;
             }
             TimeSpan span = new TimeSpan();
-            while (timeMatch.Success)
+            TimeSpan tmpSpan = new TimeSpan();
+            if (TimeSpan.TryParseExact(
+                timeMatch.Groups[1].Value,
+                "d'd'",
+                null,
+                out tmpSpan))
             {
-                TimeSpan tmpSpan = new TimeSpan();
-                bool result = TimeSpan.TryParseExact(
-                    timeMatch.Value,
-                    "d'd'",
-                    null,
-                    out tmpSpan);
-                if (!result)
-                {
-                    result = TimeSpan.TryParseExact(
-                        timeMatch.Value,
-                        "h'h'",
-                        null,
-                        out tmpSpan);
-                }
-                if (!result)
-                {
-                    result = TimeSpan.TryParseExact(
-                        timeMatch.Value,
-                        "m'm'",
-                        null,
-                        out tmpSpan);
-                }
-                if (!result)
-                {
-                    result = TimeSpan.TryParseExact(
-                        timeMatch.Value,
-                        "s's'",
-                        null,
-                        out tmpSpan);
-                }
                 span += tmpSpan;
-                timeMatch = timeMatch.NextMatch();
+            }
+            if (TimeSpan.TryParseExact(
+                    timeMatch.Groups[2].Value,
+                    "h'h'",
+                    null,
+                    out tmpSpan))
+            {
+                span += tmpSpan;
+            }
+
+            if (TimeSpan.TryParseExact(
+                    timeMatch.Groups[3].Value,
+                    "m'm'",
+                    null,
+                    out tmpSpan))
+            {
+                span += tmpSpan;
+            }
+            if (TimeSpan.TryParseExact(
+                    timeMatch.Groups[4].Value,
+                    "s's'",
+                    null,
+                    out tmpSpan))
+            {
+                span += tmpSpan;
             }
 
             string question = args[1];
@@ -279,7 +279,16 @@ namespace DeathmicChatbot
             }
             catch (ArgumentOutOfRangeException e)
             {
-                _con.Sender.PrivateNotice(user.Nick, e.Message);
+                if (e.ParamName == "id")
+                {
+                    _con.Sender.PrivateNotice(
+                        user.Nick,
+                        string.Format("There is no voting with the id {0}", index));
+                }
+                else
+                {
+                    throw e;
+                }
             }
             catch (InvalidOperationException e)
             {
@@ -295,24 +304,40 @@ namespace DeathmicChatbot
                 _con.Sender.PrivateNotice(
                     user.Nick,
                     string.Format("Format: /msg {0} vote <id> <answer>", Nick));
+                return;
             }
             int index;
+            string answer = args[1];
             if (!int.TryParse(args[0], out index))
             {
                 _con.Sender.PrivateNotice(
                     user.Nick,
                     "id must be a number");
+                return;
             }
             try
             {
-                _voting.Vote(user, index, args[1]);
+                _voting.Vote(user, index, answer);
             }
             catch (ArgumentOutOfRangeException e)
             {
-                _con.Sender.PrivateNotice(
-                    user.Nick,
-                    e.Message);
-            }
+                if (e.ParamName == "id")
+                {
+                    _con.Sender.PrivateNotice(
+                        user.Nick,
+                        string.Format("There is no voting with the id {0}", index));
+                }
+                else if (e.ParamName == "answer")
+                {
+                    _con.Sender.PrivateNotice(
+                        user.Nick,
+                        string.Format("The voting {0} has no answer {1}", index, answer));
+                }
+                else
+                {
+                    throw e;
+                }                       
+           }
         }
 
         private static void RemoveVote(UserInfo user, string text, string commandArgs)
@@ -332,7 +357,16 @@ namespace DeathmicChatbot
             }
             catch (ArgumentOutOfRangeException e)
             {
-                _con.Sender.PrivateNotice(user.Nick, e.Message);
+                if (e.ParamName == "id")
+                {
+                    _con.Sender.PrivateNotice(
+                        user.Nick,
+                        string.Format("There is no voting with the id {0}", index));
+                }
+                else
+                {
+                    throw e;
+                }   
             }
         }
 

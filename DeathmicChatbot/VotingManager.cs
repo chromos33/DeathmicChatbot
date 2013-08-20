@@ -63,7 +63,7 @@ namespace DeathmicChatbot
         public void EndVoting(UserInfo user, int index)
         {
             if (!_votings.ContainsKey(index))
-                throw new ArgumentOutOfRangeException(string.Format("There is no voting with the id {0}", index));
+                throw new ArgumentOutOfRangeException("id");
             if (_votings[index].user.Nick.ToLower() != user.Nick.ToLower())
                 throw new InvalidOperationException("User is not the same that started the vote");
             Voting endedVote = _votings[index];
@@ -84,10 +84,10 @@ namespace DeathmicChatbot
         public void Vote(UserInfo user, int index, string answer)
         {
             if (!_votings.ContainsKey(index))
-                throw new ArgumentOutOfRangeException(string.Format("There is no voting with the id {0}", index));
+                throw new ArgumentOutOfRangeException("id");
             Voting voting = _votings[index];
-            if (voting.answers.Contains(answer))
-                throw new ArgumentOutOfRangeException(string.Format("The voting {0} has no answer {1}", index, answer));
+            if (!voting.answers.Contains(answer))
+                throw new ArgumentOutOfRangeException("answer");
             voting.votes[user.Nick.ToLower()] = answer;
             Voted(this, new VotingEventArgs(voting, user));
         }
@@ -102,7 +102,7 @@ namespace DeathmicChatbot
         public void RemoveVote(UserInfo user, int index)
         {
             if (!_votings.ContainsKey(index))
-                throw new ArgumentOutOfRangeException(string.Format("There is no voting with the id {0}", index));
+                throw new ArgumentOutOfRangeException("id");
             Voting voting = _votings[index];
             voting.votes.Remove(user.Nick.ToLower());
             VoteRemoved(this, new VotingEventArgs(voting, user));
