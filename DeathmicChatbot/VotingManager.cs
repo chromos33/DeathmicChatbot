@@ -111,7 +111,8 @@ namespace DeathmicChatbot
          */
         public void CheckVotings()
         {
-            foreach (Voting voting in _votings.Values)
+            List<Voting> votings = new List<Voting>(_votings.Values);
+            foreach (Voting voting in votings)
             {
                 if (voting.endTime <= DateTime.Now)
                 {
