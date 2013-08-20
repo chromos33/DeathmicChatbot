@@ -179,7 +179,7 @@ namespace DeathmicChatbot
 
         private static void StartVoting(UserInfo user, string channel, string text, string commandArgs)
         {
-            string[] args = commandArgs.Split('|');
+            string[] args = commandArgs != null ? commandArgs.Split(' ') : new string[0];
             if (args.Length < 3)
             {
                 _con.Sender.PrivateNotice(
@@ -265,7 +265,7 @@ namespace DeathmicChatbot
         private static void EndVoting(UserInfo user, string channel, string text, string commandArgs)
         {
             int index;
-            if (!int.TryParse(commandArgs, out index))
+            if (commandArgs == null || !int.TryParse(commandArgs, out index))
             {
                 _con.Sender.PrivateNotice(
                     user.Nick,
@@ -298,7 +298,7 @@ namespace DeathmicChatbot
 
         private static void Vote(UserInfo user, string text, string commandArgs)
         {
-            string[] args = commandArgs.Split(' ');
+            string[] args = commandArgs != null ? commandArgs.Split(' ') : new string[0];
             if (args.Length < 2)
             {
                 _con.Sender.PrivateNotice(
@@ -346,7 +346,7 @@ namespace DeathmicChatbot
         private static void RemoveVote(UserInfo user, string text, string commandArgs)
         {
             int index;
-            if (!int.TryParse(commandArgs, out index))
+            if (commandArgs == null || !int.TryParse(commandArgs, out index))
             {
                 _con.Sender.PrivateNotice(
                     user.Nick,
