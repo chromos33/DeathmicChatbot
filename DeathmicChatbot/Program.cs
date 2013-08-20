@@ -7,6 +7,8 @@ using Sharkbite.Irc;
 using Google.YouTube;
 using System.Diagnostics;
 using System.Collections.Generic;
+using DeathmicChatbot.StreamInfo;
+using System.Text.RegularExpressions;
 
 namespace DeathmicChatbot
 {
@@ -18,12 +20,13 @@ namespace DeathmicChatbot
         private static WebsiteManager _website;
         private static TwitchManager _twitch;
         private static CommandManager _commands;
+        private static VoteManager _voting;
         private static readonly String Channel = Settings.Default.Channel;
         private static readonly String Nick = Settings.Default.Name;
         private static readonly String Server = Settings.Default.Server;
         private static readonly String Logfile = Settings.Default.Logfile;
-
         private static bool listenForStreams = true;
+        private static bool checkVotings = true;
 
         private static void Main(string[] args)
         {
@@ -36,7 +39,8 @@ namespace DeathmicChatbot
             _con.Connect();
             while (true)
             {
-                if (!_con.Connected) _con.Connect();
+                if (!_con.Connected)
+                    _con.Connect();
             }
         }
 
@@ -94,10 +98,10 @@ namespace DeathmicChatbot
             _con.Sender.PublicMessage(
                 Channel,
                 String.Format(
-                    "Stream started: {0} ({1}: {2}) at http://www.twitch.tv/{0}",
-                    args.StreamData.Stream.Channel.Name,
-                    args.StreamData.Stream.Channel.Game,
-                    args.StreamData.Stream.Channel.Status));
+                "Stream started: {0} ({1}: {2}) at http://www.twitch.tv/{0}",
+                args.StreamData.Stream.Channel.Name,
+                args.StreamData.Stream.Channel.Game,
+                args.StreamData.Stream.Channel.Status));
         }
 
         private static void CheckAllStreamsThreaded()
@@ -105,13 +109,262 @@ namespace DeathmicChatbot
             while (listenForStreams)
             {
                 _twitch.CheckStreams();
-                Thread.Sleep(Settings.Default.StreamcheckIntervalSeconds*1000);
+                Thread.Sleep(Settings.Default.StreamcheckIntervalSeconds * 1000);
+            }
+        }
+
+        private static void VotingOnVotingStarted(object sender, VotingEventArgs args)
+        {
+            _con.Sender.PublicMessage(
+                Channel,
+                String.Format("{0} started a voting.", args.user.Nick));
+            _con.Sender.PublicMessage(Channel, args.voting.question);
+            _con.Sender.PublicMessage(Channel, "Possible answers:");
+            foreach (string answer in args.voting.answers)
+            {
+                _con.Sender.PublicMessage(Channel, string.Format("    {0}", answer));
+            }
+            _con.Sender.PublicMessage(
+                Channel,
+                String.Format(
+                "Vote with '/msg {0} vote {1} <answer>'",
+                Nick,
+                args.voting.index));
+            _con.Sender.PublicMessage(
+                Channel,
+                string.Format("Voting runs until {0}", args.voting.endTime.ToString()));
+
+        }
+
+        private static void VotingOnVotingEnded(object sender, VotingEventArgs args)
+        {
+            _con.Sender.PublicMessage(
+                Channel,
+                String.Format(
+                "The voting '{0}' has ended with the following results:",
+                args.voting.question));
+            Dictionary<string, int> votes = new Dictionary<string, int>();
+            foreach (string answer in args.voting.answers)
+                votes[answer] = 0;
+            foreach (string answer in args.voting.votes.Values)
+            {
+                ++votes[answer];
+            }
+            args.voting.votes.Clear();
+            foreach (KeyValuePair<string, int>vote in votes)
+            {
+                _con.Sender.PublicMessage(
+                    Channel,
+                    String.Format(
+                    "    {0}: {1} votes",
+                    vote.Key, vote.Value));
+            }
+        }
+
+        private static void VotingOnVoted(object sender, VotingEventArgs args)
+        {
+            _con.Sender.PrivateNotice(
+                args.user.Nick,
+                String.Format("Your vote for '{0}' has been counted.",
+                              args.voting.question));
+        }
+
+        private static void StartVote(UserInfo user, string channel, string text, string commandArgs)
+        {
+            string[] args = commandArgs.Split('|');
+            if (args.Length < 3)
+            {
+                _con.Sender.PrivateNotice(
+                    user.Nick,
+                    string.Format(
+                    "Please use the following format: {0}startvote <time>|<question>|<answer1,answer2,...>",
+                    CommandManager.ACTIVATOR));
+                return;
+            }
+            Regex timeRegex = new Regex(@"(\d+d)?(\d+h)?(\d+m)?(\d+s)?");
+            Match timeMatch = timeRegex.Match(args[0]);
+            if (!timeMatch.Success)
+            {
+                _con.Sender.PrivateNotice(
+                    user.Nick,
+                    "Time needs to be in the following format: [<num>d][<num>h][<num>m][<num>s]");
+                _con.Sender.PrivateNotice(
+                    user.Nick,
+                    "Examples: 10m30s\n5h\n1d\n1d6h");
+                return;
+            }
+            TimeSpan span = new TimeSpan();
+            while (timeMatch.Success)
+            {
+                TimeSpan tmpSpan = new TimeSpan();
+                bool result = TimeSpan.TryParseExact(
+                    timeMatch.Value,
+                    "d'd'",
+                    null,
+                    out tmpSpan);
+                if (!result)
+                {
+                    result = TimeSpan.TryParseExact(
+                        timeMatch.Value,
+                        "h'h'",
+                        null,
+                        out tmpSpan);
+                }
+                if (!result)
+                {
+                    result = TimeSpan.TryParseExact(
+                        timeMatch.Value,
+                        "m'm'",
+                        null,
+                        out tmpSpan);
+                }
+                if (!result)
+                {
+                    result = TimeSpan.TryParseExact(
+                        timeMatch.Value,
+                        "s's'",
+                        null,
+                        out tmpSpan);
+                }
+                span += tmpSpan;
+                timeMatch = timeMatch.NextMatch();
+            }
+
+            string question = args[1];
+            List<string> answers = new List<string>(args[2].Split(','));
+
+            DateTime endTime = DateTime.Now + span;
+            try
+            {
+                _voting.StartVoting(user, question, answers, endTime);
+                _log.WriteToLog(
+                    "Information",
+                    String.Format("{0} started a voting: {1}. End Date is: {2}",
+                                  user.Nick, question, endTime.ToString()));
+            }
+            catch (InvalidOperationException e)
+            {
+                _con.Sender.PrivateNotice(user.Nick, e.Message);
+                _log.WriteToLog(
+                    "Error",
+                    String.Format("{0} tried starting a voting: {1}. But: {2}",
+                                  user.Nick, question, e.Message
+                )
+                );
+            }
+        }
+
+        private static void EndVoting(UserInfo user, string channel, string text, string commandArgs)
+        {
+            int index;
+            if (!int.TryParse(commandArgs, out index))
+            {
+                _con.Sender.PrivateNotice(
+                    user.Nick,
+                    string.Format("The format for ending a vote is: {0}endvote <id>",
+                    CommandManager.ACTIVATOR));
+                return;
+            }
+            try
+            {
+                _voting.EndVoting(user, index);
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                _con.Sender.PrivateNotice(user.Nick, e.Message);
+            }
+            catch (InvalidOperationException e)
+            {
+                _con.Sender.PrivateNotice(user.Nick, e.Message);
+            }
+        }
+
+        private static void Vote(UserInfo user, string text, string commandArgs)
+        {
+            string[] args = commandArgs.Split(' ');
+            if (args.Length < 2)
+            {
+                _con.Sender.PrivateNotice(
+                    user.Nick,
+                    string.Format("Format: /msg {0} vote <id> <answer>", Nick));
+            }
+            int index;
+            if (!int.TryParse(args[0], out index))
+            {
+                _con.Sender.PrivateNotice(
+                    user.Nick,
+                    "id must be a number");
+            }
+            try
+            {
+                _voting.Vote(user, index, args[1]);
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                _con.Sender.PrivateNotice(
+                    user.Nick,
+                    e.Message);
+            }
+        }
+
+        private static void RemoveVote(UserInfo user, string text, string commandArgs)
+        {
+            int index;
+            if (!int.TryParse(commandArgs, out index))
+            {
+                _con.Sender.PrivateNotice(
+                    user.Nick,
+                    string.Format("The format for removintg your vote is: /msg {0} removevote <id>",
+                              Nick));
+                return;
+            }
+            try
+            {
+                _voting.RemoveVote(user, index);
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                _con.Sender.PrivateNotice(user.Nick, e.Message);
+            }
+        }
+
+        private static void ListVotings(UserInfo user, string text, string command_args)
+        {
+            if (_voting.Votings.Count == 0)
+            {
+                _con.Sender.PrivateNotice(user.Nick, "There are currently no votings running");
+            }
+            foreach (Voting voting in _voting.Votings.Values)
+            {
+                _con.Sender.PrivateNotice(
+                    user.Nick,
+                    string.Format("{0} - {1}", voting.index, voting.question));
+                _con.Sender.PrivateNotice(user.Nick, "Answers:");
+                foreach (string answer in voting.answers)
+                {
+                    _con.Sender.PrivateNotice(
+                        user.Nick,
+                        string.Format("    {0}", answer)
+                    );
+                }
+                _con.Sender.PrivateNotice(
+                    user.Nick, 
+                    string.Format("Voting runs until {0}", voting.endTime.ToString()));
+            }
+        }
+
+        private static void CheckAllVotngsThreaded()
+        {
+            while (checkVotings)
+            {
+                _voting.CheckVotings();
+                Thread.Sleep(Settings.Default.StreamcheckIntervalSeconds * 1000);
             }
         }
 
         public static void OnError(object sender, UnhandledExceptionEventArgs e)
         {
-            Exception ex = ((Exception) e.ExceptionObject);
+            Exception ex = ((Exception)e.ExceptionObject);
             StackTrace st = new StackTrace(ex, true);
             _log.WriteToLog("Error", ex.Message, st);
         }
@@ -143,18 +396,34 @@ namespace DeathmicChatbot
             _youtube = new YotubeManager();
             _website = new WebsiteManager(_log);
             _twitch = new TwitchManager();
+            _voting = new VoteManager();
             _twitch.StreamStarted += TwitchOnStreamStarted;
             _twitch.StreamStopped += TwitchOnStreamStopped;
+            _voting.VotingStarted += VotingOnVotingStarted;
+            _voting.VotingEnded += VotingOnVotingEnded;
+            _voting.Voted += VotingOnVoted;
             _commands = new CommandManager();
             CommandManager.PublicCommand addstream = AddStream;
             CommandManager.PublicCommand delstream = DelStream;
             CommandManager.PublicCommand streamcheck = StreamCheck;
+            CommandManager.PublicCommand startvote = StartVote;
+            CommandManager.PublicCommand endvote = EndVoting;
+            CommandManager.PrivateCommand vote = Vote;
+            CommandManager.PrivateCommand removevote = RemoveVote;
+            CommandManager.PrivateCommand listvotings = ListVotings;
             _commands.SetCommand("addstream", addstream);
             _commands.SetCommand("delstream", delstream);
             _commands.SetCommand("streamwegschreinen", delstream);
             _commands.SetCommand("streamcheck", streamcheck);
+            _commands.SetCommand("startvote", startvote);
+            _commands.SetCommand("endvote", endvote);
+            _commands.SetCommand("vote", vote);
+            _commands.SetCommand("listvotings", listvotings);
+            _commands.SetCommand("removevote", removevote);
             Thread streamCheckThread = new Thread(CheckAllStreamsThreaded);
+            Thread votingCheckThread = new Thread(CheckAllVotngsThreaded);
             streamCheckThread.Start();
+            votingCheckThread.Start();
         }
 
         public static void OnPublic(UserInfo user, string channel, string message)
@@ -174,7 +443,7 @@ namespace DeathmicChatbot
 
             foreach (
                 string title in
-                    urls.Select(url => _website.GetPageTitle(url).Trim()).Where(title => !string.IsNullOrEmpty(title)))
+                urls.Select(url => _website.GetPageTitle(url).Trim()).Where(title => !string.IsNullOrEmpty(title)))
             {
                 _con.Sender.PublicMessage(channel, title);
             }

@@ -23,12 +23,12 @@ namespace DeathmicChatbot
             _votings = new Dictionary<int, Voting>();
         }
         /*Starts a voting
-         * 
-         * Arguments: 
+         *
+         * Arguments:
          *  question: The question
-         * 
+         *
          *  answers: The possible answers
-         * 
+         *
          * Returns:
          *  The id of the added vote.
         */
@@ -52,11 +52,11 @@ namespace DeathmicChatbot
             return index;
         }
         /* Ends a voting.
-         * 
+         *
          * Arguments:
-         *  
+         *
          *  user: The user that called for the voting to end.
-         * 
+         *
          *  index: The index of the voting to end.
          */
         public void EndVoting(UserInfo user, int index)
@@ -71,13 +71,13 @@ namespace DeathmicChatbot
 
         }
         /* Adds a vote for an answer
-         * 
+         *
          * Arguments
-         * 
+         *
          * user: The user that voted
-         * 
+         *
          * index: The index of the voting
-         * 
+         *
          * answer: The answer that was chosen
          */
         public void Vote(UserInfo user, int index, string answer)
@@ -91,11 +91,11 @@ namespace DeathmicChatbot
             Voted(this, new VotingEventArgs(voting, user));
         }
         /* Removes a vote
-         * 
+         *
          * Arguments:
-         *  
+         *
          * user: The unser that wants to remove his vote
-         * 
+         *
          * index: The index of the voting
          */
         public void RemoveVote(UserInfo user, int index)
@@ -107,7 +107,7 @@ namespace DeathmicChatbot
         }
         /* Checks all vote if they have reached their end time.
          */
-        public void CheckVotes()
+        public void CheckVotings()
         {
             foreach (Voting voting in _votings.Values)
             {

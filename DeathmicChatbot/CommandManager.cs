@@ -5,7 +5,7 @@ namespace DeathmicChatbot
 {
 	public class CommandManager
 	{
-		private const string ACTIVATOR = "!";
+		public const string ACTIVATOR = "!";
 		private readonly Dictionary<string, PublicCommand> _public_commands;
 		private readonly Dictionary<string, PrivateCommand> _private_commands;
 
