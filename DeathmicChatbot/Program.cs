@@ -127,9 +127,9 @@ namespace DeathmicChatbot
             _con.Sender.PublicMessage(
                 Channel,
                 String.Format(
-                "Vote with '/msg {0} vote {1} <answer>'",
+                "Vote with /msg {0} vote {1} <answer>",
                 Nick,
-                args.voting.index));
+                args.voting.index + 1));
             _con.Sender.PublicMessage(
                 Channel,
                 string.Format("Voting runs until {0}", args.voting.endTime.ToString()));
@@ -275,7 +275,7 @@ namespace DeathmicChatbot
             }
             try
             {
-                _voting.EndVoting(user, index);
+                _voting.EndVoting(user, index - 1);
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -304,6 +304,9 @@ namespace DeathmicChatbot
                 _con.Sender.PrivateNotice(
                     user.Nick,
                     string.Format("Format: /msg {0} vote <id> <answer>", Nick));
+                _con.Sender.PrivateNotice(
+                    user.Nick,
+                    string.Format("You can check the running votings with /msg {0} listvotings", Nick));
                 return;
             }
             int index;
@@ -317,7 +320,7 @@ namespace DeathmicChatbot
             }
             try
             {
-                _voting.Vote(user, index, answer);
+                _voting.Vote(user, index - 1, answer);
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -353,7 +356,7 @@ namespace DeathmicChatbot
             }
             try
             {
-                _voting.RemoveVote(user, index);
+                _voting.RemoveVote(user, index - 1);
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -380,7 +383,7 @@ namespace DeathmicChatbot
             {
                 _con.Sender.PrivateNotice(
                     user.Nick,
-                    string.Format("{0} - {1}", voting.index, voting.question));
+                    string.Format("{0} - {1}", voting.index + 1, voting.question));
                 _con.Sender.PrivateNotice(user.Nick, "Answers:");
                 foreach (string answer in voting.answers)
                 {
