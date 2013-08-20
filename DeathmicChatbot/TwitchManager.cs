@@ -79,6 +79,7 @@ namespace DeathmicChatbot
 
         public bool AddStream(string stream)
         {
+            stream = stream.ToLower();
             if (!_streams.Contains(stream))
             {
                 _streams.Add(stream);
@@ -90,6 +91,7 @@ namespace DeathmicChatbot
 
         public void RemoveStream(string stream)
         {
+            stream = stream.ToLower();
             _streams.Remove(stream);
             WriteStreamsToFile();
         }
