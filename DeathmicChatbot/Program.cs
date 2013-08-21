@@ -14,6 +14,7 @@ namespace DeathmicChatbot
 {
     internal class Program
     {
+		private static ConnectionArgs _cona;
         private static Connection _con;
         private static YotubeManager _youtube;
         private static LogManager _log;
@@ -30,18 +31,38 @@ namespace DeathmicChatbot
 
         private static void Main(string[] args)
         {
-            ConnectionArgs cona = new ConnectionArgs(Nick, Server);
+            _cona = new ConnectionArgs(Nick, Server);
             _con = new Connection(Encoding.UTF8, cona, false, false);
             _con.Listener.OnRegistered += OnRegistered;
             _con.Listener.OnPublic += OnPublic;
             _con.Listener.OnPrivate += OnPrivate;
             _con.Listener.OnJoin += OnJoin;
 			_con.Listener.OnDisconnected += OnDisconnect;
+			while (!CheckConnection(_cona))
+			{
+			
+			}
             _con.Connect();
         }
+		
+		private static bool CheckConnection(ConnectionArgs cona) 
+		{
+			try {
+				Socket s = new Socket(SocketType.Stream, ProtocolType.Tcp);
+				s.Connect(cona.Hostname, cona.Port);
+			} catch (Exception e) {
+				return false;
+			}
+			return true;
+		}
+		
 
         private static void OnDisconnect()
-        {
+        {			
+			while (!CheckConnection(_cona))
+			{
+			
+			}
 			_con.Connect();
         }
 
