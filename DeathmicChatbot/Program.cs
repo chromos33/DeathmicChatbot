@@ -442,14 +442,14 @@ namespace DeathmicChatbot
                 _con.Sender.PrivateNotice(
                     user.Nick,
                     String.Format(
-                        "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:t} ago) ===== Link: http://www.twitch.tv/{0}",
-                        stream.Stream.Channel.Name,
-                        stream.Stream.Channel.Game,
-                        stream.Stream.Channel.Status,
-                        stream.Started,
-                        stream.TimeSinceStart
-				     )
-				);
+                    "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: http://www.twitch.tv/{0}",
+                    stream.Stream.Channel.Name,
+                    stream.Stream.Channel.Game,
+                    stream.Stream.Channel.Status,
+                    stream.Started,
+                    new DateTime(stream.TimeSinceStart.Ticks)
+                    )
+                    );
             }
         }
 

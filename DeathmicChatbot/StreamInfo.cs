@@ -18,14 +18,14 @@ namespace DeathmicChatbot.StreamInfo
 
     public class Channel
     {
-        public object Profile_Banner { get; set; }
+        public string Profile_Banner { get; set; }
         public string Created_At { get; set; }
         public string Updated_At { get; set; }
         public string Status { get; set; }
         public bool Mature { get; set; }
         public int ID { get; set; }
         public string Logo { get; set; }
-        public object Banner { get; set; }
+        public string Banner { get; set; }
         public string Url { get; set; }
         public string Game { get; set; }
         public string Background { get; set; }
