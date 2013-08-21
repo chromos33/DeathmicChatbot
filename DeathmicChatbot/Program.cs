@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using DeathmicChatbot.StreamInfo;
 using System.Text.RegularExpressions;
+using System.Net.Sockets;
 
 namespace DeathmicChatbot
 {
@@ -32,7 +33,7 @@ namespace DeathmicChatbot
         private static void Main(string[] args)
         {
             _cona = new ConnectionArgs(Nick, Server);
-            _con = new Connection(Encoding.UTF8, cona, false, false);
+            _con = new Connection(Encoding.UTF8, _cona, false, false);
             _con.Listener.OnRegistered += OnRegistered;
             _con.Listener.OnPublic += OnPublic;
             _con.Listener.OnPrivate += OnPrivate;
@@ -48,7 +49,7 @@ namespace DeathmicChatbot
 		private static bool CheckConnection(ConnectionArgs cona) 
 		{
 			try {
-				Socket s = new Socket(SocketType.Stream, ProtocolType.Tcp);
+				Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 				s.Connect(cona.Hostname, cona.Port);
 			} catch (Exception e) {
 				return false;
