@@ -51,6 +51,7 @@ namespace DeathmicChatbot
 			try {
 				Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 				s.Connect(cona.Hostname, cona.Port);
+                s.Close();
 			} catch (Exception e) {
 				return false;
 			}
