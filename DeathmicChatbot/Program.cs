@@ -29,6 +29,7 @@ namespace DeathmicChatbot
         private static readonly String Logfile = Settings.Default.Logfile;
         private static bool listenForStreams = true;
         private static bool checkVotings = true;
+        private static bool restarted = false;
 
         private static void Main(string[] args)
         {
@@ -41,7 +42,7 @@ namespace DeathmicChatbot
 			_con.Listener.OnDisconnected += OnDisconnect;
 			while (!CheckConnection(_cona))
 			{
-			
+                Console.WriteLine("OFFLINE");
 			}
             _con.Connect();
         }
@@ -50,9 +51,9 @@ namespace DeathmicChatbot
 		{
 			try {
 				Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-				s.Connect(cona.Hostname, cona.Port);
+                s.Connect(cona.Hostname, cona.Port);
                 s.Close();
-			} catch (Exception e) {
+			} catch (Exception) {
 				return false;
 			}
 			return true;
@@ -63,9 +64,9 @@ namespace DeathmicChatbot
         {			
 			while (!CheckConnection(_cona))
 			{
-			
+                Console.WriteLine("OFFLINE");
 			}
-			_con.Connect();
+            if (!restarted) _con.Connect(); restarted = true;
         }
 
         private static void AddStream(UserInfo user, string channel, string text, string commandArgs)
@@ -100,10 +101,9 @@ namespace DeathmicChatbot
                 _con.Sender.PrivateNotice(user.Nick, "There are currently no streams running :(");
                 return;
             }
-            foreach (StreamData stream in _twitch._streamData.Values)
+            foreach (String stream in _twitch.GetStreamInfoArray())
             {
-                _con.Sender.PrivateNotice(
-                    user.Nick, String.Format("{0} is streaming at http://www.twitch.tv/{0}", stream.Stream.Channel.Name));
+                _con.Sender.PrivateNotice(user.Nick, stream);
             }
         }
 
@@ -113,9 +113,9 @@ namespace DeathmicChatbot
             _con.Sender.PublicMessage(
                 Channel,
                 String.Format(
-                    "Stream stopped after {1:t}: {0}",
+                    "Stream stopped after {1:HH}:{1:mm}: {0}",
                     args.StreamData.Stream.Channel.Name,
-                    args.StreamData.TimeSinceStart
+                    new DateTime(args.StreamData.TimeSinceStart.Ticks)
 			    ));
         }
 
@@ -434,6 +434,15 @@ namespace DeathmicChatbot
             }
         }
 
+        private static void CheckConnectionThreaded()
+        {
+            while (true)
+            {
+                _con.Sender.RequestTopic(Channel);
+                Thread.Sleep(2000);
+            }
+        }
+
         public static void OnError(object sender, UnhandledExceptionEventArgs e)
         {
             Exception ex = ((Exception)e.ExceptionObject);
@@ -443,25 +452,16 @@ namespace DeathmicChatbot
 
         public static void OnJoin(UserInfo user, string channel)
         {
-            foreach (StreamData stream in _twitch._streamData.Values)
+            foreach(String msg in _twitch.GetStreamInfoArray()) 
             {
-                _con.Sender.PrivateNotice(
-                    user.Nick,
-                    String.Format(
-                    "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: http://www.twitch.tv/{0}",
-                    stream.Stream.Channel.Name,
-                    stream.Stream.Channel.Game,
-                    stream.Stream.Channel.Status,
-                    stream.Started,
-                    new DateTime(stream.TimeSinceStart.Ticks)
-                    )
-                    );
+                _con.Sender.PrivateNotice(user.Nick, msg);
             }
         }
 
         public static void OnRegistered()
         {
             _con.Sender.Join(Channel);
+            restarted = false;
             _log = new LogManager(Logfile);
             AppDomain.CurrentDomain.UnhandledException += OnError;
             _youtube = new YotubeManager();
@@ -494,8 +494,10 @@ namespace DeathmicChatbot
             _commands.SetCommand("removevote", removevote);
             Thread streamCheckThread = new Thread(CheckAllStreamsThreaded);
             Thread votingCheckThread = new Thread(CheckAllVotngsThreaded);
+            Thread connectionCheckThread = new Thread(CheckConnectionThreaded);
             streamCheckThread.Start();
             votingCheckThread.Start();
+            connectionCheckThread.Start();
         }
 
         public static void OnPublic(UserInfo user, string channel, string message)
