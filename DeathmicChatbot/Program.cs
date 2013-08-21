@@ -36,12 +36,13 @@ namespace DeathmicChatbot
             _con.Listener.OnPublic += OnPublic;
             _con.Listener.OnPrivate += OnPrivate;
             _con.Listener.OnJoin += OnJoin;
+			_con.Listener.OnDisconnected += OnDisconnect;
             _con.Connect();
-            while (true)
-            {
-                if (!_con.Connected)
-                    _con.Connect();
-            }
+        }
+
+        private static void OnDisconnect()
+        {
+			_con.Connect();
         }
 
         private static void AddStream(UserInfo user, string channel, string text, string commandArgs)
@@ -84,12 +85,10 @@ namespace DeathmicChatbot
             _con.Sender.PublicMessage(
                 Channel,
                 String.Format(
-                    "Stream stopped after {1}: {0}",
+                    "Stream stopped after {1:t}: {0}",
                     args.StreamData.Stream.Channel.Name,
-                    string.Format(
-                        "{0}:{1}",
-                        Math.Floor(args.StreamData.TimeSinceStart.TotalHours),
-                        Math.Floor(args.StreamData.TimeSinceStart.TotalMinutes))));
+                    args.StreamData.TimeSinceStart
+			    ));
         }
 
         private static void TwitchOnStreamStarted(object sender, StreamEventArgs args)
@@ -421,15 +420,14 @@ namespace DeathmicChatbot
                 _con.Sender.PrivateNotice(
                     user.Nick,
                     String.Format(
-                        "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3} o'clock ({4} ago) ===== Link: http://www.twitch.tv/{0}",
+                        "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:t} ago) ===== Link: http://www.twitch.tv/{0}",
                         stream.Stream.Channel.Name,
                         stream.Stream.Channel.Game,
                         stream.Stream.Channel.Status,
-                        stream.Started.ToString("t"),
-                        string.Format(
-                            "{0}:{1}",
-                            Math.Floor(stream.TimeSinceStart.TotalHours),
-                            Math.Floor(stream.TimeSinceStart.TotalMinutes))));
+                        stream.Started,
+                        stream.TimeSinceStart
+				     )
+				);
             }
         }
 
