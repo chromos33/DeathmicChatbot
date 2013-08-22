@@ -20,6 +20,8 @@ namespace DeathmicChatbot
         private const string STREAMS_FILE = "streams.txt";
         private const string STREAMDATA_FILE = "streamdata.txt";
 
+        private RootObject _lastroot;
+
         public event EventHandler<StreamEventArgs> StreamStarted;
         public event EventHandler<StreamEventArgs> StreamStopped;
 
@@ -71,10 +73,17 @@ namespace DeathmicChatbot
             req.AddParameter("channel", ArrayToString(_streams));
 
             IRestResponse response = _client.Execute(req);
-
-            JsonDeserializer des = new JsonDeserializer();
-            RootObject data = des.Deserialize<RootObject>(response);
-            return data;
+            try
+            {
+                JsonDeserializer des = new JsonDeserializer();
+                RootObject data = des.Deserialize<RootObject>(response);
+                _lastroot = data;
+                return data;
+            }
+            catch (Exception)
+            {
+                return _lastroot;
+            }
         }
 
         public bool AddStream(string stream)
