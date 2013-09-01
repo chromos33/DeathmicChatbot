@@ -36,7 +36,7 @@ namespace DeathmicChatbot
 		private static HashSet<string> chosenUsers = new HashSet<string>();
 		private static HashSet<string> currentUsers = new HashSet<string>();
 		private static string chosenUsersFile = "chosenusers.txt";
-		private static int saveInterval = 60;
+		private static int userUpdateInterval = 60;
 		
 		private static void Main(string[] args)
 		{
@@ -546,18 +546,19 @@ namespace DeathmicChatbot
 			writer.Close();
 		}
 		
-		public static void saveChosenUsersThreaded()
+		public static void updateUsersThreaded()
 		{
 			while (true)
 			{
-				Thread.Sleep(saveInterval * 1000);
 				saveChosenUsers();
+				currentUsers.Clear();
+				_con.Sender.Names(Channel);
+				Thread.Sleep(userUpdateInterval * 1000);
 			}
 		}
 		
 		public static void OnRegistered()
 		{
-			_con.Sender.Names(Channel);
 			_con.Sender.Join(Channel);
 			restarted = false;
 			_log = new LogManager(Logfile);
@@ -595,11 +596,11 @@ namespace DeathmicChatbot
 			Thread streamCheckThread = new Thread(CheckAllStreamsThreaded);
 			Thread votingCheckThread = new Thread(CheckAllVotngsThreaded);
 			Thread connectionCheckThread = new Thread(CheckConnectionThreaded);
-			Thread saveChosenUsersThread = new Thread(saveChosenUsersThreaded);
+			Thread updateUsersThread = new Thread(updateUsersThreaded);
 			streamCheckThread.Start();
 			votingCheckThread.Start();
 			connectionCheckThread.Start();
-			saveChosenUsersThread.Start();
+			updateUsersThread.Start();
 		}
 
 		public static void OnPublic(UserInfo user, string channel, string message)
