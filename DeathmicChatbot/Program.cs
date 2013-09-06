@@ -216,7 +216,7 @@ namespace DeathmicChatbot
 
 		private static void StartVoting(UserInfo user, string channel, string text, string commandArgs)
 		{
-			string[] args = commandArgs != null ? commandArgs.Split(' ') : new string[0];
+			string[] args = commandArgs != null ? commandArgs.Split('|') : new string[0];
 			if (args.Length < 3)
 			{
 				_con.Sender.PrivateNotice(
@@ -589,6 +589,8 @@ namespace DeathmicChatbot
 			_commands.SetCommand("streamcheck", streamcheck);
 			_commands.SetCommand("startvote", startvote);
 			_commands.SetCommand("endvote", endvote);
+			_commands.SetCommand("stopvote", endvote);
+			_commands.SetCommand("votestop", endvote);
 			_commands.SetCommand("vote", vote);
 			_commands.SetCommand("listvotings", listvotings);
 			_commands.SetCommand("removevote", removevote);
