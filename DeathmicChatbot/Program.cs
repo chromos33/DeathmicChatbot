@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -33,8 +34,8 @@ namespace DeathmicChatbot
 		private static bool checkVotings = true;
 		private static bool restarted = false;
 		private static Random rnd = new Random();
-		private static HashSet<string> chosenUsers = new HashSet<string>();
-		private static HashSet<string> currentUsers = new HashSet<string>();
+		private static ConcurrentDictionary<string, string> chosenUsers = new ConcurrentDictionary<string, string>();
+		private static ConcurrentDictionary<string, string> currentUsers = new ConcurrentDictionary<string, string>();
 		private static string chosenUsersFile = "chosenusers.txt";
 		private static int userUpdateInterval = 60;
 		
@@ -458,30 +459,30 @@ namespace DeathmicChatbot
 			foreach(string nick in nicks)
 			{
 				if(nick.Trim() != "")
-					currentUsers.Add(nick);
+					currentUsers.TryAdd(nick, nick);
 			}
 		}
 		
 		private static void pickRandomUser(UserInfo user, string channel, string text, string commandArgs)
 		{
-			List<string> nameList = new List<string>(currentUsers);
+			List<string> nameList = new List<string>(currentUsers.Keys);
 			removeIgnoredUsers(ref nameList);
 			if (nameList.Count == 0)
 			{
-				nameList = new List<string>(currentUsers);
+				nameList = new List<string>(currentUsers.Keys);
 				chosenUsers.Clear();
 				removeIgnoredUsers(ref nameList);
 			}
 			int index = rnd.Next(nameList.Count);
 			string chosen = nameList[index];
 			_con.Sender.PublicMessage(channel, chosen);
-			chosenUsers.Add(chosen);
+			chosenUsers.TryAdd(chosen, chosen);
 			saveChosenUsers();
 		}
 
 		static void removeIgnoredUsers(ref List<string> nameList)
 		{
-			List<string> ignores = new List<string>(chosenUsers);
+			List<string> ignores = new List<string>(chosenUsers.Keys);
 			ignores.AddRange(Settings.Default.pickIgnores.Split(';'));
 			foreach (string nick in new List<string>(nameList))
 			{
@@ -505,23 +506,25 @@ namespace DeathmicChatbot
 			{
 				_con.Sender.PrivateNotice(user.Nick, msg);
 			}
-			currentUsers.Add(user.Nick);
+			currentUsers.TryAdd(user.Nick, user.Nick);
 		}
 
 		public static void OnPart(UserInfo user, string channel, string reason)
 		{
-			currentUsers.Remove(user.Nick);
+			string tmpout;
+			currentUsers.TryRemove(user.Nick, out tmpout);
 		}
 		
 		public static void OnNick(UserInfo user, string newnick)
 		{
-			if(chosenUsers.Contains(user.Nick))
+			string tmpout;
+			if(chosenUsers.ContainsKey(user.Nick))
 			{
-				chosenUsers.Remove(user.Nick);
-				chosenUsers.Add(newnick);
+				chosenUsers.TryRemove(user.Nick, out tmpout);
+				chosenUsers.TryAdd(newnick, newnick);
 			}
-			currentUsers.Remove(user.Nick);
-			currentUsers.Add(newnick);
+			currentUsers.TryRemove(user.Nick, out tmpout);
+			currentUsers.TryAdd(newnick, newnick);
 		}
 
 		public static void loadChosenUsers()
@@ -531,7 +534,7 @@ namespace DeathmicChatbot
 			while (!reader.EndOfStream)
 			{
 				string nick = reader.ReadLine();
-				chosenUsers.Add(nick);
+				chosenUsers.TryAdd(nick, nick);
 			}
 			reader.Close();
 		}
@@ -539,7 +542,7 @@ namespace DeathmicChatbot
 		public static void saveChosenUsers()
 		{
 			StreamWriter writer = new StreamWriter(chosenUsersFile, false);
-			foreach(string user in chosenUsers)
+			foreach(string user in chosenUsers.Keys)
 			{
 				writer.WriteLine(user);
 			}
