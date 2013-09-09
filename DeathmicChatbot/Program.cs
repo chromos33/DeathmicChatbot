@@ -560,6 +560,10 @@ namespace DeathmicChatbot
 			}
 		}
 		
+        public static void SendMessage(UserInfo user,string text,string commandArgs) {
+            _con.Sender.PublicMessage(Channel, commandArgs);
+        }
+
 		public static void OnRegistered()
 		{
 			_con.Sender.Join(Channel);
@@ -586,6 +590,7 @@ namespace DeathmicChatbot
 			CommandManager.PrivateCommand vote = Vote;
 			CommandManager.PrivateCommand removevote = RemoveVote;
 			CommandManager.PrivateCommand listvotings = ListVotings;
+            CommandManager.PrivateCommand sendmessage = SendMessage;
 			_commands.SetCommand("addstream", addstream);
 			_commands.SetCommand("delstream", delstream);
 			_commands.SetCommand("streamwegschreinen", delstream);
@@ -598,6 +603,7 @@ namespace DeathmicChatbot
 			_commands.SetCommand("listvotings", listvotings);
 			_commands.SetCommand("removevote", removevote);
 			_commands.SetCommand("pickuser", pickuser);
+            _commands.SetCommand("say", sendmessage);
 			Thread streamCheckThread = new Thread(CheckAllStreamsThreaded);
 			Thread votingCheckThread = new Thread(CheckAllVotngsThreaded);
 			Thread connectionCheckThread = new Thread(CheckConnectionThreaded);
