@@ -6,24 +6,24 @@ namespace DeathmicChatbot
 {
     public struct Voting
     {
-        public int index;
-        public UserInfo user;
-        public string question;
-        public List<string> answers;
-        public DateTime endTime;
-        public Dictionary<string, string> votes;
+        public int Index;
+        public UserInfo User;
+        public string Question;
+        public List<string> Answers;
+        public DateTime EndTime;
+        public Dictionary<string, string> Votes;
     }
 
     public class VotingEventArgs : EventArgs
     {
-        public Voting voting { get; set; }
+        public Voting Voting { get; private set; }
 
-        public UserInfo user { get; set; }
+        public UserInfo User { get; private set; }
 
         public VotingEventArgs(Voting argVoting, UserInfo argUser)
         {
-            voting = argVoting;
-            user = argUser;
+            Voting = argVoting;
+            User = argUser;
         }
     }
 }

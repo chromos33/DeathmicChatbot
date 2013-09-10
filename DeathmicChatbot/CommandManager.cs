@@ -3,22 +3,23 @@ using Sharkbite.Irc;
 
 namespace DeathmicChatbot
 {
-	public class CommandManager
-	{
-		public const string ACTIVATOR = "!";
-		private readonly Dictionary<string, PublicCommand> _public_commands;
-		private readonly Dictionary<string, PrivateCommand> _private_commands;
+    public class CommandManager
+    {
+        public const string ACTIVATOR = "!";
+        private readonly Dictionary<string, PublicCommand> _publicCommands;
+        private readonly Dictionary<string, PrivateCommand> _privateCommands;
 
-		public delegate void PublicCommand(UserInfo user,string channel,string text,string commandArgs);
+        public delegate void PublicCommand(UserInfo user, string channel, string text, string commandArgs);
 
-		public delegate void PrivateCommand(UserInfo user,string text,string commandArgs);
+        public delegate void PrivateCommand(UserInfo user, string text, string commandArgs);
 
-		public CommandManager()
-		{
-			_public_commands = new Dictionary<string, PublicCommand>();
-			_private_commands = new Dictionary<string, PrivateCommand>();
-		}
-		/* Sets a public command
+        public CommandManager()
+        {
+            _publicCommands = new Dictionary<string, PublicCommand>();
+            _privateCommands = new Dictionary<string, PrivateCommand>();
+        }
+
+        /* Sets a public command
 		 * 
 		 * Args:
 		 * 
@@ -30,16 +31,18 @@ namespace DeathmicChatbot
 		 * 
 		 * true if the command was set, false if there was already an command with that name.
 		 */
-		public bool SetCommand(string name, PublicCommand callback, bool overwrite = false)
-		{
-			if (!_public_commands.ContainsKey(name) || overwrite)
-			{
-				_public_commands[name] = callback;
-				return true;
-			}
-			return false;
-		}
-		/* Sets a private command
+
+        public bool SetCommand(string name, PublicCommand callback, bool overwrite = false)
+        {
+            if (!_publicCommands.ContainsKey(name) || overwrite)
+            {
+                _publicCommands[name] = callback;
+                return true;
+            }
+            return false;
+        }
+
+        /* Sets a private command
 		 * 
 		 * Args:
 		 * 
@@ -51,16 +54,18 @@ namespace DeathmicChatbot
 		 * 
 		 * true if the command was set, false if there was already an command with that name.
 		 */
-		public bool SetCommand(string name, PrivateCommand callback, bool overwrite = false)
-		{
-			if (!_private_commands.ContainsKey(name) || overwrite)
-			{
-				_private_commands[name] = callback;
-				return true;
-			}
-			return false;
-		}
-		/* Unsets a command
+
+        public bool SetCommand(string name, PrivateCommand callback, bool overwrite = false)
+        {
+            if (!_privateCommands.ContainsKey(name) || overwrite)
+            {
+                _privateCommands[name] = callback;
+                return true;
+            }
+            return false;
+        }
+
+        /* Unsets a command
 		 * 
 		 * Args:
 		 * 
@@ -70,16 +75,18 @@ namespace DeathmicChatbot
 		 * 
 		 * true if the command was unset, false if there was no such command.
  		 */
-		public bool UnsetCommand(string name)
-		{
-			if (!_public_commands.ContainsKey(name))
-			{
-				_public_commands.Remove(name);
-				return true;
-			}
-			return false;
-		}
-		/* Checks a string for a public command and executes if found
+
+        public bool UnsetCommand(string name)
+        {
+            if (!_publicCommands.ContainsKey(name))
+            {
+                _publicCommands.Remove(name);
+                return true;
+            }
+            return false;
+        }
+
+        /* Checks a string for a public command and executes if found
 		 * 
 		 * Args:
 		 * 
@@ -91,46 +98,41 @@ namespace DeathmicChatbot
 		 * true if a command was found and executed, false if the activator was not present
 		 * or no command with that name was found.
 		 */
-		public bool CheckCommand(UserInfo user, string channel, string text, 
-		                          bool isPrivate=false)
-		{
-			if (!text.StartsWith(ACTIVATOR) && !isPrivate)
-				return false;
-			string commandString = "";
-			if (text.StartsWith(ACTIVATOR))
-			{
-				commandString = text.Remove(0, 1);
-			}
-			else
-			{
-				commandString = text;
-			}
-			int commandEnd = commandString.IndexOf(' ');
-			string command;
-			string commandArgs;
 
-			if (commandEnd != -1)
-			{
-				command = commandString.Remove(commandEnd);
-				commandArgs = commandString.Remove(0, commandEnd + 1);
-			}
-			else
-			{
-				command = commandString;
-				commandArgs = null;
-			}
+        public bool CheckCommand(UserInfo user, string channel, string text,
+                                 bool isPrivate = false)
+        {
+            if (!text.StartsWith(ACTIVATOR) && !isPrivate)
+                return false;
+            var commandString = text.StartsWith(ACTIVATOR) ? text.Remove(0, 1) : text;
+            var commandEnd = commandString.IndexOf(' ');
+            string command;
+            string commandArgs;
 
-			if (_public_commands.ContainsKey(command))
-			{
-				_public_commands[command](user, channel, text, commandArgs);
-				return true;
-			}
-			else if (isPrivate && _private_commands.ContainsKey(command))
-			{
-				_private_commands[command](user, text, commandArgs);
-				return true;
-			}
-			return false;
-		}
-	}
+            if (commandEnd != -1)
+            {
+                command = commandString.Remove(commandEnd);
+                commandArgs = commandString.Remove(0, commandEnd + 1);
+            }
+            else
+            {
+                command = commandString;
+                commandArgs = null;
+            }
+
+            if (_publicCommands.ContainsKey(command))
+            {
+                _publicCommands[command](user, channel, text, commandArgs);
+                return true;
+            }
+
+            if (isPrivate && _privateCommands.ContainsKey(command))
+            {
+                _privateCommands[command](user, text, commandArgs);
+                return true;
+            }
+
+            return false;
+        }
+    }
 }

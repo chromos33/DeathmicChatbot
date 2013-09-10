@@ -1,5 +1,4 @@
 using System;
-using DeathmicChatbot.StreamInfo;
 
 namespace DeathmicChatbot
 {

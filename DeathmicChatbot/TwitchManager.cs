@@ -1,12 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using DeathmicChatbot.StreamInfo;
 using RestSharp;
 using RestSharp.Deserializers;
 using System.Collections.Generic;
 using RestSharp.Serializers;
-using Stream = DeathmicChatbot.StreamInfo.Stream;
 using System.Collections.Concurrent;
 
 namespace DeathmicChatbot
@@ -15,7 +13,9 @@ namespace DeathmicChatbot
     {
         private readonly List<string> _streams;
         private readonly RestClient _client;
-        public ConcurrentDictionary<string, StreamData> _streamData = new ConcurrentDictionary<string, StreamData>();
+
+        public readonly ConcurrentDictionary<string, StreamData> StreamData =
+            new ConcurrentDictionary<string, StreamData>();
 
         private const string STREAMS_FILE = "streams.txt";
         private const string STREAMDATA_FILE = "streamdata.txt";
@@ -37,10 +37,10 @@ namespace DeathmicChatbot
         private void LoadStreams()
         {
             if (!File.Exists(STREAMS_FILE)) File.Create(STREAMS_FILE).Close();
-            StreamReader reader = new StreamReader(STREAMS_FILE);
+            var reader = new StreamReader(STREAMS_FILE);
             while (!reader.EndOfStream)
             {
-                string sLine = reader.ReadLine();
+                var sLine = reader.ReadLine();
                 if (!_streams.Contains(sLine)) _streams.Add(sLine);
             }
             reader.Close();
@@ -49,34 +49,34 @@ namespace DeathmicChatbot
         private void LoadStreamData()
         {
             if (!File.Exists(STREAMDATA_FILE)) File.Create(STREAMDATA_FILE).Close();
-            StreamReader reader = new StreamReader(STREAMDATA_FILE);
+            var reader = new StreamReader(STREAMDATA_FILE);
 
-            JsonDeserializer deserializer = new JsonDeserializer();
+            var deserializer = new JsonDeserializer();
 
             while (!reader.EndOfStream)
             {
-                string sLine = reader.ReadLine();
+                var sLine = reader.ReadLine();
 
-                RestResponse response = new RestResponse {Content = sLine};
+                var response = new RestResponse {Content = sLine};
 
-                StreamData streamData = deserializer.Deserialize<StreamData>(response);
+                var streamData = deserializer.Deserialize<StreamData>(response);
 
-                if (!_streamData.ContainsKey(streamData.Stream.Channel.Name))
-                    _streamData.TryAdd(streamData.Stream.Channel.Name, streamData);
+                if (!StreamData.ContainsKey(streamData.Stream.Channel.Name))
+                    StreamData.TryAdd(streamData.Stream.Channel.Name, streamData);
             }
             reader.Close();
         }
 
-        public RootObject GetOnlineStreams()
+        private RootObject GetOnlineStreams()
         {
-            RestRequest req = new RestRequest("/kraken/streams", Method.GET);
+            var req = new RestRequest("/kraken/streams", Method.GET);
             req.AddParameter("channel", ArrayToString(_streams));
 
-            IRestResponse response = _client.Execute(req);
+            var response = _client.Execute(req);
             try
             {
-                JsonDeserializer des = new JsonDeserializer();
-                RootObject data = des.Deserialize<RootObject>(response);
+                var des = new JsonDeserializer();
+                var data = des.Deserialize<RootObject>(response);
                 _lastroot = data;
                 return data;
             }
@@ -107,8 +107,8 @@ namespace DeathmicChatbot
 
         private void WriteStreamsToFile()
         {
-            StreamWriter writer = new StreamWriter(STREAMS_FILE, false);
-            foreach (string stream in _streams)
+            var writer = new StreamWriter(STREAMS_FILE, false);
+            foreach (var stream in _streams)
             {
                 writer.WriteLine(stream);
             }
@@ -123,56 +123,49 @@ namespace DeathmicChatbot
         public void CheckStreams()
         {
             // Get all live streams from server
-            RootObject obj = GetOnlineStreams();
+            var obj = GetOnlineStreams();
 
             // Remove streams that have stopped
-            foreach (KeyValuePair<string, StreamData> pair in from pair in _streamData
-                                                              let bFound =
-                                                                  obj.Streams.Any(
-                                                                      stream => pair.Key == stream.Channel.Name)
-                                                              where !bFound && StreamStopped != null
-                                                              select pair)
+            foreach (var pair in from pair in StreamData
+                                 let bFound =
+                                     obj.Streams.Any(
+                                         stream => pair.Key == stream.Channel.Name)
+                                 where !bFound && StreamStopped != null
+                                 select pair)
             {
                 StreamData sd;
-                _streamData.TryRemove(pair.Key,out sd);
+                StreamData.TryRemove(pair.Key, out sd);
                 StreamStopped(this, new StreamEventArgs(pair.Value));
             }
 
             // Add new streams that have started
-            foreach (Stream stream in obj.Streams.Where(stream => !_streamData.ContainsKey(stream.Channel.Name)))
+            foreach (var stream in obj.Streams.Where(stream => !StreamData.ContainsKey(stream.Channel.Name)))
             {
-                _streamData.TryAdd(stream.Channel.Name, new StreamData {Started = DateTime.Now, Stream = stream});
-                if (StreamStarted != null) StreamStarted(this, new StreamEventArgs(_streamData[stream.Channel.Name]));
+                StreamData.TryAdd(stream.Channel.Name, new StreamData {Started = DateTime.Now, Stream = stream});
+                if (StreamStarted != null) StreamStarted(this, new StreamEventArgs(StreamData[stream.Channel.Name]));
             }
 
             // Write all running streams to file
             WriteStreamDataToFile();
         }
 
-        public List<String> GetStreamInfoArray()
+        public IEnumerable<string> GetStreamInfoArray()
         {
-            List<String> data = new List<String>();
-            foreach (StreamData stream in this._streamData.Values)
-            {
-                String info = String.Format(
+            return
+                StreamData.Values.Select(
+                    stream =>
+                    String.Format(
                         "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: http://www.twitch.tv/{0}",
-                        stream.Stream.Channel.Name,
-                        stream.Stream.Channel.Game,
-                        stream.Stream.Channel.Status,
-                        stream.Started,
-                        new DateTime(stream.TimeSinceStart.Ticks)
-                );
-                data.Add(info);
-            }
-            return data;
+                        stream.Stream.Channel.Name, stream.Stream.Channel.Game, stream.Stream.Channel.Status,
+                        stream.Started, new DateTime(stream.TimeSinceStart.Ticks))).ToList();
         }
 
         private void WriteStreamDataToFile()
         {
-            JsonSerializer serializer = new JsonSerializer();
-            StreamWriter writer = new StreamWriter(STREAMDATA_FILE, false);
+            var serializer = new JsonSerializer();
+            var writer = new StreamWriter(STREAMDATA_FILE, false);
 
-            foreach (KeyValuePair<string, StreamData> pair in _streamData)
+            foreach (var pair in StreamData)
             {
                 writer.WriteLine(serializer.Serialize(pair.Value));
             }

@@ -1,7 +1,12 @@
 ﻿using System.Collections.Generic;
 
-namespace DeathmicChatbot.StreamInfo
+namespace DeathmicChatbot
 {
+    // ReSharper disable UnusedMember.Global
+    // ReSharper disable UnusedAutoPropertyAccessor.Global
+    // ReSharper disable ClassNeverInstantiated.Global
+    // ReSharper disable InconsistentNaming
+
     public class Links
     {
         public string Videos { get; set; }
@@ -69,8 +74,14 @@ namespace DeathmicChatbot.StreamInfo
     }
 
     public class RootObject
+
     {
         public List<Stream> Streams { get; set; }
         public Links3 Links { get; set; }
     }
+
+    // ReSharper restore InconsistentNaming
+    // ReSharper restore ClassNeverInstantiated.Global
+    // ReSharper restore UnusedAutoPropertyAccessor.Global
+    // ReSharper restore UnusedMember.Global
 }

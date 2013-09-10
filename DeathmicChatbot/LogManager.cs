@@ -20,11 +20,11 @@ namespace DeathmicChatbot
                 trace = new StackTrace();
             }
 
-            string source = trace.GetFrame(1).GetMethod().ToString();
+            var source = trace.GetFrame(1).GetMethod().ToString();
 
-            StreamWriter log = File.AppendText(_path);
+            var log = File.AppendText(_path);
 
-            string logtext = String.Format("[{0:s}] [{1}] [{2}] {3}", DateTime.Now, source, level, text);
+            var logtext = String.Format("[{0:s}] [{1}] [{2}] {3}", DateTime.Now, source, level, text);
 
             log.WriteLine(logtext);
 

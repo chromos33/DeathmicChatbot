@@ -11,7 +11,7 @@ namespace DeathmicChatbot
 
         public YotubeManager()
         {
-            YouTubeRequestSettings settings = new YouTubeRequestSettings(
+            var settings = new YouTubeRequestSettings(
                 "Youtube Title Bot",
                 "AI39si6DFGChi5M0rnrX6p5dasT6STlFELYpJdbxdVXR3L1-Cj5RzNUU2nsm2LPmshlVGHuYmeaZ30zGJgqdhSSNoWQgJmEEDA");
             _request = new YouTubeRequest(settings);
@@ -22,13 +22,13 @@ namespace DeathmicChatbot
 
         public Video GetVideoInfo(string addr)
         {
-            Uri videoEntryUrl = new Uri("http://gdata.youtube.com/feeds/api/videos/" + addr);
+            var videoEntryUrl = new Uri("http://gdata.youtube.com/feeds/api/videos/" + addr);
             return _request.Retrieve<Video>(videoEntryUrl);
         }
 
         public string IsYtLink(string txt)
         {
-            Match mt = _reg.Match(txt);
+            var mt = _reg.Match(txt);
             return mt.Success ? mt.Groups[1].Value : null;
         }
 
