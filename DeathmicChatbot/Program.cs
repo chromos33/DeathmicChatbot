@@ -586,13 +586,16 @@ namespace DeathmicChatbot
             writer.Close();
         }
 
-        private static void UpdateUsersThreaded()
+        private static void UpdateUsers()
+        {
+            _con.Sender.Names(Channel);
+        }
+
+        private static void SaveChosenUsersThreaded()
         {
             while (true)
             {
                 SaveChosenUsers();
-                CurrentUsers.Clear();
-                _con.Sender.Names(Channel);
                 Thread.Sleep(USER_UPDATE_INTERVAL*1000);
             }
         }
@@ -604,7 +607,9 @@ namespace DeathmicChatbot
 
         private static void OnRegistered()
         {
+            CurrentUsers.Clear();
             _con.Sender.Join(Channel);
+            UpdateUsers();
             _restarted = false;
             _log = new LogManager(Logfile);
             AppDomain.CurrentDomain.UnhandledException += OnError;
@@ -645,11 +650,11 @@ namespace DeathmicChatbot
             var streamCheckThread = new Thread(CheckAllStreamsThreaded);
             var votingCheckThread = new Thread(CheckAllVotngsThreaded);
             var connectionCheckThread = new Thread(CheckConnectionThreaded);
-            var updateUsersThread = new Thread(UpdateUsersThreaded);
+            var saveChosenUsersThread = new Thread(SaveChosenUsersThreaded);
             streamCheckThread.Start();
             votingCheckThread.Start();
             connectionCheckThread.Start();
-            updateUsersThread.Start();
+            saveChosenUsersThread.Start();
         }
 
         private static void OnPublic(UserInfo user, string channel, string message)
