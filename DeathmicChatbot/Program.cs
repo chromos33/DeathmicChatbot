@@ -490,15 +490,6 @@ namespace DeathmicChatbot
 			}
 		}
 
-		private static void CheckConnectionThreaded()
-		{
-			while (true)
-			{
-				_con.Sender.RequestTopic(Channel);
-				Thread.Sleep(2000);
-			}
-		}
-
 		private static void OnNames(string channel, string[] nicks, bool last)
 		{
 			foreach (var nick in nicks.Where(nick => nick.Trim() != ""))
@@ -653,11 +644,9 @@ namespace DeathmicChatbot
 			_commands.SetCommand("say", sendmessage);
 			var streamCheckThread = new Thread(CheckAllStreamsThreaded);
 			var votingCheckThread = new Thread(CheckAllVotngsThreaded);
-			var connectionCheckThread = new Thread(CheckConnectionThreaded);
 			var saveChosenUsersThread = new Thread(SaveChosenUsersThreaded);
 			streamCheckThread.Start();
 			votingCheckThread.Start();
-			connectionCheckThread.Start();
 			saveChosenUsersThread.Start();
 		}
 
