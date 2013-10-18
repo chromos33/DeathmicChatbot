@@ -610,19 +610,31 @@ namespace DeathmicChatbot
 			else
 			{
 				var match = regex.Match(commandArgs);
-				var numberOfDice = Convert.ToInt32(match.Groups[1].Value);
-				var sidesOfDice = Convert.ToInt32(match.Groups[2].Value);
+				var numberOfDice = Convert.ToUInt64(match.Groups[1].Value);
+				var sidesOfDice = Convert.ToUInt64(match.Groups[2].Value);
 
-				var sum = 0;
+				UInt64 sum = 0;
 
 				var random = new Random();
 
-				for (var i = 0; i < numberOfDice; i++)
+				if (numberOfDice > 100000000)
 				{
-					sum += random.Next(1, sidesOfDice);
+					PublicMessageEnqueue(channel, "Seriously? ... I'll try. But don't expect the result too soon. It's gonna take me a while.");
 				}
 
-				PublicMessageEnqueue(channel, String.Format("{0}: {1}", commandArgs, sum));
+				var max = numberOfDice * sidesOfDice;
+				if (max / numberOfDice != sidesOfDice)
+				{
+					PublicMessageEnqueue(channel, "Error: Result could make the server explode. Get real, you maniac.");
+					return;
+				}
+
+		        for (UInt64 i = 0; i < numberOfDice; i++)
+		        {
+		            sum += (ulong) random.Next(1, Convert.ToInt32(sidesOfDice));
+			    }
+
+			    PublicMessageEnqueue(channel, String.Format("{0}: {1}", commandArgs, sum));
 			}
 		}
 
