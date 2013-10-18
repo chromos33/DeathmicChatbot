@@ -625,6 +625,12 @@ namespace DeathmicChatbot
 					return;
 				}
 
+				if (sidesOfDice > Int32.MaxValue)
+				{
+					PublicMessageEnqueue(channel, string.Format("Error: Due to submolecular limitations, a die can't have more than {0} sides.", Int32.MaxValue));
+					return;
+				}
+
 				UInt64 sum = 0;
 
 				var random = new Random();
