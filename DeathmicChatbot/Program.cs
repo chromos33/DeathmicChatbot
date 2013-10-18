@@ -610,8 +610,20 @@ namespace DeathmicChatbot
 			else
 			{
 				var match = regex.Match(commandArgs);
-				var numberOfDice = Convert.ToUInt64(match.Groups[1].Value);
-				var sidesOfDice = Convert.ToUInt64(match.Groups[2].Value);
+
+				UInt64 numberOfDice = 0;
+				UInt64 sidesOfDice = 0;
+
+				try
+					sidesOfDice = Convert.ToUInt64(match.Groups[2].Value);
+				{
+					numberOfDice = Convert.ToUInt64(match.Groups[1].Value);
+				}
+				catch (OverflowException e)
+				{
+					PublicMessageEnqueue(channel, "Error: Result could make the server explode. Get real, you maniac.");
+					return;
+				}
 
 				UInt64 sum = 0;
 
