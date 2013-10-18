@@ -625,6 +625,12 @@ namespace DeathmicChatbot
 					return;
 				}
 
+				if (numberOfDice == 0 || sidesOfDice == 0)
+				{
+					PublicMessageEnqueue(channel, string.Format("Error: Can't roll 0 dice, or dice with 0 sides."));
+					return;
+				}
+
 				if (sidesOfDice > Int32.MaxValue)
 				{
 					PublicMessageEnqueue(channel, string.Format("Error: Due to submolecular limitations, a die can't have more than {0} sides.", Int32.MaxValue));
@@ -635,11 +641,6 @@ namespace DeathmicChatbot
 
 				var random = new Random();
 
-				if (numberOfDice > 100000000)
-				{
-					PublicMessageEnqueue(channel, "Seriously? ... I'll try. But don't expect the result too soon. It's gonna take me a while.");
-				}
-
 				var max = numberOfDice * sidesOfDice;
 				if (max / numberOfDice != sidesOfDice)
 				{
@@ -647,10 +648,15 @@ namespace DeathmicChatbot
 					return;
 				}
 
-		        for (UInt64 i = 0; i < numberOfDice; i++)
-		        {
-		            sum += (ulong) random.Next(1, Convert.ToInt32(sidesOfDice));
-			    }
+				if (numberOfDice > 100000000)
+				{
+					PublicMessageEnqueue(channel, "Seriously? ... I'll try. But don't expect the result too soon. It's gonna take me a while.");
+				}
+
+				for (UInt64 i = 0; i < numberOfDice; i++)
+				{
+					sum += (ulong) random.Next(1, Convert.ToInt32(sidesOfDice));
+				}
 
 			    PublicMessageEnqueue(channel, String.Format("{0}: {1}", commandArgs, sum));
 			}
