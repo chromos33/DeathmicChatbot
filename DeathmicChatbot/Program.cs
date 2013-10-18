@@ -615,8 +615,8 @@ namespace DeathmicChatbot
 				UInt64 sidesOfDice = 0;
 
 				try
-					sidesOfDice = Convert.ToUInt64(match.Groups[2].Value);
 				{
+					sidesOfDice = Convert.ToUInt64(match.Groups[2].Value);
 					numberOfDice = Convert.ToUInt64(match.Groups[1].Value);
 				}
 				catch (OverflowException e)
