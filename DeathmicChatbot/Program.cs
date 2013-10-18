@@ -600,6 +600,32 @@ namespace DeathmicChatbot
 			PublicMessageEnqueue(Channel, commandArgs);
 		}
 
+		private static void Roll(UserInfo user, string channel, string text, string commandArgs)
+		{
+			var regex = new Regex(@"(^\d+)[wWdD](\d+$)");
+			if (!regex.IsMatch(commandArgs))
+			{
+				PublicMessageEnqueue(channel, String.Format("Error: Invalid roll request: {0}.", commandArgs));
+			}
+			else
+			{
+				var match = regex.Match(commandArgs);
+				var numberOfDice = Convert.ToInt32(match.Groups[1].Value);
+				var sidesOfDice = Convert.ToInt32(match.Groups[2].Value);
+
+				var sum = 0;
+
+				var random = new Random();
+
+				for (var i = 0; i < numberOfDice; i++)
+				{
+					sum += random.Next(1, sidesOfDice);
+				}
+
+				PublicMessageEnqueue(channel, String.Format("{0}: {1}", commandArgs, sum));
+			}
+		}
+
 		private static void OnRegistered()
 		{
 			CurrentUsers.Clear();
@@ -625,6 +651,7 @@ namespace DeathmicChatbot
 			CommandManager.PublicCommand startvote = StartVoting;
 			CommandManager.PublicCommand endvote = EndVoting;
 			CommandManager.PublicCommand pickuser = PickRandomUser;
+			CommandManager.PublicCommand roll = Roll;
 			CommandManager.PrivateCommand vote = Vote;
 			CommandManager.PrivateCommand removevote = RemoveVote;
 			CommandManager.PrivateCommand listvotings = ListVotings;
@@ -642,6 +669,7 @@ namespace DeathmicChatbot
 			_commands.SetCommand("removevote", removevote);
 			_commands.SetCommand("pickuser", pickuser);
 			_commands.SetCommand("say", sendmessage);
+			_commands.SetCommand("roll", roll);
 			var streamCheckThread = new Thread(CheckAllStreamsThreaded);
 			var votingCheckThread = new Thread(CheckAllVotngsThreaded);
 			var saveChosenUsersThread = new Thread(SaveChosenUsersThreaded);
