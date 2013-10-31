@@ -27,9 +27,12 @@ namespace DeathmicChatbot
 
         private readonly LogManager _log;
 
-        public TwitchManager(LogManager log)
+        private bool _bDebugMode;
+
+        public TwitchManager(LogManager log, bool bDebugMode = false)
         {
             _log = log;
+            _bDebugMode = bDebugMode;
             _client = new RestClient("https://api.twitch.tv");
             _streams = new List<string>();
 
@@ -79,6 +82,9 @@ namespace DeathmicChatbot
             req.AddParameter("channel", ArrayToString(_streams));
 
             var response = _client.Execute(req);
+
+            if (_bDebugMode) _log.WriteToLog("Debug", string.Format("Got Response from Twitch: {0}",response.Content));
+
             try
             {
                 var des = new JsonDeserializer();

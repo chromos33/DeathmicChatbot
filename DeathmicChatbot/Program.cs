@@ -49,9 +49,13 @@ namespace DeathmicChatbot
 		private const string CHOSEN_USERS_FILE = "chosenusers.txt";
 		private const int USER_UPDATE_INTERVAL = 60;
 
-		private static void Main()
+        private static bool _debugMode;
+
+		private static void Main(string[] args)
 		{
-			MessageTimer.Interval = MESSAGE_QUEUE_INTERVAL_MILLISECONDS;
+		    _debugMode = args.Length > 0 && args.Contains("debug");
+            
+            MessageTimer.Interval = MESSAGE_QUEUE_INTERVAL_MILLISECONDS;
 			MessageTimer.Elapsed += MessageTimerOnElapsed;
 			MessageTimer.Start();
 			LoadChosenUsers();
@@ -672,7 +676,7 @@ namespace DeathmicChatbot
 			AppDomain.CurrentDomain.UnhandledException += OnError;
 			_youtube = new YotubeManager();
 			_website = new WebsiteManager(_log);
-			_twitch = new TwitchManager(_log);
+			_twitch = new TwitchManager(_log, _debugMode);
 			_voting = new VoteManager();
 			_twitch.StreamStarted += TwitchOnStreamStarted;
 			_twitch.StreamStopped += TwitchOnStreamStopped;
