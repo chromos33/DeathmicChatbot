@@ -672,7 +672,7 @@ namespace DeathmicChatbot
 			AppDomain.CurrentDomain.UnhandledException += OnError;
 			_youtube = new YotubeManager();
 			_website = new WebsiteManager(_log);
-			_twitch = new TwitchManager();
+			_twitch = new TwitchManager(_log);
 			_voting = new VoteManager();
 			_twitch.StreamStarted += TwitchOnStreamStarted;
 			_twitch.StreamStopped += TwitchOnStreamStopped;

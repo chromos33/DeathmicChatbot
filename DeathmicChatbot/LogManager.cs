@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace DeathmicChatbot
 {
-    internal class LogManager
+    public class LogManager
     {
         private readonly String _path;
 

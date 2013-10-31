@@ -25,8 +25,11 @@ namespace DeathmicChatbot
         public event EventHandler<StreamEventArgs> StreamStarted;
         public event EventHandler<StreamEventArgs> StreamStopped;
 
-        public TwitchManager()
+        private readonly LogManager _log;
+
+        public TwitchManager(LogManager log)
         {
+            _log = log;
             _client = new RestClient("https://api.twitch.tv");
             _streams = new List<string>();
 
@@ -38,10 +41,13 @@ namespace DeathmicChatbot
         {
             if (!File.Exists(STREAMS_FILE)) File.Create(STREAMS_FILE).Close();
             var reader = new StreamReader(STREAMS_FILE);
+
             while (!reader.EndOfStream)
             {
                 var sLine = reader.ReadLine();
-                if (!_streams.Contains(sLine)) _streams.Add(sLine);
+                if (_streams.Contains(sLine)) continue;
+                _streams.Add(sLine);
+                _log.WriteToLog("Information", string.Format("Added stream '{0}' from saved streams file to list.", sLine));
             }
             reader.Close();
         }
@@ -80,8 +86,9 @@ namespace DeathmicChatbot
                 _lastroot = data;
                 return data;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _log.WriteToLog("CaughtException", string.Format("Returning last stream state due to exception: {0}",ex.Message));
                 return _lastroot;
             }
         }
