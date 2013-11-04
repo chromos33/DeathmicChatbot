@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -54,6 +55,8 @@ namespace DeathmicChatbot
 		private static void Main(string[] args)
 		{
 		    _debugMode = args.Length > 0 && args.Contains("debug");
+
+		    ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, errors) => true;
             
             MessageTimer.Interval = MESSAGE_QUEUE_INTERVAL_MILLISECONDS;
 			MessageTimer.Elapsed += MessageTimerOnElapsed;
