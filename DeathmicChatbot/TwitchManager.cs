@@ -138,6 +138,11 @@ namespace DeathmicChatbot
             // Get all live streams from server
             var obj = GetOnlineStreams();
 
+            // If querying Twitch for running streams always fails (maybe Twitch
+            // is down or the server running the bot doesn't have the necessary
+            // SSL certificates installed), this prevents the bot from crashing.
+            if (obj == null) return;
+
             // Remove streams that have stopped
             foreach (var pair in from pair in StreamData
                                  let bFound =
