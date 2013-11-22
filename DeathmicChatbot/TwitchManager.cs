@@ -14,7 +14,7 @@ namespace DeathmicChatbot
         private readonly List<string> _streams;
         private readonly RestClient _client;
 
-        public readonly ConcurrentDictionary<string, StreamData> StreamData =
+        public readonly ConcurrentDictionary<string, StreamData> _streamData =
             new ConcurrentDictionary<string, StreamData>();
 
         private const string STREAMS_FILE = "streams.txt";
@@ -27,7 +27,7 @@ namespace DeathmicChatbot
 
         private readonly LogManager _log;
 
-        private bool _bDebugMode;
+        private readonly bool _bDebugMode;
 
         public TwitchManager(LogManager log, bool bDebugMode = false)
         {
@@ -70,8 +70,8 @@ namespace DeathmicChatbot
 
                 var streamData = deserializer.Deserialize<StreamData>(response);
 
-                if (!StreamData.ContainsKey(streamData.Stream.Channel.Name))
-                    StreamData.TryAdd(streamData.Stream.Channel.Name, streamData);
+                if (!_streamData.ContainsKey(streamData.Stream.Channel.Name))
+                    _streamData.TryAdd(streamData.Stream.Channel.Name, streamData);
             }
             reader.Close();
         }
@@ -143,8 +143,35 @@ namespace DeathmicChatbot
             // SSL certificates installed), this prevents the bot from crashing.
             if (obj == null) return;
 
-            // Remove streams that have stopped
-            foreach (var pair in from pair in StreamData
+            RemoveStoppedStreams(obj);
+
+            AddNewlyStartedStreams(obj);
+
+            WriteStreamDataToFile();
+        }
+
+        private void AddNewlyStartedStreams(RootObject obj)
+        {
+            foreach (
+                var stream in
+                    obj.Streams.Where(
+                        stream => !_streamData.ContainsKey(stream.Channel.Name)))
+            {
+                _streamData.TryAdd(stream.Channel.Name,
+                                   new StreamData
+                                   {
+                                       Started = DateTime.Now,
+                                       Stream = stream
+                                   });
+                if (StreamStarted != null)
+                    StreamStarted(this,
+                                  new StreamEventArgs(_streamData[stream.Channel.Name]));
+            }
+        }
+
+        private void RemoveStoppedStreams(RootObject obj)
+        {
+            foreach (var pair in from pair in _streamData
                                  let bFound =
                                      obj.Streams.Any(
                                          stream => pair.Key == stream.Channel.Name)
@@ -152,25 +179,15 @@ namespace DeathmicChatbot
                                  select pair)
             {
                 StreamData sd;
-                StreamData.TryRemove(pair.Key, out sd);
+                _streamData.TryRemove(pair.Key, out sd);
                 StreamStopped(this, new StreamEventArgs(pair.Value));
             }
-
-            // Add new streams that have started
-            foreach (var stream in obj.Streams.Where(stream => !StreamData.ContainsKey(stream.Channel.Name)))
-            {
-                StreamData.TryAdd(stream.Channel.Name, new StreamData {Started = DateTime.Now, Stream = stream});
-                if (StreamStarted != null) StreamStarted(this, new StreamEventArgs(StreamData[stream.Channel.Name]));
-            }
-
-            // Write all running streams to file
-            WriteStreamDataToFile();
         }
 
         public IEnumerable<string> GetStreamInfoArray()
         {
             return
-                StreamData.Values.Select(
+                _streamData.Values.Select(
                     stream =>
                     String.Format(
                         "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: http://www.twitch.tv/{0}",
@@ -183,7 +200,7 @@ namespace DeathmicChatbot
             var serializer = new JsonSerializer();
             var writer = new StreamWriter(STREAMDATA_FILE, false);
 
-            foreach (var pair in StreamData)
+            foreach (var pair in _streamData)
             {
                 writer.WriteLine(serializer.Serialize(pair.Value));
             }

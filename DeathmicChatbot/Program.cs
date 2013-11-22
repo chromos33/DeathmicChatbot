@@ -163,7 +163,7 @@ namespace DeathmicChatbot
 
 		private static void StreamCheck(UserInfo user, string channel, string text, string commandArgs)
 		{
-			if (_twitch.StreamData.Count == 0)
+			if (_twitch._streamData.Count == 0)
 			{
 				PrivateNoticeEnqueue(user.Nick, "There are currently no streams running :(");
 				return;
