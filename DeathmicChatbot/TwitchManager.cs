@@ -152,7 +152,7 @@ namespace DeathmicChatbot
 
         private void AddNewlyStartedStreams(RootObject obj)
         {
-            if (obj.Streams.Count == 0) return;
+            if (obj == null || obj.Streams == null || obj.Streams.Count == 0) return;
 
             foreach (
                 var stream in
