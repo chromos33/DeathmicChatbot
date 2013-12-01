@@ -1,19 +1,23 @@
-﻿using System.Text.RegularExpressions;
+﻿#region Using
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
+using System.Text.RegularExpressions;
 using Google.GData.Client;
 using HtmlAgilityPack;
-using System.Diagnostics;
-using System.Collections.Generic;
+
+#endregion
+
 
 namespace DeathmicChatbot
 {
-    /// <summary>
-    /// Description of WebsiteManager.
-    /// </summary>
     internal class WebsiteManager
     {
-        private readonly Regex _reg;
         private readonly Regex _imgurreg;
         private readonly LogManager _log;
+        private readonly Regex _reg;
 
         public WebsiteManager(LogManager log)
         {
@@ -28,20 +32,21 @@ namespace DeathmicChatbot
 
         public IEnumerable<string> ContainsLinks(string txt)
         {
-            var mt = _reg.Match(txt);
+            var match = _reg.Match(txt);
             var urls = new List<string>();
-            while (mt.Success)
+
+            while (match.Success)
             {
-                urls.Add(mt.Value);
-                mt = mt.NextMatch();
+                urls.Add(match.Value);
+                match = match.NextMatch();
             }
+
             if (urls.Count > 0)
             {
                 foreach (var url in urls)
-                {
                     _log.WriteToLog("Information", "URL found: " + url);
-                }
             }
+
             return urls;
         }
 
@@ -49,49 +54,101 @@ namespace DeathmicChatbot
         {
             try
             {
-                var mt = _imgurreg.Match(url);
-                if (mt.Success)
-                {
-                    var id = mt.Groups[2].Value;
-                    url = "http://imgur.com/gallery/" + id;
-                }
-                var webGet = new HtmlWeb();
-                HtmlDocument doc;
-                try
-                {
-                    doc = webGet.Load(url);
-                }
-                catch (System.UriFormatException)
-                {
-                    try
-                    {
-                        doc = webGet.Load("http://" + url);
-                    }
-                    catch (System.UriFormatException ex)
-                    {
-                        var st = new StackTrace(ex, true);
-                        _log.WriteToLog("Error", ex.Message, st);
-                        doc = null;
-                    }
-                }
-                if (doc != null)
-                {
-                    var metaTags = doc.DocumentNode.SelectNodes("//title");
-                    if (metaTags != null)
-                    {
-                        var title = HttpUtility.HtmlDecode(metaTags[0].InnerText).Replace("\r\n", "");
-                        _log.WriteToLog("Information", url + " title: " + title);
-                        return title;
-                    }
-                }
+                string pageTitle;
+                if (GetPageTitleForUrl(url, out pageTitle))
+                    return pageTitle;
             }
-            catch (System.Net.WebException ex)
+            catch (WebException ex)
+            {
+                var stackTrace = new StackTrace(ex, true);
+                _log.WriteToLog("Error", ex.Message, stackTrace);
+            }
+
+            return "";
+        }
+
+        private bool GetPageTitleForUrl(string url, out string pageTitle)
+        {
+            url = TransformIfImgurLink(url);
+
+            var htmlDocument = TryLoadingDocument(url, new HtmlWeb());
+
+            if (htmlDocument != null)
+            {
+                if (PageTitleFromMetaTags(url, htmlDocument, out pageTitle))
+                    return true;
+            }
+
+            pageTitle = "";
+
+            return false;
+        }
+
+        private bool PageTitleFromMetaTags(string url,
+                                           HtmlDocument htmlDocument,
+                                           out string pageTitle)
+        {
+            var metaTags = htmlDocument.DocumentNode.SelectNodes("//title");
+            if (metaTags != null)
+            {
+                pageTitle = GetPageTitleFromMetaTags(url, metaTags);
+                return true;
+            }
+            pageTitle = "";
+            return false;
+        }
+
+        private string GetPageTitleFromMetaTags(string url,
+                                                IList<HtmlNode> metaTags)
+        {
+            var title =
+                HttpUtility.HtmlDecode(metaTags[0].InnerText)
+                           .Replace("\r\n", "");
+            _log.WriteToLog("Information", url + " title: " + title);
+            return title;
+        }
+
+        private HtmlDocument TryLoadingDocument(string url, HtmlWeb webGet)
+        {
+            HtmlDocument doc;
+            try
+            {
+                doc = webGet.Load(url);
+            }
+            catch (UriFormatException)
+            {
+                doc = TryLoadingWithPrefixHttp(url, webGet);
+            }
+            return doc;
+        }
+
+        private HtmlDocument TryLoadingWithPrefixHttp(string url, HtmlWeb webGet)
+        {
+            HtmlDocument doc;
+            try
+            {
+                doc = webGet.Load("http://" + url);
+            }
+            catch (UriFormatException ex)
             {
                 var st = new StackTrace(ex, true);
                 _log.WriteToLog("Error", ex.Message, st);
-                return "";
+                doc = null;
             }
-            return "";
+            return doc;
+        }
+
+        private string TransformIfImgurLink(string url)
+        {
+            var match = _imgurreg.Match(url);
+
+            if (match.Success)
+            {
+                var id = match.Groups[2].Value;
+                url = "http://imgur.com/gallery/" + id;
+            }
+
+            return url;
         }
     }
 }

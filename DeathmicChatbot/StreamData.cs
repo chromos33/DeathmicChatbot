@@ -1,4 +1,9 @@
+#region Using
+
 using System;
+
+#endregion
+
 
 namespace DeathmicChatbot
 {
@@ -8,9 +13,6 @@ namespace DeathmicChatbot
 
         public DateTime Started { get; set; }
 
-        public TimeSpan TimeSinceStart
-        {
-            get { return DateTime.Now - Started; }
-        }
+        public TimeSpan TimeSinceStart { get { return DateTime.Now - Started; } }
     }
 }

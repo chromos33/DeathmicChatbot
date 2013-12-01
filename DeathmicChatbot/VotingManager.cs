@@ -1,7 +1,12 @@
+#region Using
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Sharkbite.Irc;
-using System;
+
+#endregion
+
 
 namespace DeathmicChatbot
 {
@@ -9,21 +14,14 @@ namespace DeathmicChatbot
     {
         private const int MAX_IDS = 5;
         private readonly Dictionary<int, Voting> _votings;
+        public VoteManager() { _votings = new Dictionary<int, Voting>(); }
 
-        public Dictionary<int, Voting> Votings
-        {
-            get { return new Dictionary<int, Voting>(_votings); }
-        }
+        public Dictionary<int, Voting> Votings { get { return new Dictionary<int, Voting>(_votings); } }
 
         public event EventHandler<VotingEventArgs> VotingStarted;
         public event EventHandler<VotingEventArgs> VotingEnded;
         public event EventHandler<VotingEventArgs> Voted;
         public event EventHandler<VotingEventArgs> VoteRemoved;
-
-        public VoteManager()
-        {
-            _votings = new Dictionary<int, Voting>();
-        }
 
         /*Starts a voting
          *
@@ -36,20 +34,23 @@ namespace DeathmicChatbot
          *  The id of the added vote.
         */
 
-        public int StartVoting(UserInfo user, string question, List<string> answers, DateTime endTime)
+        public void StartVoting(UserInfo user,
+                                string question,
+                                List<string> answers,
+                                DateTime endTime)
         {
             var index = 0;
-            while (_votings.ContainsKey(index) && index < MAX_IDS) index++;
+            while (_votings.ContainsKey(index) && index < MAX_IDS)
+                index++;
             Voting newVote;
-            newVote.Index = index;
-            newVote.User = user;
-            newVote.Question = question;
-            newVote.Answers = answers;
-            newVote.Votes = new Dictionary<string, string>();
-            newVote.EndTime = endTime;
+            newVote._iIndex = index;
+            newVote._userInfo = user;
+            newVote._sQuestion = question;
+            newVote._slAnswers = answers;
+            newVote._votes = new Dictionary<string, string>();
+            newVote._dtEndTime = endTime;
             _votings[index] = newVote;
             VotingStarted(this, new VotingEventArgs(newVote, user));
-            return index;
         }
 
         /* Ends a voting.
@@ -65,8 +66,9 @@ namespace DeathmicChatbot
         {
             if (!_votings.ContainsKey(index))
                 throw new ArgumentOutOfRangeException("index");
-            if (_votings[index].User.Nick.ToLower() != user.Nick.ToLower())
-                throw new InvalidOperationException("User is not the same that started the vote");
+            if (_votings[index]._userInfo.Nick.ToLower() != user.Nick.ToLower())
+                throw new InvalidOperationException(
+                    "User is not the same that started the vote");
             var endedVote = _votings[index];
             VotingEnded(this, new VotingEventArgs(endedVote, user));
             _votings.Remove(index);
@@ -88,9 +90,9 @@ namespace DeathmicChatbot
             if (!_votings.ContainsKey(index))
                 throw new ArgumentOutOfRangeException("index");
             var voting = _votings[index];
-            if (!voting.Answers.Contains(answer))
+            if (!voting._slAnswers.Contains(answer))
                 throw new ArgumentOutOfRangeException("answer");
-            voting.Votes[user.Nick.ToLower()] = answer;
+            voting._votes[user.Nick.ToLower()] = answer;
             Voted(this, new VotingEventArgs(voting, user));
         }
 
@@ -108,7 +110,7 @@ namespace DeathmicChatbot
             if (!_votings.ContainsKey(index))
                 throw new ArgumentOutOfRangeException("index");
             var voting = _votings[index];
-            voting.Votes.Remove(user.Nick.ToLower());
+            voting._votes.Remove(user.Nick.ToLower());
             VoteRemoved(this, new VotingEventArgs(voting, user));
         }
 
@@ -118,10 +120,9 @@ namespace DeathmicChatbot
         public void CheckVotings()
         {
             var votings = new List<Voting>(_votings.Values);
-            foreach (var voting in votings.Where(voting => voting.EndTime <= DateTime.Now))
-            {
-                EndVoting(voting.User, voting.Index);
-            }
+            foreach (var voting in
+                votings.Where(voting => voting._dtEndTime <= DateTime.Now))
+                EndVoting(voting._userInfo, voting._iIndex);
         }
     }
 }
