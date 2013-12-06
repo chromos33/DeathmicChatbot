@@ -37,8 +37,7 @@ namespace DeathmicChatbot
         private static readonly String Logfile = Settings.Default.Logfile;
         private static bool _restarted;
         private static readonly Random Rnd = new Random();
-        private static readonly MessageQueue MessageQueue =
-            new MessageQueue(_con);
+        private static MessageQueue MessageQueue;
 
         private static readonly ConcurrentDictionary<string, string> ChosenUsers
             = new ConcurrentDictionary<string, string>();
@@ -74,6 +73,7 @@ namespace DeathmicChatbot
             while (!IsConnectionPossible(_cona))
                 Console.WriteLine("OFFLINE");
             _con.Connect();
+            MessageQueue = new MessageQueue(_con);
         }
 
         private static bool IsConnectionPossible(ConnectionArgs cona)
