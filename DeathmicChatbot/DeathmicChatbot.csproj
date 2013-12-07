@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandManager.cs" />
+    <Compile Include="JoinLogger.cs" />
     <Compile Include="LogManager.cs" />
     <Compile Include="MessageQueue.cs" />
     <Compile Include="Program.cs" />

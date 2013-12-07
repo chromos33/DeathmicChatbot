@@ -37,7 +37,7 @@ namespace DeathmicChatbot
         private static readonly String Logfile = Settings.Default.Logfile;
         private static bool _restarted;
         private static readonly Random Rnd = new Random();
-        private static MessageQueue MessageQueue;
+        private static MessageQueue _messageQueue;
 
         private static readonly ConcurrentDictionary<string, string> ChosenUsers
             = new ConcurrentDictionary<string, string>();
@@ -73,7 +73,7 @@ namespace DeathmicChatbot
             while (!IsConnectionPossible(_cona))
                 Console.WriteLine("OFFLINE");
             _con.Connect();
-            MessageQueue = new MessageQueue(_con);
+            _messageQueue = new MessageQueue(_con);
         }
 
         private static bool IsConnectionPossible(ConnectionArgs cona)
@@ -114,11 +114,11 @@ namespace DeathmicChatbot
                                     "{0} added {1} to the streamlist",
                                     user.Nick,
                                     commandArgs));
-                MessageQueue.PublicMessageEnqueue(channel,
-                                                  String.Format(
-                                                      "{0} added {1} to the streamlist",
-                                                      user.Nick,
-                                                      commandArgs));
+                _messageQueue.PublicMessageEnqueue(channel,
+                                                   String.Format(
+                                                       "{0} added {1} to the streamlist",
+                                                       user.Nick,
+                                                       commandArgs));
             }
             else
             {
@@ -144,11 +144,11 @@ namespace DeathmicChatbot
                                 "{0} removed {1} from the streamlist",
                                 user.Nick,
                                 commandArgs));
-            MessageQueue.PublicMessageEnqueue(channel,
-                                              String.Format(
-                                                  "{0} removed {1} from the streamlist",
-                                                  user.Nick,
-                                                  commandArgs));
+            _messageQueue.PublicMessageEnqueue(channel,
+                                               String.Format(
+                                                   "{0} removed {1} from the streamlist",
+                                                   user.Nick,
+                                                   commandArgs));
             _twitch.RemoveStream(commandArgs);
         }
 
@@ -159,12 +159,12 @@ namespace DeathmicChatbot
         {
             if (_twitch._streamData.Count == 0)
             {
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  "There are currently no streams running :(");
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   "There are currently no streams running :(");
                 return;
             }
             foreach (var stream in _twitch.GetStreamInfoArray())
-                MessageQueue.PrivateNoticeEnqueue(user.Nick, stream);
+                _messageQueue.PrivateNoticeEnqueue(user.Nick, stream);
         }
 
         private static void TwitchOnStreamStopped(object sender,
@@ -173,14 +173,14 @@ namespace DeathmicChatbot
             Console.WriteLine("{0}: Stream stopped: {1}",
                               DateTime.Now,
                               args.StreamData.Stream.Channel.Name);
-            MessageQueue.PublicMessageEnqueue(Channel,
-                                              String.Format(
-                                                  "Stream stopped after {1:HH}:{1:mm}: {0}",
-                                                  args.StreamData.Stream.Channel
-                                                      .Name,
-                                                  new DateTime(
-                                                      args.StreamData
-                                                          .TimeSinceStart.Ticks)));
+            _messageQueue.PublicMessageEnqueue(Channel,
+                                               String.Format(
+                                                   "Stream stopped after {1:HH}:{1:mm}: {0}",
+                                                   args.StreamData.Stream
+                                                       .Channel.Name,
+                                                   new DateTime(
+                                                       args.StreamData
+                                                           .TimeSinceStart.Ticks)));
         }
 
         private static void TwitchOnStreamStarted(object sender,
@@ -189,15 +189,15 @@ namespace DeathmicChatbot
             Console.WriteLine("{0}: Stream started: {1}",
                               DateTime.Now,
                               args.StreamData.Stream.Channel.Name);
-            MessageQueue.PublicMessageEnqueue(Channel,
-                                              String.Format(
-                                                  "Stream started: {0} ({1}: {2}) at http://www.twitch.tv/{0}",
-                                                  args.StreamData.Stream.Channel
-                                                      .Name,
-                                                  args.StreamData.Stream.Channel
-                                                      .Game,
-                                                  args.StreamData.Stream.Channel
-                                                      .Status));
+            _messageQueue.PublicMessageEnqueue(Channel,
+                                               String.Format(
+                                                   "Stream started: {0} ({1}: {2}) at http://www.twitch.tv/{0}",
+                                                   args.StreamData.Stream
+                                                       .Channel.Name,
+                                                   args.StreamData.Stream
+                                                       .Channel.Game,
+                                                   args.StreamData.Stream
+                                                       .Channel.Status));
         }
 
         private static void CheckAllStreamsThreaded()
@@ -212,34 +212,34 @@ namespace DeathmicChatbot
         private static void VotingOnVotingStarted(object sender,
                                                   VotingEventArgs args)
         {
-            MessageQueue.PublicMessageEnqueue(Channel,
-                                              String.Format(
-                                                  "{0} started a voting.",
-                                                  args.User.Nick));
-            MessageQueue.PublicMessageEnqueue(Channel, args.Voting._sQuestion);
-            MessageQueue.PublicMessageEnqueue(Channel, "Possible answers:");
+            _messageQueue.PublicMessageEnqueue(Channel,
+                                               String.Format(
+                                                   "{0} started a voting.",
+                                                   args.User.Nick));
+            _messageQueue.PublicMessageEnqueue(Channel, args.Voting._sQuestion);
+            _messageQueue.PublicMessageEnqueue(Channel, "Possible answers:");
             foreach (var answer in args.Voting._slAnswers)
-                MessageQueue.PublicMessageEnqueue(Channel,
-                                                  string.Format("    {0}",
-                                                                answer));
-            MessageQueue.PublicMessageEnqueue(Channel,
-                                              String.Format(
-                                                  "Vote with /msg {0} vote {1} <answer>",
-                                                  Nick,
-                                                  args.Voting._iIndex + 1));
-            MessageQueue.PublicMessageEnqueue(Channel,
-                                              string.Format(
-                                                  "Voting runs until {0}",
-                                                  args.Voting._dtEndTime));
+                _messageQueue.PublicMessageEnqueue(Channel,
+                                                   string.Format("    {0}",
+                                                                 answer));
+            _messageQueue.PublicMessageEnqueue(Channel,
+                                               String.Format(
+                                                   "Vote with /msg {0} vote {1} <answer>",
+                                                   Nick,
+                                                   args.Voting._iIndex + 1));
+            _messageQueue.PublicMessageEnqueue(Channel,
+                                               string.Format(
+                                                   "Voting runs until {0}",
+                                                   args.Voting._dtEndTime));
         }
 
         private static void VotingOnVotingEnded(object sender,
                                                 VotingEventArgs args)
         {
-            MessageQueue.PublicMessageEnqueue(Channel,
-                                              String.Format(
-                                                  "The voting '{0}' has ended with the following results:",
-                                                  args.Voting._sQuestion));
+            _messageQueue.PublicMessageEnqueue(Channel,
+                                               String.Format(
+                                                   "The voting '{0}' has ended with the following results:",
+                                                   args.Voting._sQuestion));
             var votes = new Dictionary<string, int>();
             foreach (var answer in args.Voting._slAnswers)
                 votes[answer] = 0;
@@ -248,29 +248,29 @@ namespace DeathmicChatbot
             args.Voting._votes.Clear();
             foreach (var vote in votes)
             {
-                MessageQueue.PublicMessageEnqueue(Channel,
-                                                  String.Format(
-                                                      "    {0}: {1} votes",
-                                                      vote.Key,
-                                                      vote.Value));
+                _messageQueue.PublicMessageEnqueue(Channel,
+                                                   String.Format(
+                                                       "    {0}: {1} votes",
+                                                       vote.Key,
+                                                       vote.Value));
             }
         }
 
         private static void VotingOnVoted(object sender, VotingEventArgs args)
         {
-            MessageQueue.PrivateNoticeEnqueue(args.User.Nick,
-                                              String.Format(
-                                                  "Your vote for '{0}' has been counted.",
-                                                  args.Voting._sQuestion));
+            _messageQueue.PrivateNoticeEnqueue(args.User.Nick,
+                                               String.Format(
+                                                   "Your vote for '{0}' has been counted.",
+                                                   args.Voting._sQuestion));
         }
 
         private static void VotingOnVoteRemoved(object sender,
                                                 VotingEventArgs args)
         {
-            MessageQueue.PrivateNoticeEnqueue(args.User.Nick,
-                                              String.Format(
-                                                  "Your vote for '{0}' has been removed.",
-                                                  args.Voting._sQuestion));
+            _messageQueue.PrivateNoticeEnqueue(args.User.Nick,
+                                               String.Format(
+                                                   "Your vote for '{0}' has been removed.",
+                                                   args.Voting._sQuestion));
         }
 
         private static void StartVoting(UserInfo user,
@@ -283,10 +283,10 @@ namespace DeathmicChatbot
                            : new string[0];
             if (args.Length < 3)
             {
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  string.Format(
-                                                      "Please use the following format: {0}startvote <time>|<question>|<answer1,answer2,...>",
-                                                      CommandManager.ACTIVATOR));
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   string.Format(
+                                                       "Please use the following format: {0}startvote <time>|<question>|<answer1,answer2,...>",
+                                                       CommandManager.ACTIVATOR));
                 return;
             }
             var timeString = args[0];
@@ -294,10 +294,10 @@ namespace DeathmicChatbot
             var timeMatch = timeRegex.Match(timeString);
             if (!timeMatch.Success)
             {
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  "Time needs to be in the following format: [<num>d][<num>h][<num>m][<num>s]");
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  "Examples: 10m30s\n5h\n1d\n1d6h");
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   "Time needs to be in the following format: [<num>d][<num>h][<num>m][<num>s]");
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   "Examples: 10m30s\n5h\n1d\n1d6h");
                 return;
             }
             var span = new TimeSpan();
@@ -340,7 +340,7 @@ namespace DeathmicChatbot
             }
             catch (InvalidOperationException e)
             {
-                MessageQueue.PrivateNoticeEnqueue(user.Nick, e.Message);
+                _messageQueue.PrivateNoticeEnqueue(user.Nick, e.Message);
                 _log.WriteToLog("Error",
                                 String.Format(
                                     "{0} tried starting a voting: {1}. But: {2}",
@@ -358,10 +358,10 @@ namespace DeathmicChatbot
             int index;
             if (commandArgs == null || !int.TryParse(commandArgs, out index))
             {
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  string.Format(
-                                                      "The format for ending a vote is: {0}endvote <id>",
-                                                      CommandManager.ACTIVATOR));
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   string.Format(
+                                                       "The format for ending a vote is: {0}endvote <id>",
+                                                       CommandManager.ACTIVATOR));
                 return;
             }
             try
@@ -372,10 +372,10 @@ namespace DeathmicChatbot
             {
                 if (e.ParamName == "id")
                 {
-                    MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                      string.Format(
-                                                          "There is no voting with the id {0}",
-                                                          index));
+                    _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                       string.Format(
+                                                           "There is no voting with the id {0}",
+                                                           index));
                 }
                 else
 
@@ -383,7 +383,7 @@ namespace DeathmicChatbot
             }
             catch (InvalidOperationException e)
             {
-                MessageQueue.PrivateNoticeEnqueue(user.Nick, e.Message);
+                _messageQueue.PrivateNoticeEnqueue(user.Nick, e.Message);
             }
         }
 
@@ -394,22 +394,22 @@ namespace DeathmicChatbot
                            : new string[0];
             if (args.Length < 2)
             {
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  string.Format(
-                                                      "Format: /msg {0} vote <id> <answer>",
-                                                      Nick));
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  string.Format(
-                                                      "You can check the running votings with /msg {0} listvotings",
-                                                      Nick));
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   string.Format(
+                                                       "Format: /msg {0} vote <id> <answer>",
+                                                       Nick));
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   string.Format(
+                                                       "You can check the running votings with /msg {0} listvotings",
+                                                       Nick));
                 return;
             }
             int index;
             var answer = args[1];
             if (!int.TryParse(args[0], out index))
             {
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  "id must be a number");
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   "id must be a number");
                 return;
             }
             try
@@ -421,17 +421,17 @@ namespace DeathmicChatbot
                 switch (e.ParamName)
                 {
                     case "id":
-                        MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                          string.Format(
-                                                              "There is no voting with the id {0}",
-                                                              index));
+                        _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                           string.Format(
+                                                               "There is no voting with the id {0}",
+                                                               index));
                         break;
                     case "answer":
-                        MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                          string.Format(
-                                                              "The voting {0} has no answer {1}",
-                                                              index,
-                                                              answer));
+                        _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                           string.Format(
+                                                               "The voting {0} has no answer {1}",
+                                                               index,
+                                                               answer));
                         break;
                     default:
                         throw;
@@ -446,10 +446,10 @@ namespace DeathmicChatbot
             int index;
             if (commandArgs == null || !int.TryParse(commandArgs, out index))
             {
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  string.Format(
-                                                      "The format for removintg your vote is: /msg {0} removevote <id>",
-                                                      Nick));
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   string.Format(
+                                                       "The format for removintg your vote is: /msg {0} removevote <id>",
+                                                       Nick));
                 return;
             }
             try
@@ -460,10 +460,10 @@ namespace DeathmicChatbot
             {
                 if (e.ParamName == "id")
                 {
-                    MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                      string.Format(
-                                                          "There is no voting with the id {0}",
-                                                          index));
+                    _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                       string.Format(
+                                                           "There is no voting with the id {0}",
+                                                           index));
                 }
                 else
 
@@ -477,26 +477,26 @@ namespace DeathmicChatbot
         {
             if (_voting.Votings.Count == 0)
             {
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  "There are currently no votings running");
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   "There are currently no votings running");
             }
             foreach (var voting in _voting.Votings.Values)
             {
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  string.Format("{0} - {1}",
-                                                                voting._iIndex +
-                                                                1,
-                                                                voting
-                                                                    ._sQuestion));
-                MessageQueue.PrivateNoticeEnqueue(user.Nick, "Answers:");
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   string.Format("{0} - {1}",
+                                                                 voting._iIndex +
+                                                                 1,
+                                                                 voting
+                                                                     ._sQuestion));
+                _messageQueue.PrivateNoticeEnqueue(user.Nick, "Answers:");
                 foreach (var answer in voting._slAnswers)
-                    MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                      string.Format("    {0}",
-                                                                    answer));
-                MessageQueue.PrivateNoticeEnqueue(user.Nick,
-                                                  string.Format(
-                                                      "Voting runs until {0}",
-                                                      voting._dtEndTime));
+                    _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                       string.Format("    {0}",
+                                                                     answer));
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   string.Format(
+                                                       "Voting runs until {0}",
+                                                       voting._dtEndTime));
             }
         }
 
@@ -530,7 +530,7 @@ namespace DeathmicChatbot
             }
             var index = Rnd.Next(nameList.Count);
             var chosen = nameList[index];
-            MessageQueue.PublicMessageEnqueue(channel, chosen);
+            _messageQueue.PublicMessageEnqueue(channel, chosen);
             ChosenUsers.TryAdd(chosen, chosen);
             SaveChosenUsers();
         }
@@ -555,8 +555,9 @@ namespace DeathmicChatbot
         private static void OnJoin(UserInfo user, string channel)
         {
             foreach (var msg in _twitch.GetStreamInfoArray())
-                MessageQueue.PrivateNoticeEnqueue(user.Nick, msg);
+                _messageQueue.PrivateNoticeEnqueue(user.Nick, msg);
             CurrentUsers.TryAdd(user.Nick, user.Nick);
+            JoinLogger.LogJoin(user.Nick, _messageQueue);
         }
 
         private static void OnPart(UserInfo user, string channel, string reason)
@@ -612,7 +613,7 @@ namespace DeathmicChatbot
 
         private static void SendMessage(UserInfo user,
                                         string text,
-                                        string commandArgs) { MessageQueue.PublicMessageEnqueue(Channel, commandArgs); }
+                                        string commandArgs) { _messageQueue.PublicMessageEnqueue(Channel, commandArgs); }
 
         private static void Roll(UserInfo user,
                                  string channel,
@@ -622,10 +623,10 @@ namespace DeathmicChatbot
             var regex = new Regex(@"(^\d+)[wWdD](\d+$)");
             if (!regex.IsMatch(commandArgs))
             {
-                MessageQueue.PublicMessageEnqueue(channel,
-                                                  String.Format(
-                                                      "Error: Invalid roll request: {0}.",
-                                                      commandArgs));
+                _messageQueue.PublicMessageEnqueue(channel,
+                                                   String.Format(
+                                                       "Error: Invalid roll request: {0}.",
+                                                       commandArgs));
             }
             else
             {
@@ -641,25 +642,25 @@ namespace DeathmicChatbot
                 }
                 catch (OverflowException)
                 {
-                    MessageQueue.PublicMessageEnqueue(channel,
-                                                      "Error: Result could make the server explode. Get real, you maniac.");
+                    _messageQueue.PublicMessageEnqueue(channel,
+                                                       "Error: Result could make the server explode. Get real, you maniac.");
                     return;
                 }
 
                 if (numberOfDice == 0 || sidesOfDice == 0)
                 {
-                    MessageQueue.PublicMessageEnqueue(channel,
-                                                      string.Format(
-                                                          "Error: Can't roll 0 dice, or dice with 0 sides."));
+                    _messageQueue.PublicMessageEnqueue(channel,
+                                                       string.Format(
+                                                           "Error: Can't roll 0 dice, or dice with 0 sides."));
                     return;
                 }
 
                 if (sidesOfDice > Int32.MaxValue)
                 {
-                    MessageQueue.PublicMessageEnqueue(channel,
-                                                      string.Format(
-                                                          "Error: Due to submolecular limitations, a die can't have more than {0} sides.",
-                                                          Int32.MaxValue));
+                    _messageQueue.PublicMessageEnqueue(channel,
+                                                       string.Format(
+                                                           "Error: Due to submolecular limitations, a die can't have more than {0} sides.",
+                                                           Int32.MaxValue));
                     return;
                 }
 
@@ -670,24 +671,24 @@ namespace DeathmicChatbot
                 var max = numberOfDice * sidesOfDice;
                 if (max / numberOfDice != sidesOfDice)
                 {
-                    MessageQueue.PublicMessageEnqueue(channel,
-                                                      "Error: Result could make the server explode. Get real, you maniac.");
+                    _messageQueue.PublicMessageEnqueue(channel,
+                                                       "Error: Result could make the server explode. Get real, you maniac.");
                     return;
                 }
 
                 if (numberOfDice > 100000000)
                 {
-                    MessageQueue.PublicMessageEnqueue(channel,
-                                                      "Seriously? ... I'll try. But don't expect the result too soon. It's gonna take me a while.");
+                    _messageQueue.PublicMessageEnqueue(channel,
+                                                       "Seriously? ... I'll try. But don't expect the result too soon. It's gonna take me a while.");
                 }
 
                 for (UInt64 i = 0; i < numberOfDice; i++)
                     sum += (ulong) random.Next(1, Convert.ToInt32(sidesOfDice));
 
-                MessageQueue.PublicMessageEnqueue(channel,
-                                                  String.Format("{0}: {1}",
-                                                                commandArgs,
-                                                                sum));
+                _messageQueue.PublicMessageEnqueue(channel,
+                                                   String.Format("{0}: {1}",
+                                                                 commandArgs,
+                                                                 sum));
             }
         }
 
@@ -755,9 +756,9 @@ namespace DeathmicChatbot
             if (link != null)
             {
                 var vid = _youtube.GetVideoInfo(link);
-                MessageQueue.PublicMessageEnqueue(channel,
-                                                  YotubeManager.GetInfoString(
-                                                      vid));
+                _messageQueue.PublicMessageEnqueue(channel,
+                                                   YotubeManager.GetInfoString(
+                                                       vid));
                 return;
             }
 
@@ -766,7 +767,7 @@ namespace DeathmicChatbot
             foreach (var title in
                 urls.Select(url => _website.GetPageTitle(url).Trim())
                     .Where(title => !string.IsNullOrEmpty(title)))
-                MessageQueue.PublicMessageEnqueue(channel, title);
+                _messageQueue.PublicMessageEnqueue(channel, title);
         }
 
         private static void OnPrivate(UserInfo user, string message) { _commands.CheckCommand(user, Channel, message, true); }
