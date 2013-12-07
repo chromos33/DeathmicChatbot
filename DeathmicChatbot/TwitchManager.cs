@@ -23,6 +23,8 @@ namespace DeathmicChatbot
         private readonly LogManager _log;
         public readonly ConcurrentDictionary<string, StreamData> _streamData =
             new ConcurrentDictionary<string, StreamData>();
+        private readonly StreamStopCounter _streamStopCounter =
+            new StreamStopCounter();
         private readonly List<string> _streams;
 
         private RootObject _lastroot;
@@ -204,8 +206,15 @@ namespace DeathmicChatbot
                                  select pair)
             {
                 StreamData sd;
-                if (_streamData.TryRemove(pair.Key, out sd))
+
+                _streamStopCounter.StreamTriesToStop(pair.Key);
+                if (
+                    _streamStopCounter.StreamHasTriedStoppingEnoughTimes(
+                        pair.Key) && _streamData.TryRemove(pair.Key, out sd))
+                {
+                    _streamStopCounter.StreamHasStopped(pair.Key);
                     StreamStopped(this, new StreamEventArgs(pair.Value));
+                }
             }
         }
 
