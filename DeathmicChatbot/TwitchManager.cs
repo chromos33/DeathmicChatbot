@@ -207,7 +207,8 @@ namespace DeathmicChatbot
                                        new StreamData
                                        {
                                            Started = DateTime.Now,
-                                           Stream = stream
+                                           Stream = stream,
+                                           StreamProvider = this
                                        })
                 where bTryAddresult && StreamStarted != null
                 select stream)
