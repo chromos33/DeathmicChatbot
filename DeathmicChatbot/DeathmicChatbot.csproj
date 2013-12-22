@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandManager.cs" />
+    <Compile Include="IStreamProvider.cs" />
     <Compile Include="JoinLogger.cs" />
     <Compile Include="LogManager.cs" />
     <Compile Include="MessageQueue.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="StreamData.cs" />
     <Compile Include="StreamEventArgs.cs" />
     <Compile Include="StreamInfo.cs" />
+    <Compile Include="StreamProviderManager.cs" />
     <Compile Include="StreamStopCounter.cs" />
     <Compile Include="TwitchManager.cs" />
     <Compile Include="WebsiteManager.cs" />

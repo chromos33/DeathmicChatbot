@@ -28,7 +28,7 @@ namespace DeathmicChatbot
         private static YotubeManager _youtube;
         private static LogManager _log;
         private static WebsiteManager _website;
-        private static TwitchManager _twitch;
+        private static StreamProviderManager _streamProviderManager;
         private static CommandManager _commands;
         private static VoteManager _voting;
         private static readonly String Channel = Settings.Default.Channel;
@@ -107,7 +107,7 @@ namespace DeathmicChatbot
                                       string text,
                                       string commandArgs)
         {
-            if (_twitch.AddStream(commandArgs))
+            if (_streamProviderManager.AddStream(commandArgs))
             {
                 _log.WriteToLog("Information",
                                 String.Format(
@@ -149,7 +149,7 @@ namespace DeathmicChatbot
                                                    "{0} removed {1} from the streamlist",
                                                    user.Nick,
                                                    commandArgs));
-            _twitch.RemoveStream(commandArgs);
+            _streamProviderManager.RemoveStream(commandArgs);
         }
 
         private static void StreamCheck(UserInfo user,
@@ -157,18 +157,17 @@ namespace DeathmicChatbot
                                         string text,
                                         string commandArgs)
         {
-            if (_twitch._streamData.Count == 0)
+            if (!_streamProviderManager.GetStreamInfoArray().Any())
             {
                 _messageQueue.PrivateNoticeEnqueue(user.Nick,
                                                    "There are currently no streams running :(");
                 return;
             }
-            foreach (var stream in _twitch.GetStreamInfoArray())
+            foreach (var stream in _streamProviderManager.GetStreamInfoArray())
                 _messageQueue.PrivateNoticeEnqueue(user.Nick, stream);
         }
 
-        private static void TwitchOnStreamStopped(object sender,
-                                                  StreamEventArgs args)
+        private static void OnStreamStopped(object sender, StreamEventArgs args)
         {
             Console.WriteLine("{0}: Stream stopped: {1}",
                               DateTime.Now,
@@ -183,30 +182,22 @@ namespace DeathmicChatbot
                                                            .TimeSinceStart.Ticks)));
         }
 
-        private static void TwitchOnStreamStarted(object sender,
-                                                  StreamEventArgs args)
+        private static void OnStreamStarted(object sender, StreamEventArgs args)
         {
             Console.WriteLine("{0}: Stream started: {1}",
                               DateTime.Now,
                               args.StreamData.Stream.Channel.Name);
             _messageQueue.PublicMessageEnqueue(Channel,
                                                String.Format(
-                                                   "Stream started: {0} ({1}: {2}) at http://www.twitch.tv/{0}",
+                                                   "Stream started: {0} ({1}: {2}) at {3}/{0}",
                                                    args.StreamData.Stream
                                                        .Channel.Name,
                                                    args.StreamData.Stream
                                                        .Channel.Game,
                                                    args.StreamData.Stream
-                                                       .Channel.Status));
-        }
-
-        private static void CheckAllStreamsThreaded()
-        {
-            while (true)
-            {
-                _twitch.CheckStreams();
-                Thread.Sleep(Settings.Default.StreamcheckIntervalSeconds * 1000);
-            }
+                                                       .Channel.Status,
+                                                   args.StreamData
+                                                       .StreamProvider.GetLink()));
         }
 
         private static void VotingOnVotingStarted(object sender,
@@ -554,7 +545,7 @@ namespace DeathmicChatbot
 
         private static void OnJoin(UserInfo user, string channel)
         {
-            foreach (var msg in _twitch.GetStreamInfoArray())
+            foreach (var msg in _streamProviderManager.GetStreamInfoArray())
                 _messageQueue.PrivateNoticeEnqueue(user.Nick, msg);
             CurrentUsers.TryAdd(user.Nick, user.Nick);
             JoinLogger.LogJoin(user.Nick, _messageQueue);
@@ -702,10 +693,12 @@ namespace DeathmicChatbot
             AppDomain.CurrentDomain.UnhandledException += OnError;
             _youtube = new YotubeManager();
             _website = new WebsiteManager(_log);
-            _twitch = new TwitchManager(_log, _debugMode);
+            _streamProviderManager = new StreamProviderManager();
+            _streamProviderManager.AddStreamProvider(new TwitchManager(_log,
+                                                                       _debugMode));
             _voting = new VoteManager();
-            _twitch.StreamStarted += TwitchOnStreamStarted;
-            _twitch.StreamStopped += TwitchOnStreamStopped;
+            _streamProviderManager.StreamStarted += OnStreamStarted;
+            _streamProviderManager.StreamStopped += OnStreamStopped;
             _voting.VotingStarted += VotingOnVotingStarted;
             _voting.VotingEnded += VotingOnVotingEnded;
             _voting.Voted += VotingOnVoted;
@@ -736,10 +729,10 @@ namespace DeathmicChatbot
             _commands.SetCommand("pickuser", pickuser);
             _commands.SetCommand("say", sendmessage);
             _commands.SetCommand("roll", roll);
-            var streamCheckThread = new Thread(CheckAllStreamsThreaded);
+
             var votingCheckThread = new Thread(CheckAllVotingsThreaded);
             var saveChosenUsersThread = new Thread(SaveChosenUsersThreaded);
-            streamCheckThread.Start();
+
             votingCheckThread.Start();
             saveChosenUsersThread.Start();
         }

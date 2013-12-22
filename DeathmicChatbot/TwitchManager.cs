@@ -14,14 +14,14 @@ using RestSharp.Serializers;
 
 namespace DeathmicChatbot
 {
-    public class TwitchManager
+    public class TwitchManager : IStreamProvider
     {
         private const string STREAMS_FILE = "streams.txt";
         private const string STREAMDATA_FILE = "streamdata.txt";
         private readonly bool _bDebugMode;
         private readonly RestClient _client;
         private readonly LogManager _log;
-        public readonly ConcurrentDictionary<string, StreamData> _streamData =
+        private readonly ConcurrentDictionary<string, StreamData> _streamData =
             new ConcurrentDictionary<string, StreamData>();
         private readonly StreamStopCounter _streamStopCounter =
             new StreamStopCounter();
@@ -40,8 +40,66 @@ namespace DeathmicChatbot
             LoadStreamData();
         }
 
+        #region IStreamProvider Members
+
         public event EventHandler<StreamEventArgs> StreamStarted;
         public event EventHandler<StreamEventArgs> StreamStopped;
+
+        public bool AddStream(string stream)
+        {
+            stream = stream.ToLower();
+            if (!_streams.Contains(stream))
+            {
+                _streams.Add(stream);
+                WriteStreamsToFile();
+                return true;
+            }
+            return false;
+        }
+
+        public void RemoveStream(string stream)
+        {
+            stream = stream.ToLower();
+            _streams.Remove(stream);
+            WriteStreamsToFile();
+        }
+
+        public void CheckStreams()
+        {
+            // Get all live streams from server
+            var obj = GetOnlineStreams();
+
+            // If querying Twitch for running streams always fails (maybe Twitch
+            // is down or the server running the bot doesn't have the necessary
+            // SSL certificates installed), this prevents the bot from crashing.
+            if (obj == null)
+                return;
+
+            RemoveStoppedStreams(obj);
+
+            AddNewlyStartedStreams(obj);
+
+            WriteStreamDataToFile();
+        }
+
+        public IEnumerable<string> GetStreamInfoArray()
+        {
+            return
+                _streamData.Values.Select(
+                    stream =>
+                    String.Format(
+                        "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: {5}/{0}",
+                        stream.Stream.Channel.Name,
+                        stream.Stream.Channel.Game,
+                        stream.Stream.Channel.Status,
+                        stream.Started,
+                        new DateTime(stream.TimeSinceStart.Ticks),
+                        GetLink())).ToList();
+        }
+
+        public string GetLink() { return "http://www.twitch.tv"; }
+
+        #endregion
 
         private void LoadStreams()
         {
@@ -125,25 +183,6 @@ namespace DeathmicChatbot
             }
         }
 
-        public bool AddStream(string stream)
-        {
-            stream = stream.ToLower();
-            if (!_streams.Contains(stream))
-            {
-                _streams.Add(stream);
-                WriteStreamsToFile();
-                return true;
-            }
-            return false;
-        }
-
-        public void RemoveStream(string stream)
-        {
-            stream = stream.ToLower();
-            _streams.Remove(stream);
-            WriteStreamsToFile();
-        }
-
         private void WriteStreamsToFile()
         {
             var writer = new StreamWriter(STREAMS_FILE, false);
@@ -153,24 +192,6 @@ namespace DeathmicChatbot
         }
 
         private static string ArrayToString(IEnumerable<string> arr) { return string.Join(",", arr); }
-
-        public void CheckStreams()
-        {
-            // Get all live streams from server
-            var obj = GetOnlineStreams();
-
-            // If querying Twitch for running streams always fails (maybe Twitch
-            // is down or the server running the bot doesn't have the necessary
-            // SSL certificates installed), this prevents the bot from crashing.
-            if (obj == null)
-                return;
-
-            RemoveStoppedStreams(obj);
-
-            AddNewlyStartedStreams(obj);
-
-            WriteStreamDataToFile();
-        }
 
         private void AddNewlyStartedStreams(RootObject obj)
         {
@@ -216,20 +237,6 @@ namespace DeathmicChatbot
                     StreamStopped(this, new StreamEventArgs(pair.Value));
                 }
             }
-        }
-
-        public IEnumerable<string> GetStreamInfoArray()
-        {
-            return
-                _streamData.Values.Select(
-                    stream =>
-                    String.Format(
-                        "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: http://www.twitch.tv/{0}",
-                        stream.Stream.Channel.Name,
-                        stream.Stream.Channel.Game,
-                        stream.Stream.Channel.Status,
-                        stream.Started,
-                        new DateTime(stream.TimeSinceStart.Ticks))).ToList();
         }
 
         private void WriteStreamDataToFile()
