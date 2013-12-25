@@ -5,15 +5,13 @@ using System;
 #endregion
 
 
-namespace DeathmicChatbot
+namespace DeathmicChatbot.StreamInfo.Twitch
 {
-    public class StreamData
+    public class TwitchStreamData
     {
         public Stream Stream { get; set; }
 
-        public IStreamProvider StreamProvider { get; set; }
-
-        public DateTime Started { private get; set; }
+        public DateTime Started { get; set; }
 
         public TimeSpan TimeSinceStart { get { return DateTime.Now - Started; } }
     }

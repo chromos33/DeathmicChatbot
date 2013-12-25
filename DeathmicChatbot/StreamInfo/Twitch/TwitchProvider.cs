@@ -12,24 +12,24 @@ using RestSharp.Serializers;
 #endregion
 
 
-namespace DeathmicChatbot
+namespace DeathmicChatbot.StreamInfo.Twitch
 {
-    public class TwitchManager : IStreamProvider
+    public class TwitchProvider : IStreamProvider
     {
-        private const string STREAMS_FILE = "streams.txt";
-        private const string STREAMDATA_FILE = "streamdata.txt";
+        private const string STREAMS_FILE = "streams_twitch.txt";
+        private const string STREAMDATA_FILE = "streamdata_twitch.txt";
         private readonly bool _bDebugMode;
         private readonly RestClient _client;
         private readonly LogManager _log;
-        private readonly ConcurrentDictionary<string, StreamData> _streamData =
-            new ConcurrentDictionary<string, StreamData>();
+        private readonly ConcurrentDictionary<string, TwitchStreamData>
+            _streamData = new ConcurrentDictionary<string, TwitchStreamData>();
         private readonly StreamStopCounter _streamStopCounter =
             new StreamStopCounter();
         private readonly List<string> _streams;
 
-        private RootObject _lastroot;
+        private TwitchRootObject _lastroot;
 
-        public TwitchManager(LogManager log, bool bDebugMode = false)
+        public TwitchProvider(LogManager log, bool bDebugMode = false)
         {
             _log = log;
             _bDebugMode = bDebugMode;
@@ -138,7 +138,8 @@ namespace DeathmicChatbot
                     Content = sLine
                 };
 
-                var streamData = deserializer.Deserialize<StreamData>(response);
+                var streamData =
+                    deserializer.Deserialize<TwitchStreamData>(response);
 
                 if (!_streamData.ContainsKey(streamData.Stream.Channel.Name))
                     _streamData.TryAdd(streamData.Stream.Channel.Name,
@@ -147,7 +148,7 @@ namespace DeathmicChatbot
             reader.Close();
         }
 
-        private RootObject GetOnlineStreams()
+        private TwitchRootObject GetOnlineStreams()
         {
             var req = new RestRequest("/kraken/streams", Method.GET);
             req.AddParameter("channel", ArrayToString(_streams));
@@ -159,7 +160,7 @@ namespace DeathmicChatbot
             try
             {
                 var des = new JsonDeserializer();
-                var data = des.Deserialize<RootObject>(response);
+                var data = des.Deserialize<TwitchRootObject>(response);
                 _lastroot = data;
                 return data;
             }
@@ -193,31 +194,43 @@ namespace DeathmicChatbot
 
         private static string ArrayToString(IEnumerable<string> arr) { return string.Join(",", arr); }
 
-        private void AddNewlyStartedStreams(RootObject obj)
+        private void AddNewlyStartedStreams(TwitchRootObject obj)
         {
             if (obj == null || obj.Streams == null || obj.Streams.Count == 0)
                 return;
 
-            foreach (var stream in
+            foreach (var streamEventArgs in
                 from stream in
-                    obj.Streams.Where(
-                        stream => !_streamData.ContainsKey(stream.Channel.Name))
-                let bTryAddresult =
-                    _streamData.TryAdd(stream.Channel.Name,
-                                       new StreamData
-                                       {
-                                           Started = DateTime.Now,
-                                           Stream = stream,
-                                           StreamProvider = this
-                                       })
-                where bTryAddresult && StreamStarted != null
-                select stream)
-                StreamStarted(this,
-                              new StreamEventArgs(
-                                  _streamData[stream.Channel.Name]));
+                    (from stream in
+                         obj.Streams.Where(
+                             stream =>
+                             !_streamData.ContainsKey(stream.Channel.Name))
+                     let bTryAddresult =
+                         _streamData.TryAdd(stream.Channel.Name,
+                                            new TwitchStreamData
+                                            {
+                                                Started = DateTime.Now,
+                                                Stream = stream
+                                            })
+                     where bTryAddresult && StreamStarted != null
+                     select stream)
+                select new DeathmicChatbot.Stream
+                {
+                    Channel = stream.Channel.Name,
+                    Game = stream.Game,
+                    Message = stream.Channel.Status
+                }
+                into stream1 select new StreamData
+                {
+                    Stream = stream1,
+                    Started = DateTime.Now,
+                    StreamProvider = this
+                }
+                into streamData select new StreamEventArgs(streamData))
+                StreamStarted(this, streamEventArgs);
         }
 
-        private void RemoveStoppedStreams(RootObject obj)
+        private void RemoveStoppedStreams(TwitchRootObject obj)
         {
             foreach (var pair in from pair in _streamData
                                  let bFound =
@@ -227,16 +240,33 @@ namespace DeathmicChatbot
                                  where !bFound && StreamStopped != null
                                  select pair)
             {
-                StreamData sd;
+                TwitchStreamData sd;
 
                 _streamStopCounter.StreamTriesToStop(pair.Key);
                 if (
-                    _streamStopCounter.StreamHasTriedStoppingEnoughTimes(
-                        pair.Key) && _streamData.TryRemove(pair.Key, out sd))
+                    !_streamStopCounter.StreamHasTriedStoppingEnoughTimes(
+                        pair.Key) || !_streamData.TryRemove(pair.Key, out sd))
+                    continue;
+
+                _streamStopCounter.StreamHasStopped(pair.Key);
+
+                var stream = new DeathmicChatbot.Stream
                 {
-                    _streamStopCounter.StreamHasStopped(pair.Key);
-                    StreamStopped(this, new StreamEventArgs(pair.Value));
-                }
+                    Channel = pair.Value.Stream.Channel.Name,
+                    Game = pair.Value.Stream.Game,
+                    Message = pair.Value.Stream.Channel.Status
+                };
+
+                var streamData = new StreamData
+                {
+                    Started = DateTime.Now,
+                    Stream = stream,
+                    StreamProvider = this
+                };
+
+                var streamEventArgs = new StreamEventArgs(streamData);
+
+                StreamStopped(this, streamEventArgs);
             }
         }
 

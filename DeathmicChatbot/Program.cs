@@ -12,6 +12,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using DeathmicChatbot.Properties;
+using DeathmicChatbot.StreamInfo.Hitbox;
+using DeathmicChatbot.StreamInfo.Twitch;
 using Sharkbite.Irc;
 
 #endregion
@@ -171,12 +173,12 @@ namespace DeathmicChatbot
         {
             Console.WriteLine("{0}: Stream stopped: {1}",
                               DateTime.Now,
-                              args.StreamData.Stream.Channel.Name);
+                              args.StreamData.Stream.Channel);
             _messageQueue.PublicMessageEnqueue(Channel,
                                                String.Format(
                                                    "Stream stopped after {1:HH}:{1:mm}: {0}",
                                                    args.StreamData.Stream
-                                                       .Channel.Name,
+                                                       .Channel,
                                                    new DateTime(
                                                        args.StreamData
                                                            .TimeSinceStart.Ticks)));
@@ -186,16 +188,15 @@ namespace DeathmicChatbot
         {
             Console.WriteLine("{0}: Stream started: {1}",
                               DateTime.Now,
-                              args.StreamData.Stream.Channel.Name);
+                              args.StreamData.Stream.Channel);
             _messageQueue.PublicMessageEnqueue(Channel,
                                                String.Format(
                                                    "Stream started: {0} ({1}: {2}) at {3}/{0}",
                                                    args.StreamData.Stream
-                                                       .Channel.Name,
+                                                       .Channel,
+                                                   args.StreamData.Stream.Game,
                                                    args.StreamData.Stream
-                                                       .Channel.Game,
-                                                   args.StreamData.Stream
-                                                       .Channel.Status,
+                                                       .Message,
                                                    args.StreamData
                                                        .StreamProvider.GetLink()));
         }
@@ -694,8 +695,10 @@ namespace DeathmicChatbot
             _youtube = new YotubeManager();
             _website = new WebsiteManager(_log);
             _streamProviderManager = new StreamProviderManager();
-            _streamProviderManager.AddStreamProvider(new TwitchManager(_log,
-                                                                       _debugMode));
+            _streamProviderManager.AddStreamProvider(new TwitchProvider(_log,
+                                                                        _debugMode));
+            _streamProviderManager.AddStreamProvider(new HitboxProvider(_log,
+                                                                        _debugMode));
             _voting = new VoteManager();
             _streamProviderManager.StreamStarted += OnStreamStarted;
             _streamProviderManager.StreamStopped += OnStreamStopped;
@@ -716,9 +719,12 @@ namespace DeathmicChatbot
             CommandManager.PrivateCommand listvotings = ListVotings;
             CommandManager.PrivateCommand sendmessage = SendMessage;
             _commands.SetCommand("addstream", addstream);
+            _commands.SetCommand("streamadd", addstream);
             _commands.SetCommand("delstream", delstream);
+            _commands.SetCommand("streamdel", delstream);
             _commands.SetCommand("streamwegschreinen", delstream);
             _commands.SetCommand("streamcheck", streamcheck);
+            _commands.SetCommand("checkstream", streamcheck);
             _commands.SetCommand("startvote", startvote);
             _commands.SetCommand("endvote", endvote);
             _commands.SetCommand("stopvote", endvote);

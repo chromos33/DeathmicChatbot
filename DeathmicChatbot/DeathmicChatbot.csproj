@@ -59,6 +59,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandManager.cs" />
+    <Compile Include="StreamInfo\Hitbox\HitboxProvider.cs" />
+    <Compile Include="StreamInfo\Hitbox\HitboxStreamData.cs" />
     <Compile Include="IStreamProvider.cs" />
     <Compile Include="JoinLogger.cs" />
     <Compile Include="LogManager.cs" />
@@ -70,15 +72,27 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Stream.cs" />
     <Compile Include="StreamData.cs" />
+    <Compile Include="StreamInfo\Hitbox\Livestream.cs" />
+    <Compile Include="StreamInfo\Hitbox\Request.cs" />
+    <Compile Include="StreamInfo\Twitch\Channel.cs" />
+    <Compile Include="StreamInfo\Twitch\Links.cs" />
+    <Compile Include="StreamInfo\Twitch\Links2.cs" />
+    <Compile Include="StreamInfo\Twitch\Links3.cs" />
+    <Compile Include="StreamInfo\Twitch\Preview.cs" />
+    <Compile Include="StreamInfo\Twitch\Stream.cs" />
+    <Compile Include="StreamInfo\Twitch\TwitchStreamData.cs" />
     <Compile Include="StreamEventArgs.cs" />
-    <Compile Include="StreamInfo.cs" />
+    <Compile Include="StreamInfo\Hitbox\HitboxRootObject.cs" />
+    <Compile Include="StreamInfo\Twitch\TwitchRootObject.cs" />
     <Compile Include="StreamProviderManager.cs" />
     <Compile Include="StreamStopCounter.cs" />
-    <Compile Include="TwitchManager.cs" />
+    <Compile Include="StreamInfo\Twitch\TwitchProvider.cs" />
+    <Compile Include="Voting.cs" />
     <Compile Include="WebsiteManager.cs" />
     <Compile Include="YotubeManager.cs" />
-    <Compile Include="VotingManager.cs" />
+    <Compile Include="VoteManager.cs" />
     <Compile Include="VotingEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
