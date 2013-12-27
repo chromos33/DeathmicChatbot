@@ -16,7 +16,7 @@ using Timer = System.Timers.Timer;
 
 namespace DeathmicChatbot.StreamInfo.Hitbox
 {
-    internal class HitboxProvider : IStreamProvider
+    public class HitboxProvider : IStreamProvider
     {
         private const string STREAMS_FILE = "streams_hitbox.txt";
         private const string STREAMDATA_FILE = "streamdata_hitbox.txt";
@@ -34,8 +34,11 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         private readonly Queue<string> _streamsToCheck = new Queue<string>();
 
-        public HitboxProvider(LogManager log, bool debugMode)
+        public HitboxProvider(LogManager log, bool debugMode = false)
         {
+            if (log == null)
+                throw new ArgumentNullException("log");
+
             _log = log;
             _debugMode = debugMode;
 

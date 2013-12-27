@@ -5,6 +5,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeathmicChatbot", "DeathmicChatbot\DeathmicChatbot.csproj", "{8F2CE5B0-CE5D-446D-9D96-20D57B217782}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeathmicChatbotTests", "DeathmicChatbotTests\DeathmicChatbotTests.csproj", "{F6820213-26A8-492D-9A76-3188B8129CAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -15,6 +17,10 @@ Global
 		{8F2CE5B0-CE5D-446D-9D96-20D57B217782}.Debug|x86.Build.0 = Debug|x86
 		{8F2CE5B0-CE5D-446D-9D96-20D57B217782}.Release|x86.ActiveCfg = Release|x86
 		{8F2CE5B0-CE5D-446D-9D96-20D57B217782}.Release|x86.Build.0 = Release|x86
+		{F6820213-26A8-492D-9A76-3188B8129CAC}.Debug|x86.ActiveCfg = Debug|x86
+		{F6820213-26A8-492D-9A76-3188B8129CAC}.Debug|x86.Build.0 = Debug|x86
+		{F6820213-26A8-492D-9A76-3188B8129CAC}.Release|x86.ActiveCfg = Release|x86
+		{F6820213-26A8-492D-9A76-3188B8129CAC}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
