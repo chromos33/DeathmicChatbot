@@ -14,6 +14,7 @@ using System.Threading;
 using DeathmicChatbot.Properties;
 using DeathmicChatbot.StreamInfo.Hitbox;
 using DeathmicChatbot.StreamInfo.Twitch;
+using RestSharp;
 using Sharkbite.Irc;
 
 #endregion
@@ -697,8 +698,10 @@ namespace DeathmicChatbot
             _streamProviderManager = new StreamProviderManager();
             _streamProviderManager.AddStreamProvider(new TwitchProvider(_log,
                                                                         _debugMode));
-            _streamProviderManager.AddStreamProvider(new HitboxProvider(_log,
-                                                                        _debugMode));
+            _streamProviderManager.AddStreamProvider(
+                new HitboxProvider(new RestClient("http://api.hitbox.tv"),
+                                   _log,
+                                   _debugMode));
             _voting = new VoteManager();
             _streamProviderManager.StreamStarted += OnStreamStarted;
             _streamProviderManager.StreamStopped += OnStreamStopped;

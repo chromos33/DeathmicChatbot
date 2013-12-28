@@ -15,7 +15,7 @@ namespace DeathmicChatbot
         bool AddStream(string stream);
         void RemoveStream(string stream);
         void CheckStreams();
-        IEnumerable<string> GetStreamInfoArray();
+        List<string> GetStreamInfoArray();
         string GetLink();
     }
 }

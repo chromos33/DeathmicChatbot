@@ -5,51 +5,63 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
+using System.Timers;
 using RestSharp;
 using RestSharp.Deserializers;
 using RestSharp.Serializers;
-using Timer = System.Timers.Timer;
 
 #endregion
 
 
 namespace DeathmicChatbot.StreamInfo.Hitbox
 {
-    public class HitboxProvider : IStreamProvider
+    public class HitboxProvider : IStreamProvider, IDisposable
     {
         private const string STREAMS_FILE = "streams_hitbox.txt";
         private const string STREAMDATA_FILE = "streamdata_hitbox.txt";
         private const int TIME_MS_HITBOX_QUERY_THREAD_SLEEP = 500;
-        private readonly RestClient _client;
 
         private readonly bool _debugMode;
         private readonly Dictionary<string, HitboxRootObject> _lastRequests =
             new Dictionary<string, HitboxRootObject>();
         private readonly LogManager _log;
+        private readonly RestClient _restClient;
 
         private readonly ConcurrentDictionary<string, HitboxStreamData>
             _streamData = new ConcurrentDictionary<string, HitboxStreamData>();
         private readonly List<string> _streams = new List<string>();
 
         private readonly Queue<string> _streamsToCheck = new Queue<string>();
+        private readonly Timer _timer;
 
-        public HitboxProvider(LogManager log, bool debugMode = false)
+        public HitboxProvider(RestClient restClient,
+                              LogManager log,
+                              bool debugMode = false)
         {
+            if (restClient == null)
+                throw new ArgumentNullException("restClient");
+
             if (log == null)
                 throw new ArgumentNullException("log");
 
             _log = log;
             _debugMode = debugMode;
 
-            _client = new RestClient("http://api.hitbox.tv");
+            _restClient = restClient;
 
             LoadStreams();
             LoadStreamData();
 
-            var hitboxQueryThread = new Thread(QueryHitboxForQueuedStreamTimed);
-            hitboxQueryThread.Start();
+            _timer = new Timer(TIME_MS_HITBOX_QUERY_THREAD_SLEEP);
+            _timer.Elapsed += (sender, args) => QueryHitboxForQueuedStream();
+            _timer.Start();
         }
+
+        #region IDisposable Members
+
+        public void Dispose() { _timer.Stop(); }
+
+        #endregion
 
         #region IStreamProvider Members
 
@@ -63,6 +75,13 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             {
                 _streams.Add(stream);
                 WriteStreamsToFile();
+
+                if (_streams.Count == 1)
+                {
+                    _streamsToCheck.Enqueue(stream);
+                    QueryHitboxForQueuedStream();
+                }
+
                 return true;
             }
             return false;
@@ -82,7 +101,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
                 _streamsToCheck.Enqueue(stream);
         }
 
-        public IEnumerable<string> GetStreamInfoArray()
+        public List<string> GetStreamInfoArray()
         {
             return
                 _streamData.Values.Select(
@@ -101,20 +120,11 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         #endregion
 
-        private void QueryHitboxForQueuedStreamTimed()
-        {
-            var timer = new Timer(TIME_MS_HITBOX_QUERY_THREAD_SLEEP);
-            timer.Elapsed += (sender, args) => QueryHitboxForQueuedStream();
-            timer.Start();
-        }
-
         private void QueryHitboxForQueuedStream()
         {
             WriteStreamDataToFile();
 
-            Thread.Sleep(TIME_MS_HITBOX_QUERY_THREAD_SLEEP);
-
-            if (_streamsToCheck.Count <= 0)
+            if (_streamsToCheck.Count == 0)
                 return;
 
             var stream = _streamsToCheck.Dequeue();
@@ -126,7 +136,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             if (result.livestream[0].media_is_live == "1")
             {
                 if (!_streamData.ContainsKey(stream))
-                {
+                 {
                     var hitboxStreamData = new HitboxStreamData
                     {
                         Started = DateTime.Now,
@@ -207,7 +217,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
         {
             var req = new RestRequest("/media/live/" + sStream, Method.GET);
 
-            var response = _client.Execute(req);
+            var response = _restClient.Execute(req);
 
             WriteDebugInfoIfDebugMode(response);
 

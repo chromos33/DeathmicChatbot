@@ -82,7 +82,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             WriteStreamDataToFile();
         }
 
-        public IEnumerable<string> GetStreamInfoArray()
+        public List<string> GetStreamInfoArray()
         {
             return
                 _streamData.Values.Select(
