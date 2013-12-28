@@ -101,11 +101,12 @@ namespace DeathmicChatbot
                 var dtLastVisit = DateTime.Parse(joins[joins.Count - 2]);
                 var tsLastVisit = DateTime.Now - dtLastVisit;
 
-                var sLastVisitTimeDifference = tsLastVisit.ToString();
                 sMessageLastVisitData =
                     string.Format(" Their last visit was on {0} ({1} ago).",
                                   joins[joins.Count - 2],
-                                  sLastVisitTimeDifference);
+                                  tsLastVisit.ToString(tsLastVisit.Days == 0
+                                                           ? "h':'mm':'ss"
+                                                           : "d' days 'h':'mm':'ss"));
             }
 
             stringBuilder.Append(sMessageLastVisitData);

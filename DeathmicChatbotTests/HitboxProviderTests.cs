@@ -8,7 +8,6 @@ using DeathmicChatbot.StreamInfo.Hitbox;
 using NSubstitute;
 using NUnit.Framework;
 using RestSharp;
-using Stream = System.IO.Stream;
 
 #endregion
 
@@ -65,8 +64,34 @@ namespace DeathmicChatbotTests
         private LogManager _logManager;
         private RestClient _restClient;
         private string _testDirectory;
-        private const string STREAM_REQUEST_RESPONSE_OFFLINE_SAMPLE_FILE = "StreamRequestResponseOffline.txt";
-        private const string STREAM_REQUEST_RESPONSE_ONLINE_SAMPLE_FILE = "StreamRequestResponseOnline.txt";
+        private const string STREAM_REQUEST_RESPONSE_OFFLINE_SAMPLE_FILE =
+            "StreamRequestResponseOffline.txt";
+        private const string STREAM_REQUEST_RESPONSE_ONLINE_SAMPLE_FILE =
+            "StreamRequestResponseOnline.txt";
+
+        [Test]
+        public void AddingRunningStreamShouldFireStreamAddedEvent()
+        {
+            var streamReader =
+                new StreamReader("..\\" +
+                                 STREAM_REQUEST_RESPONSE_ONLINE_SAMPLE_FILE);
+            var content = streamReader.ReadToEnd();
+            streamReader.Close();
+
+            var dummyRequestResponse = Substitute.For<IRestResponse>();
+            dummyRequestResponse.Content = content;
+
+            _restClient.Execute(Arg.Any<IRestRequest>())
+                       .Returns(dummyRequestResponse);
+
+            var fired = false;
+
+            _subject.StreamStarted += (sender, args) => fired = true;
+
+            _subject.AddStream(STREAM_NAME);
+
+            Assert.IsTrue(fired);
+        }
 
         [Test]
         public void AddingStreamShouldSucceed()
@@ -106,9 +131,11 @@ namespace DeathmicChatbotTests
         [Test]
         public void GetStreamInfoArrayWithDataShouldReturnData()
         {
-            var streamReader = new StreamReader("..\\"+STREAM_REQUEST_RESPONSE_ONLINE_SAMPLE_FILE);
+            var streamReader =
+                new StreamReader("..\\" +
+                                 STREAM_REQUEST_RESPONSE_ONLINE_SAMPLE_FILE);
             var content = streamReader.ReadToEnd();
-            
+
             var dummyRequestResponse = Substitute.For<IRestResponse>();
             dummyRequestResponse.Content = content;
 
@@ -120,28 +147,6 @@ namespace DeathmicChatbotTests
             var result = _subject.GetStreamInfoArray();
 
             Assert.That(result.Count, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void AddingRunningStreamShouldFireStreamAddedEvent()
-        {
-            var streamReader = new StreamReader("..\\" + STREAM_REQUEST_RESPONSE_ONLINE_SAMPLE_FILE);
-            var content = streamReader.ReadToEnd();
-            streamReader.Close();
-
-            var dummyRequestResponse = Substitute.For<IRestResponse>();
-            dummyRequestResponse.Content = content;
-
-            _restClient.Execute(Arg.Any<IRestRequest>())
-                       .Returns(dummyRequestResponse);
-
-            var fired = false;
-
-            _subject.StreamStarted += (sender, args) => fired = true;
-
-            _subject.AddStream(STREAM_NAME);
-
-            Assert.IsTrue(fired);
         }
 
         [Test]

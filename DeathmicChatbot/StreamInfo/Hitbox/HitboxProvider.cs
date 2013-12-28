@@ -136,7 +136,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             if (result.livestream[0].media_is_live == "1")
             {
                 if (!_streamData.ContainsKey(stream))
-                 {
+                {
                     var hitboxStreamData = new HitboxStreamData
                     {
                         Started = DateTime.Now,

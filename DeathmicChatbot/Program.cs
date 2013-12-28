@@ -177,12 +177,12 @@ namespace DeathmicChatbot
                               args.StreamData.Stream.Channel);
             _messageQueue.PublicMessageEnqueue(Channel,
                                                String.Format(
-                                                   "Stream stopped after {1:HH}:{1:mm}: {0}",
+                                                   "Stream stopped after {1}: {0}",
                                                    args.StreamData.Stream
                                                        .Channel,
-                                                   new DateTime(
-                                                       args.StreamData
-                                                           .TimeSinceStart.Ticks)));
+                                                   args.StreamData
+                                                       .TimeSinceStart.ToString(
+                                                           "h':'mm':'ss")));
         }
 
         private static void OnStreamStarted(object sender, StreamEventArgs args)
