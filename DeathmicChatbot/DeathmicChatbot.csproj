@@ -89,6 +89,7 @@
     <Compile Include="StreamProviderManager.cs" />
     <Compile Include="StreamStopCounter.cs" />
     <Compile Include="StreamInfo\Twitch\TwitchProvider.cs" />
+    <Compile Include="UserMerger.cs" />
     <Compile Include="Voting.cs" />
     <Compile Include="WebsiteManager.cs" />
     <Compile Include="YotubeManager.cs" />

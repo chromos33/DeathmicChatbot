@@ -721,6 +721,7 @@ namespace DeathmicChatbot
             CommandManager.PrivateCommand removevote = RemoveVote;
             CommandManager.PrivateCommand listvotings = ListVotings;
             CommandManager.PrivateCommand sendmessage = SendMessage;
+            CommandManager.PrivateCommand mergeusers = MergeUsers;
             _commands.SetCommand("addstream", addstream);
             _commands.SetCommand("streamadd", addstream);
             _commands.SetCommand("delstream", delstream);
@@ -738,12 +739,35 @@ namespace DeathmicChatbot
             _commands.SetCommand("pickuser", pickuser);
             _commands.SetCommand("say", sendmessage);
             _commands.SetCommand("roll", roll);
+            _commands.SetCommand("mergeusers", mergeusers);
 
             var votingCheckThread = new Thread(CheckAllVotingsThreaded);
             var saveChosenUsersThread = new Thread(SaveChosenUsersThreaded);
 
             votingCheckThread.Start();
             saveChosenUsersThread.Start();
+        }
+
+        private static void MergeUsers(UserInfo user,
+                                       string text,
+                                       string commandargs)
+        {
+            var split = commandargs.Split(new[] {' '});
+
+            if (split.Length < 2)
+            {
+                _messageQueue.PrivateNoticeEnqueue(user.Nick,
+                                                   "MergeUsers: Incorrect usage (no 2 arguments detected).");
+                return;
+            }
+
+            var userToMergeAway = split[0];
+            var userToMergeInto = split[1];
+
+            UserMerger.MergeUsers(_messageQueue,
+                                  user.Nick,
+                                  userToMergeAway,
+                                  userToMergeInto);
         }
 
         private static void OnPublic(UserInfo user,
