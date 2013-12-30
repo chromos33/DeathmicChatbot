@@ -23,12 +23,17 @@ namespace DeathmicChatbot
         {
             var countItem =
                 _countItems.FirstOrDefault(
-                    item => item.Name == sName.ToLower().Trim()) ??
-                new CountItem
+                    item => item.Name == sName.ToLower().Trim());
+
+            if (countItem == null)
+            {
+                countItem = new CountItem
                 {
                     Name = sName.ToLower().Trim(),
                     Started = DateTime.Now
                 };
+                _countItems.Add(countItem);
+            }
 
             countItem.Hits++;
 
@@ -47,13 +52,17 @@ namespace DeathmicChatbot
             var countItem =
                 _countItems.FirstOrDefault(
                     item => item.Name == sName.ToLower().Trim());
-            if (countItem != null)
-                _countItems.Remove(countItem);
+
+            CounterStats(sName);
+
+            if (countItem == null)
+                return;
+
+            _countItems.Remove(countItem);
 
             if (ResetRequested == null)
                 return;
 
-            CounterStats(sName);
             ResetRequested(this,
                            new CounterEventArgs(
                                string.Format(
