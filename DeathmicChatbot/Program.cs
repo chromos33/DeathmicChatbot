@@ -699,9 +699,11 @@ namespace DeathmicChatbot
             _streamProviderManager.AddStreamProvider(new TwitchProvider(_log,
                                                                         _debugMode));
             _streamProviderManager.AddStreamProvider(
-                new HitboxProvider(new RestClient("http://api.hitbox.tv"),
-                                   _log,
-                                   _debugMode));
+                new HitboxProvider(
+                    new RestClientProvider(new RestClient("http://api.hitbox.tv")),
+                    new LogManagerProvider(_log),
+                    new TextFile(HitboxProvider.STREAMS_FILE),
+                    _debugMode));
             _voting = new VoteManager();
             _streamProviderManager.StreamStarted += OnStreamStarted;
             _streamProviderManager.StreamStopped += OnStreamStopped;

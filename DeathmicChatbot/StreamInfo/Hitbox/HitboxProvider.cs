@@ -17,37 +17,43 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 {
     public class HitboxProvider : IStreamProvider, IDisposable
     {
-        private const string STREAMS_FILE = "streams_hitbox.txt";
+        public const string STREAMS_FILE = "streams_hitbox.txt";
         private const string STREAMDATA_FILE = "streamdata_hitbox.txt";
         private const int TIME_MS_HITBOX_QUERY_THREAD_SLEEP = 500;
 
         private readonly bool _debugMode;
         private readonly Dictionary<string, HitboxRootObject> _lastRequests =
             new Dictionary<string, HitboxRootObject>();
-        private readonly LogManager _log;
-        private readonly RestClient _restClient;
+        private readonly ILogManagerProvider _log;
+        private readonly IRestClientProvider _restClientProvider;
 
         private readonly ConcurrentDictionary<string, HitboxStreamData>
             _streamData = new ConcurrentDictionary<string, HitboxStreamData>();
         private readonly List<string> _streams = new List<string>();
 
         private readonly Queue<string> _streamsToCheck = new Queue<string>();
+        private readonly ITextFile _textFileStreams;
         private readonly Timer _timer;
 
-        public HitboxProvider(RestClient restClient,
-                              LogManager log,
+        public HitboxProvider(IRestClientProvider restClientProvider,
+                              ILogManagerProvider log,
+                              ITextFile textFileStreams,
                               bool debugMode = false)
         {
-            if (restClient == null)
-                throw new ArgumentNullException("restClient");
+            if (restClientProvider == null)
+                throw new ArgumentNullException("restClientProvider");
 
             if (log == null)
                 throw new ArgumentNullException("log");
 
+            if (textFileStreams == null)
+                throw new ArgumentNullException("textFileStreams");
+
             _log = log;
             _debugMode = debugMode;
+            _textFileStreams = textFileStreams;
 
-            _restClient = restClient;
+            _restClientProvider = restClientProvider;
 
             LoadStreams();
             LoadStreamData();
@@ -217,7 +223,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
         {
             var req = new RestRequest("/media/live/" + sStream, Method.GET);
 
-            var response = _restClient.Execute(req);
+            var response = _restClientProvider.Execute(req);
 
             WriteDebugInfoIfDebugMode(response);
 
@@ -255,13 +261,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             }
         }
 
-        private void WriteStreamsToFile()
-        {
-            var writer = new StreamWriter(STREAMS_FILE, false);
-            foreach (var stream in _streams)
-                writer.WriteLine(stream);
-            writer.Close();
-        }
+        private void WriteStreamsToFile() { _textFileStreams.WriteLines(_streams); }
 
         private void WriteDebugInfoIfDebugMode(IRestResponse response)
         {
@@ -275,22 +275,18 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         private void LoadStreams()
         {
-            if (!File.Exists(STREAMS_FILE))
-                File.Create(STREAMS_FILE).Close();
-            var reader = new StreamReader(STREAMS_FILE);
+            var lines = _textFileStreams.ReadWholeFileInLines();
 
-            while (!reader.EndOfStream)
+            if (lines.Count == 0) return;
+
+            foreach (var line in lines.Where(line => !_streams.Contains(line)))
             {
-                var sLine = reader.ReadLine();
-                if (_streams.Contains(sLine))
-                    continue;
-                _streams.Add(sLine);
+                _streams.Add(line);
                 _log.WriteToLog("Information",
                                 string.Format(
                                     "Added stream '{0}' from saved streams file to list.",
-                                    sLine));
+                                    line));
             }
-            reader.Close();
         }
 
         private void LoadStreamData()

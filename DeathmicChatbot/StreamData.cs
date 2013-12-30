@@ -1,6 +1,7 @@
 #region Using
 
 using System;
+using DeathmicChatbot.StreamInfo;
 
 #endregion
 

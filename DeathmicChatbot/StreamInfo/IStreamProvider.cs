@@ -6,7 +6,7 @@ using System.Collections.Generic;
 #endregion
 
 
-namespace DeathmicChatbot
+namespace DeathmicChatbot.StreamInfo
 {
     public interface IStreamProvider
     {

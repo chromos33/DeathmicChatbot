@@ -59,9 +59,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandManager.cs" />
+    <Compile Include="ITextFile.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxProvider.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxStreamData.cs" />
-    <Compile Include="IStreamProvider.cs" />
+    <Compile Include="TextFile.cs" />
+    <Compile Include="StreamInfo\IStreamProvider.cs" />
     <Compile Include="JoinLogger.cs" />
     <Compile Include="LogManager.cs" />
     <Compile Include="MessageQueue.cs" />
@@ -74,8 +76,12 @@
     </Compile>
     <Compile Include="Stream.cs" />
     <Compile Include="StreamData.cs" />
+    <Compile Include="ILogManagerProvider.cs" />
+    <Compile Include="IRestClientProvider.cs" />
     <Compile Include="StreamInfo\Hitbox\Livestream.cs" />
+    <Compile Include="LogManagerProvider.cs" />
     <Compile Include="StreamInfo\Hitbox\Request.cs" />
+    <Compile Include="RestClientProvider.cs" />
     <Compile Include="StreamInfo\Twitch\Channel.cs" />
     <Compile Include="StreamInfo\Twitch\Links.cs" />
     <Compile Include="StreamInfo\Twitch\Links2.cs" />
