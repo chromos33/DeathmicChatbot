@@ -59,6 +59,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandManager.cs" />
+    <Compile Include="Counter.cs" />
+    <Compile Include="CounterEventArgs.cs" />
+    <Compile Include="CountItem.cs" />
+    <Compile Include="ICounter.cs" />
     <Compile Include="ITextFile.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxProvider.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxStreamData.cs" />

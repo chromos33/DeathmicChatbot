@@ -41,6 +41,7 @@ namespace DeathmicChatbot
         private static bool _restarted;
         private static readonly Random Rnd = new Random();
         private static MessageQueue _messageQueue;
+        private static readonly ICounter Counter = new Counter();
 
         private static readonly ConcurrentDictionary<string, string> ChosenUsers
             = new ConcurrentDictionary<string, string>();
@@ -719,11 +720,15 @@ namespace DeathmicChatbot
             CommandManager.PublicCommand endvote = EndVoting;
             CommandManager.PublicCommand pickuser = PickRandomUser;
             CommandManager.PublicCommand roll = Roll;
+            CommandManager.PublicCommand count = CounterCount;
+            CommandManager.PublicCommand counterReset = CounterReset;
+            CommandManager.PublicCommand counterStats = CounterStats;
             CommandManager.PrivateCommand vote = Vote;
             CommandManager.PrivateCommand removevote = RemoveVote;
             CommandManager.PrivateCommand listvotings = ListVotings;
             CommandManager.PrivateCommand sendmessage = SendMessage;
             CommandManager.PrivateCommand mergeusers = MergeUsers;
+
             _commands.SetCommand("addstream", addstream);
             _commands.SetCommand("streamadd", addstream);
             _commands.SetCommand("delstream", delstream);
@@ -742,12 +747,85 @@ namespace DeathmicChatbot
             _commands.SetCommand("say", sendmessage);
             _commands.SetCommand("roll", roll);
             _commands.SetCommand("mergeusers", mergeusers);
+            _commands.SetCommand("count", count);
+            _commands.SetCommand("counterReset", counterReset);
+            _commands.SetCommand("counterStats", counterStats);
+
+            Counter.CountRequested += CounterOnCountRequested;
+            Counter.StatRequested += CounterOnStatRequested;
+            Counter.ResetRequested += CounterOnResetRequested;
 
             var votingCheckThread = new Thread(CheckAllVotingsThreaded);
             var saveChosenUsersThread = new Thread(SaveChosenUsersThreaded);
 
             votingCheckThread.Start();
             saveChosenUsersThread.Start();
+        }
+
+        private static void CounterOnResetRequested(object sender,
+                                                    CounterEventArgs
+                                                        counterEventArgs) { _messageQueue.PublicMessageEnqueue(Channel, counterEventArgs.Message); }
+
+        private static void CounterOnStatRequested(object sender,
+                                                   CounterEventArgs
+                                                       counterEventArgs) { _messageQueue.PublicMessageEnqueue(Channel, counterEventArgs.Message); }
+
+        private static void CounterOnCountRequested(object sender,
+                                                    CounterEventArgs
+                                                        counterEventArgs) { _messageQueue.PublicMessageEnqueue(Channel, counterEventArgs.Message); }
+
+        private static void CounterStats(UserInfo user,
+                                         string channel,
+                                         string text,
+                                         string commandargs)
+        {
+            var split = commandargs.Split(new[] {' '});
+            if (split.Length < 1)
+            {
+                _messageQueue.PublicMessageEnqueue(channel,
+                                                   "Error: counterStats needs a counter name. '!counterStats <name>'");
+                return;
+            }
+
+            var sName = split[0];
+
+            Counter.CounterStats(sName);
+        }
+
+        private static void CounterReset(UserInfo user,
+                                         string channel,
+                                         string text,
+                                         string commandargs)
+        {
+            var split = commandargs.Split(new[] {' '});
+            if (split.Length < 1)
+            {
+                _messageQueue.PublicMessageEnqueue(channel,
+                                                   "Error: counterReset needs a counter name. '!counterReset <name>'");
+                return;
+            }
+
+            var sName = split[0];
+
+            Counter.CounterReset(sName);
+        }
+
+        private static void CounterCount(UserInfo user,
+                                         string channel,
+                                         string text,
+                                         string commandargs)
+        {
+            var split = commandargs.Split(new[] {' '});
+            if (split.Length < 1)
+            {
+                _messageQueue.PublicMessageEnqueue(channel,
+                                                   "Error: count needs a counter name. '!count <name>'");
+                return;
+            }
+
+            var sName = split[0];
+
+            Counter.Count(sName);
         }
 
         private static void MergeUsers(UserInfo user,

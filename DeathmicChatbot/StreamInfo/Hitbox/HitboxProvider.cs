@@ -277,7 +277,8 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
         {
             var lines = _textFileStreams.ReadWholeFileInLines();
 
-            if (lines.Count == 0) return;
+            if (lines.Count == 0)
+                return;
 
             foreach (var line in lines.Where(line => !_streams.Contains(line)))
             {
