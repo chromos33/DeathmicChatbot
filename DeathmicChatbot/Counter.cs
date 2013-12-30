@@ -89,22 +89,34 @@ namespace DeathmicChatbot
             {
                 var timeSpan = DateTime.Now - countItem.Started;
 
-                StatRequested(this,
-                              new CounterEventArgs(
-                                  string.Format(
-                                      "Counter '{0}' was started at {1} ({2} ago). It has since been called {3} times, that it {4} times per hour, or {5} times per minute.",
-                                      sName,
-                                      countItem.Started,
-                                      timeSpan.ToString(timeSpan.Days == 0
-                                                            ? "h':'mm':'ss"
-                                                            : "d' days 'h':'mm':'ss"),
-                                      countItem.Hits,
-                                      Math.Round(
-                                          countItem.Hits / timeSpan.TotalHours,
-                                          3),
-                                      Math.Round(
-                                          countItem.Hits / timeSpan.TotalMinutes,
-                                          3))));
+                var timesPerHour = timeSpan.TotalHours < 1
+                                       ? ""
+                                       : string.Format(
+                                           "{0} times per hour, or ",
+                                           Math.Round(
+                                               countItem.Hits /
+                                               timeSpan.TotalHours,
+                                               3));
+
+                var sMessage =
+                    string.Format(
+                        "Counter '{0}' was started at {1} ({2} ago). It has since been called {3} times, that is {4}{5} times per minute, or once every {6} minutes.",
+                        sName,
+                        countItem.Started,
+                        timeSpan.ToString(timeSpan.Days == 0
+                                              ? "h':'mm':'ss"
+                                              : "d' days 'h':'mm':'ss"),
+                        countItem.Hits,
+                        timesPerHour,
+                        Math.Round(
+                            countItem.Hits /
+                            (timeSpan.TotalMinutes >= 1
+                                 ? timeSpan.TotalMinutes
+                                 : Math.Ceiling(timeSpan.TotalMinutes)),
+                            3),
+                        Math.Round(timeSpan.TotalMinutes / countItem.Hits, 3));
+
+                StatRequested(this, new CounterEventArgs(sMessage));
             }
         }
 
