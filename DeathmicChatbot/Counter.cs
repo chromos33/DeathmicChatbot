@@ -99,10 +99,12 @@ namespace DeathmicChatbot
                                                             ? "h':'mm':'ss"
                                                             : "d' days 'h':'mm':'ss"),
                                       countItem.Hits,
-                                      Math.Floor(timeSpan.TotalHours /
-                                                 countItem.Hits),
-                                      Math.Floor(timeSpan.TotalMinutes /
-                                                 countItem.Hits))));
+                                      Math.Round(
+                                          countItem.Hits / timeSpan.TotalHours,
+                                          3),
+                                      Math.Round(
+                                          countItem.Hits / timeSpan.TotalMinutes,
+                                          3))));
             }
         }
 
