@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Timers;
+using DeathmicChatbot.Interfaces;
 
 #endregion
 
@@ -13,7 +14,8 @@ namespace DeathmicChatbot
         private static readonly Dictionary<string, string> MergeRequests =
             new Dictionary<string, string>();
 
-        public static void MergeUsers(MessageQueue messageQueue,
+        public static void MergeUsers(IModel model,
+                                      MessageQueue messageQueue,
                                       string requestingUser,
                                       string userToMergeAway,
                                       string userToMergeInto)
@@ -36,7 +38,7 @@ namespace DeathmicChatbot
             }
             else
             {
-                DoMerge(userToMergeAway, userToMergeInto);
+                DoMerge(model, userToMergeAway, userToMergeInto);
                 messageQueue.PrivateNoticeEnqueue(requestingUser,
                                                   string.Format(
                                                       "User {0} is now a part of user {1}.",
@@ -45,11 +47,19 @@ namespace DeathmicChatbot
             }
         }
 
-        private static void DoMerge(string userToMergeAway,
-                                    string userToMergeInto)
+        private static void DoMerge(IModel model,
+                                    string sUserToMergeAway,
+                                    string sUserToMergeInto)
         {
+            var userToMergeAway = new User(model, sUserToMergeAway);
+            var userToMergeInto = new User(model, sUserToMergeInto);
+
+            userToMergeInto.Aliases.AddRange(userToMergeAway.Aliases);
+            userToMergeInto.Aliases.Add(userToMergeAway.Nick);
+
             // TODO: Copy all join/part events to other user, delete old data
-            // TODO: Enter new user into list of aliases of old user
+
+            userToMergeAway.Delete();
         }
     }
 }

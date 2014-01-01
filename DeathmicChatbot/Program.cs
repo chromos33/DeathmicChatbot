@@ -848,7 +848,8 @@ namespace DeathmicChatbot
             var userToMergeAway = split[0];
             var userToMergeInto = split[1];
 
-            UserMerger.MergeUsers(_messageQueue,
+            UserMerger.MergeUsers(_model,
+                                  _messageQueue,
                                   user.Nick,
                                   userToMergeAway,
                                   userToMergeInto);
