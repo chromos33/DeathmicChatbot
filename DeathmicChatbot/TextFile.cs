@@ -35,7 +35,7 @@ namespace DeathmicChatbot
 
         public void WriteLines(IEnumerable<string> lines, bool bAppend = false)
         {
-            using (var writer = new StreamWriter(FilePath))
+            using (var writer = new StreamWriter(FilePath, bAppend))
             {
                 foreach (var line in lines)
                     writer.WriteLine(line);
