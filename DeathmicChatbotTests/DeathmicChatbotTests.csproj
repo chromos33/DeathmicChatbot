@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="CounterTests.cs" />
     <Compile Include="HitboxProviderTests.cs" />
+    <Compile Include="UserTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
