@@ -10,7 +10,7 @@ using DeathmicChatbot.Interfaces;
 
 namespace DeathmicChatbot
 {
-    internal class Counter : ICounter
+    public class Counter : ICounter
     {
         private readonly List<CountItem> _countItems = new List<CountItem>();
 

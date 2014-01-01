@@ -7,7 +7,7 @@ using System;
 
 namespace DeathmicChatbot
 {
-    internal class CounterEventArgs : EventArgs
+    public class CounterEventArgs : EventArgs
     {
         public CounterEventArgs(string sMessage) { Message = sMessage; }
 

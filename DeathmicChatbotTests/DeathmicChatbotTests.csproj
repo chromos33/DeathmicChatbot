@@ -55,6 +55,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CounterTests.cs" />
     <Compile Include="HitboxProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
