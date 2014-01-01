@@ -46,6 +46,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\packages\System.Data.SQLite.1.0.90.0\lib\net40\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Google.GData.Client">
       <HintPath>lib\Google.GData.Client.dll</HintPath>
@@ -59,11 +63,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandManager.cs" />
+    <Compile Include="ConnectionOpener.cs" />
     <Compile Include="Counter.cs" />
     <Compile Include="CounterEventArgs.cs" />
     <Compile Include="CountItem.cs" />
+    <Compile Include="Interfaces\IDatabaseProvider.cs" />
+    <Compile Include="Interfaces\IModel.cs" />
     <Compile Include="Interfaces\ICounter.cs" />
     <Compile Include="Interfaces\ITextFile.cs" />
+    <Compile Include="Model.cs" />
+    <Compile Include="SqliteDatabaseProvider.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxProvider.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxStreamData.cs" />
     <Compile Include="TextFile.cs" />
@@ -108,10 +117,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="x64\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x86\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

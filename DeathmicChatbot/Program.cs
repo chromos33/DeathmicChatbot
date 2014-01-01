@@ -43,6 +43,7 @@ namespace DeathmicChatbot
         private static readonly Random Rnd = new Random();
         private static MessageQueue _messageQueue;
         private static readonly ICounter Counter = new Counter();
+        private static IModel _model;
 
         private static readonly ConcurrentDictionary<string, string> ChosenUsers
             = new ConcurrentDictionary<string, string>();
@@ -61,6 +62,8 @@ namespace DeathmicChatbot
 
             LoadChosenUsers();
             Connect();
+
+            _model = new Model(new SqliteDatabaseProvider());
         }
 
         private static void Connect()
