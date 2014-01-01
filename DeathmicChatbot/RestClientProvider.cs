@@ -1,5 +1,6 @@
 ﻿#region Using
 
+using DeathmicChatbot.Interfaces;
 using RestSharp;
 
 #endregion

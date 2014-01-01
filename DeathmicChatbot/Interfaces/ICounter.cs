@@ -5,7 +5,7 @@ using System;
 #endregion
 
 
-namespace DeathmicChatbot
+namespace DeathmicChatbot.Interfaces
 {
     internal interface ICounter
     {

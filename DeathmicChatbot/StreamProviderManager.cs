@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using DeathmicChatbot.Interfaces;
 using DeathmicChatbot.Properties;
-using DeathmicChatbot.StreamInfo;
 
 #endregion
 

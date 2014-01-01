@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Timers;
+using DeathmicChatbot.Interfaces;
 using RestSharp;
 using RestSharp.Deserializers;
 using RestSharp.Serializers;

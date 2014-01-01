@@ -5,7 +5,7 @@ using System.Collections.Generic;
 #endregion
 
 
-namespace DeathmicChatbot
+namespace DeathmicChatbot.Interfaces
 {
     public interface ITextFile
     {

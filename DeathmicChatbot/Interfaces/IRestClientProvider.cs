@@ -5,7 +5,7 @@ using RestSharp;
 #endregion
 
 
-namespace DeathmicChatbot
+namespace DeathmicChatbot.Interfaces
 {
     public interface IRestClientProvider
     {

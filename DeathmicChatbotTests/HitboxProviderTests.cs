@@ -1,7 +1,7 @@
 ﻿#region Using
 
 using System.Collections.Generic;
-using DeathmicChatbot;
+using DeathmicChatbot.Interfaces;
 using DeathmicChatbot.StreamInfo.Hitbox;
 using NSubstitute;
 using NUnit.Framework;
