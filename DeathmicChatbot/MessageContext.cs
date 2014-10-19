@@ -5,7 +5,7 @@ namespace DeathmicChatbot
 	internal class MessageContext
 	{
 		private readonly string channel;
-		private MessageQueue mqueue;
+		private readonly MessageQueue mqueue;
 		private readonly string sender;
 		private readonly bool priv;
 
