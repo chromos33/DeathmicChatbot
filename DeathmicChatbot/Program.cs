@@ -28,17 +28,15 @@ namespace DeathmicChatbot
         private const string CHOSEN_USERS_FILE = "chosenusers.txt";
         private const int USER_UPDATE_INTERVAL = 60;
         private static ConnectionArgs _cona;
-        private static Connection _con;
-        private static YotubeManager _youtube;
-        private static LogManager _log;
-        private static WebsiteManager _website;
+		private static Connection _con;
+		private static readonly String Channel = Settings.Default.Channel;
+		private static readonly String Nick = Settings.Default.Name;
+		private static readonly String Server = Settings.Default.Server;
+		private static readonly String Logfile = Settings.Default.Logfile;
+		private static LogManager _log = new LogManager(Logfile);
         private static StreamProviderManager _streamProviderManager;
         private static CommandManager _commands;
         private static VoteManager _voting;
-        private static readonly String Channel = Settings.Default.Channel;
-        private static readonly String Nick = Settings.Default.Name;
-        private static readonly String Server = Settings.Default.Server;
-        private static readonly String Logfile = Settings.Default.Logfile;
         private static bool _restarted;
         private static readonly Random Rnd = new Random();
         private static MessageQueue _messageQueue;
@@ -52,6 +50,9 @@ namespace DeathmicChatbot
             CurrentUsers = new ConcurrentDictionary<string, string>();
 
         private static bool _debugMode;
+
+		private static List<IURLHandler> handlers = new List<IURLHandler>() {new Handlers.YoutubeHandler(), new Handlers.Imgur(_log), new Handlers.WebsiteHandler(_log)};
+		private static URLExtractor urlExtractor = new URLExtractor();
 
         private static void Main(string[] args)
         {
@@ -696,10 +697,7 @@ namespace DeathmicChatbot
             _con.Sender.Join(Channel);
             UpdateUsers();
             _restarted = false;
-            _log = new LogManager(Logfile);
             AppDomain.CurrentDomain.UnhandledException += OnError;
-            _youtube = new YotubeManager();
-            _website = new WebsiteManager(_log);
             _streamProviderManager = new StreamProviderManager();
             _streamProviderManager.AddStreamProvider(new TwitchProvider(_log,
                                                                         _debugMode));
@@ -859,26 +857,22 @@ namespace DeathmicChatbot
                                      string channel,
                                      string message)
         {
+			MessageContext ctx = new MessageContext(channel, _messageQueue, user.Nick, false);
             if (_commands.CheckCommand(user, channel, message))
                 return;
+			IEnumerable<string> urls = urlExtractor.extractURLs(message);
 
-            var link = _youtube.IsYtLink(message);
+			if (urls.Count() > 0) {
+				foreach (var url in urls)
+					_log.WriteToLog ("Information", "URL found: " + url);
+			}
 
-            if (link != null)
-            {
-                var vid = _youtube.GetVideoInfo(link);
-                _messageQueue.PublicMessageEnqueue(channel,
-                                                   YotubeManager.GetInfoString(
-                                                       vid));
-                return;
-            }
-
-            var urls = _website.ContainsLinks(message);
-
-            foreach (var title in
-                urls.Select(url => _website.GetPageTitle(url).Trim())
-                    .Where(title => !string.IsNullOrEmpty(title)))
-                _messageQueue.PublicMessageEnqueue(channel, title);
+			foreach (var url in urls) {
+				foreach (var handler in handlers) {
+					if (handler.handleURL(url, ctx))
+						break;
+				}
+			}
         }
 
         private static void OnPrivate(UserInfo user, string message) { _commands.CheckCommand(user, Channel, message, true); }
