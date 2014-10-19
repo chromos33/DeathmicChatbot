@@ -51,7 +51,7 @@ namespace DeathmicChatbot
 
         private static bool _debugMode;
 
-		private static List<IURLHandler> handlers = new List<IURLHandler>() {new Handlers.YoutubeHandler(), new Handlers.WebsiteHandler(_log)};
+		private static List<IURLHandler> handlers = new List<IURLHandler>() {new Handlers.YoutubeHandler(), new Handlers.Imgur(_log), new Handlers.WebsiteHandler(_log)};
 		private static URLExtractor urlExtractor = new URLExtractor();
 
         private static void Main(string[] args)

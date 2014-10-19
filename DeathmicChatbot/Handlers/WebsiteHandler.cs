@@ -15,12 +15,10 @@ namespace DeathmicChatbot.Handlers
 {
 	internal class WebsiteHandler : IURLHandler
     {
-        private readonly Regex _imgurreg;
         private readonly LogManager _log;
 
         public WebsiteHandler(LogManager log)
         {
-            _imgurreg = new Regex(@"(https?:\/\/)?i.imgur.com\/(\w+).\w+");
             _log = log;
         }
 
@@ -43,8 +41,6 @@ namespace DeathmicChatbot.Handlers
 
         private bool GetPageTitleForUrl(string url, out string pageTitle)
         {
-            url = TransformIfImgurLink(url);
-
             var htmlDocument = TryLoadingDocument(url, new HtmlWeb());
 
             if (htmlDocument != null)
@@ -110,19 +106,6 @@ namespace DeathmicChatbot.Handlers
                 doc = null;
             }
             return doc;
-        }
-
-        private string TransformIfImgurLink(string url)
-        {
-            var match = _imgurreg.Match(url);
-
-            if (match.Success)
-            {
-                var id = match.Groups[2].Value;
-                url = "http://imgur.com/gallery/" + id;
-            }
-
-            return url;
         }
 
 		public bool handleURL(string url, MessageContext ctx) {

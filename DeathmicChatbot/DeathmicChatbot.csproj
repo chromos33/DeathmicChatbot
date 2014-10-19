@@ -118,6 +118,7 @@
     <Compile Include="URLExtractor.cs" />
     <Compile Include="Handlers\WebsiteHandler.cs" />
     <Compile Include="Handlers\YoutubeHandler.cs" />
+    <Compile Include="Handlers\Imgur.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
