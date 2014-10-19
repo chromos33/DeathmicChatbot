@@ -9,7 +9,7 @@ using Sharkbite.Irc;
 
 namespace DeathmicChatbot
 {
-	internal class CommandManager
+	public class CommandManager
     {
         #region Delegates
 
@@ -34,10 +34,6 @@ namespace DeathmicChatbot
          * name - Name of the command
          * callback - Delegate to call
          * overwrite - If true an already existing command with that name will be overwritten.
-         * 
-         * Returns:
-         * 
-         * true if the command was set, false if there was already an command with that name.
          */
 
 		public void setPublicCommand(string name,
@@ -55,10 +51,6 @@ namespace DeathmicChatbot
          * name - Name of the command
          * callback - Delegate to call
          * overwrite - If true an already existing command with that name will be overwritten.
-         * 
-         * Returns:
-         * 
-         * true if the command was set, false if there was already an command with that name.
          */
 
 		public void setPrivateCommand(string name,

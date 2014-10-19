@@ -3,7 +3,7 @@ using Sharkbite.Irc;
 
 namespace DeathmicChatbot
 {
-	internal class MessageContext
+	public class MessageContext
 	{
 		private readonly string channel;
 		private readonly MessageQueue mqueue;

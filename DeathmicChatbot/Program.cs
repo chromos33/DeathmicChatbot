@@ -258,184 +258,6 @@ namespace DeathmicChatbot
                                                    args.Voting._sQuestion));
         }
 
-		private static void StartVoting(MessageContext ctx,
-                                        string text,
-                                        string commandArgs)
-        {
-            var args = commandArgs != null
-                           ? commandArgs.Split('|')
-                           : new string[0];
-            if (args.Length < 3)
-            {
-				ctx.replyPrivate(string.Format(
-					"Please use the following format: {0}startvote <time>|<question>|<answer1,answer2,...>",
-					CommandManager.ACTIVATOR));
-                return;
-            }
-            var timeString = args[0];
-            var timeRegex = new Regex(@"^(\d+d)?(\d+h)?(\d+m)?(\d+s)?$");
-            var timeMatch = timeRegex.Match(timeString);
-            if (!timeMatch.Success)
-            {
-				ctx.replyPrivate("Time needs to be in the following format: [<num>d][<num>h][<num>m][<num>s]");
-				ctx.replyPrivate("Examples: 10m30s\n5h\n1d\n1d6h");
-                return;
-            }
-            var span = new TimeSpan();
-            TimeSpan tmpSpan;
-            if (TimeSpan.TryParseExact(timeMatch.Groups[1].Value,
-                                       "d'd'",
-                                       null,
-                                       out tmpSpan))
-                span += tmpSpan;
-            if (TimeSpan.TryParseExact(timeMatch.Groups[2].Value,
-                                       "h'h'",
-                                       null,
-                                       out tmpSpan))
-                span += tmpSpan;
-
-            if (TimeSpan.TryParseExact(timeMatch.Groups[3].Value,
-                                       "m'm'",
-                                       null,
-                                       out tmpSpan))
-                span += tmpSpan;
-            if (TimeSpan.TryParseExact(timeMatch.Groups[4].Value,
-                                       "s's'",
-                                       null,
-                                       out tmpSpan))
-                span += tmpSpan;
-
-            var question = args[1];
-            var answers = new List<string>(args[2].Split(','));
-
-            var endTime = DateTime.Now + span;
-            try
-            {
-				_voting.StartVoting(ctx.getSenderInfo(), question, answers, endTime);
-                _log.WriteToLog("Information", String.Format(
-					"{0} started a voting: {1}. End Date is: {2}", ctx.getSenderNick(), question, endTime));
-            }
-            catch (InvalidOperationException e)
-            {
-				ctx.replyPrivate(e.Message);
-                _log.WriteToLog("Error", String.Format(
-					"{0} tried starting a voting: {1}. But: {2}", ctx.getSenderNick(), question, e.Message));
-            }
-        }
-
-		private static void EndVoting(MessageContext ctx,
-                                      string text,
-                                      string commandArgs)
-        {
-            int index;
-            if (commandArgs == null || !int.TryParse(commandArgs, out index))
-            {
-				ctx.replyPrivate(string.Format(
-					"The format for ending a vote is: {0}endvote <id>", CommandManager.ACTIVATOR));
-                return;
-            }
-            try
-            {
-				_voting.EndVoting(ctx.getSenderInfo(), index - 1);
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                if (e.ParamName == "id")
-                {
-					ctx.replyPrivate(string.Format("There is no voting with the id {0}", index));
-                }
-                else
-
-                    throw;
-            }
-            catch (InvalidOperationException e)
-            {
-				ctx.replyPrivate(e.Message);
-            }
-        }
-
-		private static void Vote(MessageContext ctx, string text, string commandArgs)
-        {
-            var args = commandArgs != null
-                           ? commandArgs.Split(' ')
-                           : new string[0];
-            if (args.Length < 2)
-            {
-				ctx.reply(string.Format("Format: /msg {0} vote <id> <answer>", Nick));
-				ctx.reply(string.Format("You can check the running votings with /msg {0} listvotings", Nick));
-                return;
-            }
-            int index;
-            var answer = args[1];
-            if (!int.TryParse(args[0], out index))
-            {
-				ctx.reply("id must be a number");
-                return;
-            }
-            try
-            {
-				_voting.Vote(ctx.getSenderInfo(), index - 1, answer);
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                switch (e.ParamName)
-                {
-                    case "id":
-					ctx.reply(string.Format("There is no voting with the id {0}", index));
-                        break;
-                    case "answer":
-					ctx.reply(string.Format("The voting {0} has no answer {1}", index, answer));
-                        break;
-                    default:
-                        throw;
-                }
-            }
-        }
-
-		private static void RemoveVote(MessageContext ctx,
-                                       string text,
-                                       string commandArgs)
-        {
-            int index;
-            if (commandArgs == null || !int.TryParse(commandArgs, out index))
-            {
-				ctx.reply(string.Format("The format for removing your vote is: /msg {0} removevote <id>", Nick));
-                return;
-            }
-            try
-            {
-				_voting.RemoveVote(ctx.getSenderInfo(), index - 1);
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                if (e.ParamName == "id")
-                {
-					ctx.reply(string.Format("There is no voting with the id {0}", index));
-                }
-                else
-
-                    throw;
-            }
-        }
-
-		private static void ListVotings(MessageContext ctx,
-                                        string text,
-                                        string commandArgs)
-        {
-            if (_voting.Votings.Count == 0)
-            {
-				ctx.reply("There are currently no votings running");
-            }
-            foreach (var voting in _voting.Votings.Values)
-            {
-				ctx.reply(string.Format("{0} - {1}", voting._iIndex + 1, voting._sQuestion));
-				ctx.reply("Answers:");
-                foreach (var answer in voting._slAnswers)
-					ctx.reply(string.Format("    {0}", answer));
-				ctx.reply(string.Format("Voting runs until {0}", voting._dtEndTime));
-            }
-        }
-
         private static void CheckAllVotingsThreaded()
         {
             while (true)
@@ -570,13 +392,8 @@ namespace DeathmicChatbot
                     new LogManagerProvider(_log),
                     new TextFile(HitboxProvider.STREAMS_FILE),
                     _debugMode));
-            _voting = new VoteManager();
             _streamProviderManager.StreamStarted += OnStreamStarted;
             _streamProviderManager.StreamStopped += OnStreamStopped;
-            _voting.VotingStarted += VotingOnVotingStarted;
-            _voting.VotingEnded += VotingOnVotingEnded;
-            _voting.Voted += VotingOnVoted;
-            _voting.VoteRemoved += VotingOnVoteRemoved;
             _commands = new CommandManager();
 
 			_commands.setPublicCommand("addstream", AddStream);
@@ -586,13 +403,6 @@ namespace DeathmicChatbot
 			_commands.setPublicCommand("streamwegschreinen", DelStream);
 			_commands.setPublicCommand("streamcheck", StreamCheck);
 			_commands.setPublicCommand("checkstream", StreamCheck);
-			_commands.setPublicCommand("startvote", StartVoting);
-			_commands.setPublicCommand("endvote", EndVoting);
-			_commands.setPublicCommand("stopvote", EndVoting);
-			_commands.setPublicCommand("votestop", EndVoting);
-			_commands.setPrivateCommand("vote", Vote);
-			_commands.setPrivateCommand("listvotings", ListVotings);
-			_commands.setPrivateCommand("removevote", RemoveVote);
 			_commands.setPublicCommand("pickuser", PickRandomUser);
 			_commands.setPrivateCommand("say", SendMessage);
 			_commands.setPublicCommand("mergeusers", MergeUsers);
@@ -601,6 +411,12 @@ namespace DeathmicChatbot
 			_commands.setPublicCommand("counterStats", CounterStats);
 
 			new Dice(_commands);
+			_voting = new VoteManager(_commands, _log, Nick);
+
+			_voting.VotingStarted += VotingOnVotingStarted;
+			_voting.VotingEnded += VotingOnVotingEnded;
+			_voting.Voted += VotingOnVoted;
+			_voting.VoteRemoved += VotingOnVoteRemoved;
 
             Counter.CountRequested += CounterOnCountRequested;
             Counter.StatRequested += CounterOnStatRequested;

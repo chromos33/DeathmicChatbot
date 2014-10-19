@@ -9,7 +9,7 @@ using Sharkbite.Irc;
 
 namespace DeathmicChatbot
 {
-    internal class MessageQueue
+	public class MessageQueue
     {
         private const int MESSAGE_QUEUE_INTERVAL_MILLISECONDS = 1000;
 
