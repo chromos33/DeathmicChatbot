@@ -111,10 +111,13 @@
     <Compile Include="User.cs" />
     <Compile Include="UserMerger.cs" />
     <Compile Include="Voting.cs" />
-    <Compile Include="WebsiteManager.cs" />
-    <Compile Include="YotubeManager.cs" />
     <Compile Include="VoteManager.cs" />
     <Compile Include="VotingEventArgs.cs" />
+    <Compile Include="Interfaces\IURLHandler.cs" />
+    <Compile Include="MessageContext.cs" />
+    <Compile Include="URLExtractor.cs" />
+    <Compile Include="Handlers\WebsiteHandler.cs" />
+    <Compile Include="Handlers\YoutubeHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -125,9 +128,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="x64\SQLite.Interop.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="x64\SQLite.Interop.dll" />
     <Content Include="x86\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -140,4 +141,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Handlers\" />
+  </ItemGroup>
 </Project>

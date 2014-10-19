@@ -9,7 +9,7 @@ using Google.YouTube;
 
 namespace DeathmicChatbot
 {
-    public class YotubeManager
+	internal class YotubeManager : IURLHandler
     {
         private readonly Regex _reg;
         private readonly YouTubeRequest _request;
@@ -36,6 +36,15 @@ namespace DeathmicChatbot
             var match = _reg.Match(txt);
             return match.Success ? match.Groups[1].Value : null;
         }
+
+		public bool handleURL(string URL, MessageContext ctx) {
+			var match = IsYtLink(URL);
+			if (match != null) {
+				ctx.reply(GetInfoString(GetVideoInfo(match)));
+				return true;
+			}
+			return false;
+		}
 
         public static string GetInfoString(Video vi) { return vi.Title + " " + Math.Round(vi.RatingAverage, 2) + "Ø"; }
     }

@@ -53,6 +53,9 @@ namespace DeathmicChatbot
 
         private static bool _debugMode;
 
+		private static List<IURLHandler> handlers = new List<IURLHandler>() {_youtube, _website};
+		private static URLExtractor urlExtractor = new URLExtractor();
+
         private static void Main(string[] args)
         {
             _debugMode = args.Length > 0 && args.Contains("debug");
@@ -859,26 +862,20 @@ namespace DeathmicChatbot
                                      string channel,
                                      string message)
         {
+			MessageContext ctx = new MessageContext(channel, _messageQueue, user.Nick, false);
             if (_commands.CheckCommand(user, channel, message))
                 return;
+			IEnumerable<string> urls = urlExtractor.extractURLs(message);
 
-            var link = _youtube.IsYtLink(message);
+			if (urls.Count() > 0) {
+				foreach (var url in urls)
+					_log.WriteToLog ("Information", "URL found: " + url);
+			}
 
-            if (link != null)
-            {
-                var vid = _youtube.GetVideoInfo(link);
-                _messageQueue.PublicMessageEnqueue(channel,
-                                                   YotubeManager.GetInfoString(
-                                                       vid));
-                return;
-            }
-
-            var urls = _website.ContainsLinks(message);
-
-            foreach (var title in
-                urls.Select(url => _website.GetPageTitle(url).Trim())
-                    .Where(title => !string.IsNullOrEmpty(title)))
-                _messageQueue.PublicMessageEnqueue(channel, title);
+			foreach (var url in urls) {
+				foreach (var handler in handlers)
+					handler.handleURL(url, ctx);
+			}
         }
 
         private static void OnPrivate(UserInfo user, string message) { _commands.CheckCommand(user, Channel, message, true); }

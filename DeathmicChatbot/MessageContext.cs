@@ -2,14 +2,14 @@
 
 namespace DeathmicChatbot
 {
-	public class MessageContext
+	internal class MessageContext
 	{
 		private readonly string channel;
-		private readonly MessageQueue mqueue;
+		private MessageQueue mqueue;
 		private readonly string sender;
 		private readonly bool priv;
 
-		public MessageContext (string channel_, MessageQueue mq, string sender_, bool private_)
+		public MessageContext(string channel_, MessageQueue mq, string sender_, bool private_)
 		{
 			channel = channel_;
 			mqueue = mq;
