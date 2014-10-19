@@ -7,14 +7,14 @@ using Google.YouTube;
 #endregion
 
 
-namespace DeathmicChatbot
+namespace DeathmicChatbot.Handlers
 {
-    public class YotubeManager
+	internal class YoutubeHandler : IURLHandler
     {
         private readonly Regex _reg;
         private readonly YouTubeRequest _request;
 
-        public YotubeManager()
+        public YoutubeHandler()
         {
             var settings = new YouTubeRequestSettings("Youtube Title Bot",
                                                       "AI39si6DFGChi5M0rnrX6p5dasT6STlFELYpJdbxdVXR3L1-Cj5RzNUU2nsm2LPmshlVGHuYmeaZ30zGJgqdhSSNoWQgJmEEDA");
@@ -36,6 +36,15 @@ namespace DeathmicChatbot
             var match = _reg.Match(txt);
             return match.Success ? match.Groups[1].Value : null;
         }
+
+		public bool handleURL(string URL, MessageContext ctx) {
+			var match = IsYtLink(URL);
+			if (match != null) {
+				ctx.reply(GetInfoString(GetVideoInfo(match)));
+				return true;
+			}
+			return false;
+		}
 
         public static string GetInfoString(Video vi) { return vi.Title + " " + Math.Round(vi.RatingAverage, 2) + "Ø"; }
     }

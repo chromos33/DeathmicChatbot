@@ -132,7 +132,7 @@ namespace DeathmicChatbot
                 File.Create(sLogFilePath).Close();
         }
 
-        private static string GetLogFilePath(string sNick) { return string.Format(@"{0}\{1}.txt", LOGGING_DIRECTORY_NAME, sNick); }
+		private static string GetLogFilePath(string sNick) { return System.IO.Path.Combine(LOGGING_DIRECTORY_NAME, sNick + ".txt"); }
 
         private static void MakeSureLoggingDirectoryExists() { Directory.CreateDirectory(LOGGING_DIRECTORY_NAME); }
     }
