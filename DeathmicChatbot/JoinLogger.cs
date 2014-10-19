@@ -27,22 +27,25 @@ namespace DeathmicChatbot
                                                          MessageQueue
                                                              messageQueue)
         {
-            if (!File.Exists(LOGGING_OPS_FILE))
-                File.Create(LOGGING_OPS_FILE).Close();
-
-            var streamReader = new StreamReader(LOGGING_OPS_FILE);
-            var loggingOps = new List<string>();
-            while (!streamReader.EndOfStream)
+            if (sNick != System.Configuration.ConfigurationManager.AppSettings["Name"])
             {
-                var sLine = streamReader.ReadLine();
-                if (!string.IsNullOrEmpty(sLine) && !loggingOps.Contains(sLine))
-                    loggingOps.Add(sLine);
-            }
-            streamReader.Close();
+                if (!File.Exists(LOGGING_OPS_FILE))
+                    File.Create(LOGGING_OPS_FILE).Close();
 
-            foreach (var loggingOp in loggingOps)
-                messageQueue.PrivateNoticeEnqueue(loggingOp,
-                                                  GetLastVisitData(sNick));
+                var streamReader = new StreamReader(LOGGING_OPS_FILE);
+                var loggingOps = new List<string>();
+                while (!streamReader.EndOfStream)
+                {
+                    var sLine = streamReader.ReadLine();
+                    if (!string.IsNullOrEmpty(sLine) && !loggingOps.Contains(sLine))
+                        loggingOps.Add(sLine);
+                }
+                streamReader.Close();
+
+                foreach (var loggingOp in loggingOps)
+                    messageQueue.PrivateNoticeEnqueue(loggingOp,
+                                                      GetLastVisitData(sNick));
+            }
         }
 
         private static string GetLastVisitData(string sNick)
