@@ -11,14 +11,14 @@ using HtmlAgilityPack;
 #endregion
 
 
-namespace DeathmicChatbot
+namespace DeathmicChatbot.Handlers
 {
-	internal class WebsiteManager : IURLHandler
+	internal class WebsiteHandler : IURLHandler
     {
         private readonly Regex _imgurreg;
         private readonly LogManager _log;
 
-        public WebsiteManager(LogManager log)
+        public WebsiteHandler(LogManager log)
         {
             _imgurreg = new Regex(@"(https?:\/\/)?i.imgur.com\/(\w+).\w+");
             _log = log;

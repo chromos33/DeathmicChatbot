@@ -28,17 +28,15 @@ namespace DeathmicChatbot
         private const string CHOSEN_USERS_FILE = "chosenusers.txt";
         private const int USER_UPDATE_INTERVAL = 60;
         private static ConnectionArgs _cona;
-        private static Connection _con;
-        private static YotubeManager _youtube;
-        private static LogManager _log;
-        private static WebsiteManager _website;
+		private static Connection _con;
+		private static readonly String Channel = Settings.Default.Channel;
+		private static readonly String Nick = Settings.Default.Name;
+		private static readonly String Server = Settings.Default.Server;
+		private static readonly String Logfile = Settings.Default.Logfile;
+		private static LogManager _log = new LogManager(Logfile);
         private static StreamProviderManager _streamProviderManager;
         private static CommandManager _commands;
         private static VoteManager _voting;
-        private static readonly String Channel = Settings.Default.Channel;
-        private static readonly String Nick = Settings.Default.Name;
-        private static readonly String Server = Settings.Default.Server;
-        private static readonly String Logfile = Settings.Default.Logfile;
         private static bool _restarted;
         private static readonly Random Rnd = new Random();
         private static MessageQueue _messageQueue;
@@ -53,7 +51,7 @@ namespace DeathmicChatbot
 
         private static bool _debugMode;
 
-		private static List<IURLHandler> handlers = new List<IURLHandler>() {_youtube, _website};
+		private static List<IURLHandler> handlers = new List<IURLHandler>() {new Handlers.YoutubeHandler(), new Handlers.WebsiteHandler(_log)};
 		private static URLExtractor urlExtractor = new URLExtractor();
 
         private static void Main(string[] args)
@@ -699,10 +697,7 @@ namespace DeathmicChatbot
             _con.Sender.Join(Channel);
             UpdateUsers();
             _restarted = false;
-            _log = new LogManager(Logfile);
             AppDomain.CurrentDomain.UnhandledException += OnError;
-            _youtube = new YotubeManager();
-            _website = new WebsiteManager(_log);
             _streamProviderManager = new StreamProviderManager();
             _streamProviderManager.AddStreamProvider(new TwitchProvider(_log,
                                                                         _debugMode));
@@ -873,8 +868,10 @@ namespace DeathmicChatbot
 			}
 
 			foreach (var url in urls) {
-				foreach (var handler in handlers)
-					handler.handleURL(url, ctx);
+				foreach (var handler in handlers) {
+					if (handler.handleURL(url, ctx))
+						break;
+				}
 			}
         }
 
