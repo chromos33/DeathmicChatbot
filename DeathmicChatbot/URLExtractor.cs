@@ -17,7 +17,7 @@ namespace DeathmicChatbot
 		}
 
 		public IEnumerable<string> extractURLs(string text) {
-			var match = regex.Match (text);
+			var match = regex.Match (text.ToLower());
 			var urls = new List<string> ();
 
 			while (match.Success) {
