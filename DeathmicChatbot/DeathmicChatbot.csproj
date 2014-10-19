@@ -119,6 +119,7 @@
     <Compile Include="Handlers\WebsiteHandler.cs" />
     <Compile Include="Handlers\YoutubeHandler.cs" />
     <Compile Include="Handlers\Imgur.cs" />
+    <Compile Include="Dice.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
