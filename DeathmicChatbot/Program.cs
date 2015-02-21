@@ -654,12 +654,12 @@ namespace DeathmicChatbot
                     return;
                 }
 
-                if (sidesOfDice > Int32.MaxValue)
+                if (sidesOfDice >= Int32.MaxValue)
                 {
                     _messageQueue.PublicMessageEnqueue(channel,
                                                        string.Format(
                                                            "Error: Due to submolecular limitations, a die can't have more than {0} sides.",
-                                                           Int32.MaxValue));
+                                                           Int32.MaxValue - 1));
                     return;
                 }
 
@@ -682,7 +682,7 @@ namespace DeathmicChatbot
                 }
 
                 for (UInt64 i = 0; i < numberOfDice; i++)
-                    sum += (ulong) random.Next(1, Convert.ToInt32(sidesOfDice));
+                    sum += (ulong) random.Next(1, Convert.ToInt32(sidesOfDice) + 1);
 
                 _messageQueue.PublicMessageEnqueue(channel,
                                                    String.Format("{0}: {1}",
