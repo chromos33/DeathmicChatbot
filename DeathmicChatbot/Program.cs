@@ -61,10 +61,18 @@ namespace DeathmicChatbot
             ServicePointManager.ServerCertificateValidationCallback =
                 (sender, certificate, chain, errors) => true;
 
+
+            //Test for XML Implementation
+            //XMLProvider xmlClass = new XMLProvider();
+            //xmlClass.AddorUpdateUser("Init");
+            //xmlClass.AddorUpdateUser("test");
+
             LoadChosenUsers();
             Connect();
 
-            _model = new Model(new SqliteDatabaseProvider());
+            //_model = new Model(new SqliteDatabaseProvider());
+
+            
         }
 
         private static void Connect()
@@ -729,7 +737,7 @@ namespace DeathmicChatbot
             CommandManager.PrivateCommand removevote = RemoveVote;
             CommandManager.PrivateCommand listvotings = ListVotings;
             CommandManager.PrivateCommand sendmessage = SendMessage;
-            CommandManager.PrivateCommand mergeusers = MergeUsers;
+            //CommandManager.PrivateCommand mergeusers = MergeUsers;
 
             _commands.SetCommand("addstream", addstream);
             _commands.SetCommand("streamadd", addstream);
@@ -748,7 +756,7 @@ namespace DeathmicChatbot
             _commands.SetCommand("pickuser", pickuser);
             _commands.SetCommand("say", sendmessage);
             _commands.SetCommand("roll", roll);
-            _commands.SetCommand("mergeusers", mergeusers);
+            //_commands.SetCommand("mergeusers", mergeusers);
             _commands.SetCommand("count", count);
             _commands.SetCommand("counterReset", counterReset);
             _commands.SetCommand("counterStats", counterStats);
@@ -830,7 +838,7 @@ namespace DeathmicChatbot
             Counter.Count(sName);
         }
 
-        private static void MergeUsers(UserInfo user,
+        /*private static void MergeUsers(UserInfo user,
                                        string text,
                                        string commandargs)
         {
@@ -852,7 +860,7 @@ namespace DeathmicChatbot
                                   userToMergeAway,
                                   userToMergeInto);
         }
-
+        */
         private static void OnPublic(UserInfo user,
                                      string channel,
                                      string message)

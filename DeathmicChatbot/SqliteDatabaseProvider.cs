@@ -1,10 +1,13 @@
-﻿#region Using
+﻿/*#region Using
 
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using DeathmicChatbot.Interfaces;
 using DeathmicChatbot.Properties;
+using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration.Conventions;
+using DeathmicChatbot.Models;
 
 #endregion
 
@@ -19,6 +22,8 @@ namespace DeathmicChatbot
         {
             CreateDatabase();
             BuildInfrastructure();
+
+            
         }
 
         #region IDatabaseProvider Members
@@ -199,11 +204,9 @@ WHERE ID='{1}';
         {
             var creationQueries = new[]
             {
-                "CREATE TABLE IF NOT EXISTS `users` ( `ID` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `nick` VARCHAR(15) NOT NULL )"
+                "CREATE TABLE IF NOT EXISTS `usermodel` ( `UserID` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `nick` VARCHAR(15) NOT NULL ,`visitcount` INTEGER NOT NULL, `lastvisit` DATETIME NOT NULL)"
                 ,
                 "CREATE TABLE IF NOT EXISTS aliases (ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, user INTEGER NOT NULL, alias VARCHAR(15) NOT NULL)"
-                ,
-                "CREATE TABLE IF NOT EXISTS user_visits (ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, user INTEGER NOT NULL, type INTEGER NOT NULL, datetime DATETIME NOT NULL)"
             };
 
             using (new ConnectionOpener(_connection))
@@ -219,4 +222,6 @@ WHERE ID='{1}';
             }
         }
     }
-}
+
+
+}*/
