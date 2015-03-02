@@ -137,7 +137,20 @@ namespace DeathmicChatbot
                 }
                 else
                 {
-                    
+                    try
+                    {
+                        var _element = new XElement("Stream",
+                           new XAttribute("Channel", channel),
+                            new XAttribute("starttime", ""),
+                            new XAttribute("Message", ""),
+                            new XAttribute("Game", "")
+                           );
+                        xdoc.Element("Streams").Add(_element);
+
+                    }catch(Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
                 }
             }
             else
