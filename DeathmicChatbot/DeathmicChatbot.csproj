@@ -62,9 +62,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="-\System\Xml\Linq\Formats.cs" />
-    <Compile Include="-\System\Xml\Linq\XAttributeExtensions.cs" />
-    <Compile Include="-\System\Xml\Linq\XElementExtensions.cs" />
     <Compile Include="CommandManager.cs" />
     <Compile Include="ConnectionOpener.cs" />
     <Compile Include="Counter.cs" />
