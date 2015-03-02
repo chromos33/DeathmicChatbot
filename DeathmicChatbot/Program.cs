@@ -122,8 +122,10 @@ namespace DeathmicChatbot
                                       string text,
                                       string commandArgs)
         {
+            Console.WriteLine("AddStream");
             string message = xmlClass.AddStream(commandArgs);
             _messageQueue.PublicMessageEnqueue(channel, String.Format(message, user.Nick, commandArgs));
+            Console.WriteLine(message);
             _log.WriteToLog("Information", String.Format(message, user.Nick, commandArgs));
             /*if (_streamProviderManager.AddStream(commandArgs))
             {
