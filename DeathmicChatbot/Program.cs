@@ -790,16 +790,18 @@ namespace DeathmicChatbot
                                          string commandargs)
         {
             var split = commandargs.Split(new[] {' '});
-            if (split.Length < 1)
+            if(split[0] != null)
             {
-                _messageQueue.PublicMessageEnqueue(channel,
+            	Counter.CounterStats(split[0]);
+            }
+            else
+            {
+            	_messageQueue.PublicMessageEnqueue(channel,
                                                    "Error: counterStats needs a counter name. '!counterStats <name>'");
                 return;
             }
 
-            var sName = split[0];
-
-            Counter.CounterStats(sName);
+            
         }
 
         private static void CounterReset(UserInfo user,
