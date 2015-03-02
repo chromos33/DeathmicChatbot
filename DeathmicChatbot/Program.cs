@@ -122,8 +122,10 @@ namespace DeathmicChatbot
                                       string text,
                                       string commandArgs)
         {
-            _messageQueue.PublicMessageEnqueue(channel, String.Format(xmlClass.AddStream(commandArgs)));
-            if (_streamProviderManager.AddStream(commandArgs))
+            string message = xmlClass.AddStream(commandArgs);
+            _messageQueue.PublicMessageEnqueue(channel, String.Format(message, user.Nick, commandArgs));
+            _log.WriteToLog("Information", String.Format(message, user.Nick, commandArgs));
+            /*if (_streamProviderManager.AddStream(commandArgs))
             {
                 _log.WriteToLog("Information",
                                 String.Format(
@@ -147,7 +149,7 @@ namespace DeathmicChatbot
                                    String.Format(
                                        "slaps {0} around for being an idiot",
                                        user.Nick));
-            }
+            }*/
         }
 
         private static void DelStream(UserInfo user,
@@ -155,7 +157,10 @@ namespace DeathmicChatbot
                                       string text,
                                       string commandArgs)
         {
-            _log.WriteToLog("Information",
+            string message = xmlClass.RemoveStream(commandArgs);
+            _messageQueue.PublicMessageEnqueue(channel, String.Format(message, user.Nick, commandArgs));
+            _log.WriteToLog("Information", String.Format(message, user.Nick, commandArgs));
+            /*_log.WriteToLog("Information",
                             String.Format(
                                 "{0} removed {1} from the streamlist",
                                 user.Nick,
@@ -165,7 +170,7 @@ namespace DeathmicChatbot
                                                    "{0} removed {1} from the streamlist",
                                                    user.Nick,
                                                    commandArgs));
-            _streamProviderManager.RemoveStream(commandArgs);
+            _streamProviderManager.RemoveStream(commandArgs);*/
         }
 
         private static void StreamCheck(UserInfo user,
