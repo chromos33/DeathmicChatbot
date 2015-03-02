@@ -146,6 +146,7 @@ namespace DeathmicChatbot
                             new XAttribute("Game", "")
                            );
                         xdoc.Element("Streams").Add(_element);
+                        answer = "Stream added";
 
                     }catch(Exception ex)
                     {
