@@ -75,6 +75,7 @@
     <Compile Include="Interfaces\ICounter.cs" />
     <Compile Include="Interfaces\ITextFile.cs" />
     <Compile Include="Model.cs" />
+    <Compile Include="Models\StreamModel.cs" />
     <Compile Include="Models\UserModel.cs" />
     <Compile Include="SqliteDatabaseProvider.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxProvider.cs" />

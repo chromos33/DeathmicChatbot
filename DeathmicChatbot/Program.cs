@@ -50,6 +50,7 @@ namespace DeathmicChatbot
             CurrentUsers = new ConcurrentDictionary<string, string>();
 
         private static bool _debugMode;
+        public static XMLProvider xmlClass;
 
 		private static List<IURLHandler> handlers = new List<IURLHandler>() {new Handlers.YoutubeHandler(), new Handlers.Imgur(_log), new Handlers.WebsiteHandler(_log)};
 		private static URLExtractor urlExtractor = new URLExtractor();
@@ -63,10 +64,7 @@ namespace DeathmicChatbot
 
 
             //Test for XML Implementation
-            //XMLProvider xmlClass = new XMLProvider();
-            //xmlClass.AddorUpdateUser("Init");
-            //xmlClass.AddorUpdateUser("test");
-
+            xmlClass = new XMLProvider();
             LoadChosenUsers();
             Connect();
 
@@ -124,6 +122,7 @@ namespace DeathmicChatbot
                                       string text,
                                       string commandArgs)
         {
+            _messageQueue.PublicMessageEnqueue(channel, String.Format(xmlClass.AddStream(commandArgs)));
             if (_streamProviderManager.AddStream(commandArgs))
             {
                 _log.WriteToLog("Information",

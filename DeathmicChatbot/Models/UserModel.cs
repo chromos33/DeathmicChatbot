@@ -15,5 +15,6 @@ namespace DeathmicChatbot.Models
         public string nick { get; set; }
         public DateTime lastvisit { get; set; }
         public int visitcount { get; set; }
+        public List<string> aliases { get; set; }
     }
 }
