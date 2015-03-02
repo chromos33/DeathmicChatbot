@@ -790,7 +790,7 @@ namespace DeathmicChatbot
                                          string commandargs)
         {
             var split = commandargs.Split(new[] {' '});
-            if(split[0] != null)
+            if(String.IsNullOrEmpty(split[0]))
             {
             	Counter.CounterStats(split[0]);
             }
