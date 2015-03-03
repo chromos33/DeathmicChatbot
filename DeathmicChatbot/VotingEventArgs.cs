@@ -1,29 +1,23 @@
-using Sharkbite.Irc;
+#region Using
+
 using System;
-using System.Collections.Generic;
+using Sharkbite.Irc;
+
+#endregion
+
 
 namespace DeathmicChatbot
 {
-    public struct Voting
-    {
-        public int index;
-        public UserInfo user;
-        public string question;
-        public List<string> answers;
-        public DateTime endTime;
-        public Dictionary<string, string> votes;
-    }
-
     public class VotingEventArgs : EventArgs
     {
-        public Voting voting { get; set; }
-
-        public UserInfo user { get; set; }
-
-        public VotingEventArgs(Voting argVoting, UserInfo argUser)
+        public VotingEventArgs(Voting voting, UserInfo userInfo)
         {
-            voting = argVoting;
-            user = argUser;
+            Voting = voting;
+            User = userInfo;
         }
+
+        public Voting Voting { get; private set; }
+
+        public UserInfo User { get; private set; }
     }
 }

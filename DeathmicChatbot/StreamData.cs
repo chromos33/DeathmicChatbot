@@ -1,5 +1,10 @@
+#region Using
+
 using System;
-using DeathmicChatbot.StreamInfo;
+using DeathmicChatbot.Interfaces;
+
+#endregion
+
 
 namespace DeathmicChatbot
 {
@@ -7,11 +12,10 @@ namespace DeathmicChatbot
     {
         public Stream Stream { get; set; }
 
-        public DateTime Started { get; set; }
+        public IStreamProvider StreamProvider { get; set; }
 
-        public TimeSpan TimeSinceStart
-        {
-            get { return DateTime.Now - Started; }
-        }
+        public DateTime Started { private get; set; }
+
+        public TimeSpan TimeSinceStart { get { return DateTime.Now - Started; } }
     }
 }
