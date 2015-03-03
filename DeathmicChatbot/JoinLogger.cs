@@ -56,15 +56,15 @@ namespace DeathmicChatbot
             string[] userdata = xmlprovider.UserInfo(sNick).Split(',');
             String days_since_last_visit = DateTime.Now.Subtract(Convert.ToDateTime(userdata[1])).ToString("d' days 'h':'mm':'ss");
             string visitstring = "";
-            switch(userdata[1])
+            switch(userdata[0])
             {
-                case "1": visitstring = userdata[1] +" st"; break;
-                case "2": visitstring = userdata[1] +" nd"; break;
-                case "3": visitstring = userdata[1] +" rd"; break;
-                default: visitstring = userdata[1] +" th"; break;
+                case "1": visitstring = userdata[0] +" st"; break;
+                case "2": visitstring = userdata[0] +" nd"; break;
+                case "3": visitstring = userdata[0] +" rd"; break;
+                default: visitstring = userdata[0] +" th"; break;
             }
             // Userdata[0] = VisitCount , Userdata[1] = LastVisit
-            return string.Format("This is {0}'s {1} visit." + System.Environment.NewLine + "Their last visit was on {3} ({4} ago)", sNick, userdata[0], visitstring, days_since_last_visit);
+            return string.Format("This is {0}'s {1} visit." + System.Environment.NewLine + "Their last visit was on {3} ({4} ago)", sNick, visitstring, userdata[1], days_since_last_visit);
 
             /*
             var streamReader = new StreamReader(GetLogFilePath(sNick));
