@@ -21,6 +21,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
         public const string STREAMS_FILE = "streams_hitbox.txt";
         private const string STREAMDATA_FILE = "streamdata_hitbox.txt";
         private const int TIME_MS_HITBOX_QUERY_THREAD_SLEEP = 500;
+        private XMLProvider xmlprovider;
 
         private readonly bool _debugMode;
         private readonly Dictionary<string, HitboxRootObject> _lastRequests =
@@ -276,11 +277,25 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         private void LoadStreams()
         {
-            var lines = _textFileStreams.ReadWholeFileInLines();
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+
+            string[] streamlist = xmlprovider.StreamList().Split(',');
+            foreach (string item in streamlist)
+            {
+                if(!_streams.Contains(item))
+                {
+                    _streams.Add(item);
+                    _log.WriteToLog("Information",
+                                    string.Format(
+                                        "Added stream '{0}' from saved streams file to list.",
+                                        item));
+                }
+                
+            }
+            /*var lines = _textFileStreams.ReadWholeFileInLines();
 
             if (lines.Count == 0)
                 return;
-
             foreach (var line in lines.Where(line => !_streams.Contains(line)))
             {
                 _streams.Add(line);
@@ -288,7 +303,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
                                 string.Format(
                                     "Added stream '{0}' from saved streams file to list.",
                                     line));
-            }
+            }*/
         }
 
         private void LoadStreamData()

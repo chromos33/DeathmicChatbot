@@ -16,5 +16,6 @@ namespace DeathmicChatbot.Models
         public DateTime lastvisit { get; set; }
         public int visitcount { get; set; }
         public List<string> aliases { get; set; }
+        public bool isloggingop { get; set; }
     }
 }

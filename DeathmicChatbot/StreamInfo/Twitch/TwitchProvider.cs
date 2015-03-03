@@ -29,6 +29,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
         private readonly List<string> _streams;
 
         private TwitchRootObject _lastroot;
+        private XMLProvider xmlprovider;
 
         public TwitchProvider(LogManager log, bool bDebugMode = false)
         {
@@ -104,6 +105,22 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         private void LoadStreams()
         {
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+
+            string[] streamlist = xmlprovider.StreamList().Split(',');
+            foreach (string item in streamlist)
+            {
+                if (!_streams.Contains(item))
+                {
+                    _streams.Add(item);
+                    _log.WriteToLog("Information",
+                                    string.Format(
+                                        "Added stream '{0}' from saved streams file to list.",
+                                        item));
+                }
+
+            }
+            /*
             if (!File.Exists(STREAMS_FILE))
                 File.Create(STREAMS_FILE).Close();
             var reader = new StreamReader(STREAMS_FILE);
@@ -120,6 +137,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
                                     sLine));
             }
             reader.Close();
+           */
         }
 
         private void LoadStreamData()

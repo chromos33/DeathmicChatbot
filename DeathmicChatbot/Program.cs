@@ -50,7 +50,7 @@ namespace DeathmicChatbot
             CurrentUsers = new ConcurrentDictionary<string, string>();
 
         private static bool _debugMode;
-        public static XMLProvider xmlClass;
+        public static XMLProvider xmlprovider;
 
 		private static List<IURLHandler> handlers = new List<IURLHandler>() {new Handlers.YoutubeHandler(), new Handlers.Imgur(_log), new Handlers.WebsiteHandler(_log)};
 		private static URLExtractor urlExtractor = new URLExtractor();
@@ -64,9 +64,14 @@ namespace DeathmicChatbot
 
 
             //Test for XML Implementation
-            xmlClass = new XMLProvider();
+            xmlprovider = new XMLProvider();
             LoadChosenUsers();
-            Connect();
+            do
+            {
+                Connect();
+            }
+            while (!_con.Connected);
+            
 
             //_model = new Model(new SqliteDatabaseProvider());
 
@@ -123,7 +128,7 @@ namespace DeathmicChatbot
                                       string commandArgs)
         {
             Console.WriteLine("AddStream");
-            string message = xmlClass.AddStream(commandArgs);
+            string message = xmlprovider.AddStream(commandArgs);
             _messageQueue.PublicMessageEnqueue(channel, String.Format(message, user.Nick, commandArgs));
             Console.WriteLine(message);
             _log.WriteToLog("Information", String.Format(message, user.Nick, commandArgs));
@@ -159,7 +164,7 @@ namespace DeathmicChatbot
                                       string text,
                                       string commandArgs)
         {
-            string message = xmlClass.RemoveStream(commandArgs);
+            string message = xmlprovider.RemoveStream(commandArgs);
             _messageQueue.PublicMessageEnqueue(channel, String.Format(message, user.Nick, commandArgs));
             _log.WriteToLog("Information", String.Format(message, user.Nick, commandArgs));
             /*_log.WriteToLog("Information",
@@ -192,6 +197,9 @@ namespace DeathmicChatbot
 
         private static void OnStreamStopped(object sender, StreamEventArgs args)
         {
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+            xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel,true);
+            string duration = DateTime.Now.Subtract(Convert.ToDateTime(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime"))).ToString("h':'mm':'ss");
             Console.WriteLine("{0}: Stream stopped: {1}",
                               DateTime.Now,
                               args.StreamData.Stream.Channel);
@@ -200,13 +208,13 @@ namespace DeathmicChatbot
                                                    "Stream stopped after {1}: {0}",
                                                    args.StreamData.Stream
                                                        .Channel,
-                                                   args.StreamData
-                                                       .TimeSinceStart.ToString(
-                                                           "h':'mm':'ss")));
+                                                   duration));
         }
 
         private static void OnStreamStarted(object sender, StreamEventArgs args)
         {
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+            xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
             Console.WriteLine("{0}: Stream started: {1}",
                               DateTime.Now,
                               args.StreamData.Stream.Channel);
@@ -567,20 +575,29 @@ namespace DeathmicChatbot
 
         private static void OnJoin(UserInfo user, string channel)
         {
+
             foreach (var msg in _streamProviderManager.GetStreamInfoArray())
                 _messageQueue.PrivateNoticeEnqueue(user.Nick, msg);
             CurrentUsers.TryAdd(user.Nick, user.Nick);
             JoinLogger.LogJoin(user.Nick, _messageQueue);
+            //Needs testing if AddorUpdateUser is called before LogJoin sent message if so data is incorrect
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+            xmlprovider.AddorUpdateUser(user.Nick);
         }
 
         private static void OnPart(UserInfo user, string channel, string reason)
         {
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+            xmlprovider.AddorUpdateUser(user.Nick,true);
             string tmpout;
             CurrentUsers.TryRemove(user.Nick, out tmpout);
         }
 
         private static void OnNick(UserInfo user, string newnick)
         {
+            // maybe insert Whisper to User if he wants to add newnick to his Aliases
+            _messageQueue.PrivateNoticeEnqueue(newnick,"Would you like to add this new Nick as an Alias to your User?");
+            _messageQueue.PrivateNoticeEnqueue(newnick, "If so enter this '/msg BotDeathmic !addalias "+newnick+".");
             string tmpout;
             if (ChosenUsers.ContainsKey(user.Nick))
             {
@@ -591,8 +608,11 @@ namespace DeathmicChatbot
             CurrentUsers.TryAdd(newnick, newnick);
         }
 
+
+
         private static void LoadChosenUsers()
         {
+            
             if (!File.Exists(CHOSEN_USERS_FILE))
                 File.Create(CHOSEN_USERS_FILE).Close();
             var reader = new StreamReader(CHOSEN_USERS_FILE);
@@ -743,6 +763,7 @@ namespace DeathmicChatbot
             CommandManager.PrivateCommand removevote = RemoveVote;
             CommandManager.PrivateCommand listvotings = ListVotings;
             CommandManager.PrivateCommand sendmessage = SendMessage;
+            CommandManager.PrivateCommand addalias = AddAlias;
             //CommandManager.PrivateCommand mergeusers = MergeUsers;
 
             _commands.SetCommand("addstream", addstream);
@@ -762,6 +783,7 @@ namespace DeathmicChatbot
             _commands.SetCommand("pickuser", pickuser);
             _commands.SetCommand("say", sendmessage);
             _commands.SetCommand("roll", roll);
+            _commands.SetCommand("addalias", addalias);
             //_commands.SetCommand("mergeusers", mergeusers);
             _commands.SetCommand("count", count);
             _commands.SetCommand("counterReset", counterReset);
@@ -776,6 +798,12 @@ namespace DeathmicChatbot
 
             votingCheckThread.Start();
             saveChosenUsersThread.Start();
+        }
+
+        private static void AddAlias(UserInfo user, string text, string commandArgs)
+        {
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+            _messageQueue.PrivateNoticeEnqueue(user.Nick, xmlprovider.AddAlias(user.Nick, commandArgs));
         }
 
         private static void CounterOnResetRequested(object sender,

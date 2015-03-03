@@ -10,7 +10,75 @@ namespace DeathmicChatbot
 {
     class XMLProvider
     {
-        public string AddorUpdateUser(string nick)
+        //returns data of User as CSV data in following order VisitCount, LastVisit
+        public string UserInfo(string nick)
+        {
+            string answer = "";
+            if (File.Exists("XML/Users.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Users.xml");
+                IEnumerable<XElement> childlist = from users in xdoc.Root.Elements() 
+                                                  where users.Attribute("nick").Value == nick
+                                                  || users.Element("Alias").Attribute("Value").Value == nick
+                                                  select users;
+                foreach (var user in childlist)
+                {
+                    answer += user.Attribute("VisitCount").Value + ",";
+                    answer += user.Attribute("LastVisit").Value;
+                }
+
+            }
+            else
+            {
+                throw new FileNotFoundException(@"File XML/Streams.xml not found");
+            }
+            return answer;
+        }
+        public void ToggleUserLogging(string nick)
+        {
+            if (File.Exists("XML/Users.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Users.xml");
+                IEnumerable<XElement> childlist = from users in xdoc.Root.Elements() where users.Attribute("Nick").Value == nick select users;
+                foreach(var item in childlist)
+                {
+                    if(item.Attribute("isloggingOp").Value == "true")
+                    {
+                        item.Attribute("isloggingOp").Value = "false";
+                    }else
+                    {
+                        item.Attribute("isloggingOp").Value = "true";
+                    }
+                }
+            }     
+        }
+        // returns All Users Ever Joined/Added and returns them in CSV data as string
+        public string AllUserEverJoinedList()
+        {
+            string answer = "";
+
+
+            if (File.Exists("XML/Users.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Users.xml");
+                IEnumerable<XElement> childlist = from users in xdoc.Root.Elements() select users;
+                foreach (var user in childlist)
+                {
+                    answer += user.Attribute("Nick").Value + ",";
+                }
+                answer = answer.Substring(answer.Length - 1, answer.Length);
+
+            }
+            else
+            {
+                throw new FileNotFoundException(@"File XML/Streams.xml not found");
+            }
+
+
+            return answer;
+        }
+        //Adds User or Upates information like Visit Count and Last Visit
+        public string AddorUpdateUser(string nick, bool leave = false)
         {
             string answer ="";
             //Query XML File for User Update
@@ -32,10 +100,13 @@ namespace DeathmicChatbot
                         {
 
                             element.Attribute("LastVisit").Value = DateTime.Now.ToString();
-                            int _visitcount = Int32.Parse(element.Attribute("VisitCount").Value);
-                            _visitcount++;
-                            element.Attribute("VisitCount").Value = _visitcount.ToString();
-                            answer ="User updated";
+                            if(!leave)
+                            {
+                                int _visitcount = Int32.Parse(element.Attribute("VisitCount").Value);
+                                _visitcount++;
+                                element.Attribute("VisitCount").Value = _visitcount.ToString();
+                                answer = "User updated";
+                            }
                         }
                     }
                     else
@@ -61,14 +132,15 @@ namespace DeathmicChatbot
                 xdoc = new XDocument(new XElement("Users",new XElement("User",
                         new XAttribute("Nick", nick),
                         new XAttribute("LastVisit", DateTime.Now.ToString()),
-                        new XAttribute("VisitCount", "1"))
-                            ));
+                        new XAttribute("VisitCount", "1"),
+                        new XAttribute("isloggingOp","false")
+                            )));
                 answer = "User added";
             }
             xdoc.Save("XML/Users.xml");
             return answer;
         }
-
+        //Adds Alias to User (?where to use no idea implemented because SQlite structure suggested Usage)
         public string AddAlias(string nick ,string alias)
         {
              XDocument xdoc = new XDocument();
@@ -112,7 +184,8 @@ namespace DeathmicChatbot
             }
             else
             {
-                return "Users.xml does not exist, so no alias can be added";
+                //Will probably never happen but just to make sure
+                return "Users.xml does not exist, so no alias can be added, please address this bots administrator";
             }
             return "";
         }
@@ -142,8 +215,7 @@ namespace DeathmicChatbot
                         var _element = new XElement("Stream",
                            new XAttribute("Channel", channel),
                             new XAttribute("starttime", ""),
-                            new XAttribute("Message", ""),
-                            new XAttribute("Game", "")
+                            new XAttribute("running", "false")
                            );
                         xdoc.Element("Streams").Add(_element);
                         answer = "Stream added";
@@ -160,8 +232,7 @@ namespace DeathmicChatbot
                 xdoc = new XDocument(new XElement("Streams", new XElement("Stream",
                             new XAttribute("Channel", channel),
                             new XAttribute("starttime", ""),
-                            new XAttribute("Message", ""),
-                            new XAttribute("Game","")
+                            new XAttribute("running","false")
                             )));
                 answer = "Stream added";
             }
@@ -194,5 +265,103 @@ namespace DeathmicChatbot
             }
             return answer;
         }
+
+        //returns Streamlist as CSV data
+        public string StreamList()
+        {
+            string answer = "";
+
+
+            if (File.Exists("XML/Streams.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Streams.xml");
+                IEnumerable<XElement> childlist = from streams in xdoc.Root.Elements() select streams;
+                foreach(var stream in childlist)
+                {
+                    answer += stream.Attribute("Channel").Value + ",";
+                }
+                answer = answer.Substring(answer.Length - 1, answer.Length);
+                
+            }
+            else
+            {
+                throw new FileNotFoundException(@"File XML/Streams.xml not found");
+            }
+
+            return answer;
+        }
+
+        public void StreamStartUpdate(string channel,bool end = false)
+        {
+            
+            if (File.Exists("XML/Streams.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Streams.xml");
+                if (!end)
+                {
+                    
+                    IEnumerable<XElement> childlist = from streams in xdoc.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
+                    if (childlist.Count() > 0)
+                    {
+                        
+                        foreach (var stream in childlist)
+                        {
+                            if (stream.Attribute("running").Value == "false")
+                            {
+                                stream.Attribute("starttime").Value = DateTime.Now.ToString();
+                                stream.Attribute("running").Value = "true";
+                            }
+                        }
+                        xdoc.Save("XML/Streams.xml");
+                    }
+                }
+                else
+                {
+                    IEnumerable<XElement> childlist = from streams in xdoc.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
+                    if (childlist.Count() > 0)
+                    {
+
+                        foreach (var stream in childlist)
+                        {
+                            if (stream.Attribute("running").Value == "true")
+                            {
+                                stream.Attribute("running").Value = "false";
+                            }
+                        }
+                        xdoc.Save("XML/Streams.xml");
+                    }
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException(@"File XML/Streams.xml not found");
+            }
+
+        }
+        public string StreamInfo(string channel, string inforequested)
+        {
+            string answer = "";
+            if (File.Exists("XML/Streams.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Streams.xml");
+
+
+                IEnumerable<XElement> childlist = from streams in xdoc.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
+                if (childlist.Count() > 0)
+                {
+
+                    foreach (var stream in childlist)
+                    {
+                        answer = stream.Attribute(inforequested).Value;
+                    }
+                    xdoc.Save("XML/Streams.xml");
+                }                
+            }
+            else
+            {
+                throw new FileNotFoundException(@"File XML/Streams.xml not found");
+            }
+            return answer;
+        } 
     }
 }
