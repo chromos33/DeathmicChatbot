@@ -595,9 +595,9 @@ namespace DeathmicChatbot
 
         private static void OnNick(UserInfo user, string newnick)
         {
-            // maybe insert Whisper to User if he wants to add newnick to his Aliases
+            // Correct this currently would not add Alias to nick because when command is fired nick is alias
             _messageQueue.PrivateNoticeEnqueue(newnick,"Would you like to add this new Nick as an Alias to your User?");
-            _messageQueue.PrivateNoticeEnqueue(newnick, "If so enter this '/msg BotDeathmic !addalias "+newnick+".");
+            _messageQueue.PrivateNoticeEnqueue(newnick, "If so enter this '/msg BotDeathmic !addalias "+newnick+","+user.Nick);
             string tmpout;
             if (ChosenUsers.ContainsKey(user.Nick))
             {
@@ -803,7 +803,17 @@ namespace DeathmicChatbot
         private static void AddAlias(UserInfo user, string text, string commandArgs)
         {
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
-            _messageQueue.PrivateNoticeEnqueue(user.Nick, xmlprovider.AddAlias(user.Nick, commandArgs));
+            if(commandArgs.IndexOf(',') < 0)
+            {
+                string[] commandArgssplit = commandArgs.Split(',');
+                // [0] = alias , [1] = Nick
+                _messageQueue.PrivateNoticeEnqueue(user.Nick, xmlprovider.AddAlias(commandArgssplit[1], commandArgssplit[0]));
+            }
+            else
+            {
+                _messageQueue.PrivateNoticeEnqueue(user.Nick, xmlprovider.AddAlias(user.Nick, commandArgs));
+            }
+            
         }
 
         private static void CounterOnResetRequested(object sender,

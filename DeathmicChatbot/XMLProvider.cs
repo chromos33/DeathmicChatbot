@@ -308,6 +308,7 @@ namespace DeathmicChatbot
                         {
                             if (stream.Attribute("running").Value == "false")
                             {
+                                //
                                 stream.Attribute("starttime").Value = DateTime.Now.ToString();
                                 stream.Attribute("running").Value = "true";
                             }
