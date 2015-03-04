@@ -34,10 +34,12 @@ namespace DeathmicChatbot
             }
             return answer;
         }
-        public void ToggleUserLogging(string nick)
+        public string ToggleUserLogging(string nick)
         {
+            string answer = "";
             if (File.Exists("XML/Users.xml"))
             {
+                
                 XDocument xdoc = XDocument.Load("XML/Users.xml");
                 IEnumerable<XElement> childlist = from users in xdoc.Root.Elements() where users.Attribute("Nick").Value == nick select users;
                 foreach(var item in childlist)
@@ -45,12 +47,16 @@ namespace DeathmicChatbot
                     if(item.Attribute("isloggingOp").Value == "true")
                     {
                         item.Attribute("isloggingOp").Value = "false";
+                        answer = "Logging Messages disabled";
                     }else
                     {
                         item.Attribute("isloggingOp").Value = "true";
+                        answer = "Logging Messages enabled";
                     }
                 }
-            }     
+                
+            }
+            return answer;
         }
         // returns All Users Ever Joined/Added and returns them in CSV data as string
         public string AllUserEverJoinedList()

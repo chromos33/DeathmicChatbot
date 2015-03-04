@@ -764,6 +764,7 @@ namespace DeathmicChatbot
             CommandManager.PrivateCommand listvotings = ListVotings;
             CommandManager.PrivateCommand sendmessage = SendMessage;
             CommandManager.PrivateCommand addalias = AddAlias;
+            CommandManager.PrivateCommand toggleuserlogging = ToggleUserLogging;
             //CommandManager.PrivateCommand mergeusers = MergeUsers;
 
             _commands.SetCommand("addstream", addstream);
@@ -788,6 +789,7 @@ namespace DeathmicChatbot
             _commands.SetCommand("count", count);
             _commands.SetCommand("counterReset", counterReset);
             _commands.SetCommand("counterStats", counterStats);
+            _commands.SetCommand("toggleuserlogging", toggleuserlogging);
 
             Counter.CountRequested += CounterOnCountRequested;
             Counter.StatRequested += CounterOnStatRequested;
@@ -799,6 +801,13 @@ namespace DeathmicChatbot
             votingCheckThread.Start();
             saveChosenUsersThread.Start();
         }
+
+        private static void ToggleUserLogging(UserInfo user, string text, string commandArgs)
+        {
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+            _messageQueue.PrivateNoticeEnqueue(user.Nick, xmlprovider.ToggleUserLogging(user.Nick));
+        }
+
 
         private static void AddAlias(UserInfo user, string text, string commandArgs)
         {
