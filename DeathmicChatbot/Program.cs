@@ -66,11 +66,7 @@ namespace DeathmicChatbot
             //Test for XML Implementation
             xmlprovider = new XMLProvider();
             LoadChosenUsers();
-            do
-            {
-                Connect();
-            }
-            while (!_con.Connected);
+            Connect();
             
 
             //_model = new Model(new SqliteDatabaseProvider());
