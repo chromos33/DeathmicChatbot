@@ -380,7 +380,6 @@ namespace DeathmicChatbot
                                     System.Diagnostics.Debug.WriteLine("streamstart");
                                     stream.Attribute("starttime").Value = DateTime.Now.ToString();
                                 }
-                                stream.Attribute("starttime").Value = DateTime.Now.ToString();
 
                                 stream.Attribute("running").Value = "true";
                             }
