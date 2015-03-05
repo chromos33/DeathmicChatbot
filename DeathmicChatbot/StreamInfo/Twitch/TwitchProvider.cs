@@ -49,11 +49,12 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         public bool AddStream(string stream)
         {
+
             stream = stream.ToLower();
             if (!_streams.Contains(stream))
             {
                 _streams.Add(stream);
-                WriteStreamsToFile();
+                //WriteStreamsToFile();
                 return true;
             }
             return false;
@@ -61,9 +62,8 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         public void RemoveStream(string stream)
         {
-            stream = stream.ToLower();
-            _streams.Remove(stream);
-            WriteStreamsToFile();
+            _streams.Remove(stream.ToLower());
+            //WriteStreamsToFile();
         }
 
         public void CheckStreams()
@@ -105,9 +105,10 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         private void LoadStreams()
         {
+            
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
 
-            string[] streamlist = xmlprovider.StreamList().Split(',');
+            string[] streamlist = xmlprovider.StreamList("twitch").Split(',');
             foreach (string item in streamlist)
             {
                 if (!_streams.Contains(item))

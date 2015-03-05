@@ -95,6 +95,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             return false;
         }
 
+
         public void RemoveStream(string stream)
         {
             stream = stream.ToLower();
@@ -130,13 +131,12 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         private void QueryHitboxForQueuedStream()
         {
-            WriteStreamDataToFile();
-
             if (_streamsToCheck.Count == 0)
                 return;
-
             var stream = _streamsToCheck.Dequeue();
+            
             var result = CheckStreamOnlineStatus(stream);
+            System.Diagnostics.Debug.WriteLine(result);
 
             if (result == null || result.livestream.Count != 1)
                 return;
@@ -176,6 +176,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
                         StreamStarted(this, streamEventArgs);
                     }
                 }
+                WriteStreamDataToFile();
             }
             else
             {
@@ -223,22 +224,26 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         private HitboxRootObject CheckStreamOnlineStatus(string sStream)
         {
+            //there is a bug here! no data gets returned
             var req = new RestRequest("/media/live/" + sStream, Method.GET);
-
             var response = _restClientProvider.Execute(req);
+            
 
             WriteDebugInfoIfDebugMode(response);
-
             try
             {
                 var des = new JsonDeserializer();
+                
                 var data = des.Deserialize<HitboxRootObject>(response);
-
+                foreach(var item in data.livestream)
+                {
+                     System.Diagnostics.Debug.WriteLine("data:" + item.media_user_name + " is " + item.media_is_live);
+                }
                 if (_lastRequests.ContainsKey(sStream))
                     _lastRequests[sStream] = data;
                 else
                     _lastRequests.Add(sStream, data);
-
+                
                 return data;
             }
             catch (Exception ex)
@@ -277,22 +282,24 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         private void LoadStreams()
         {
+            
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
 
-            string[] streamlist = xmlprovider.StreamList().Split(',');
+            string[] streamlist = xmlprovider.StreamList("hitbox").Split(',');
+
             foreach (string item in streamlist)
             {
                 if(!_streams.Contains(item))
                 {
-                    _streams.Add(item);
+                    AddStream(item);
                     _log.WriteToLog("Information",
                                     string.Format(
                                         "Added stream '{0}' from saved streams file to list.",
                                         item));
                 }
                 
-            }
-            /*var lines = _textFileStreams.ReadWholeFileInLines();
+            }/*
+            var lines = _textFileStreams.ReadWholeFileInLines();
 
             if (lines.Count == 0)
                 return;
@@ -303,7 +310,8 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
                                 string.Format(
                                     "Added stream '{0}' from saved streams file to list.",
                                     line));
-            }*/
+            }
+             * */
         }
 
         private void LoadStreamData()

@@ -58,10 +58,8 @@ namespace DeathmicChatbot
         private static void Main(string[] args)
         {
             _debugMode = args.Length > 0 && args.Contains("debug");
-
             ServicePointManager.ServerCertificateValidationCallback =
                 (sender, certificate, chain, errors) => true;
-
 
             //Test for XML Implementation
             xmlprovider = new XMLProvider();
@@ -78,6 +76,7 @@ namespace DeathmicChatbot
         {
             _cona = new ConnectionArgs(Nick, Server);
             _con = new Connection(Encoding.UTF8, _cona, false, false);
+            
             _con.Listener.OnRegistered += OnRegistered;
             _con.Listener.OnPublic += OnPublic;
             _con.Listener.OnPrivate += OnPrivate;
@@ -88,7 +87,12 @@ namespace DeathmicChatbot
             _con.Listener.OnDisconnected += OnDisconnect;
             while (!IsConnectionPossible(_cona))
                 Console.WriteLine("OFFLINE");
-            _con.Connect();
+            System.Diagnostics.Debug.WriteLine(_con.Connected);
+            do
+            {
+                _con.Connect();
+            } while (!_con.Connected);
+
             _messageQueue = new MessageQueue(_con);
         }
 
@@ -123,12 +127,19 @@ namespace DeathmicChatbot
                                       string text,
                                       string commandArgs)
         {
-            Console.WriteLine("AddStream");
-            string message = xmlprovider.AddStream(commandArgs);
-            _messageQueue.PublicMessageEnqueue(channel, String.Format(message, user.Nick, commandArgs));
-            Console.WriteLine(message);
-            _log.WriteToLog("Information", String.Format(message, user.Nick, commandArgs));
-            /*if (_streamProviderManager.AddStream(commandArgs))
+            string message = xmlprovider.AddStream(commandArgs,user.Nick);
+            _streamProviderManager.AddStream(commandArgs);
+            if(message == (user.Nick + " added Stream to the streamlist"))
+            {
+                _messageQueue.PublicMessageEnqueue(channel,String.Format("{0} added {1} to the streamlist",user.Nick,commandArgs));
+            }
+            else if (message == (user.Nick + " wanted to readd Stream to the streamlist."))
+            {
+                _con.Sender.Action(channel,String.Format("slaps {0} around for being an idiot",user.Nick));
+            }
+            _log.WriteToLog("Information", message);
+            /*
+            if (_streamProviderManager.AddStream(commandArgs))
             {
                 _log.WriteToLog("Information",
                                 String.Format(
@@ -195,35 +206,44 @@ namespace DeathmicChatbot
         {
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel,true);
-            string duration = DateTime.Now.Subtract(Convert.ToDateTime(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime"))).ToString("h':'mm':'ss");
-            Console.WriteLine("{0}: Stream stopped: {1}",
-                              DateTime.Now,
-                              args.StreamData.Stream.Channel);
-            _messageQueue.PublicMessageEnqueue(Channel,
-                                               String.Format(
-                                                   "Stream stopped after {1}: {0}",
-                                                   args.StreamData.Stream
-                                                       .Channel,
-                                                   duration));
+            if(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime") != "")
+            {
+                string duration = DateTime.Now.Subtract(Convert.ToDateTime(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime"))).ToString("h':'mm':'ss");
+                Console.WriteLine("{0}: Stream stopped: {1}",
+                                  DateTime.Now,
+                                  args.StreamData.Stream.Channel);
+                _messageQueue.PublicMessageEnqueue(Channel,
+                                                   String.Format(
+                                                       "Stream stopped after {1}: {0}",
+                                                       args.StreamData.Stream
+                                                           .Channel,
+                                                       duration));
+            }
+            
+            
         }
 
         private static void OnStreamStarted(object sender, StreamEventArgs args)
         {
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
-            Console.WriteLine("{0}: Stream started: {1}",
+            Console.WriteLine(xmlprovider.isinStreamList("RocketBeansTV"));
+            if (xmlprovider.isinStreamList(args.StreamData.Stream.Channel))
+            {
+                Console.WriteLine("{0}: Stream started: {1}",
                               DateTime.Now,
                               args.StreamData.Stream.Channel);
-            _messageQueue.PublicMessageEnqueue(Channel,
-                                               String.Format(
-                                                   "Stream started: {0} ({1}: {2}) at {3}/{0}",
-                                                   args.StreamData.Stream
-                                                       .Channel,
-                                                   args.StreamData.Stream.Game,
-                                                   args.StreamData.Stream
-                                                       .Message,
-                                                   args.StreamData
-                                                       .StreamProvider.GetLink()));
+                _messageQueue.PublicMessageEnqueue(Channel,
+                                                   String.Format(
+                                                       "Stream started: {0} ({1}: {2}) at {3}/{0}",
+                                                       args.StreamData.Stream
+                                                           .Channel,
+                                                       args.StreamData.Stream.Game,
+                                                       args.StreamData.Stream
+                                                           .Message,
+                                                       args.StreamData
+                                                           .StreamProvider.GetLink()));
+            }
         }
 
         private static void VotingOnVotingStarted(object sender,
