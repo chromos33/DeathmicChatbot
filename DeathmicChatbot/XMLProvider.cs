@@ -314,7 +314,6 @@ namespace DeathmicChatbot
                         {
                             if (stream.Attribute("running").Value == "false")
                             {
-                                //Add Enttime to Stream list and compare endtime with new starttime if difference is within 1- 5 minutes don't overwrite starttime
                                 stream.Attribute("starttime").Value = DateTime.Now.ToString();
                                 stream.Attribute("running").Value = "true";
                             }
