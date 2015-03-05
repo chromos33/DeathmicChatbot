@@ -362,7 +362,7 @@ namespace DeathmicChatbot
                         {
                             if (stream.Attribute("running").Value == "false")
                             {
-                                //
+                                
                                 try
                                 {
                                     DateTime start = Convert.ToDateTime(stream.Attribute("starttime").Value);
@@ -380,7 +380,6 @@ namespace DeathmicChatbot
                                     System.Diagnostics.Debug.WriteLine("streamstart");
                                     stream.Attribute("starttime").Value = DateTime.Now.ToString();
                                 }
-
                                 stream.Attribute("running").Value = "true";
                             }
                         }
