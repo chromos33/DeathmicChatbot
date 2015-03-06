@@ -224,7 +224,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         private HitboxRootObject CheckStreamOnlineStatus(string sStream)
         {
-            // If no data gets returned when stream is hidden
+            // If no data gets returned then stream is hidden
             var req = new RestRequest("/media/live/" + sStream, Method.GET);
             var response = _restClientProvider.Execute(req);
             
