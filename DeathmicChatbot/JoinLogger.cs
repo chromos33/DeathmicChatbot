@@ -47,7 +47,6 @@ namespace DeathmicChatbot
                     }
                     // Userdata[0] = VisitCount , Userdata[1] = LastVisit
 
-                    var stringBuilder = new StringBuilder();
 
                     String output = "This is "+sNick+"'s "+visitstring+" visit. Their last visit was on "+userdata[1]+" ("+days_since_last_visit+" ago)";
                      foreach (var loggingOp in xmlprovider.LoggingUser())
