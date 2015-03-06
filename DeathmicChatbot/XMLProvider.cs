@@ -118,7 +118,15 @@ namespace DeathmicChatbot
                 xdoc = XDocument.Load("XML/Users.xml");
                 try
                 {
-                    IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() where el.Attribute("Nick").Value == nick select el;
+                    //fix Or case
+                    foreach(var element in xdoc.Root.Elements())
+                    {
+                        foreach(var subelement in element.Elements("Alias"))
+                        {
+                            System.Diagnostics.Debug.WriteLine("Nick: "+element.Attribute("Nick").Value + " AliasValue: " +subelement.Attribute("Value").Value);
+                        }
+                    }
+                    IEnumerable<XElement> childlist = from users in xdoc.Root.Elements() where users.Attribute("Nick").Value == nick || users.Elements("Alias").Any(x => x.Attribute("Value").Value == nick) select users;
                     if (childlist.Count() > 0)
                     {
 
@@ -377,7 +385,6 @@ namespace DeathmicChatbot
                                     }
                                 } catch(FormatException)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("streamstart");
                                     stream.Attribute("starttime").Value = DateTime.Now.ToString();
                                 }
                                 stream.Attribute("running").Value = "true";

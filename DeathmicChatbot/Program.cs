@@ -205,9 +205,9 @@ namespace DeathmicChatbot
         private static void OnStreamStopped(object sender, StreamEventArgs args)
         {
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
-            xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel,true);
-            if(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime") != "")
+            if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime") != "" && Convert.ToBoolean(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running")))
             {
+                xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel, true);
                 string duration = DateTime.Now.Subtract(Convert.ToDateTime(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime"))).ToString("h':'mm':'ss");
                 Console.WriteLine("{0}: Stream stopped: {1}",
                                   DateTime.Now,
@@ -828,8 +828,9 @@ namespace DeathmicChatbot
         private static void AddAlias(UserInfo user, string text, string commandArgs)
         {
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
-            if(commandArgs.IndexOf(',') < 0)
+            if(commandArgs.IndexOf(',') >= 0)
             {
+                System.Diagnostics.Debug.WriteLine(commandArgs.IndexOf(','));
                 string[] commandArgssplit = commandArgs.Split(',');
                 // [0] = alias , [1] = Nick
                 _messageQueue.PrivateNoticeEnqueue(user.Nick, xmlprovider.AddAlias(commandArgssplit[1], commandArgssplit[0]));

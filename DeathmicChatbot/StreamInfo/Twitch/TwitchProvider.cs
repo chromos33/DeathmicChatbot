@@ -86,9 +86,12 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         public List<string> GetStreamInfoArray()
         {
-            return
-                _streamData.Values.Select(
-                    stream =>
+            List<string> streaminfoarray = new List<string>();
+            foreach(var stream in _streamData.Values)
+            {
+                if(Convert.ToBoolean(xmlprovider.StreamInfo(stream.Stream.Channel.Name, "running")))
+                {
+                    streaminfoarray.Add(
                     String.Format(
                         "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: {5}/{0}",
                         stream.Stream.Channel.Name,
@@ -96,7 +99,10 @@ namespace DeathmicChatbot.StreamInfo.Twitch
                         stream.Stream.Channel.Status,
                         stream.Started,
                         new DateTime(stream.TimeSinceStart.Ticks),
-                        GetLink())).ToList();
+                        GetLink()));
+                }
+            }
+            return streaminfoarray;
         }
 
         public string GetLink() { return "http://www.twitch.tv"; }
