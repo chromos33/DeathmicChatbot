@@ -136,7 +136,6 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             var stream = _streamsToCheck.Dequeue();
             
             var result = CheckStreamOnlineStatus(stream);
-            System.Diagnostics.Debug.WriteLine(result);
 
             if (result == null || result.livestream.Count != 1)
                 return;
