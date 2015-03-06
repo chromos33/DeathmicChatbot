@@ -89,18 +89,25 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             List<string> streaminfoarray = new List<string>();
             foreach(var stream in _streamData.Values)
             {
-                if(Convert.ToBoolean(xmlprovider.StreamInfo(stream.Stream.Channel.Name, "running")))
+                try
                 {
-                    streaminfoarray.Add(
-                    String.Format(
-                        "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: {5}/{0}",
-                        stream.Stream.Channel.Name,
-                        stream.Stream.Channel.Game,
-                        stream.Stream.Channel.Status,
-                        stream.Started,
-                        new DateTime(stream.TimeSinceStart.Ticks),
-                        GetLink()));
+                    if (Convert.ToBoolean(xmlprovider.StreamInfo(stream.Stream.Channel.Name, "running")))
+                    {
+                        streaminfoarray.Add(
+                        String.Format(
+                            "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: {5}/{0}",
+                            stream.Stream.Channel.Name,
+                            stream.Stream.Channel.Game,
+                            stream.Stream.Channel.Status,
+                            stream.Started,
+                            new DateTime(stream.TimeSinceStart.Ticks),
+                            GetLink()));
+                    }
+                }catch (FormatException)
+                {
+
                 }
+                
             }
             return streaminfoarray;
         }
