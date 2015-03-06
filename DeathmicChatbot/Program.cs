@@ -227,7 +227,6 @@ namespace DeathmicChatbot
         {
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
-            Console.WriteLine(xmlprovider.isinStreamList("RocketBeansTV"));
             if (xmlprovider.isinStreamList(args.StreamData.Stream.Channel))
             {
                 Console.WriteLine("{0}: Stream started: {1}",

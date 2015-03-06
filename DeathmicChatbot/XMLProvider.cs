@@ -44,7 +44,6 @@ namespace DeathmicChatbot
                 IEnumerable<XElement> childlist = from users in xdoc.Root.Elements() where users.Attribute("Nick").Value == nick select users;
                 foreach(var item in childlist)
                 {
-                    Console.WriteLine("test");
                     if(item.Attribute("isloggingOp").Value == "true")
                     {
                         item.Attribute("isloggingOp").Value = "false";
