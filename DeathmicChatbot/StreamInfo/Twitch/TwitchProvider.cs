@@ -49,11 +49,12 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         public bool AddStream(string stream)
         {
+
             stream = stream.ToLower();
             if (!_streams.Contains(stream))
             {
                 _streams.Add(stream);
-                WriteStreamsToFile();
+                //WriteStreamsToFile();
                 return true;
             }
             return false;
@@ -61,9 +62,8 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         public void RemoveStream(string stream)
         {
-            stream = stream.ToLower();
-            _streams.Remove(stream);
-            WriteStreamsToFile();
+            _streams.Remove(stream.ToLower());
+            //WriteStreamsToFile();
         }
 
         public void CheckStreams()
@@ -86,17 +86,30 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         public List<string> GetStreamInfoArray()
         {
-            return
-                _streamData.Values.Select(
-                    stream =>
-                    String.Format(
-                        "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: {5}/{0}",
-                        stream.Stream.Channel.Name,
-                        stream.Stream.Channel.Game,
-                        stream.Stream.Channel.Status,
-                        stream.Started,
-                        new DateTime(stream.TimeSinceStart.Ticks),
-                        GetLink())).ToList();
+            List<string> streaminfoarray = new List<string>();
+            foreach(var stream in _streamData.Values)
+            {
+                try
+                {
+                    if (Convert.ToBoolean(xmlprovider.StreamInfo(stream.Stream.Channel.Name, "running")))
+                    {
+                        streaminfoarray.Add(
+                        String.Format(
+                            "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: {5}/{0}",
+                            stream.Stream.Channel.Name,
+                            stream.Stream.Channel.Game,
+                            stream.Stream.Channel.Status,
+                            stream.Started,
+                            new DateTime(stream.TimeSinceStart.Ticks),
+                            GetLink()));
+                    }
+                }catch (FormatException)
+                {
+
+                }
+                
+            }
+            return streaminfoarray;
         }
 
         public string GetLink() { return "http://www.twitch.tv"; }
@@ -105,9 +118,10 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         private void LoadStreams()
         {
+            
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
 
-            string[] streamlist = xmlprovider.StreamList().Split(',');
+            string[] streamlist = xmlprovider.StreamList("twitch").Split(',');
             foreach (string item in streamlist)
             {
                 if (!_streams.Contains(item))
