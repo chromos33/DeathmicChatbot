@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using DeathmicChatbot.Interfaces;
 using DeathmicChatbot.Properties;
@@ -451,12 +450,12 @@ namespace DeathmicChatbot
 			saveChosenUsersThread.Start();
 		}
 
-		private static void ToggleUserLogging(UserInfo user, string text, string commandArgs)
+		private static void ToggleUserLogging(MessageContext ctx, string text, string commandArgs)
 		{
 			if (xmlprovider == null) {
 				xmlprovider = new XMLProvider();
 			}
-			_messageQueue.PrivateNoticeEnqueue(user.Nick, xmlprovider.ToggleUserLogging(user.Nick));
+			ctx.reply(xmlprovider.ToggleUserLogging(ctx.getSenderNick()));
 		}
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using DeathmicChatbot;
+using System.Text.RegularExpressions;
 
 namespace DeathmicChatbot
 {
