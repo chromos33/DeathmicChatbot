@@ -51,17 +51,13 @@ namespace DeathmicChatbot
                                                     StreamStopped(sender, args);
                                             };
         }
-
         public bool AddStream(string sStreamName)
         {
             var results = new Dictionary<IStreamProvider, bool>();
-
             foreach (var streamProvider in _streamProviders)
             {
-                var bResult = streamProvider.AddStream(sStreamName);
-                results.Add(streamProvider, bResult);
+                results.Add(streamProvider, streamProvider.AddStream(sStreamName));
             }
-
             return results.All(result => !result.Value);
         }
 

@@ -1,4 +1,5 @@
-﻿#region Using
+﻿/*
+#region Using
 
 using System;
 using System.Data.SQLite;
@@ -24,4 +25,4 @@ namespace DeathmicChatbot
 
         #endregion
     }
-}
+}*/
