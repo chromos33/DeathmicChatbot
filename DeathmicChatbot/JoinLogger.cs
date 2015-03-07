@@ -12,6 +12,7 @@ namespace DeathmicChatbot
 {
     internal static class JoinLogger
     {
+        private static XMLProvider xmlprovider;
         private const string LOGGING_DIRECTORY_NAME = "join_logging";
         private const string LOGGING_OPS_FILE = "logging_ops.txt";
 
@@ -27,8 +28,36 @@ namespace DeathmicChatbot
                                                          MessageQueue
                                                              messageQueue)
         {
-            if (sNick != System.Configuration.ConfigurationManager.AppSettings["Name"])
+            if (sNick != System.Configuration.ConfigurationManager.AppSettings["Name"] || sNick != "BotDeathmic")
             {
+                if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+
+                try
+                {
+                    string[] userdata = xmlprovider.UserInfo(sNick).Split(',');
+                    System.Diagnostics.Debug.WriteLine(userdata[1]);
+                    String days_since_last_visit = DateTime.Now.Subtract(Convert.ToDateTime(userdata[1])).ToString("d' days 'h':'mm':'ss");
+                    string visitstring = "";
+                    switch (userdata[0])
+                    {
+                        case "1": visitstring = userdata[0] + "st"; break;
+                        case "2": visitstring = userdata[0] + "nd"; break;
+                        case "3": visitstring = userdata[0] + "rd"; break;
+                        default: visitstring = userdata[0] + "th"; break;
+                    }
+                    // Userdata[0] = VisitCount , Userdata[1] = LastVisit
+
+
+                    String output = "This is "+sNick+"'s "+visitstring+" visit. Their last visit was on "+userdata[1]+" ("+days_since_last_visit+" ago)";
+                     foreach (var loggingOp in xmlprovider.LoggingUser())
+                        messageQueue.PrivateNoticeEnqueue(loggingOp,
+                                                          output);
+                }catch(Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                }
+                
+                /*
                 if (!File.Exists(LOGGING_OPS_FILE))
                     File.Create(LOGGING_OPS_FILE).Close();
 
@@ -45,11 +74,28 @@ namespace DeathmicChatbot
                 foreach (var loggingOp in loggingOps)
                     messageQueue.PrivateNoticeEnqueue(loggingOp,
                                                       GetLastVisitData(sNick));
+                 */
             }
         }
 
         private static string GetLastVisitData(string sNick)
         {
+            if (xmlprovider == null){xmlprovider = new XMLProvider();}
+
+            string[] userdata = xmlprovider.UserInfo(sNick).Split(',');
+            String days_since_last_visit = DateTime.Now.Subtract(Convert.ToDateTime(userdata[1])).ToString("d' days 'h':'mm':'ss");
+            string visitstring = "";
+            switch(userdata[0])
+            {
+                case "1": visitstring = userdata[0] +" st"; break;
+                case "2": visitstring = userdata[0] +" nd"; break;
+                case "3": visitstring = userdata[0] +" rd"; break;
+                default: visitstring = userdata[0] +" th"; break;
+            }
+            // Userdata[0] = VisitCount , Userdata[1] = LastVisit
+            return string.Format("This is {0}'s {1} visit." + System.Environment.NewLine + "Their last visit was on {3} ({4} ago)", sNick, visitstring, userdata[1], days_since_last_visit);
+
+            /*
             var streamReader = new StreamReader(GetLogFilePath(sNick));
 
             var joins = new List<string>();
@@ -114,7 +160,7 @@ namespace DeathmicChatbot
 
             stringBuilder.Append(sMessageLastVisitData);
 
-            return stringBuilder.ToString();
+            return stringBuilder.ToString();*/
         }
 
         private static void WriteJoinToLogFile(string sNick)

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>adjunct-System.Xml.Linq.Extensions</id>
+    <version>2.0.0</version>
+    <title>System.Xml.Linq.Extensions</title>
+    <authors>Eddie Garmon</authors>
+    <owners>Eddie Garmon</owners>
+    <licenseUrl>http://adjunct.codeplex.com/license</licenseUrl>
+    <projectUrl>http://adjunct.codeplex.com/</projectUrl>
+    <iconUrl>http://download.codeplex.com/Download?ProjectName=adjunct&amp;DownloadId=301256&amp;Build=18301</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Linq to Xml Extensions</description>
+    <summary>Linq to Xml Extensions</summary>
+    <tags>Adjunct Linq Xml</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Xml" targetFramework="" />
+      <frameworkAssembly assemblyName="System.Xml.Linq" targetFramework="" />
+    </frameworkAssemblies>
+  </metadata>
+</package>

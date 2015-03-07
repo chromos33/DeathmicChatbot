@@ -1,4 +1,5 @@
-﻿#region Using
+﻿/*
+#region Using
 
 using System.Collections.Generic;
 using DeathmicChatbot.Interfaces;
@@ -11,8 +12,15 @@ namespace DeathmicChatbot
     internal class Model : IModel
     {
         private readonly IDatabaseProvider _databaseProvider;
+        private EntityFrameworkSQliteProvider entityFrameworkSQliteProvider;
 
         public Model(IDatabaseProvider databaseProvider) { _databaseProvider = databaseProvider; }
+
+        public Model(EntityFrameworkSQliteProvider entityFrameworkSQliteProvider)
+        {
+            // TODO: Complete member initialization
+            this.entityFrameworkSQliteProvider = entityFrameworkSQliteProvider;
+        }
 
         #region IModel Members
 
@@ -26,3 +34,4 @@ namespace DeathmicChatbot
         #endregion
     }
 }
+*/
