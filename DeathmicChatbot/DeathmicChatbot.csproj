@@ -1,10 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{8F2CE5B0-CE5D-446D-9D96-20D57B217782}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -46,19 +44,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.SQLite, Version=1.0.94.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\System.Data.SQLite.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.EF6">
-      <HintPath>lib\System.Data.SQLite.EF6.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.Linq">
-      <HintPath>lib\System.Data.SQLite.Linq.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Google.GData.Client">
       <HintPath>lib\Google.GData.Client.dll</HintPath>
@@ -66,9 +53,11 @@
     <Reference Include="Google.GData.YouTube">
       <HintPath>lib\Google.GData.YouTube.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="RestSharp">
-      <HintPath>lib\RestSharp.dll</HintPath>
+      <HintPath>..\packages\RestSharp.105.0.1\lib\net4\RestSharp.dll</HintPath>
     </Reference>
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandManager.cs" />
@@ -81,6 +70,8 @@
     <Compile Include="Interfaces\ICounter.cs" />
     <Compile Include="Interfaces\ITextFile.cs" />
     <Compile Include="Model.cs" />
+    <Compile Include="Models\StreamModel.cs" />
+    <Compile Include="Models\UserModel.cs" />
     <Compile Include="SqliteDatabaseProvider.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxProvider.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxStreamData.cs" />
@@ -128,6 +119,8 @@
     <Compile Include="Handlers\WebsiteHandler.cs" />
     <Compile Include="Handlers\YoutubeHandler.cs" />
     <Compile Include="Handlers\Imgur.cs" />
+    <Compile Include="XMLProvider.cs" />
+    <Compile Include="Dice.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -149,5 +142,4 @@
   </Target>
   -->
   <ItemGroup />
-  <Import Project="..\packages\System.Data.SQLite.Core.1.0.94.0\build\net40\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.94.0\build\net40\System.Data.SQLite.Core.targets')" />
 </Project>
