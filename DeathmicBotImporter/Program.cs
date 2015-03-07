@@ -72,8 +72,8 @@ namespace DeathmicBotImporter
                     {
                         var _element = new XElement("User",
                             new XAttribute("Nick", nick),
-                            new XAttribute("LastVisit", DateTime.Now.ToString()),
-                            new XAttribute("VisitCount", "1"),
+                            new XAttribute("LastVisit", LastVisit),
+                            new XAttribute("VisitCount", VisitCount),
                             new XAttribute("isloggingOp", "false"),
                             new XElement("Alias", new XAttribute("Value", ""))
                             );
@@ -92,8 +92,8 @@ namespace DeathmicBotImporter
 
                 xdoc = new XDocument(new XElement("Users", new XElement("User",
                         new XAttribute("Nick", nick),
-                        new XAttribute("LastVisit", DateTime.Now.ToString()),
-                        new XAttribute("VisitCount", "1"),
+                        new XAttribute("LastVisit", LastVisit),
+                        new XAttribute("VisitCount", VisitCount),
                         new XAttribute("isloggingOp", "false"),
                             new XElement("Alias", new XAttribute("Value", ""))
                             )));
