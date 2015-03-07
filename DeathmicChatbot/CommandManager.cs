@@ -9,26 +9,22 @@ using Sharkbite.Irc;
 
 namespace DeathmicChatbot
 {
-    public class CommandManager
+	public class CommandManager
     {
         #region Delegates
 
-        public delegate void PrivateCommand(
-            UserInfo user, string text, string commandArgs);
-
-        public delegate void PublicCommand(
-            UserInfo user, string channel, string text, string commandArgs);
+		public delegate void Command(MessageContext ctx, string text, string commandArgs);
 
         #endregion
 
         public const string ACTIVATOR = "!";
-        private readonly Dictionary<string, PrivateCommand> _privateCommands;
-        private readonly Dictionary<string, PublicCommand> _publicCommands;
+        private readonly Dictionary<string, Command> _privateCommands;
+        private readonly Dictionary<string, Command> _publicCommands;
 
         public CommandManager()
         {
-            _publicCommands = new Dictionary<string, PublicCommand>();
-            _privateCommands = new Dictionary<string, PrivateCommand>();
+            _publicCommands = new Dictionary<string, Command>();
+            _privateCommands = new Dictionary<string, Command>();
         }
 
         /* Sets a public command
@@ -38,14 +34,10 @@ namespace DeathmicChatbot
          * name - Name of the command
          * callback - Delegate to call
          * overwrite - If true an already existing command with that name will be overwritten.
-         * 
-         * Returns:
-         * 
-         * true if the command was set, false if there was already an command with that name.
          */
 
-        public void SetCommand(string name,
-                               PublicCommand callback,
+		public void setPublicCommand(string name,
+                               Command callback,
                                bool overwrite = false)
         {
             if (!_publicCommands.ContainsKey(name) || overwrite)
@@ -59,14 +51,10 @@ namespace DeathmicChatbot
          * name - Name of the command
          * callback - Delegate to call
          * overwrite - If true an already existing command with that name will be overwritten.
-         * 
-         * Returns:
-         * 
-         * true if the command was set, false if there was already an command with that name.
          */
 
-        public void SetCommand(string name,
-                               PrivateCommand callback,
+		public void setPrivateCommand(string name,
+                               Command callback,
                                bool overwrite = false)
         {
             if (!_privateCommands.ContainsKey(name) || overwrite)
@@ -86,13 +74,10 @@ namespace DeathmicChatbot
          * or no command with that name was found.
          */
 
-        public bool CheckCommand(UserInfo user,
-                                 string channel,
-                                 string text,
-                                 bool isPrivate = false)
+		public bool CheckCommand(MessageContext ctx, string text)
         {
             if (!text.StartsWith(ACTIVATOR, StringComparison.Ordinal) &&
-                !isPrivate)
+				!ctx.isPrivate())
                 return false;
 
             var commandString = text.StartsWith(ACTIVATOR,
@@ -108,12 +93,11 @@ namespace DeathmicChatbot
                                   ? commandString.Remove(0, iCommandEndIndex + 1)
                                   : null;
 
-            if (ExecuteIfPublicCommand(user, channel, text, command, commandArgs))
+			if (ExecuteIfPublicCommand(ctx, text, command, commandArgs))
                 return true;
 
-            if (ExecuteIfPrivateCommand(user,
+			if (ExecuteIfPrivateCommand(ctx,
                                         text,
-                                        isPrivate,
                                         command,
                                         commandArgs))
                 return true;
@@ -121,29 +105,27 @@ namespace DeathmicChatbot
             return false;
         }
 
-        private bool ExecuteIfPrivateCommand(UserInfo user,
+		private bool ExecuteIfPrivateCommand(MessageContext ctx,
                                              string text,
-                                             bool isPrivate,
                                              string command,
                                              string commandArgs)
         {
-            if (isPrivate && _privateCommands.ContainsKey(command))
+			if (ctx.isPrivate() && _privateCommands.ContainsKey(command))
             {
-                _privateCommands[command](user, text, commandArgs);
+				_privateCommands[command](ctx, text, commandArgs);
                 return true;
             }
             return false;
         }
 
-        private bool ExecuteIfPublicCommand(UserInfo user,
-                                            string channel,
+		private bool ExecuteIfPublicCommand(MessageContext ctx,
                                             string text,
                                             string command,
                                             string commandArgs)
         {
             if (_publicCommands.ContainsKey(command))
             {
-                _publicCommands[command](user, channel, text, commandArgs);
+				_publicCommands[command](ctx, text, commandArgs);
                 return true;
             }
             return false;
