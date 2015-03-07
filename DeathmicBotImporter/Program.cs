@@ -20,7 +20,8 @@ namespace DeathmicBotImporter
                 {
                     UserModel user = new UserModel();
 
-                    string customize = file.Substring(13);
+                    string customize = file.Substring(file.IndexOf('\\'));
+                    
                     user.Nick = customize.Substring(0, customize.Length - 4);
                     string[] filecontent = System.IO.File.ReadAllLines(file);
                     user.LastVisit = filecontent[filecontent.Length - 1];
