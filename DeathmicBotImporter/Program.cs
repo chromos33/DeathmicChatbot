@@ -15,7 +15,7 @@ namespace DeathmicBotImporter
             List<UserModel> userlist = new List<UserModel>();
             if (Directory.Exists("join_logging"))
             {
-                string[] userfiles = Directory.GetFiles("join_logging");
+                string[] userfiles = Directory.GetFiles(Directory.GetCurrentDirectory(),"join_logging\\*");
                 foreach (var file in userfiles)
                 {
                     UserModel user = new UserModel();
