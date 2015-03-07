@@ -20,13 +20,19 @@ namespace DeathmicBotImporter
                 {
                     UserModel user = new UserModel();
 
-                    string customize = file.Substring(file.IndexOf('\\'));
+                    try
+                    {
+                        string customize = file.Substring(file.IndexOf('\\') + 1);
+
+                        user.Nick = customize.Substring(0, customize.Length - 4);
+                        string[] filecontent = System.IO.File.ReadAllLines(file);
+                        user.LastVisit = filecontent[filecontent.Length - 1];
+                        user.VisitCount = filecontent.Length.ToString();
+                        userlist.Add(user);
+                    }catch(Exception)
+                    {
+                    }
                     
-                    user.Nick = customize.Substring(0, customize.Length - 4);
-                    string[] filecontent = System.IO.File.ReadAllLines(file);
-                    user.LastVisit = filecontent[filecontent.Length - 1];
-                    user.VisitCount = filecontent.Length.ToString();
-                    userlist.Add(user);
                 }
                 foreach (var insertuser in userlist)
                 {
