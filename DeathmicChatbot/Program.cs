@@ -595,7 +595,6 @@ namespace DeathmicChatbot
                 _messageQueue.PrivateNoticeEnqueue(user.Nick, msg);
             CurrentUsers.TryAdd(user.Nick, user.Nick);
             JoinLogger.LogJoin(user.Nick, _messageQueue);
-            //Needs testing if AddorUpdateUser is called before LogJoin sent message if so data is incorrect
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             xmlprovider.AddorUpdateUser(user.Nick);
         }

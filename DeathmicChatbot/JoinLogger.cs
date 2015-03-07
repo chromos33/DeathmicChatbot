@@ -18,9 +18,9 @@ namespace DeathmicChatbot
 
         public static void LogJoin(string sNick, MessageQueue messageQueue)
         {
-            MakeSureLoggingDirectoryExists();
-            MakeSureLoggingFileForUserExists(sNick);
-            WriteJoinToLogFile(sNick);
+            //MakeSureLoggingDirectoryExists();
+            //MakeSureLoggingFileForUserExists(sNick);
+            //WriteJoinToLogFile(sNick);
             WhisperJoinStatsToLoggingOps(sNick, messageQueue);
         }
 
