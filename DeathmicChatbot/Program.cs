@@ -79,7 +79,7 @@ namespace DeathmicChatbot
             }
             else
             {
-                Connect()
+                Connect();
             }
             
         }
