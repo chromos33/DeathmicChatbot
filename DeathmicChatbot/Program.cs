@@ -135,11 +135,14 @@ namespace DeathmicChatbot
 
         private static void OnDisconnect()
         {
+
+            //commented out because it does not work on the strange case and other solution has been implemented which this would create a Exception
+            /*
             while (!IsConnectionPossible(_cona))
                 Console.WriteLine("OFFLINE");
             if (!_restarted)
-                Connect();
-            _restarted = true;
+                //Connect();
+            _restarted = true;*/
         }
 
         private static void AddStream(UserInfo user,
