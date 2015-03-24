@@ -110,7 +110,7 @@ namespace DeathmicChatbot
             {
                 _con.Connect();
             } while (!_con.Connected);
-
+            reconnectinbound = false;
             _messageQueue = new MessageQueue(_con);
         }
 
@@ -136,7 +136,7 @@ namespace DeathmicChatbot
 
 
             while (!IsConnectionPossible(_cona))
-                Console.WriteLine("OFFLINE");
+                Console.WriteLine("Offline atempting reconnect");
             if (!_restarted)
                 Connect();
             _restarted = true;
