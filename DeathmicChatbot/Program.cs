@@ -79,21 +79,14 @@ namespace DeathmicChatbot
             }
             else
             {
-                Connect();
+                reconnectinbound = false;
+                _con.Disconnect("Reconnect");
             }
             
         }
 
         private static void Connect()
         {
-            if(_con != null)
-            {
-                if(_con.Connected == true)
-                {
-                    _con.Disconnect("Reconnect");
-                }
-                
-            }
             _cona = new ConnectionArgs(Nick, Server);
             _con = new Connection(Encoding.UTF8, _cona, false, false);
             
@@ -136,13 +129,12 @@ namespace DeathmicChatbot
         private static void OnDisconnect()
         {
 
-            //commented out because it does not work on the strange case and other solution has been implemented which this would create a Exception
-            /*
+
             while (!IsConnectionPossible(_cona))
                 Console.WriteLine("OFFLINE");
             if (!_restarted)
-                //Connect();
-            _restarted = true;*/
+                Connect();
+            _restarted = true;
         }
 
         private static void AddStream(UserInfo user,
