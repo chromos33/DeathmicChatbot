@@ -86,6 +86,7 @@ namespace DeathmicChatbot
 
         private static void Connect()
         {
+            _con.Disconnect("Reconnect");
             _cona = new ConnectionArgs(Nick, Server);
             _con = new Connection(Encoding.UTF8, _cona, false, false);
             
@@ -795,6 +796,7 @@ namespace DeathmicChatbot
 
         private static void Reconnect(UserInfo user, string text, string commandArgs)
         {
+            _con.Sender.Action("#Deathmic", "nick BotDeathmic");
             reconnectinbound = false;
         }
 
