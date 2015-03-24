@@ -111,6 +111,7 @@ namespace DeathmicChatbot
                 _con.Connect();
             } while (!_con.Connected);
             reconnectinbound = false;
+            connectinginprogress = false;
             _messageQueue = new MessageQueue(_con);
         }
 
