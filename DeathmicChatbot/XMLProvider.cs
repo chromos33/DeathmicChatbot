@@ -209,6 +209,7 @@ namespace DeathmicChatbot
                                     if (item2.Attribute("hasbeenmerged") == null)
                                     {
                                         int count = Int32.Parse(item.Attribute("VisitCount").Value);
+                                        item.Add(new XAttribute("oldcounter", item.Attribute("VisitCount").Value));
                                         item.Attribute("VisitCount").Value = (Int32.Parse(item2.Attribute("VisitCount").Value) + Int32.Parse(item.Attribute("VisitCount").Value)).ToString();
                                         item2.Add(new XAttribute("oldcounter", item2.Attribute("VisitCount").Value));
                                         item2.Attribute("VisitCount").Value = (Int32.Parse(item2.Attribute("VisitCount").Value) + count).ToString();
