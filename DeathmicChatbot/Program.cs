@@ -88,7 +88,11 @@ namespace DeathmicChatbot
         {
             if(_con != null)
             {
-                _con.Disconnect("Reconnect");
+                if(_con.Connected == false)
+                {
+                    _con.Disconnect("Reconnect");
+                }
+                
             }
             _cona = new ConnectionArgs(Nick, Server);
             _con = new Connection(Encoding.UTF8, _cona, false, false);
