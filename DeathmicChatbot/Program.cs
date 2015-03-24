@@ -27,6 +27,7 @@ namespace DeathmicChatbot
     {
         private const string CHOSEN_USERS_FILE = "chosenusers.txt";
         private const int USER_UPDATE_INTERVAL = 60;
+        private const int SEC_IN_MS = 1000;
         private static ConnectionArgs _cona;
 		private static Connection _con;
 		private static readonly String Channel = Settings.Default.Channel;
@@ -42,6 +43,8 @@ namespace DeathmicChatbot
         private static MessageQueue _messageQueue;
         private static readonly ICounter Counter = new Counter();
         private static IModel _model;
+        private static bool reconnectinbound;
+        private static bool connectinginprogress = false;
 
         private static readonly ConcurrentDictionary<string, string> ChosenUsers
             = new ConcurrentDictionary<string, string>();
@@ -54,21 +57,36 @@ namespace DeathmicChatbot
 
 		private static List<IURLHandler> handlers = new List<IURLHandler>() {new Handlers.YoutubeHandler(), new Handlers.Imgur(_log), new Handlers.WebsiteHandler(_log)};
 		private static URLExtractor urlExtractor = new URLExtractor();
+        private static System.Threading.Timer disconnectCheckTimer;
 
         private static void Main(string[] args)
         {
             _debugMode = args.Length > 0 && args.Contains("debug");
             ServicePointManager.ServerCertificateValidationCallback =
                 (sender, certificate, chain, errors) => true;
-
+            reconnectinbound = false;
             //Test for XML Implementation
             xmlprovider = new XMLProvider();
             LoadChosenUsers();
             Connect();
-            
-
-            //_model = new Model(new SqliteDatabaseProvider());
-
+            disconnectCheckTimer = new System.Threading.Timer(disconnectCheckCallBack, null, SEC_IN_MS * 60, SEC_IN_MS * 60); 
+        }
+        private static void disconnectCheckCallBack(Object o)
+        {
+            if (!reconnectinbound)
+            {
+                reconnectinbound = true;
+                _messageQueue.PrivateNoticeEnqueue(Nick, "!reconnect");
+            }
+            else
+            {
+                if(!connectinginprogress)
+                {
+                    connectinginprogress = true;
+                    _con.Disconnect("Reconnect");
+                }
+                
+            }
             
         }
 
@@ -92,7 +110,8 @@ namespace DeathmicChatbot
             {
                 _con.Connect();
             } while (!_con.Connected);
-
+            reconnectinbound = false;
+            connectinginprogress = false;
             _messageQueue = new MessageQueue(_con);
         }
 
@@ -115,8 +134,10 @@ namespace DeathmicChatbot
 
         private static void OnDisconnect()
         {
+
+
             while (!IsConnectionPossible(_cona))
-                Console.WriteLine("OFFLINE");
+                Console.WriteLine("Offline atempting reconnect");
             if (!_restarted)
                 Connect();
             _restarted = true;
@@ -127,43 +148,24 @@ namespace DeathmicChatbot
                                       string text,
                                       string commandArgs)
         {
-            string message = xmlprovider.AddStream(commandArgs,user.Nick);
-            _streamProviderManager.AddStream(commandArgs);
-            if(message == (user.Nick + " added Stream to the streamlist"))
+            try
             {
-                _messageQueue.PublicMessageEnqueue(channel,String.Format("{0} added {1} to the streamlist",user.Nick,commandArgs));
+                string message = xmlprovider.AddStream(commandArgs, user.Nick);
+                _streamProviderManager.AddStream(commandArgs);
+                if (message == (user.Nick + " added Stream to the streamlist"))
+                {
+                    _messageQueue.PublicMessageEnqueue(channel, String.Format("{0} added {1} to the streamlist", user.Nick, commandArgs));
+                }
+                else if (message == (user.Nick + " wanted to readd Stream to the streamlist."))
+                {
+                    _con.Sender.Action(channel, String.Format("slaps {0} around for being an idiot", user.Nick));
+                }
+                _log.WriteToLog("Information", message);
+            }catch(Exception)
+            {
+                _log.WriteToLog("Information", "Fatal Error on AddStream");
             }
-            else if (message == (user.Nick + " wanted to readd Stream to the streamlist."))
-            {
-                _con.Sender.Action(channel,String.Format("slaps {0} around for being an idiot",user.Nick));
-            }
-            _log.WriteToLog("Information", message);
-            /*
-            if (_streamProviderManager.AddStream(commandArgs))
-            {
-                _log.WriteToLog("Information",
-                                String.Format(
-                                    "{0} added {1} to the streamlist",
-                                    user.Nick,
-                                    commandArgs));
-                _messageQueue.PublicMessageEnqueue(channel,
-                                                   String.Format(
-                                                       "{0} added {1} to the streamlist",
-                                                       user.Nick,
-                                                       commandArgs));
-            }
-            else
-            {
-                _log.WriteToLog("Information",
-                                String.Format(
-                                    "{0} wanted to readd {1} to the streamlist",
-                                    user.Nick,
-                                    commandArgs));
-                _con.Sender.Action(channel,
-                                   String.Format(
-                                       "slaps {0} around for being an idiot",
-                                       user.Nick));
-            }*/
+            
         }
 
         private static void DelStream(UserInfo user,
@@ -174,17 +176,6 @@ namespace DeathmicChatbot
             string message = xmlprovider.RemoveStream(commandArgs);
             _messageQueue.PublicMessageEnqueue(channel, String.Format(message, user.Nick, commandArgs));
             _log.WriteToLog("Information", String.Format(message, user.Nick, commandArgs));
-            /*_log.WriteToLog("Information",
-                            String.Format(
-                                "{0} removed {1} from the streamlist",
-                                user.Nick,
-                                commandArgs));
-            _messageQueue.PublicMessageEnqueue(channel,
-                                               String.Format(
-                                                   "{0} removed {1} from the streamlist",
-                                                   user.Nick,
-                                                   commandArgs));
-            _streamProviderManager.RemoveStream(commandArgs);*/
         }
 
         private static void StreamCheck(UserInfo user,
@@ -779,6 +770,7 @@ namespace DeathmicChatbot
             CommandManager.PrivateCommand sendmessage = SendMessage;
             CommandManager.PrivateCommand addalias = AddAlias;
             CommandManager.PrivateCommand toggleuserlogging = ToggleUserLogging;
+            CommandManager.PrivateCommand reconnect = Reconnect;
             //CommandManager.PrivateCommand mergeusers = MergeUsers;
 
             _commands.SetCommand("addstream", addstream);
@@ -804,6 +796,7 @@ namespace DeathmicChatbot
             _commands.SetCommand("counterReset", counterReset);
             _commands.SetCommand("counterStats", counterStats);
             _commands.SetCommand("toggleuserlogging", toggleuserlogging);
+            _commands.SetCommand("reconnect", reconnect);
 
             Counter.CountRequested += CounterOnCountRequested;
             Counter.StatRequested += CounterOnStatRequested;
@@ -814,6 +807,12 @@ namespace DeathmicChatbot
 
             votingCheckThread.Start();
             saveChosenUsersThread.Start();
+        }
+
+        private static void Reconnect(UserInfo user, string text, string commandArgs)
+        {
+            _con.Sender.Action("#Deathmic", "nick BotDeathmic");
+            reconnectinbound = false;
         }
 
         private static void ToggleUserLogging(UserInfo user, string text, string commandArgs)
@@ -938,21 +937,33 @@ namespace DeathmicChatbot
 			MessageContext ctx = new MessageContext(channel, _messageQueue, user.Nick, false);
             if (_commands.CheckCommand(user, channel, message))
                 return;
-			IEnumerable<string> urls = urlExtractor.extractURLs(message);
+            try
+            {
+                IEnumerable<string> urls = urlExtractor.extractURLs(message);
 
-			if (urls.Count() > 0) {
-				foreach (var url in urls)
-					_log.WriteToLog ("Information", "URL found: " + url);
-			}
+                if (urls.Count() > 0)
+                {
+                    foreach (var url in urls)
+                        _log.WriteToLog("Information", "URL found: " + url);
+                }
 
-			foreach (var url in urls) {
-				foreach (var handler in handlers) {
-					if (handler.handleURL(url, ctx))
-						break;
-				}
-			}
+                foreach (var url in urls)
+                {
+                    foreach (var handler in handlers)
+                    {
+                        if (handler.handleURL(url, ctx))
+                            break;
+                    }
+                }
+            }catch(Exception ex)
+            {
+                _log.WriteToLog("Information", ex.ToString());
+            }
+			
         }
 
-        private static void OnPrivate(UserInfo user, string message) { _commands.CheckCommand(user, Channel, message, true); }
+        private static void OnPrivate(UserInfo user, string message) {
+            _commands.CheckCommand(user, Channel, message, true); 
+        }
     }
 }

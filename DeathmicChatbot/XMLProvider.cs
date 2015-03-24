@@ -19,14 +19,16 @@ namespace DeathmicChatbot
             {
                 XDocument xdoc = XDocument.Load("XML/Users.xml");
                 IEnumerable<XElement> childlist = from users in xdoc.Root.Elements() 
-                                                  where (users.Attribute("Nick").Value == nick
-                                                  || users.Element("Alias").Attribute("Value").Value == nick) && users.Attribute("Nick").Value != "BotDeathmic"
+                                                  where (users.Element("Alias").Attribute("Value").Value == nick
+                                                  || users.Attribute("Nick").Value == nick) && users.Attribute("Nick").Value != "BotDeathmic"
                                                   select users;
                 if(childlist.Count() > 0)
                 {
                     foreach (var user in childlist)
                     {
-                        answer += user.Attribute("VisitCount").Value + ",";
+                        int count = Int32.Parse(user.Attribute("VisitCount").Value);
+                        count++;
+                        answer += count.ToString() + ",";
                         answer += user.Attribute("LastVisit").Value;
                     }
                 }
@@ -199,12 +201,32 @@ namespace DeathmicChatbot
                         {
                             item.Add(new XElement("Alias", new XAttribute("Value", alias)));
                             xdoc.Save("XML/Users.xml");
+                            IEnumerable<XElement> childlist2 = from el in xdoc.Root.Elements() where el.Attribute("Nick").Value == alias select el;
+                            if (childlist2.Count() > 0)
+                            {
+                                foreach (XElement item2 in childlist2)
+                                {
+                                    if (item2.Attribute("hasbeenmerged") == null)
+                                    {
+                                        int count = Int32.Parse(item.Attribute("VisitCount").Value);
+                                        item.Add(new XAttribute("oldcounter", item.Attribute("VisitCount").Value));
+                                        item.Attribute("VisitCount").Value = (Int32.Parse(item2.Attribute("VisitCount").Value) + Int32.Parse(item.Attribute("VisitCount").Value)).ToString();
+                                        item2.Add(new XAttribute("oldcounter", item2.Attribute("VisitCount").Value));
+                                        item2.Attribute("VisitCount").Value = (Int32.Parse(item2.Attribute("VisitCount").Value) + count).ToString();
+                                        item2.Add(new XAttribute("hasbeenmerged", 1));
+                                        xdoc.Save("XML/Users.xml");
+                                    }
+
+                                }
+
+                            }
                             return "Alias was added to the User";
                         }
                         else
                         {
                             return "Alias already added";
                         }
+                        
                         
                     }
                 }
@@ -416,12 +438,10 @@ namespace DeathmicChatbot
                 IEnumerable<XElement> childlist = from streams in xdoc.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
                 if (childlist.Count() > 0)
                 {
-
                     foreach (var stream in childlist)
                     {
                         answer = stream.Attribute(inforequested).Value;
                     }
-                    xdoc.Save("XML/Streams.xml");
                 }                
             }
             else
