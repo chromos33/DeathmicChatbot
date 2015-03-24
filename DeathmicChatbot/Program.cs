@@ -88,7 +88,7 @@ namespace DeathmicChatbot
         {
             if(_con != null)
             {
-                if(_con.Connected == false)
+                if(_con.Connected == true)
                 {
                     _con.Disconnect("Reconnect");
                 }
