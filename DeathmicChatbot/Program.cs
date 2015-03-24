@@ -79,7 +79,6 @@ namespace DeathmicChatbot
             }
             else
             {
-                reconnectinbound = false;
                 _con.Disconnect("Reconnect");
             }
             
@@ -142,17 +141,24 @@ namespace DeathmicChatbot
                                       string text,
                                       string commandArgs)
         {
-            string message = xmlprovider.AddStream(commandArgs,user.Nick);
-            _streamProviderManager.AddStream(commandArgs);
-            if(message == (user.Nick + " added Stream to the streamlist"))
+            try
             {
-                _messageQueue.PublicMessageEnqueue(channel,String.Format("{0} added {1} to the streamlist",user.Nick,commandArgs));
-            }
-            else if (message == (user.Nick + " wanted to readd Stream to the streamlist."))
+                string message = xmlprovider.AddStream(commandArgs, user.Nick);
+                _streamProviderManager.AddStream(commandArgs);
+                if (message == (user.Nick + " added Stream to the streamlist"))
+                {
+                    _messageQueue.PublicMessageEnqueue(channel, String.Format("{0} added {1} to the streamlist", user.Nick, commandArgs));
+                }
+                else if (message == (user.Nick + " wanted to readd Stream to the streamlist."))
+                {
+                    _con.Sender.Action(channel, String.Format("slaps {0} around for being an idiot", user.Nick));
+                }
+                _log.WriteToLog("Information", message);
+            }catch(Exception)
             {
-                _con.Sender.Action(channel,String.Format("slaps {0} around for being an idiot",user.Nick));
+                _log.WriteToLog("Information", "Fatal Error on AddStream");
             }
-            _log.WriteToLog("Information", message);
+            
         }
 
         private static void DelStream(UserInfo user,
