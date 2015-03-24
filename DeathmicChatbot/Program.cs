@@ -82,7 +82,7 @@ namespace DeathmicChatbot
             {
                 if(!connectinginprogress)
                 {
-                    connectinginprogress = true
+                    connectinginprogress = true;
                     _con.Disconnect("Reconnect");
                 }
                 
