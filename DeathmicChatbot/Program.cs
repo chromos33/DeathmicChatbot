@@ -44,6 +44,7 @@ namespace DeathmicChatbot
         private static readonly ICounter Counter = new Counter();
         private static IModel _model;
         private static bool reconnectinbound;
+        private static bool connectinginprogress = false;
 
         private static readonly ConcurrentDictionary<string, string> ChosenUsers
             = new ConcurrentDictionary<string, string>();
@@ -79,7 +80,12 @@ namespace DeathmicChatbot
             }
             else
             {
-                _con.Disconnect("Reconnect");
+                if(!connectinginprogress)
+                {
+                    connectinginprogress = true
+                    _con.Disconnect("Reconnect");
+                }
+                
             }
             
         }
