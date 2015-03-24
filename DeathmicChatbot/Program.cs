@@ -27,6 +27,7 @@ namespace DeathmicChatbot
     {
         private const string CHOSEN_USERS_FILE = "chosenusers.txt";
         private const int USER_UPDATE_INTERVAL = 60;
+        private const int SEC_IN_MS = 1000;
         private static ConnectionArgs _cona;
 		private static Connection _con;
 		private static readonly String Channel = Settings.Default.Channel;
@@ -54,6 +55,7 @@ namespace DeathmicChatbot
 
 		private static List<IURLHandler> handlers = new List<IURLHandler>() {new Handlers.YoutubeHandler(), new Handlers.Imgur(_log), new Handlers.WebsiteHandler(_log)};
 		private static URLExtractor urlExtractor = new URLExtractor();
+        private static System.Threading.Timer disconnectCheckTimer;
 
         private static void Main(string[] args)
         {
@@ -65,11 +67,14 @@ namespace DeathmicChatbot
             xmlprovider = new XMLProvider();
             LoadChosenUsers();
             Connect();
-            
-
-            //_model = new Model(new SqliteDatabaseProvider());
-
-            
+            disconnectCheckTimer = new System.Threading.Timer(disconnectCheckCallBack, null, SEC_IN_MS * 60, SEC_IN_MS * 60); 
+        }
+        private static void disconnectCheckCallBack(Object o)
+        {
+            if(_con.Connected == false)
+            {
+                Connect();
+            }
         }
 
         private static void Connect()
@@ -138,32 +143,6 @@ namespace DeathmicChatbot
                 _con.Sender.Action(channel,String.Format("slaps {0} around for being an idiot",user.Nick));
             }
             _log.WriteToLog("Information", message);
-            /*
-            if (_streamProviderManager.AddStream(commandArgs))
-            {
-                _log.WriteToLog("Information",
-                                String.Format(
-                                    "{0} added {1} to the streamlist",
-                                    user.Nick,
-                                    commandArgs));
-                _messageQueue.PublicMessageEnqueue(channel,
-                                                   String.Format(
-                                                       "{0} added {1} to the streamlist",
-                                                       user.Nick,
-                                                       commandArgs));
-            }
-            else
-            {
-                _log.WriteToLog("Information",
-                                String.Format(
-                                    "{0} wanted to readd {1} to the streamlist",
-                                    user.Nick,
-                                    commandArgs));
-                _con.Sender.Action(channel,
-                                   String.Format(
-                                       "slaps {0} around for being an idiot",
-                                       user.Nick));
-            }*/
         }
 
         private static void DelStream(UserInfo user,
@@ -174,17 +153,6 @@ namespace DeathmicChatbot
             string message = xmlprovider.RemoveStream(commandArgs);
             _messageQueue.PublicMessageEnqueue(channel, String.Format(message, user.Nick, commandArgs));
             _log.WriteToLog("Information", String.Format(message, user.Nick, commandArgs));
-            /*_log.WriteToLog("Information",
-                            String.Format(
-                                "{0} removed {1} from the streamlist",
-                                user.Nick,
-                                commandArgs));
-            _messageQueue.PublicMessageEnqueue(channel,
-                                               String.Format(
-                                                   "{0} removed {1} from the streamlist",
-                                                   user.Nick,
-                                                   commandArgs));
-            _streamProviderManager.RemoveStream(commandArgs);*/
         }
 
         private static void StreamCheck(UserInfo user,
