@@ -43,6 +43,7 @@ namespace DeathmicChatbot
         private static MessageQueue _messageQueue;
         private static readonly ICounter Counter = new Counter();
         private static IModel _model;
+        private static bool reconnectinbound;
 
         private static readonly ConcurrentDictionary<string, string> ChosenUsers
             = new ConcurrentDictionary<string, string>();
@@ -62,7 +63,7 @@ namespace DeathmicChatbot
             _debugMode = args.Length > 0 && args.Contains("debug");
             ServicePointManager.ServerCertificateValidationCallback =
                 (sender, certificate, chain, errors) => true;
-
+            reconnectinbound = false;
             //Test for XML Implementation
             xmlprovider = new XMLProvider();
             LoadChosenUsers();
@@ -71,10 +72,16 @@ namespace DeathmicChatbot
         }
         private static void disconnectCheckCallBack(Object o)
         {
-            if(_con.Connected == false)
+            if (!reconnectinbound)
             {
-                Connect();
+                reconnectinbound = true;
+                _messageQueue.PrivateNoticeEnqueue(Nick, "!reconnect");
             }
+            else
+            {
+                Connect()
+            }
+            
         }
 
         private static void Connect()
@@ -747,6 +754,7 @@ namespace DeathmicChatbot
             CommandManager.PrivateCommand sendmessage = SendMessage;
             CommandManager.PrivateCommand addalias = AddAlias;
             CommandManager.PrivateCommand toggleuserlogging = ToggleUserLogging;
+            CommandManager.PrivateCommand reconnect = Reconnect;
             //CommandManager.PrivateCommand mergeusers = MergeUsers;
 
             _commands.SetCommand("addstream", addstream);
@@ -772,6 +780,7 @@ namespace DeathmicChatbot
             _commands.SetCommand("counterReset", counterReset);
             _commands.SetCommand("counterStats", counterStats);
             _commands.SetCommand("toggleuserlogging", toggleuserlogging);
+            _commands.SetCommand("reconnect", reconnect);
 
             Counter.CountRequested += CounterOnCountRequested;
             Counter.StatRequested += CounterOnStatRequested;
@@ -782,6 +791,11 @@ namespace DeathmicChatbot
 
             votingCheckThread.Start();
             saveChosenUsersThread.Start();
+        }
+
+        private static void Reconnect(UserInfo user, string text, string commandArgs)
+        {
+            reconnectinbound = false;
         }
 
         private static void ToggleUserLogging(UserInfo user, string text, string commandArgs)
@@ -906,21 +920,33 @@ namespace DeathmicChatbot
 			MessageContext ctx = new MessageContext(channel, _messageQueue, user.Nick, false);
             if (_commands.CheckCommand(user, channel, message))
                 return;
-			IEnumerable<string> urls = urlExtractor.extractURLs(message);
+            try
+            {
+                IEnumerable<string> urls = urlExtractor.extractURLs(message);
 
-			if (urls.Count() > 0) {
-				foreach (var url in urls)
-					_log.WriteToLog ("Information", "URL found: " + url);
-			}
+                if (urls.Count() > 0)
+                {
+                    foreach (var url in urls)
+                        _log.WriteToLog("Information", "URL found: " + url);
+                }
 
-			foreach (var url in urls) {
-				foreach (var handler in handlers) {
-					if (handler.handleURL(url, ctx))
-						break;
-				}
-			}
+                foreach (var url in urls)
+                {
+                    foreach (var handler in handlers)
+                    {
+                        if (handler.handleURL(url, ctx))
+                            break;
+                    }
+                }
+            }catch(Exception ex)
+            {
+                _log.WriteToLog("Information", ex.ToString());
+            }
+			
         }
 
-        private static void OnPrivate(UserInfo user, string message) { _commands.CheckCommand(user, Channel, message, true); }
+        private static void OnPrivate(UserInfo user, string message) {
+            _commands.CheckCommand(user, Channel, message, true); 
+        }
     }
 }

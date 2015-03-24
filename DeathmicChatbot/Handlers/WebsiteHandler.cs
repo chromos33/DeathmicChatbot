@@ -71,9 +71,27 @@ namespace DeathmicChatbot.Handlers
         private string GetPageTitleFromMetaTags(string url,
                                                 IList<HtmlNode> metaTags)
         {
-            var title =
-                HttpUtility.HtmlDecode(metaTags[0].InnerText)
-                           .Replace("\r\n", "");
+            var title = "";
+            foreach(var metatag in metaTags)
+            {
+                if (metatag.OuterHtml.Contains("title"))
+                {
+                    title = metatag.Attributes["title"].Value.Replace("\r\n", "");
+                }
+                else
+                {
+                    if (metatag.OuterHtml.Contains("description"))
+                    {
+                        title = metatag.Attributes["description"].Value.Replace("\r\n", "");
+                    }
+                    else
+                    {
+                        title =
+                    HttpUtility.HtmlDecode(metaTags[0].InnerText)
+                               .Replace("\r\n", "");
+                    }
+                }
+            }
             _log.WriteToLog("Information", url + " title: " + title);
             return title;
         }
