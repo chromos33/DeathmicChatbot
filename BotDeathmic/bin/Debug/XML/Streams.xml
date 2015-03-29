@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Streams>
   <Stream Channel="test" starttime="" stoptime="" running="false" provider="" />
-  <Stream Channel="test2" starttime="" stoptime="" running="false" provider="" />
 </Streams>
