@@ -313,13 +313,23 @@ namespace DeathmicChatbot.IRC
                     }
                     if(choosemultiple)
                     {
+                        String result = "";
                         if(hasreason)
                         {
                             for (int i = 0; i < numberofrolls; i++)
                             {
                                 if (xmlprovider.CheckforUserinPick(reason, filteredTargets[Rnd.Next(filteredTargets.Count() - 1)]))
                                 {
-                                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel, filteredTargets[Rnd.Next(filteredTargets.Count() - 1)]);
+                                    if(i == numberofrolls-1)
+                                    {
+                                        result += filteredTargets[Rnd.Next(filteredTargets.Count() - 1)] + ",";
+                                    }
+                                    else
+                                    {
+                                        result += filteredTargets[Rnd.Next(filteredTargets.Count() - 1)];
+                                    }
+
+                                    
                                 }
                             }
                         }
@@ -327,9 +337,17 @@ namespace DeathmicChatbot.IRC
                         {
                             for(int i = 0; i < numberofrolls;i++)
                             {
-                                client.LocalUser.SendMessage(Properties.Settings.Default.Channel, filteredTargets[Rnd.Next(filteredTargets.Count() - 1)]);
+                                if (i == numberofrolls - 1)
+                                {
+                                    result += filteredTargets[Rnd.Next(filteredTargets.Count() - 1)] + ",";
+                                }
+                                else
+                                {
+                                    result += filteredTargets[Rnd.Next(filteredTargets.Count() - 1)];
+                                }
                             }
                         }
+                        client.LocalUser.SendMessage(Properties.Settings.Default.Channel, result);
                         
                     }
                     else
