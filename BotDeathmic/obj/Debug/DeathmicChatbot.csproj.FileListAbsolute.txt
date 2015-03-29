@@ -1,0 +1,10 @@
+c:\users\chromos33\documents\visual studio 2013\Projects\BotDeathmic\BotDeathmic\bin\Debug\DeathmicChatbot.exe.config
+c:\users\chromos33\documents\visual studio 2013\Projects\BotDeathmic\BotDeathmic\obj\Debug\DeathmicChatbot.csprojResolveAssemblyReference.cache
+c:\users\chromos33\documents\visual studio 2013\Projects\BotDeathmic\BotDeathmic\obj\Debug\DeathmicChatbot.Properties.Resources.resources
+c:\users\chromos33\documents\visual studio 2013\Projects\BotDeathmic\BotDeathmic\obj\Debug\DeathmicChatbot.csproj.GenerateResource.Cache
+c:\users\chromos33\documents\visual studio 2013\Projects\BotDeathmic\BotDeathmic\bin\Debug\DeathmicChatbot.exe
+c:\users\chromos33\documents\visual studio 2013\Projects\BotDeathmic\BotDeathmic\bin\Debug\DeathmicChatbot.pdb
+c:\users\chromos33\documents\visual studio 2013\Projects\BotDeathmic\BotDeathmic\bin\Debug\IrcDotNet.dll
+c:\users\chromos33\documents\visual studio 2013\Projects\BotDeathmic\BotDeathmic\bin\Debug\IrcDotNet.xml
+c:\users\chromos33\documents\visual studio 2013\Projects\BotDeathmic\BotDeathmic\obj\Debug\DeathmicChatbot.exe
+c:\users\chromos33\documents\visual studio 2013\Projects\BotDeathmic\BotDeathmic\obj\Debug\DeathmicChatbot.pdb
