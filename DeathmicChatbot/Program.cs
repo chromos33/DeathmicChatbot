@@ -910,13 +910,19 @@ namespace DeathmicChatbot
 				foreach (var url in urls)
 					_log.WriteToLog ("Information", "URL found: " + url);
 			}
-
-			foreach (var url in urls) {
-				foreach (var handler in handlers) {
-					if (handler.handleURL(url, ctx))
-						break;
-				}
-			}
+            try
+            {
+                foreach (var url in urls)
+                {
+                    foreach (var handler in handlers)
+                    {
+                        if (handler.handleURL(url, ctx))
+                            break;
+                    }
+                }
+            }catch(Exception)
+            { }
+			
         }
 
         private static void OnPrivate(UserInfo user, string message) { _commands.CheckCommand(user, Channel, message, true); }
