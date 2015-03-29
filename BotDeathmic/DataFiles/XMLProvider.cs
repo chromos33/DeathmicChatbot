@@ -9,7 +9,7 @@ namespace DeathmicChatbot
 {
     class XMLProvider
     {
-        //returns data of User as CSV data in following order VisitCount, LastVisit
+        #region User Stuff
         public string UserInfo(string nick)
         {
             nick = nick.ToLower();
@@ -177,6 +177,9 @@ namespace DeathmicChatbot
             xdoc.Save("XML/Users.xml");
             return answer;
         }
+        #endregion
+        //returns data of User as CSV data in following order VisitCount, LastVisit
+        
         //Adds Alias to User (?where to use no idea implemented because SQlite structure suggested Usage)
         public string AddAlias(string nick, string alias)
         {
@@ -249,6 +252,7 @@ namespace DeathmicChatbot
             return "";
         }
 
+        #region stream stuff
         public string AddStream(string channel, string user)
         {
             channel = channel.ToLower();
@@ -370,7 +374,7 @@ namespace DeathmicChatbot
                 {
                     foreach (var stream in childlist)
                     {
-                        answer.Add(stream.Attribute("Channel").Value +","+ stream.Attribute("Provider"));
+                        answer.Add(stream.Attribute("Channel").Value + "," + stream.Attribute("Provider"));
                     }
                 }
             }
@@ -478,5 +482,139 @@ namespace DeathmicChatbot
             }
             return answer;
         }
+        #endregion
+
+        #region PickUserStuff etc
+        public void CreateUserPick(string Reason,string User)
+        {
+            Reason = Reason.ToLower();
+            User = User.ToLower();
+            //Query XML File for User Update
+            XDocument xdoc = new XDocument();
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/UserPicks.xml"))
+            {
+                xdoc = XDocument.Load("XML/UserPicks.xml");
+                try
+                {
+                    IEnumerable<XElement> childlist = from Reasons in xdoc.Root.Elements() select Reasons;
+                    if(childlist.Count() > 0)
+                    {
+                        
+                        foreach (XElement item in childlist)
+                        {
+                            Console.WriteLine(childlist.Count());
+                            bool contained = false;
+                            foreach(XElement item_item in item.Elements("User"))
+                            {
+                                Console.WriteLine(item_item.Attribute("Value").Value);
+                                if(item_item.Attribute("Value").Value == User)
+                                {
+                                    Console.WriteLine("contained");
+                                    contained = true;
+                                }
+                            }
+                            Console.WriteLine(contained);
+                            if (contained == false)
+                            {
+                                Console.WriteLine(contained);
+                                item.Add(new XElement("User", new XAttribute("Value", User)));
+                            }
+                        }
+                        
+                    }
+                    else
+                    {
+                        var _element = new XElement("UserPickedList", 
+                                new XAttribute("Reason", Reason),
+                                new XElement("User", new XAttribute("Value", User))
+                        );
+                        xdoc.Element("UserPickedLists").Add(_element);
+                    }
+                    xdoc.Save("XML/UserPicks.xml");
+
+                    
+                    
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+            else
+            {
+
+                xdoc = new XDocument(new XElement("UserPickedLists",
+                            new XElement("UserPickedList", 
+                                new XAttribute("Reason", Reason),
+                                new XElement("User", new XAttribute("Value", User))
+                            )
+                        ));
+                xdoc.Save("XML/UserPicks.xml");
+            }
+            
+        }
+        public bool CheckforUserinPick(string Reason,string User)
+        {
+
+            Reason = Reason.ToLower();
+            User = User.ToLower();
+            //Query XML File for User Update
+            XDocument xdoc = new XDocument();
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/UserPicks.xml"))
+            {
+                xdoc = XDocument.Load("XML/UserPicks.xml");
+                try
+                {
+                    IEnumerable<XElement> childlist = from Reasons in xdoc.Root.Elements() select Reasons;
+                    if (childlist.Count() > 0)
+                    {
+
+                        foreach (XElement item in childlist)
+                        {
+                            Console.WriteLine(childlist.Count());
+                            bool contained = false;
+                            foreach (XElement item_item in item.Elements("User"))
+                            {
+                                Console.WriteLine(item_item.Attribute("Value").Value);
+                                if (item_item.Attribute("Value").Value == User)
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
+
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        public bool DeletePickData(string Reason)
+        {
+            return true;
+        }
+
+        #endregion
+
     }
 }

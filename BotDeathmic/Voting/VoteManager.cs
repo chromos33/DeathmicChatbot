@@ -123,5 +123,17 @@ namespace DeathmicChatbot
                 votings.Where(voting => voting._dtEndTime <= DateTime.Now))
                 EndVoting(voting._userInfo, voting._iIndex);
         }
+        public bool anyVotings()
+        {
+            var votings = new List<Voting>(_votings.Values);
+            if(votings.Count > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

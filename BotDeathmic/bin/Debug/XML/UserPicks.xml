@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UserPickedLists>
+  <UserPickedList Reason="test">
+    <User Value="testuser" />
+    <User Value="testuser2" />
+  </UserPickedList>
+</UserPickedLists>
