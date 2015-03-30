@@ -489,6 +489,7 @@ namespace DeathmicChatbot
         {
             Reason = Reason.ToLower();
             User = User.ToLower();
+            bool anser = false;
             //Query XML File for User Update
             XDocument xdoc = new XDocument();
             if (!Directory.Exists("XML"))
@@ -500,13 +501,12 @@ namespace DeathmicChatbot
                 xdoc = XDocument.Load("XML/UserPicks.xml");
                 try
                 {
-                    IEnumerable<XElement> childlist = from Reasons in xdoc.Root.Elements() select Reasons;
+                    IEnumerable<XElement> childlist = from Reasons in xdoc.Root.Elements() where Reasons.Attribute("Reason").Value == Reason select Reasons;
                     if(childlist.Count() > 0)
                     {
                         
                         foreach (XElement item in childlist)
                         {
-                            Console.WriteLine(childlist.Count());
                             bool contained = false;
                             foreach(XElement item_item in item.Elements("User"))
                             {
@@ -522,11 +522,11 @@ namespace DeathmicChatbot
                             {
                                 Console.WriteLine(contained);
                                 item.Add(new XElement("User", new XAttribute("Value", User)));
-                                return true;
+                                anser = true;
                             }
                             else
                             {
-                                return false;
+                                anser = false;
                             }
                         }
                         
@@ -547,7 +547,7 @@ namespace DeathmicChatbot
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
-                    return false;
+                    anser = false;
                 }
             }
             else
@@ -560,8 +560,9 @@ namespace DeathmicChatbot
                             )
                         ));
                 xdoc.Save("XML/UserPicks.xml");
+                anser = true;
             }
-            return true;
+            return anser;
             
         }
         public bool CheckforUserinPick(string Reason,string User)
@@ -580,7 +581,7 @@ namespace DeathmicChatbot
                 xdoc = XDocument.Load("XML/UserPicks.xml");
                 try
                 {
-                    IEnumerable<XElement> childlist = from Reasons in xdoc.Root.Elements() select Reasons;
+                    IEnumerable<XElement> childlist = from Reasons in xdoc.Root.Elements() where Reasons.Attribute("Reason").Value == Reason select Reasons;
                     if (childlist.Count() > 0)
                     {
 

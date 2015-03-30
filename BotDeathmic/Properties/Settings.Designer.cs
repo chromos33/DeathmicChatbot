@@ -34,7 +34,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("BotDeathmic2")]
+        [global::System.Configuration.DefaultSettingValueAttribute("BotDeathmicDev")]
         public string Name {
             get {
                 return ((string)(this["Name"]));
@@ -61,7 +61,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#deathmictest")]
+        [global::System.Configuration.DefaultSettingValueAttribute("#deathmic")]
         public string Channel {
             get {
                 return ((string)(this["Channel"]));

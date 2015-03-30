@@ -177,14 +177,14 @@ namespace DeathmicChatbot.IRC
             this.ChatCommandProcessors.Add("endvoting", EndVoting);
             this.ChatCommandProcessors.Add("pickrandomuser", PickRandomUser);
             this.ChatCommandProcessors.Add("roll", Roll);
-            this.ChatCommandProcessors.Add("countercount", CounterCount);
-            this.ChatCommandProcessors.Add("counterreset", CounterReset);
-            this.ChatCommandProcessors.Add("counterstats", CounterStats);
-            this.ChatCommandProcessors.Add("vote", Vote);
-            this.ChatCommandProcessors.Add("removevote", RemoveVote);
-            this.ChatCommandProcessors.Add("listvotings", ListVotings);
-            this.ChatCommandProcessors.Add("toggleuserloggin", ToggleUserLogging);
-            this.ChatCommandProcessors.Add("sendmessage", SendMessage);
+            //this.ChatCommandProcessors.Add("countercount", CounterCount);
+            //this.ChatCommandProcessors.Add("counterreset", CounterReset);
+            //this.ChatCommandProcessors.Add("counterstats", CounterStats);
+            //this.ChatCommandProcessors.Add("vote", Vote);
+            //this.ChatCommandProcessors.Add("removevote", RemoveVote);
+            //this.ChatCommandProcessors.Add("listvotings", ListVotings);
+            //this.ChatCommandProcessors.Add("toggleuserloggin", ToggleUserLogging);
+            //this.ChatCommandProcessors.Add("sendmessage", SendMessage);
 
             
 
@@ -259,11 +259,11 @@ namespace DeathmicChatbot.IRC
             {
                 return 1;
             }
-            if(param.IndexOf("R_")>=0)
+            if (param.IndexOf("R_") >= 0 || param.IndexOf("r_") >= 0)
             {
                 return 2;
             }
-            if(param.IndexOf("ig_")>=0)
+            if (param.IndexOf("Ig_") >= 0 || param.IndexOf("ig_") >= 0 || param.IndexOf("IG_") >= 0)
             {
                 return 3;
             }
@@ -274,46 +274,60 @@ namespace DeathmicChatbot.IRC
             // TODO: Test this Shit
             try
             {
+                List<string> unfilteredTargets = new List<string>();
+                var sourceUser = (IrcUser)source;
+                var replyTargets = GetDefaultReplyTarget(client, sourceUser, targets);
+                foreach (var target in client.Users)
+                {
+                    if (!IgnoreTheseUsers.Contains(target.NickName))
+                    {
+                        unfilteredTargets.Add(target.NickName);
+                    }
+                }
+
+                List<string> checkparams = parameters.ToList();
                 List<string> filteredTargets = new List<string>();
                 List<string> pickeduseroutput = new List<string>();
-                if(parameters.Count() > 0)
+                bool multiple = false;
+                string multiplevalue = "";
+                bool reason = false;
+                string reasonvalue = "";
+                bool additionalignores = false;
+                string additionalignoresvalue = "";
+                if(checkparams.Count() > 0)
                 {
-                    if (parameters[0].ToString() == "help")
+                    if (checkparams[0].ToString() == "help")
                     {
                         client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
                         client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
                     }
                     else
                     {
-                        bool multiple = false;
-                        string multiplevalue = "";
-                        bool reason = false;
-                        string reasonvalue = "";
-                        bool additionalignores = false;
-                        string additionalignoresvalue = "";
-
-
-                        if (parameters.Count() == 0 || parameters.Count() >= 4)
+                        if (checkparams.Count() == 0 || checkparams.Count() >= 4)
                         {
-                            client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
-                            client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
+                                client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
+                                client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
                             return;
                         }
-                        for (int i = 0; i < parameters.Count(); i++)
+                        if (checkparams[checkparams.Count() - 1] == "")
                         {
-                            switch (CheckPickRandomUserParam(parameters[i].ToString()))
+                            checkparams.RemoveAt(checkparams.Count() - 1);
+                        }
+                        for (int i = 0; i < checkparams.Count(); i++)
+                        {
+                            switch (CheckPickRandomUserParam(checkparams[i].ToString()))
                             {
                                 case 1:
                                     multiple = true;
-                                    multiplevalue = parameters[i].ToString();
+                                    multiplevalue = checkparams[i].ToString().Substring(1,checkparams[i].Length-1);
                                     break;
                                 case 2:
                                     reason = true;
-                                    reasonvalue = parameters[i].ToString();
+                                    reasonvalue = checkparams[i].ToString().Substring(2, checkparams[i].Length - 2);
                                     break;
                                 case 3:
                                     additionalignores = true;
-                                    additionalignoresvalue = parameters[i].ToString();
+                                    additionalignoresvalue = checkparams[i].ToString().Substring(3, checkparams[i].Length - 3);
                                     break;
                                 default:
                                     client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
@@ -332,46 +346,95 @@ namespace DeathmicChatbot.IRC
                                     tempIgnoreTheseUsers = Usefull_Functions.String_Array_Push(tempIgnoreTheseUsers, item);
                                 }
                             }
-                            foreach (var target in client.Users)
+                            foreach (var target in unfilteredTargets)
                             {
-                                if (!tempIgnoreTheseUsers.Contains(target.NickName))
+                                if (!tempIgnoreTheseUsers.Contains(target))
                                 {
-                                    filteredTargets.Add(target.NickName);
+                                    filteredTargets.Add(target);
                                 }
                             }
                             if (multiple && reason)
                             {
                                 for (int i = 0; int.Parse(multiplevalue) > i; i++)
                                 {
-                                    do
+                                    int randcounter = 0;
+                                    if(filteredTargets.Count() > 0)
                                     {
-                                        pickeduser += filteredTargets[Rnd.Next(filteredTargets.Count()) - 1];
-                                    } while (!(xmlprovider.CreateUserPick(reasonvalue, pickeduser)));
-                                    pickeduseroutput.Add(pickeduser);
+                                        do
+                                        {
+                                            randcounter++;
+                                            pickeduser = filteredTargets[Rnd.Next(filteredTargets.Count())];
+                                            Console.WriteLine(xmlprovider.CheckforUserinPick(reasonvalue, pickeduser));
+                                            if (xmlprovider.CheckforUserinPick(reasonvalue, pickeduser) == false)
+                                            {
+                                                xmlprovider.CreateUserPick(reasonvalue, pickeduser);
+                                                pickeduseroutput.Add(pickeduser);
+                                                break;
+                                            }
+                                            if (randcounter == 5)
+                                            {
+                                                break;
+                                            }
+                                        } while (xmlprovider.CheckforUserinPick(reasonvalue, pickeduser) == false);
+                                    }
+                                    else
+                                    {
+                                        client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "No Users left after Ignorefilter");
+                                        return;
+                                    } 
                                 }
                             }
                             else if (multiple)
                             {
-                                for (int i = 0; int.Parse(multiplevalue) > i; i++)
+                                if (filteredTargets.Count() > 0)
                                 {
-                                    do
+                                    for (int i = 0; int.Parse(multiplevalue) > i; i++)
                                     {
-                                        pickeduser += filteredTargets[Rnd.Next(filteredTargets.Count()) - 1];
-                                    } while (!pickeduseroutput.Contains(pickeduser));
-                                    pickeduseroutput.Add(pickeduser);
+                                        int randcounter = 0;
+                                        do
+                                        {
+                                            randcounter++;
+                                            pickeduser = filteredTargets[Rnd.Next(filteredTargets.Count())];
+                                            if (!pickeduseroutput.Contains(pickeduser))
+                                            {
+                                                pickeduseroutput.Add(pickeduser);
+                                                break;
+                                            }
+                                            if (randcounter == 5)
+                                            {
+                                                break;
+                                            }
+                                        } while (!pickeduseroutput.Contains(pickeduser));
+
+                                    }
                                 }
+                                else
+                                {
+                                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "No Users left after Ignorefilter");
+                                    return;
+                                }
+
                             }
                             else if (reason)
                             {
-                                pickeduser += filteredTargets[Rnd.Next(filteredTargets.Count()) - 1];
-                                if (!(xmlprovider.CreateUserPick(reasonvalue, pickeduser)))
+                                if (filteredTargets.Count() > 0)
                                 {
-                                    pickeduseroutput.Add(pickeduser);
+                                    pickeduser = filteredTargets[Rnd.Next(filteredTargets.Count())];
+                                    if ((xmlprovider.CreateUserPick(reasonvalue, pickeduser)))
+                                    {
+                                        pickeduseroutput.Add(pickeduser);
+                                    }
+                                }
+                                else
+                                {
+                                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "No Users left after Ignorefilter");
+                                    return;
                                 }
                             }
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            Console.WriteLine(ex.ToString());
                             client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
                             client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
                             return;
@@ -381,19 +444,24 @@ namespace DeathmicChatbot.IRC
                 else
                 {
                     bool add = true;
-                    foreach (IIrcMessageTarget element in targets)
+                    foreach (string element in unfilteredTargets)
                     {
-                        if(!IgnoreTheseUsers.Contains(element.Name))
+                        if(!IgnoreTheseUsers.Contains(element))
                         {
-                            filteredTargets.Add(element.Name);
-                            Console.WriteLine(element.Name);
+                            filteredTargets.Add(element);
                         }
                     }
-                    if(add)
+                    if (filteredTargets.Count() > 0)
                     {
-                        Console.WriteLine(filteredTargets.Count());
-                        
-                        pickeduseroutput.Add(filteredTargets[Rnd.Next(filteredTargets.Count()) - 1]);
+                        if (add)
+                        {
+                            pickeduseroutput.Add(filteredTargets[Rnd.Next(filteredTargets.Count())]);
+                        }
+                    }
+                    else
+                    {
+                        client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "No Users left after Ignorefilter");
+                        return;
                     }
                 }
                 string output = "";
@@ -410,11 +478,25 @@ namespace DeathmicChatbot.IRC
                     }
                     j++;
                 }
-                client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "The folling User/s have been chosen:" + output);
+                if(output != "")
+                {
+                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "The folling User/s have been chosen:" + output);
+                } else
+                {
+                    if(checkparams.Count() >0)
+                    {
+                        if(!(checkparams[0].ToString() == "help"))
+                        {
+                            client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "There are no more people, that haven't been chosen already for this Reason:" + reasonvalue);
+                        }
+                    }
+                }
+                
                 
             }catch(Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+                client.LocalUser.SendNotice(source.Name, "#[Number of Picks] must be a number, or some other error occured");
             }
         }
 
@@ -551,7 +633,6 @@ namespace DeathmicChatbot.IRC
                 }
                 try
                 {
-                    Console.WriteLine(index);
                     _voting.EndVoting(source.Name, index - 1);
                 }
                 catch (ArgumentOutOfRangeException e)
@@ -686,7 +767,6 @@ namespace DeathmicChatbot.IRC
         {
             thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format("{0} started a voting which runs until {1}.", args.User,args.Voting._dtEndTime));
             thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, args.Voting._sQuestion +" Possible answers:");
-            Console.WriteLine(args.Voting._dtEndTime);
 
             foreach (var answer in args.Voting._slAnswers)
                 thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, string.Format("    {0}", answer));

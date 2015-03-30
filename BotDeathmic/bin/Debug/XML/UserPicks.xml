@@ -1,7 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <UserPickedLists>
-  <UserPickedList Reason="test">
-    <User Value="testuser" />
-    <User Value="testuser2" />
+  <UserPickedList Reason="firstlivetry">
+    <User Value="chromos44" />
+    <User Value="chromos33" />
+  </UserPickedList>
+  <UserPickedList Reason="forthelulz">
+    <User Value="belios" />
+    <User Value="siedler084" />
   </UserPickedList>
 </UserPickedLists>
