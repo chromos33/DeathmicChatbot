@@ -64,6 +64,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Usefull_Functions.cs" />
     <Compile Include="Voting\VoteManager.cs" />
     <Compile Include="Voting\Voting.cs" />
     <Compile Include="Voting\VotingEventArgs.cs" />

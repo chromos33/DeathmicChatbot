@@ -253,132 +253,169 @@ namespace DeathmicChatbot.IRC
         {
             client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), combineParameters(parameters));
         }
+        private int CheckPickRandomUserParam(string param)
+        {
+            if(param.IndexOf("#") >=0)
+            {
+                return 1;
+            }
+            if(param.IndexOf("R_")>=0)
+            {
+                return 2;
+            }
+            if(param.IndexOf("ig_")>=0)
+            {
+                return 3;
+            }
+            return 0;
+        }
         private void PickRandomUser(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
             // TODO: Test this Shit
-            if(parameters[0].ToString() == "help")
+            try
             {
-                client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser [Reason] [Number of Picks] | [Ignored User 1],[Ignored User 2]...'.");
-                client.LocalUser.SendNotice(source.Name, "All parameter are optional [Reason] is used fore multi picks with filtering previous picked Users.");
-            }else
-            {
-                // PickUpUser for Occasion
-                bool choosemultiple;
-                bool hasreason;
-                int numberofrolls = 0;
-                string reason = "";
-                string[] splitcombinedparameters;
-                string[] firstparametershalf;
-                string[] secondparametershalf;
-                string combinedparameters = combineParameters(parameters);
-                if(combinedparameters.IndexOf('|') >=0)
+                List<string> filteredTargets = new List<string>();
+                List<string> pickeduseroutput = new List<string>();
+                if(parameters.Count() > 0)
                 {
-                    choosemultiple = false;
-                    hasreason = false;
-                    splitcombinedparameters = combinedparameters.Split('|');
-                    firstparametershalf = splitcombinedparameters[0].Trim().Split(' ');
-                    secondparametershalf = splitcombinedparameters[1].Trim().Split(' ');
-                    if(firstparametershalf.Count() == 1)
+                    if (parameters[0].ToString() == "help")
                     {
-                        
-                        choosemultiple = true;
-                        if(!int.TryParse(firstparametershalf[0],out numberofrolls))
-                        {
-                            client.LocalUser.SendNotice(source.Name, "Please enter a number for 'Number of Rolls', and not a word,special sign or whatever.");
-                        }
+                        client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
+                        client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
                     }
                     else
                     {
-                        if(firstparametershalf.Count() == 2)
+                        bool multiple = false;
+                        string multiplevalue = "";
+                        bool reason = false;
+                        string reasonvalue = "";
+                        bool additionalignores = false;
+                        string additionalignoresvalue = "";
+
+
+                        if (parameters.Count() == 0 || parameters.Count() >= 4)
                         {
-                            hasreason = true;
-                            reason = firstparametershalf[1];
+                            client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
+                            client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
+                            return;
                         }
-                        else{
-                            client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser [Number of Picks] [Reason] | [Ignored User 1],[Ignored User 2]...'.");
-                            client.LocalUser.SendNotice(source.Name, "All parameter are semi optional you have to take every parameter up to the one you want.");
-                            client.LocalUser.SendNotice(source.Name, "[Reason] is used for picks with filtering previous picked Users.");
-                            
+                        for (int i = 0; i < parameters.Count(); i++)
+                        {
+                            switch (CheckPickRandomUserParam(parameters[i].ToString()))
+                            {
+                                case 1:
+                                    multiple = true;
+                                    multiplevalue = parameters[i].ToString();
+                                    break;
+                                case 2:
+                                    reason = true;
+                                    reasonvalue = parameters[i].ToString();
+                                    break;
+                                case 3:
+                                    additionalignores = true;
+                                    additionalignoresvalue = parameters[i].ToString();
+                                    break;
+                                default:
+                                    client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
+                                    client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
+                                    return;
+                            }
+                        }
+                        string pickeduser = "";
+                        try
+                        {
+                            string[] tempIgnoreTheseUsers = IgnoreTheseUsers;
+                            if (additionalignores)
+                            {
+                                foreach (string item in additionalignoresvalue.Split(','))
+                                {
+                                    tempIgnoreTheseUsers = Usefull_Functions.String_Array_Push(tempIgnoreTheseUsers, item);
+                                }
+                            }
+                            foreach (var target in client.Users)
+                            {
+                                if (!tempIgnoreTheseUsers.Contains(target.NickName))
+                                {
+                                    filteredTargets.Add(target.NickName);
+                                }
+                            }
+                            if (multiple && reason)
+                            {
+                                for (int i = 0; int.Parse(multiplevalue) > i; i++)
+                                {
+                                    do
+                                    {
+                                        pickeduser += filteredTargets[Rnd.Next(filteredTargets.Count()) - 1];
+                                    } while (!(xmlprovider.CreateUserPick(reasonvalue, pickeduser)));
+                                    pickeduseroutput.Add(pickeduser);
+                                }
+                            }
+                            else if (multiple)
+                            {
+                                for (int i = 0; int.Parse(multiplevalue) > i; i++)
+                                {
+                                    do
+                                    {
+                                        pickeduser += filteredTargets[Rnd.Next(filteredTargets.Count()) - 1];
+                                    } while (!pickeduseroutput.Contains(pickeduser));
+                                    pickeduseroutput.Add(pickeduser);
+                                }
+                            }
+                            else if (reason)
+                            {
+                                pickeduser += filteredTargets[Rnd.Next(filteredTargets.Count()) - 1];
+                                if (!(xmlprovider.CreateUserPick(reasonvalue, pickeduser)))
+                                {
+                                    pickeduseroutput.Add(pickeduser);
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
+                            client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
                             return;
                         }
                     }
-                    List<string> filteredTargets = new List<string>();
-
-                    foreach (var target in client.Users)
-                    {
-                        if (!IgnoreTheseUsers.Contains(target.NickName) || !secondparametershalf.Contains(target.NickName))
-                        {
-                            filteredTargets.Add(target.NickName);
-                        }
-                    }
-                    if(choosemultiple)
-                    {
-                        String result = "";
-                        if(hasreason)
-                        {
-                            for (int i = 0; i < numberofrolls; i++)
-                            {
-                                if (xmlprovider.CheckforUserinPick(reason, filteredTargets[Rnd.Next(filteredTargets.Count() - 1)]))
-                                {
-                                    if(i == numberofrolls-1)
-                                    {
-                                        result += filteredTargets[Rnd.Next(filteredTargets.Count() - 1)] + ",";
-                                    }
-                                    else
-                                    {
-                                        result += filteredTargets[Rnd.Next(filteredTargets.Count() - 1)];
-                                    }
-
-                                    
-                                }
-                            }
-                        }
-                        else
-                        {
-                            for(int i = 0; i < numberofrolls;i++)
-                            {
-                                if (i == numberofrolls - 1)
-                                {
-                                    result += filteredTargets[Rnd.Next(filteredTargets.Count() - 1)] + ",";
-                                }
-                                else
-                                {
-                                    result += filteredTargets[Rnd.Next(filteredTargets.Count() - 1)];
-                                }
-                            }
-                        }
-                        client.LocalUser.SendMessage(Properties.Settings.Default.Channel, result);
-                        
-                    }
-                    else
-                    {
-                        client.LocalUser.SendMessage(Properties.Settings.Default.Channel, filteredTargets[Rnd.Next(filteredTargets.Count() - 1)]);
-                    }
-                    
-
                 }
                 else
                 {
-                    List<string> filteredTargets = new List<string>();
-
-                    foreach (var target in client.Users)
+                    bool add = true;
+                    foreach (IIrcMessageTarget element in targets)
                     {
-                        if (!IgnoreTheseUsers.Contains(target.NickName))
+                        if(!IgnoreTheseUsers.Contains(element.Name))
                         {
-                            filteredTargets.Add(target.NickName);
+                            filteredTargets.Add(element.Name);
+                            Console.WriteLine(element.Name);
                         }
                     }
+                    if(add)
+                    {
+                        Console.WriteLine(filteredTargets.Count());
+                        
+                        pickeduseroutput.Add(filteredTargets[Rnd.Next(filteredTargets.Count()) - 1]);
+                    }
                 }
+                string output = "";
+                int j = 1;
+                foreach(string finalusers in pickeduseroutput)
+                {
+                    if(j < pickeduseroutput.Count())
+                    {
+                        output += finalusers + ",";
+                    }
+                    else
+                    {
+                        output += finalusers;
+                    }
+                    j++;
+                }
+                client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "The folling User/s have been chosen:" + output);
                 
-
-                
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
-            /*
-            var index = Rnd.Next(nameList.Count);
-            var chosen = nameList[index];
-            _messageQueue.PublicMessageEnqueue(channel, chosen);
-            ChosenUsers.TryAdd(chosen, chosen);
-            SaveChosenUsers();*/
         }
 
         private void Roll(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)

@@ -485,7 +485,7 @@ namespace DeathmicChatbot
         #endregion
 
         #region PickUserStuff etc
-        public void CreateUserPick(string Reason,string User)
+        public bool CreateUserPick(string Reason,string User)
         {
             Reason = Reason.ToLower();
             User = User.ToLower();
@@ -522,6 +522,11 @@ namespace DeathmicChatbot
                             {
                                 Console.WriteLine(contained);
                                 item.Add(new XElement("User", new XAttribute("Value", User)));
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
                             }
                         }
                         
@@ -542,6 +547,7 @@ namespace DeathmicChatbot
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
+                    return false;
                 }
             }
             else
@@ -555,6 +561,7 @@ namespace DeathmicChatbot
                         ));
                 xdoc.Save("XML/UserPicks.xml");
             }
+            return true;
             
         }
         public bool CheckforUserinPick(string Reason,string User)
