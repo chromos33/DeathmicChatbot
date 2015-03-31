@@ -70,6 +70,7 @@ namespace DeathmicChatbot.IRC
  * */
     public class BotDeathmic : BasicIrcBot
     {
+        #region global Definitions
         private static VoteManager _voting;
         public string clientVersionInfo = "IRC.NET Community Bot";
         XMLProvider xmlprovider = new XMLProvider();
@@ -88,7 +89,8 @@ namespace DeathmicChatbot.IRC
         private static string clientReceivedActionText;
         private static bool isVoteRunning = false;
         private static List<string> commandlist = new List<string>();
-
+        #endregion
+        #region Constructor
         public BotDeathmic()
             : base()
         {
@@ -112,7 +114,8 @@ namespace DeathmicChatbot.IRC
                 };
             }
         }
-
+        #endregion
+        #region IRCConnectionEvents
         protected override void OnClientConnect(IrcClient client)
         {
 
@@ -167,7 +170,8 @@ namespace DeathmicChatbot.IRC
         {
 
         }
-
+        #endregion
+        #region commandinit
         protected override void InitializeChatCommandProcessors()
         {
             base.InitializeChatCommandProcessors();
@@ -204,10 +208,9 @@ namespace DeathmicChatbot.IRC
             commandlist.Add("sendmessage");
 
             this.ChatCommandProcessors.Add("listcommands",ListCommands);
-
-            
-
         }
+        #endregion
+        #region generalfunctions
         private string combineParameters(IList<string> parameters)
         {
             string combined = "";
@@ -227,6 +230,7 @@ namespace DeathmicChatbot.IRC
             }
             return combined;
         }
+        #endregion
         #region Chattcommands
         #region Streamcommands stuff
         private void AddStream(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
