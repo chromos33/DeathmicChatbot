@@ -176,15 +176,17 @@ namespace DeathmicChatbot.IRC
             this.ChatCommandProcessors.Add("startvoting", StartVoting);
             this.ChatCommandProcessors.Add("endvoting", EndVoting);
             this.ChatCommandProcessors.Add("pickrandomuser", PickRandomUser);
+            this.ChatCommandProcessors.Add("userpicklist", UserPickList);
+            this.ChatCommandProcessors.Add("removeuserpicklist", RemoveUserPicklist);
             this.ChatCommandProcessors.Add("roll", Roll);
-            //this.ChatCommandProcessors.Add("countercount", CounterCount);
-            //this.ChatCommandProcessors.Add("counterreset", CounterReset);
-            //this.ChatCommandProcessors.Add("counterstats", CounterStats);
-            //this.ChatCommandProcessors.Add("vote", Vote);
-            //this.ChatCommandProcessors.Add("removevote", RemoveVote);
-            //this.ChatCommandProcessors.Add("listvotings", ListVotings);
-            //this.ChatCommandProcessors.Add("toggleuserloggin", ToggleUserLogging);
-            //this.ChatCommandProcessors.Add("sendmessage", SendMessage);
+            this.ChatCommandProcessors.Add("countercount", CounterCount);
+            this.ChatCommandProcessors.Add("counterreset", CounterReset);
+            this.ChatCommandProcessors.Add("counterstats", CounterStats);
+            this.ChatCommandProcessors.Add("vote", Vote);
+            this.ChatCommandProcessors.Add("removevote", RemoveVote);
+            this.ChatCommandProcessors.Add("listvotings", ListVotings);
+            this.ChatCommandProcessors.Add("toggleuserloggin", ToggleUserLogging);
+            this.ChatCommandProcessors.Add("sendmessage", SendMessage);
 
             
 
@@ -249,10 +251,86 @@ namespace DeathmicChatbot.IRC
         }
         #endregion
         #region general stuff
+         private void Roll(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            var regex = new Regex(@"(^\d+)[wWdD](\d+$)");
+            if (!regex.IsMatch(parameters[0]))
+            {
+                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
+                                                   String.Format(
+                                                       "Error: Invalid roll request: {0}.",
+                                                       parameters[0]));
+            }
+            else
+            {
+                var match = regex.Match(parameters[0]);
+
+                UInt64 numberOfDice;
+                UInt64 sidesOfDice;
+
+                try
+                {
+                    sidesOfDice = Convert.ToUInt64(match.Groups[2].Value);
+                    numberOfDice = Convert.ToUInt64(match.Groups[1].Value);
+                }
+                catch (OverflowException)
+                {
+                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
+                                                       "Error: Result could make the server explode. Get real, you maniac.");
+                    return;
+                }
+
+                if (numberOfDice == 0 || sidesOfDice == 0)
+                {
+                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
+                                                       string.Format(
+                                                           "Error: Can't roll 0 dice, or dice with 0 sides."));
+                    return;
+                }
+
+                if (sidesOfDice >= Int32.MaxValue)
+                {
+                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
+                                                       string.Format(
+                                                           "Error: Due to submolecular limitations, a die can't have more than {0} sides.",
+                                                           Int32.MaxValue - 1));
+                    return;
+                }
+
+                UInt64 sum = 0;
+
+                var random = new Random();
+
+                var max = numberOfDice * sidesOfDice;
+                if (max / numberOfDice != sidesOfDice)
+                {
+                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
+                                                       "Error: Result could make the server explode. Get real, you maniac.");
+                    return;
+                }
+
+                if (numberOfDice > 100000000)
+                {
+                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
+                                                       "Seriously? ... I'll try. But don't expect the result too soon. It's gonna take me a while.");
+                }
+
+                for (UInt64 i = 0; i < numberOfDice; i++)
+                    sum += (ulong)random.Next(1, Convert.ToInt32(sidesOfDice) + 1);
+
+                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
+                                                   String.Format("{0}: {1}",
+                                                                 parameters[0],
+                                                                 sum));
+            }
+        }
+        
         private void SendMessage(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
             client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), combineParameters(parameters));
         }
+        #endregion
+        #region RandomUserPick stuff
         private int CheckPickRandomUserParam(string param)
         {
             if(param.IndexOf("#") >=0)
@@ -285,7 +363,7 @@ namespace DeathmicChatbot.IRC
                     }
                 }
 
-                List<string> checkparams = parameters.ToList();
+                List<string> checkparams = parameters.ToList();     
                 List<string> filteredTargets = new List<string>();
                 List<string> pickeduseroutput = new List<string>();
                 bool multiple = false;
@@ -371,7 +449,7 @@ namespace DeathmicChatbot.IRC
                                                 pickeduseroutput.Add(pickeduser);
                                                 break;
                                             }
-                                            if (randcounter == 5)
+                                            if (randcounter == 20)
                                             {
                                                 break;
                                             }
@@ -400,7 +478,7 @@ namespace DeathmicChatbot.IRC
                                                 pickeduseroutput.Add(pickeduser);
                                                 break;
                                             }
-                                            if (randcounter == 5)
+                                            if (randcounter == 20)
                                             {
                                                 break;
                                             }
@@ -443,16 +521,16 @@ namespace DeathmicChatbot.IRC
                 }
                 else
                 {
-                    bool add = true;
-                    foreach (string element in unfilteredTargets)
+                    if (unfilteredTargets.Count() > 0)
                     {
-                        if(!IgnoreTheseUsers.Contains(element))
+                        bool add = true;
+                        foreach (string element in unfilteredTargets)
                         {
-                            filteredTargets.Add(element);
+                            if(!IgnoreTheseUsers.Contains(element))
+                            {
+                                filteredTargets.Add(element);
+                            }
                         }
-                    }
-                    if (filteredTargets.Count() > 0)
-                    {
                         if (add)
                         {
                             pickeduseroutput.Add(filteredTargets[Rnd.Next(filteredTargets.Count())]);
@@ -460,6 +538,7 @@ namespace DeathmicChatbot.IRC
                     }
                     else
                     {
+                        //This gets triggered even if there should still be stuff
                         client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "No Users left after Ignorefilter");
                         return;
                     }
@@ -480,7 +559,7 @@ namespace DeathmicChatbot.IRC
                 }
                 if(output != "")
                 {
-                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "The folling User/s have been chosen:" + output);
+                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "The following User/s have been chosen:" + output);
                 } else
                 {
                     if(checkparams.Count() >0)
@@ -491,89 +570,81 @@ namespace DeathmicChatbot.IRC
                         }
                     }
                 }
-                
-                
             }catch(Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 client.LocalUser.SendNotice(source.Name, "#[Number of Picks] must be a number, or some other error occured");
             }
         }
-
-        private void Roll(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        private void RemoveUserPicklist(IrcClient client, IIrcMessageSource source, System.Collections.Generic.IList<IIrcMessageTarget> targets, string command, System.Collections.Generic.IList<string> parameters)
         {
-            var regex = new Regex(@"(^\d+)[wWdD](\d+$)");
-            if (!regex.IsMatch(parameters[0]))
+            if(parameters.Count() >0)
             {
-                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
-                                                   String.Format(
-                                                       "Error: Invalid roll request: {0}.",
-                                                       parameters[0]));
+                List<string> checkparams = parameters.ToList();
+                if (checkparams.Count() > 1)
+                {
+                    if (checkparams[checkparams.Count() - 1] == "")
+                    {
+                        checkparams.RemoveAt(checkparams.Count() - 1);
+                    }
+                }
+                if (checkparams[0] == "help")
+                {
+                    client.LocalUser.SendNotice(source.Name, "Command is !removeuserpicklist [nameofpickedlist]");
+                }
+                else
+                {
+
+                    if (xmlprovider.DeletePickData(checkparams[0]))
+                    {
+                        client.LocalUser.SendNotice(source.Name, "Removal succeeded");
+                    }
+                    else
+                    {
+                        client.LocalUser.SendNotice(source.Name, "No such List in the Data");
+                    }
+
+                }
             }
             else
             {
-                var match = regex.Match(parameters[0]);
-
-                UInt64 numberOfDice;
-                UInt64 sidesOfDice;
-
-                try
-                {
-                    sidesOfDice = Convert.ToUInt64(match.Groups[2].Value);
-                    numberOfDice = Convert.ToUInt64(match.Groups[1].Value);
-                }
-                catch (OverflowException)
-                {
-                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
-                                                       "Error: Result could make the server explode. Get real, you maniac.");
-                    return;
-                }
-
-                if (numberOfDice == 0 || sidesOfDice == 0)
-                {
-                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
-                                                       string.Format(
-                                                           "Error: Can't roll 0 dice, or dice with 0 sides."));
-                    return;
-                }
-
-                if (sidesOfDice >= Int32.MaxValue)
-                {
-                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
-                                                       string.Format(
-                                                           "Error: Due to submolecular limitations, a die can't have more than {0} sides.",
-                                                           Int32.MaxValue - 1));
-                    return;
-                }
-
-                UInt64 sum = 0;
-
-                var random = new Random();
-
-                var max = numberOfDice * sidesOfDice;
-                if (max / numberOfDice != sidesOfDice)
-                {
-                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
-                                                       "Error: Result could make the server explode. Get real, you maniac.");
-                    return;
-                }
-
-                if (numberOfDice > 100000000)
-                {
-                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
-                                                       "Seriously? ... I'll try. But don't expect the result too soon. It's gonna take me a while.");
-                }
-
-                for (UInt64 i = 0; i < numberOfDice; i++)
-                    sum += (ulong)random.Next(1, Convert.ToInt32(sidesOfDice) + 1);
-
-                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),
-                                                   String.Format("{0}: {1}",
-                                                                 parameters[0],
-                                                                 sum));
+                client.LocalUser.SendNotice(source.Name, "You must enter a List to be removed");
             }
+            
+            
+            
         }
-        #endregion
+
+        private void UserPickList(IrcClient client, IIrcMessageSource source, System.Collections.Generic.IList<IIrcMessageTarget> targets, string command, System.Collections.Generic.IList<string> parameters)
+        {
+            try
+            {
+                string output;
+                if (parameters.Count() > 0 && parameters[0] != "")
+                {
+                    output = xmlprovider.ReasonUserList(parameters[0]);
+                }
+                else
+                {
+                    output = xmlprovider.ReasonUserList();
+                }
+                if (output == "")
+                {
+                    client.LocalUser.SendNotice(source.Name, "No Result from this query.");
+                }
+                else
+                {
+                    client.LocalUser.SendNotice(source.Name, output);
+                }
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            
+        }
+
+       #endregion
         #region Voting Stuff
         #region Voting Commands
         private void StartVoting(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)

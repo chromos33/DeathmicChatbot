@@ -4,8 +4,18 @@
     <User Value="chromos44" />
     <User Value="chromos33" />
   </UserPickedList>
-  <UserPickedList Reason="forthelulz">
+  <UserPickedList Reason="testreason">
+    <User Value="chromos44" />
+    <User Value="chromos33" />
+  </UserPickedList>
+  <UserPickedList Reason="livetest">
+    <User Value="andchat|104025" />
+    <User Value="mavbyte" />
     <User Value="belios" />
-    <User Value="siedler084" />
+  </UserPickedList>
+  <UserPickedList Reason="testmic">
+    <User Value="arthas" />
+    <User Value="androideka" />
+    <User Value="bookworm303" />
   </UserPickedList>
 </UserPickedLists>

@@ -617,9 +617,99 @@ namespace DeathmicChatbot
             }
 
         }
+        public string ReasonUserList(string Reason ="")
+        {
+            string answer = "";
+            Reason = Reason.ToLower();
+            //Query XML File for User Update
+            XDocument xdoc = new XDocument();
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/UserPicks.xml"))
+            {
+                xdoc = XDocument.Load("XML/UserPicks.xml");
+                try
+                {
+                    IEnumerable<XElement> childlist;
+                    if(Reason != "")
+                    {
+                        childlist = from Reasons in xdoc.Root.Elements() where Reasons.Attribute("Reason").Value == Reason select Reasons;
+                    }
+                    else
+                    {
+                        childlist = from Reasons in xdoc.Root.Elements() select Reasons;
+                    }
+                    
+                    if (childlist.Count() > 0)
+                    {
+
+                        foreach (XElement item in childlist)
+                        {
+                            if(Reason != "")
+                            {
+                                foreach (XElement item_item in item.Elements("User"))
+                                {
+                                    answer += item_item.Attribute("Value").Value +",";
+                                }
+                            }
+                            else
+                            {
+                                answer += item.Attribute("Reason").Value + ",";
+                            }
+                            
+                        }
+
+                    }
+                    else
+                    {
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+            else
+            {
+            }
+
+            return answer.Substring(0, answer.Length - 1);
+
+        }
         public bool DeletePickData(string Reason)
         {
-            return true;
+            bool answer = false;
+            Reason = Reason.ToLower();
+            //Query XML File for User Update
+            XDocument xdoc = new XDocument();
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/UserPicks.xml"))
+            {
+                xdoc = XDocument.Load("XML/UserPicks.xml");
+                try
+                {
+                    IEnumerable<XElement> childlist = from Reasons in xdoc.Root.Elements() where Reasons.Attribute("Reason").Value == Reason select Reasons;
+
+                    if (childlist.Count() > 0)
+                    {
+                        foreach (XElement item in childlist)
+                        {
+                            item.Remove();
+                            answer = true;
+                            xdoc.Save("XML/UserPicks.xml");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+            return answer;
         }
 
         #endregion

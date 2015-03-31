@@ -61,7 +61,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#deathmic")]
+        [global::System.Configuration.DefaultSettingValueAttribute("#deathmictest")]
         public string Channel {
             get {
                 return ((string)(this["Channel"]));
