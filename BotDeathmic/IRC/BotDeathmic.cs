@@ -87,6 +87,7 @@ namespace DeathmicChatbot.IRC
         private static string clientReceivedVersionInfo;
         private static string clientReceivedActionText;
         private static bool isVoteRunning = false;
+        private static List<string> commandlist = new List<string>();
 
         public BotDeathmic()
             : base()
@@ -124,8 +125,9 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnClientRegistered(IrcClient client)
         {
-            //
         }
+
+        
 
         protected override void OnLocalUserJoinedChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
         {
@@ -169,24 +171,39 @@ namespace DeathmicChatbot.IRC
         protected override void InitializeChatCommandProcessors()
         {
             base.InitializeChatCommandProcessors();
-
+            commandlist = new List<string>();
             this.ChatCommandProcessors.Add("addstream", AddStream);
+            commandlist.Add("addstream");
             this.ChatCommandProcessors.Add("delstream", DelStream);
+            commandlist.Add("delstream");
             this.ChatCommandProcessors.Add("streamcheck", StreamCheck);
+            commandlist.Add("streamcheck");
             this.ChatCommandProcessors.Add("startvoting", StartVoting);
+            commandlist.Add("startvoting");
             this.ChatCommandProcessors.Add("endvoting", EndVoting);
+            commandlist.Add("endvoting");
             this.ChatCommandProcessors.Add("pickrandomuser", PickRandomUser);
+            commandlist.Add("pickrandomuser");
             this.ChatCommandProcessors.Add("userpicklist", UserPickList);
+            commandlist.Add("userpicklist");
             this.ChatCommandProcessors.Add("removeuserpicklist", RemoveUserPicklist);
+            commandlist.Add("removeuserpicklist");
             this.ChatCommandProcessors.Add("roll", Roll);
-            this.ChatCommandProcessors.Add("countercount", CounterCount);
-            this.ChatCommandProcessors.Add("counterreset", CounterReset);
-            this.ChatCommandProcessors.Add("counterstats", CounterStats);
+            commandlist.Add("roll");
+            this.ChatCommandProcessors.Add("counter", CounterCommand);
+            commandlist.Add("counter");
             this.ChatCommandProcessors.Add("vote", Vote);
+            commandlist.Add("vote");
             this.ChatCommandProcessors.Add("removevote", RemoveVote);
+            commandlist.Add("removevote");
             this.ChatCommandProcessors.Add("listvotings", ListVotings);
+            commandlist.Add("listvotings");
             this.ChatCommandProcessors.Add("toggleuserloggin", ToggleUserLogging);
+            commandlist.Add("toggleuserloggin");
             this.ChatCommandProcessors.Add("sendmessage", SendMessage);
+            commandlist.Add("sendmessage");
+
+            this.ChatCommandProcessors.Add("listcommands",ListCommands);
 
             
 
@@ -251,6 +268,10 @@ namespace DeathmicChatbot.IRC
         }
         #endregion
         #region general stuff
+        private void ListCommands(IrcClient client, IIrcMessageSource source, System.Collections.Generic.IList<IIrcMessageTarget> targets, string command, System.Collections.Generic.IList<string> parameters)
+        {
+            client.LocalUser.SendNotice(source.Name, combineParameters(commandlist));
+        }
          private void Roll(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
             var regex = new Regex(@"(^\d+)[wWdD](\d+$)");
@@ -851,24 +872,42 @@ namespace DeathmicChatbot.IRC
 
 
 
-        
 
-        
 
-        private void CounterCount(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+
+        #region counter stuff
+        private void CounterCommand(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            throw new NotImplementedException();
+            if (parameters.Count() < 1)
+            {
+                client.LocalUser.SendNotice(source.Name, "Error: count needs a counter name. '!counter [countername] [command(read/reset)]' [command] is optional.");
+                return;
+            }
+            if(parameters.Count() == 1)
+            {
+                client.LocalUser.SendMessage(Properties.Settings.Default.Channel, xmlprovider.Counter(parameters[0].ToString()));
+            }
+            else if(parameters.Count() >= 2)
+            {
+                if(parameters.Count() >2)
+                {
+                    client.LocalUser.SendNotice(source.Name, "Warning: Only 2 Parameters needed, ignoring parameters after 2nd.");
+                }
+                if(parameters[1] == "read")
+                {
+                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel, xmlprovider.Counter(parameters[0].ToString(), false, true));
+                }
+                else if(parameters[1] == "reset")
+                {
+                    client.LocalUser.SendNotice(source.Name, xmlprovider.Counter(parameters[0].ToString(), true));
+                }
+                else
+                {
+                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "command has to be either read or reset, if you just want to advance the count use '!counter [countername]'.");
+                }
+            }
         }
-
-        private void CounterReset(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void CounterStats(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion
         private void ToggleUserLogging(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
             throw new NotImplementedException();

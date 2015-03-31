@@ -714,5 +714,66 @@ namespace DeathmicChatbot
 
         #endregion
 
+        #region Counter stuff
+        public string Counter(string counter,bool reset = false, bool read = false)
+        {
+            XDocument xdoc = new XDocument();
+            int count = 0;
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/Counters.xml"))
+            {
+                xdoc = XDocument.Load("XML/Counters.xml");
+                IEnumerable<XElement> childlist = from Counter in xdoc.Root.Elements() where Counter.Name == counter select Counter;
+                if (childlist.Count() > 0)
+                {
+                    foreach (var _counter in childlist)
+                    {
+                        if(read)
+                        {
+                            count = int.Parse(_counter.Attribute("Value").Value);
+                        }
+                        else
+                        {
+                            if (reset)
+                            {
+                                _counter.Attribute("Value").Value = "0";
+                            }
+                            else
+                            {
+                                
+                                count = int.Parse(_counter.Attribute("Value").Value);
+                                Console.WriteLine(_counter.Attribute("Value").Value);
+                                count++;
+                                _counter.Attribute("Value").Value = count.ToString();
+                            }
+                        }
+                        
+                    }
+                }
+                else
+                {
+                    xdoc.Add(new XElement("Counters", new XElement(counter, new XAttribute("Value", "1"))));
+                    count = 1;
+                }
+            }
+            else
+            {
+                xdoc = new XDocument(new XElement("Counters", new XElement(counter, new XAttribute("Value", "1"))));
+                count = 1;
+            }
+            xdoc.Save("XML/Counters.xml");
+            if(reset)
+            {
+                return "The Counter " + counter + " has been reset and is at " + count;
+            }
+
+            return "The Counter " + counter + " is at " + count;
+        }
+            
+        #endregion
+
     }
 }
