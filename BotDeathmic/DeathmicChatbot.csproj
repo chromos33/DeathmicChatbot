@@ -84,13 +84,13 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="StreamInfo\Stream.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxProvider.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxRootObject.cs" />
     <Compile Include="StreamInfo\Hitbox\HitboxStreamData.cs" />
     <Compile Include="StreamInfo\Hitbox\Livestream.cs" />
     <Compile Include="StreamInfo\Hitbox\Request.cs" />
     <Compile Include="StreamInfo\Hitbox\RestClientProvider.cs" />
-    <Compile Include="StreamInfo\Stream.cs" />
     <Compile Include="StreamInfo\StreamData.cs" />
     <Compile Include="StreamInfo\StreamEventArgs.cs" />
     <Compile Include="StreamInfo\StreamProviderManager.cs" />
