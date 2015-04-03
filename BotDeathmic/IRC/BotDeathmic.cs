@@ -43,6 +43,7 @@ using System.Threading;
 using DeathmicChatbot.Properties;
 using DeathmicChatbot.StreamInfo;
 using DeathmicChatbot.StreamInfo.Twitch;
+using DeathmicChatbot.StreamInfo.Hitbox;
 
 namespace DeathmicChatbot.IRC
 {
@@ -130,17 +131,19 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnClientRegistered(IrcClient client)
         {
-            _streamProviderManager = new StreamProviderManager();
-            _streamProviderManager.AddStreamProvider(new TwitchProvider());
-            _streamProviderManager.StreamStarted += OnStreamStarted;
-            _streamProviderManager.StreamStopped += OnStreamStopped;
+            
         }
 
         
 
         protected override void OnLocalUserJoinedChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
         {
-
+            //OnClientRegistered may happen before joined channel thus...
+            _streamProviderManager = new StreamProviderManager();
+            _streamProviderManager.StreamStarted += OnStreamStarted;
+            _streamProviderManager.StreamStopped += OnStreamStopped;
+            _streamProviderManager.AddStreamProvider(new TwitchProvider());
+            _streamProviderManager.AddStreamProvider(new HitboxProvider());
         }
 
         protected override void OnLocalUserLeftChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
@@ -332,7 +335,7 @@ namespace DeathmicChatbot.IRC
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
 
-            
+            Console.WriteLine("Streamstarted");
             if (xmlprovider.isinStreamList(args.StreamData.Stream.Channel))
             {
                 Console.WriteLine("{0}: Stream started: {1}",

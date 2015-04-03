@@ -7,7 +7,6 @@ using DeathmicChatbot.Interfaces;
 using RestSharp;
 using RestSharp.Deserializers;
 using RestSharp.Serializers;
-using DeathmicChatbot.DataFiles;
 
 namespace DeathmicChatbot.StreamInfo.Twitch
 {
@@ -280,6 +279,10 @@ namespace DeathmicChatbot.StreamInfo.Twitch
                 writer.WriteLine(serializer.Serialize(pair.Value));
 
             writer.Close();
+        }
+        public void StartTimer()
+        {
+            // Only used in Hitbox but since i have to add it to interface ...
         }
     }
 }

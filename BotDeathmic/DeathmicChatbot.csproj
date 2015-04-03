@@ -48,7 +48,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataFiles\TwitchQueryResult.cs" />
     <Compile Include="DataFiles\XMLProvider.cs" />
     <Compile Include="Exceptions\InvalidCommandParametersException.cs" />
     <Compile Include="Exceptions\IrcBotException.cs" />
@@ -70,6 +69,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="StreamInfo\Hitbox\HitboxProvider.cs" />
+    <Compile Include="StreamInfo\Hitbox\HitboxRootObject.cs" />
+    <Compile Include="StreamInfo\Hitbox\HitboxStreamData.cs" />
+    <Compile Include="StreamInfo\Hitbox\Livestream.cs" />
+    <Compile Include="StreamInfo\Hitbox\Request.cs" />
+    <Compile Include="StreamInfo\Hitbox\RestClientProvider.cs" />
     <Compile Include="StreamInfo\Stream.cs" />
     <Compile Include="StreamInfo\StreamData.cs" />
     <Compile Include="StreamInfo\StreamEventArgs.cs" />
@@ -97,9 +102,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="StreamInfo\Hitbox\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

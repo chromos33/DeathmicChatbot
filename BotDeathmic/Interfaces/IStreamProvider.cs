@@ -15,6 +15,7 @@ namespace DeathmicChatbot.Interfaces
         void CheckStreams();
         List<string> GetStreamInfoArray();
         string GetLink();
+        void StartTimer();
         
     }
 }

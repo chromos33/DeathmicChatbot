@@ -27,6 +27,7 @@ namespace DeathmicChatbot
         static IrcClient QuakeClient;
         static void Main(string[] args)
         {
+            // Code File where the magic happens is IRC/BotDeathmic.cs
             BotDeathmic bot = null;
             try
             {

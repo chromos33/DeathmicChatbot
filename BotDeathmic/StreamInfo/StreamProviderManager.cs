@@ -33,18 +33,22 @@ namespace DeathmicChatbot.StreamInfo
         public void AddStreamProvider(IStreamProvider streamProvider)
         {
             _streamProviders.Add(streamProvider);
-
             streamProvider.StreamStarted += (sender, args) =>
             {
                 if (StreamStarted != null)
                     StreamStarted(sender, args);
             };
-
             streamProvider.StreamStopped += (sender, args) =>
             {
                 if (StreamStopped != null)
                     StreamStopped(sender, args);
             };
+            
+            if (streamProvider.ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
+            {
+                streamProvider.StartTimer();
+            }
+
         }
         public bool AddStream(string sStreamName)
         {

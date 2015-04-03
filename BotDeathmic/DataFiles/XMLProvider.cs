@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml.Linq;
 using System.IO;
 using DeathmicChatbot.StreamInfo.Twitch;
+using DeathmicChatbot.StreamInfo.Hitbox;
 
 
 namespace DeathmicChatbot
@@ -342,6 +343,7 @@ namespace DeathmicChatbot
             return answer;
         }
 
+        // Twitch Double Game Title Fix
         public bool AddStreamdata(string provider ,TwitchStreamData stream)
         {
             bool answer = false;
@@ -376,38 +378,6 @@ namespace DeathmicChatbot
                                 element.Attribute("Provider").Value = stream.Stream.Channel.Url;
                             }
                         }
-                    }
-                    else
-                    {/* Include when Hitbox integrated
-                      
-                        IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() where el.Attribute("Channel").Value == stream.Stream.Channel.Name.ToString().ToLower() select el;
-                        foreach (var element in childlist)
-                        {
-                            if (element.Attribute("twitchlink") == null)
-                            {
-                                element.Add(new XAttribute("twitchlink", stream.Stream.Channel.Url.ToString()));
-                            }
-                            else
-                            {
-                                element.Attribute("twitchlink").Value = stream.Stream.Channel.Url.ToString();
-                            }
-                            if (element.Attribute("game1") == null)
-                            {
-                                element.Add(new XAttribute("game1", stream.Stream.Channel.Game.ToString()));
-                            }
-                            else
-                            {
-                                element.Attribute("game1").Value = stream.Stream.Channel.Game.ToString();
-                            }
-                            if (element.Attribute("game2") == null)
-                            {
-                                element.Add(new XAttribute("game2", stream.Stream.Game.ToString()));
-                            }
-                            else
-                            {
-                                element.Attribute("game2").Value = stream.Stream.Game.ToString();
-                            }
-                        }*/
                     }
                     answer = true;
                     xdoc.Save("XML/Streams.xml");
