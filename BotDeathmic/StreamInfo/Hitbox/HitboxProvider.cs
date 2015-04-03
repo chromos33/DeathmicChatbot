@@ -39,6 +39,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
         }
         public void StartTimer()
         {
+            Console.WriteLine("StartTimer");
             _timer = new Timer(TIME_MS_HITBOX_QUERY_THREAD_SLEEP);
             _timer.Elapsed += (sender, args) => QueryHitboxForQueuedStream();
             _timer.Start();
