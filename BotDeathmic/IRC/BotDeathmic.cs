@@ -116,7 +116,7 @@ namespace DeathmicChatbot.IRC
             _streamProviderManager.AddStreamProvider(new TwitchProvider());
             _streamProviderManager.AddStreamProvider(new HitboxProvider());
 
-            reconnectimer = new System.Timers.Timer(15000);
+            reconnectimer = new System.Timers.Timer(5000);
             reconnectimer.Elapsed += OnReconnectTimer;
             reconnectimer.Enabled = true;
         }
