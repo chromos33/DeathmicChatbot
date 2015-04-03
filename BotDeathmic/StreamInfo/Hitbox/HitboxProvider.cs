@@ -110,9 +110,6 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         private void QueryHitboxForQueuedStream()
         {
-            try
-            {
-                Console.WriteLine("test");
                 if (_streamsToCheck.Count == 0)
                     return;
                 if (StreamStarted == null)
@@ -259,11 +256,6 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
                         }
                     }
                 }
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine("here" + ex.ToString());
-            }
             
         }
 
