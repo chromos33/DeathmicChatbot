@@ -98,6 +98,7 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnClientDisconnect(IrcClient client)
         {
+            Console.WriteLine("Disconnected");
         }
 
         protected override void OnClientRegistered(IrcClient client)
