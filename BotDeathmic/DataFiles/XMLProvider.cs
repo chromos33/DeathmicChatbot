@@ -543,7 +543,7 @@ namespace DeathmicChatbot
             }
             else
             {
-                throw new FileNotFoundException(@"File XML/Streams.xml not found");
+                
             }
             return answer;
         }
