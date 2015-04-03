@@ -63,19 +63,17 @@ namespace DeathmicChatbot.IRC
         private static string clientReceivedActionText;
         private static bool isVoteRunning = false;
         private static List<string> commandlist = new List<string>();
+        public System.Timers.Timer reconnectimer;
         #endregion
         #region Constructor
         public BotDeathmic()
             : base()
         {
-
             _voting = new VoteManager();
             _voting.VotingStarted += VotingOnVotingStarted;
             _voting.VotingEnded += VotingOnVotingEnded;
             _voting.Voted += VotingOnVoted;
-            _voting.VoteRemoved += VotingOnVoteRemoved;
-
-        
+            _voting.VoteRemoved += VotingOnVoteRemoved;        
         }
 
         public override IrcRegistrationInfo RegistrationInfo
@@ -117,7 +115,34 @@ namespace DeathmicChatbot.IRC
             _streamProviderManager.StreamGlobalNotification += OnStreamGlobalNotification;
             _streamProviderManager.AddStreamProvider(new TwitchProvider());
             _streamProviderManager.AddStreamProvider(new HitboxProvider());
+
+            reconnectimer = new System.Timers.Timer(15000);
+            reconnectimer.Elapsed += OnReconnectTimer;
+            reconnectimer.Enabled = true;
         }
+        #region Reconnect Stuff
+        public static bool ReconnectInbound = false;
+        private void Reconnect()
+        {
+
+        }
+        private void OnReconnectTimer(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (!ReconnectInbound)
+            {
+                thisclient.LocalUser.SendMessage(Properties.Settings.Default.Name, "!reconnect");
+            }
+            else
+            {
+                Reconnect();
+            }
+        }
+        private void ReconnectDisableRequester(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            Console.WriteLine("ReconnectDisableRequester");
+            ReconnectInbound = false;
+        }
+        #endregion
         protected override void OnLocalUserLeftChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
         {
             //
@@ -209,6 +234,8 @@ namespace DeathmicChatbot.IRC
             commandlist.Add("toggleuserloggin");
             this.ChatCommandProcessors.Add("sendmessage", SendMessage);
             commandlist.Add("sendmessage");
+            // Don't add this to commandlist only bot should call it (doesn't matter if others call it but...)
+            this.ChatCommandProcessors.Add("reconnect",ReconnectDisableRequester);
 
             this.ChatCommandProcessors.Add("listcommands",ListCommands);
         }
