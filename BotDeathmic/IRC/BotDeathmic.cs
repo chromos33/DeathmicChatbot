@@ -96,7 +96,7 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnClientDisconnect(IrcClient client)
         {
-            Console.WriteLine("Disconnected");
+           
         }
 
         protected override void OnClientRegistered(IrcClient client)
@@ -116,6 +116,11 @@ namespace DeathmicChatbot.IRC
             _streamProviderManager.AddStreamProvider(new TwitchProvider());
             _streamProviderManager.AddStreamProvider(new HitboxProvider());
 
+            if(reconnectimer != null)
+            {
+                reconnectimer.Dispose();
+            }
+
             reconnectimer = new System.Timers.Timer(5000);
             reconnectimer.Elapsed += OnReconnectTimer;
             reconnectimer.Enabled = true;
@@ -125,6 +130,40 @@ namespace DeathmicChatbot.IRC
         private void Reconnect()
         {
             Console.WriteLine("Reconnect");
+            try
+            {
+                thisclient.Connect(new Uri(Settings.Default.Server), RegistrationInfo);
+
+                if (Settings.Default.Server.Contains("quakenet"))
+                {
+                    string quakeservername = null;
+                    foreach (var _client in this.Clients)
+                    {
+                        while (_client.ServerName == null)
+                        {
+
+                        }
+                        if (_client.ServerName.Contains("quakenet"))
+                        {
+                            quakeservername = _client.ServerName;
+                            this.thisclient = _client;
+                            this.ctcpClient1 = new CtcpClient(_client);
+                            this.ctcpClient1.ClientVersion = bot.clientVersionInfo;
+                            this.ctcpClient1.PingResponseReceived += bot.ctcpClient_PingResponseReceived;
+                            this.ctcpClient1.VersionResponseReceived += bot.ctcpClient_VersionResponseReceived;
+                            this.ctcpClient1.TimeResponseReceived += bot.ctcpClient_TimeResponseReceived;
+                            this.ctcpClient1.ActionReceived += bot.ctcpClient_ActionReceived;
+                        }
+
+                    }
+                    var quakeclient = bot.GetClientFromServerNameMask(quakeservername);
+                    System.Diagnostics.Debug.WriteLine(Properties.Settings.Default.Channel + " " + quakeservername);
+                    quakeclient.Channels.Join(Properties.Settings.Default.Channel);
+                }
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
         private void OnReconnectTimer(object sender, System.Timers.ElapsedEventArgs e)
         {
