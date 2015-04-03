@@ -124,7 +124,7 @@ namespace DeathmicChatbot.IRC
         public static bool ReconnectInbound = false;
         private void Reconnect()
         {
-
+            Console.Write("Reconnect");
         }
         private void OnReconnectTimer(object sender, System.Timers.ElapsedEventArgs e)
         {
