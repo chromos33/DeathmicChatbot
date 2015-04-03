@@ -36,6 +36,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\IrcDotNet.0.4.1\lib\net40\IrcDotNet.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\packages\RestSharp.105.0.1\lib\net4\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,9 +48,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataFiles\TwitchQueryResult.cs" />
     <Compile Include="DataFiles\XMLProvider.cs" />
     <Compile Include="Exceptions\InvalidCommandParametersException.cs" />
     <Compile Include="Exceptions\IrcBotException.cs" />
+    <Compile Include="Interfaces\IRestClientProvider.cs" />
+    <Compile Include="Interfaces\IStreamProvider.cs" />
     <Compile Include="IRC\BasicIrcBot.cs" />
     <Compile Include="IRC\BotDeathmic.cs" />
     <Compile Include="IRC\ConsoleUtilities.cs" />
@@ -64,6 +70,20 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="StreamInfo\Stream.cs" />
+    <Compile Include="StreamInfo\StreamData.cs" />
+    <Compile Include="StreamInfo\StreamEventArgs.cs" />
+    <Compile Include="StreamInfo\StreamProviderManager.cs" />
+    <Compile Include="StreamInfo\StreamStopCounter.cs" />
+    <Compile Include="StreamInfo\Twitch\Channel.cs" />
+    <Compile Include="StreamInfo\Twitch\Links.cs" />
+    <Compile Include="StreamInfo\Twitch\Links2.cs" />
+    <Compile Include="StreamInfo\Twitch\Links3.cs" />
+    <Compile Include="StreamInfo\Twitch\Preview.cs" />
+    <Compile Include="StreamInfo\Twitch\Stream.cs" />
+    <Compile Include="StreamInfo\Twitch\TwitchProvider.cs" />
+    <Compile Include="StreamInfo\Twitch\TwitchRootObject.cs" />
+    <Compile Include="StreamInfo\Twitch\TwitchStreamData.cs" />
     <Compile Include="Usefull_Functions.cs" />
     <Compile Include="Voting\VoteManager.cs" />
     <Compile Include="Voting\Voting.cs" />
@@ -78,8 +98,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Interfaces\" />
-    <Folder Include="StreamInfo\" />
+    <Folder Include="StreamInfo\Hitbox\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

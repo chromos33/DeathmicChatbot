@@ -41,7 +41,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using DeathmicChatbot.Properties;
-
+using DeathmicChatbot.StreamInfo;
+using DeathmicChatbot.StreamInfo.Twitch;
 
 namespace DeathmicChatbot.IRC
 {
@@ -71,6 +72,9 @@ namespace DeathmicChatbot.IRC
     public class BotDeathmic : BasicIrcBot
     {
         #region global Definitions
+        private static bool automaticmessages = false;
+
+        private static StreamProviderManager _streamProviderManager;
         private static VoteManager _voting;
         public string clientVersionInfo = "IRC.NET Community Bot";
         XMLProvider xmlprovider = new XMLProvider();
@@ -118,22 +122,25 @@ namespace DeathmicChatbot.IRC
         #region IRCConnectionEvents
         protected override void OnClientConnect(IrcClient client)
         {
-
         }
 
         protected override void OnClientDisconnect(IrcClient client)
         {
-            //
         }
 
         protected override void OnClientRegistered(IrcClient client)
         {
+            _streamProviderManager = new StreamProviderManager();
+            _streamProviderManager.AddStreamProvider(new TwitchProvider());
+            _streamProviderManager.StreamStarted += OnStreamStarted;
+            _streamProviderManager.StreamStopped += OnStreamStopped;
         }
 
         
 
         protected override void OnLocalUserJoinedChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
         {
+
         }
 
         protected override void OnLocalUserLeftChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
@@ -153,12 +160,35 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnChannelUserJoined(IrcChannel channel, IrcChannelUserEventArgs e)
         {
+            Console.WriteLine(e.ChannelUser.User);
+            #region whisperstatsonjoin
+            string[] userdata = xmlprovider.UserInfo(e.ChannelUser.User.ToString()).Split(',');
+            System.Diagnostics.Debug.WriteLine(userdata[1]);
+            String days_since_last_visit = DateTime.Now.Subtract(Convert.ToDateTime(userdata[1])).ToString("d' days 'h':'mm':'ss");
+            string visitstring = "";
+            switch (userdata[0])
+            {
+                case "1": visitstring = userdata[0] + "st"; break;
+                case "2": visitstring = userdata[0] + "nd"; break;
+                case "3": visitstring = userdata[0] + "rd"; break;
+                default: visitstring = userdata[0] + "th"; break;
+            }
+            String output = "This is " + e.ChannelUser.User.ToString() + "'s " + visitstring + " visit. Their last visit was on " + userdata[1] + " (" + days_since_last_visit + " ago)";
+            foreach (var loggingOp in xmlprovider.LoggingUser())
+                thisclient.LocalUser.SendNotice(loggingOp, output);
+            #endregion
+            xmlprovider.AddorUpdateUser(e.ChannelUser.User.ToString());
 
+
+            foreach (var msg in _streamProviderManager.GetStreamInfoArray())
+                thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), msg);
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
         }
 
         protected override void OnChannelUserLeft(IrcChannel channel, IrcChannelUserEventArgs e)
         {
-            //
+            Console.WriteLine("Left");
+            //thisclient.LocalUser.SendMessage(channel.Name, "bla");
         }
 
         protected override void OnChannelNoticeReceived(IrcChannel channel, IrcMessageEventArgs e)
@@ -235,6 +265,10 @@ namespace DeathmicChatbot.IRC
         #region Streamcommands stuff
         private void AddStream(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
+            if (parameters.Count > 0)
+            {
+                _streamProviderManager.AddStream(parameters[0]);
+            }
             // TODO continue when streamprovider stuff implemented
             string message = xmlprovider.AddStream(parameters[0], source.Name);
             //_streamProviderManager.AddStream(commandArgs);
@@ -250,6 +284,7 @@ namespace DeathmicChatbot.IRC
                 string textMessage = "slaps " + source.Name + " around for being an idiot.";
                 ctcpClient1.SendAction(target, textMessage);
             }
+            
         }
         private void DelStream(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
@@ -269,6 +304,56 @@ namespace DeathmicChatbot.IRC
             {
                 client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), "No Stream is currently running.");
             }
+        }
+
+        private void OnStreamStopped(object sender, StreamEventArgs args)
+        {
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+            if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime") != "" && Convert.ToBoolean(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running")))
+            {
+                xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel, true);
+                string duration = DateTime.Now.Subtract(Convert.ToDateTime(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime"))).ToString("h':'mm':'ss");
+                Console.WriteLine("{0}: Stream stopped: {1}",
+                                  DateTime.Now,
+                                  args.StreamData.Stream.Channel);
+                thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel,String.Format(
+                                                       "Stream stopped after {1}: {0}",
+                                                       args.StreamData.Stream
+                                                           .Channel,
+                                                       duration));
+            }
+
+
+        }
+
+
+        private void OnStreamStarted(object sender, StreamEventArgs args)
+        {
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+            xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
+
+            
+            if (xmlprovider.isinStreamList(args.StreamData.Stream.Channel))
+            {
+                Console.WriteLine("{0}: Stream started: {1}",
+                              DateTime.Now,
+                              args.StreamData.Stream.Channel);
+
+                thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format(
+                                                       "Stream started: {0} ({1}: {2}) at {3}/{0}",
+                                                       args.StreamData.Stream
+                                                           .Channel,
+                                                       args.StreamData.Stream.Game,
+                                                       args.StreamData.Stream
+                                                           .Message,
+                                                       args.StreamData
+                                                           .StreamProvider.GetLink()));
+            }
+        }
+
+        private void OnStreamXMLStarted(object sender, StreamEventArgs args)
+        {
+            Console.WriteLine("bungala");
         }
         #endregion
         #region general stuff
@@ -914,7 +999,9 @@ namespace DeathmicChatbot.IRC
         #endregion
         private void ToggleUserLogging(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            throw new NotImplementedException();
+            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+            Console.WriteLine("test");
+            client.LocalUser.SendNotice(source.Name, xmlprovider.ToggleUserLogging(source.Name));
         }
         
         #endregion

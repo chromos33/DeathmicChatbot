@@ -18,3 +18,5 @@ F:\Github\DeathmicChatbot\DeathmicChatbot\BotDeathmic\bin\Debug\DeathmicChatbot.
 F:\Github\DeathmicChatbot\DeathmicChatbot\BotDeathmic\bin\Debug\DeathmicChatbot.pdb
 F:\Github\DeathmicChatbot\DeathmicChatbot\BotDeathmic\bin\Debug\IrcDotNet.dll
 F:\Github\DeathmicChatbot\DeathmicChatbot\BotDeathmic\bin\Debug\IrcDotNet.xml
+F:\Github\DeathmicChatbot\DeathmicChatbot\BotDeathmic\bin\Debug\RestSharp.dll
+F:\Github\DeathmicChatbot\DeathmicChatbot\BotDeathmic\bin\Debug\RestSharp.xml

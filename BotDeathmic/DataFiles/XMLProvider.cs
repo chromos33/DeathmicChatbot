@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.IO;
+using DeathmicChatbot.StreamInfo.Twitch;
+
 
 namespace DeathmicChatbot
 {
@@ -30,6 +32,10 @@ namespace DeathmicChatbot
                         answer += count.ToString() + ",";
                         answer += user.Attribute("LastVisit").Value;
                     }
+                }
+                else
+                {
+                    return "0," + DateTime.Now.ToString();
                 }
             }
             return answer;
@@ -80,7 +86,6 @@ namespace DeathmicChatbot
             }
             else
             {
-                throw new FileNotFoundException(@"File XML/Streams.xml not found");
             }
 
 
@@ -334,6 +339,87 @@ namespace DeathmicChatbot
             {
                 answer = "This stream is not in the list.";
             }
+            return answer;
+        }
+
+        public bool AddStreamdata(string provider ,TwitchStreamData stream)
+        {
+            bool answer = false;
+
+            
+            if (File.Exists("XML/Streams.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Streams.xml");
+                try
+                {
+                    if(provider == "twitch")
+                    {
+                        IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() where el.Attribute("Channel").Value == stream.Stream.Channel.Name.ToString().ToLower() select el;
+                        foreach(var element in childlist)
+                        {
+                            if (element.Attribute("game") == null)
+                            {
+                                element.Add(new XAttribute("game", ""));
+                            }
+                            
+                            string currentgame = element.Attribute("game").Value;
+                            if (currentgame != stream.Stream.Channel.Game.ToString())
+                            {
+                                element.Attribute("game").Value = stream.Stream.Channel.Game.ToString();
+                            }
+                            if(currentgame != stream.Stream.Game.ToString())
+                            {
+                                element.Attribute("game").Value = stream.Stream.Game.ToString();
+                            }
+                            if(element.Attribute("Provider") != null)
+                            {
+                                element.Attribute("Provider").Value = stream.Stream.Channel.Url;
+                            }
+                        }
+                    }
+                    else
+                    {/* Include when Hitbox integrated
+                      
+                        IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() where el.Attribute("Channel").Value == stream.Stream.Channel.Name.ToString().ToLower() select el;
+                        foreach (var element in childlist)
+                        {
+                            if (element.Attribute("twitchlink") == null)
+                            {
+                                element.Add(new XAttribute("twitchlink", stream.Stream.Channel.Url.ToString()));
+                            }
+                            else
+                            {
+                                element.Attribute("twitchlink").Value = stream.Stream.Channel.Url.ToString();
+                            }
+                            if (element.Attribute("game1") == null)
+                            {
+                                element.Add(new XAttribute("game1", stream.Stream.Channel.Game.ToString()));
+                            }
+                            else
+                            {
+                                element.Attribute("game1").Value = stream.Stream.Channel.Game.ToString();
+                            }
+                            if (element.Attribute("game2") == null)
+                            {
+                                element.Add(new XAttribute("game2", stream.Stream.Game.ToString()));
+                            }
+                            else
+                            {
+                                element.Attribute("game2").Value = stream.Stream.Game.ToString();
+                            }
+                        }*/
+                    }
+                    answer = true;
+                    xdoc.Save("XML/Streams.xml");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+                
+            }
+
+            
             return answer;
         }
 
