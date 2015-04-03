@@ -148,11 +148,11 @@ namespace DeathmicChatbot.IRC
                             quakeservername = _client.ServerName;
                             this.thisclient = _client;
                             this.ctcpClient1 = new CtcpClient(_client);
-                            this.ctcpClient1.ClientVersion = bot.clientVersionInfo;
-                            this.ctcpClient1.PingResponseReceived += bot.ctcpClient_PingResponseReceived;
-                            this.ctcpClient1.VersionResponseReceived += bot.ctcpClient_VersionResponseReceived;
-                            this.ctcpClient1.TimeResponseReceived += bot.ctcpClient_TimeResponseReceived;
-                            this.ctcpClient1.ActionReceived += bot.ctcpClient_ActionReceived;
+                            this.ctcpClient1.ClientVersion = this.clientVersionInfo;
+                            this.ctcpClient1.PingResponseReceived += this.ctcpClient_PingResponseReceived;
+                            this.ctcpClient1.VersionResponseReceived += this.ctcpClient_VersionResponseReceived;
+                            this.ctcpClient1.TimeResponseReceived += this.ctcpClient_TimeResponseReceived;
+                            this.ctcpClient1.ActionReceived += this.ctcpClient_ActionReceived;
                         }
 
                     }
