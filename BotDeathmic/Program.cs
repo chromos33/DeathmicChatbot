@@ -34,44 +34,16 @@ namespace DeathmicChatbot
                 bot = new BotDeathmic();
                 bot.Connect(Settings.Default.Server,bot.RegistrationInfo);
                 //Quakenet connect duration fix
-                ConnectToIRC();
-                while(true)
-                {
-                    foreach (var _client in bot.Clients)
-                    {
-                        if(!_client.IsConnected)
-                        {
-                            ConnectToIRC();
-                        }
-                    }
-
-                }
-                // bot.Run starts console interface with input for commands not really needed
-                //bot.Run();
-            }catch(Exception ex)
-            {
-                ConsoleUtilities.WriteError("Fatal error: " + ex.Message);
-                Environment.ExitCode = 1;
-            }
-            finally
-            {
-                if (bot != null)
-                    bot.Dispose();
-            }
-
-        }
-        public static void ConnectToIRC()
-        {
-            if (Settings.Default.Server.Contains("quakenet"))
+                if (Settings.Default.Server.Contains("quakenet"))
                 {
                     string quakeservername = null;
                     foreach (var _client in bot.Clients)
                     {
-                        while(_client.ServerName == null)
+                        while (_client.ServerName == null)
                         {
 
                         }
-                        if(_client.ServerName.Contains("quakenet"))
+                        if (_client.ServerName.Contains("quakenet"))
                         {
                             quakeservername = _client.ServerName;
                             bot.thisclient = _client;
@@ -82,7 +54,7 @@ namespace DeathmicChatbot
                             bot.ctcpClient1.TimeResponseReceived += bot.ctcpClient_TimeResponseReceived;
                             bot.ctcpClient1.ActionReceived += bot.ctcpClient_ActionReceived;
                         }
-                        
+
                     }
                     var quakeclient = bot.GetClientFromServerNameMask(quakeservername);
                     System.Diagnostics.Debug.WriteLine(Properties.Settings.Default.Channel + " " + quakeservername);
@@ -97,6 +69,23 @@ namespace DeathmicChatbot
                         bot.ctcpClient1 = new CtcpClient(_client);
                     }
                 }
+                while(true)
+                {
+                   
+                }
+                // bot.Run starts console interface with input for commands not really needed
+                //bot.Run();
+            }catch(Exception ex)
+            {
+                ConsoleUtilities.WriteError("Fatal error: " + ex.Message);
+                Environment.ExitCode = 1;
+            }
+            finally
+            {
+                if (bot != null)
+                    bot.Dispose();
+            }
+
         }
     }
 }
