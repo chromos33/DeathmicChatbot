@@ -484,12 +484,17 @@ namespace DeathmicChatbot
                                     {
                                         stream.Attribute("starttime").Value = DateTime.Now.ToString();
                                     }
+                                    
                                 }
                                 catch (FormatException)
                                 {
                                     stream.Attribute("starttime").Value = DateTime.Now.ToString();
                                 }
                                 stream.Attribute("running").Value = "true";
+                            }
+                            if(stream.Attribute("lastglobalnotice") == null)
+                            {
+                                stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now)));
                             }
                         }
                         xdoc.Save("XML/Streams.xml");
@@ -528,13 +533,60 @@ namespace DeathmicChatbot
                 {
                     foreach (var stream in childlist)
                     {
-                        answer = stream.Attribute(inforequested).Value;
+                        if(stream.Attribute(inforequested) != null)
+                        {
+                            answer = stream.Attribute(inforequested).Value;
+                        }
+                        
                     }
                 }
             }
             else
             {
                 throw new FileNotFoundException(@"File XML/Streams.xml not found");
+            }
+            return answer;
+        }
+
+        public bool GlobalAnnouncementDue(string channel)
+        {
+            bool answer = false;
+
+            channel = channel.ToLower();
+            if (File.Exists("XML/Streams.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Streams.xml");
+
+
+                IEnumerable<XElement> childlist = from streams in xdoc.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
+                if (childlist.Count() > 0)
+                {
+                    foreach (var stream in childlist)
+                    {
+                        if (stream.Attribute("lastglobalnotice") == null)
+                        {
+                            stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now)));
+                            answer = true;
+                            xdoc.Save("XML/Streams.xml");
+                        }
+                        else
+                        {
+                            DateTime lastglobalnotice = Convert.ToDateTime(stream.Attribute("lastglobalnotice").Value);
+                            TimeSpan difference = DateTime.Now.Subtract(lastglobalnotice);
+                            if (difference.TotalMinutes >= 60)
+                            {
+                                answer = true;
+                                stream.Attribute("lastglobalnotice").Value = Convert.ToString(DateTime.Now);
+                                xdoc.Save("XML/Streams.xml");
+                            }
+                            
+                        }
+
+
+
+                    }
+
+                }
             }
             return answer;
         }

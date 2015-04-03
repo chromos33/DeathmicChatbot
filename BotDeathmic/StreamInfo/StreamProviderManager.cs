@@ -21,10 +21,18 @@ namespace DeathmicChatbot.StreamInfo
 
         private void CheckAllStreamsThreaded()
         {
+            
             while (true)
             {
-                foreach (var streamProvider in _streamProviders)
-                    streamProvider.CheckStreams();
+                try
+                {
+                    foreach (var streamProvider in _streamProviders)
+                        streamProvider.CheckStreams();
+                } catch (InvalidOperationException)
+                {
+                    // Do nothing only happens when debug pause..
+                }
+                
 
                 Thread.Sleep(Settings.Default.StreamcheckIntervalSeconds * 1000);
             }
@@ -43,11 +51,19 @@ namespace DeathmicChatbot.StreamInfo
                 if (StreamStopped != null)
                     StreamStopped(sender, args);
             };
+            streamProvider.StreamGlobalNotification += (sender, args) =>
+            {
+                if (StreamGlobalNotification != null)
+                {
+                    StreamGlobalNotification(sender, args);
+                }
+            };
             
             if (streamProvider.ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
             {
                 streamProvider.StartTimer();
-            }
+            }       
+
 
         }
         public bool AddStream(string sStreamName)
@@ -80,5 +96,6 @@ namespace DeathmicChatbot.StreamInfo
 
         public event EventHandler<StreamEventArgs> StreamStarted;
         public event EventHandler<StreamEventArgs> StreamStopped;
+        public event EventHandler<StreamEventArgs> StreamGlobalNotification;
     }
 }

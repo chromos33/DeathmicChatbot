@@ -2,45 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using IrcDotNet;
-using DeathmicChatbot.Exceptions;
 using IrcDotNet.Ctcp;
 using System.Threading;
-using System.Text;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 //using DeathmicChatbot.Interfaces;
 using DeathmicChatbot.Properties;
 //using DeathmicChatbot.StreamInfo.Hitbox;
 //using DeathmicChatbot.StreamInfo.Twitch;
 //using RestSharp;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using DeathmicChatbot.Properties;
 using DeathmicChatbot.StreamInfo;
 using DeathmicChatbot.StreamInfo.Twitch;
 using DeathmicChatbot.StreamInfo.Hitbox;
@@ -105,6 +74,8 @@ namespace DeathmicChatbot.IRC
             _voting.VotingEnded += VotingOnVotingEnded;
             _voting.Voted += VotingOnVoted;
             _voting.VoteRemoved += VotingOnVoteRemoved;
+
+        
         }
 
         public override IrcRegistrationInfo RegistrationInfo
@@ -142,10 +113,10 @@ namespace DeathmicChatbot.IRC
             _streamProviderManager = new StreamProviderManager();
             _streamProviderManager.StreamStarted += OnStreamStarted;
             _streamProviderManager.StreamStopped += OnStreamStopped;
+            _streamProviderManager.StreamGlobalNotification += OnStreamGlobalNotification;
             _streamProviderManager.AddStreamProvider(new TwitchProvider());
             _streamProviderManager.AddStreamProvider(new HitboxProvider());
         }
-
         protected override void OnLocalUserLeftChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
         {
             //
@@ -163,7 +134,6 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnChannelUserJoined(IrcChannel channel, IrcChannelUserEventArgs e)
         {
-            Console.WriteLine(e.ChannelUser.User);
             #region whisperstatsonjoin
             string[] userdata = xmlprovider.UserInfo(e.ChannelUser.User.ToString()).Split(',');
             System.Diagnostics.Debug.WriteLine(userdata[1]);
@@ -190,7 +160,6 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnChannelUserLeft(IrcChannel channel, IrcChannelUserEventArgs e)
         {
-            Console.WriteLine("Left");
             //thisclient.LocalUser.SendMessage(channel.Name, "bla");
         }
 
@@ -328,35 +297,63 @@ namespace DeathmicChatbot.IRC
 
 
         }
+        private void OnStreamGlobalNotification(object sender, StreamEventArgs args)
+        {
+            if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "true")
+            {
+                if(xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
+                {
+                    Console.WriteLine("{0}: Stream running: {1}",
+                          DateTime.Now,
+                          args.StreamData.Stream.Channel);
+                    string game = "";
+                    System.Diagnostics.Debug.WriteLine(args.StreamData.StreamProvider.GetType().ToString());
+                    if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
+                    {
+                        game = args.StreamData.Stream.Message;
+                    }
+                    else
+                    {
+                        game = xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "game");
+                    }
 
+                    thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format(
+                                                           "Stream running: {0} ({1}) at {2}/{0}",
+                                                           args.StreamData.Stream
+                                                               .Channel,
+                                                           game,
+                                                           args.StreamData
+                                                               .StreamProvider.GetLink()));
+                }
+            }
+        }
 
         private void OnStreamStarted(object sender, StreamEventArgs args)
         {
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
-            xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
-
-            Console.WriteLine("Streamstarted");
+            Console.WriteLine(args.StreamData.StreamProvider.ToString());
             if (xmlprovider.isinStreamList(args.StreamData.Stream.Channel))
             {
-                Console.WriteLine("{0}: Stream started: {1}",
+                if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel,"running") == "false")
+                {
+                    Console.WriteLine("{0}: Stream started: {1}",
                               DateTime.Now,
                               args.StreamData.Stream.Channel);
-
-                thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format(
-                                                       "Stream started: {0} ({1}: {2}) at {3}/{0}",
-                                                       args.StreamData.Stream
-                                                           .Channel,
-                                                       args.StreamData.Stream.Game,
-                                                       args.StreamData.Stream
-                                                           .Message,
-                                                       args.StreamData
-                                                           .StreamProvider.GetLink()));
+                    
+                    thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format(
+                                                           "Stream started: {0} ({1}: {2}) at {3}/{0}",
+                                                           args.StreamData.Stream
+                                                               .Channel,
+                                                           args.StreamData.Stream.Game,
+                                                           args.StreamData.Stream
+                                                               .Message,
+                                                           args.StreamData
+                                                               .StreamProvider.GetLink()));
+                }
+                
             }
-        }
-
-        private void OnStreamXMLStarted(object sender, StreamEventArgs args)
-        {
-            Console.WriteLine("bungala");
+            xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel);
+            xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
         }
         #endregion
         #region general stuff
@@ -534,7 +531,7 @@ namespace DeathmicChatbot.IRC
                             {
                                 foreach (string item in additionalignoresvalue.Split(','))
                                 {
-                                    tempIgnoreTheseUsers = Usefull_Functions.String_Array_Push(tempIgnoreTheseUsers, item);
+                                    tempIgnoreTheseUsers = Useful_Functions.String_Array_Push(tempIgnoreTheseUsers, item);
                                 }
                             }
                             foreach (var target in unfilteredTargets)
@@ -555,7 +552,6 @@ namespace DeathmicChatbot.IRC
                                         {
                                             randcounter++;
                                             pickeduser = filteredTargets[Rnd.Next(filteredTargets.Count())];
-                                            Console.WriteLine(xmlprovider.CheckforUserinPick(reasonvalue, pickeduser));
                                             if (xmlprovider.CheckforUserinPick(reasonvalue, pickeduser) == false)
                                             {
                                                 xmlprovider.CreateUserPick(reasonvalue, pickeduser);
@@ -771,8 +767,6 @@ namespace DeathmicChatbot.IRC
             }
             var timeString = singleparams[0];
             var timeRegex = new Regex(@"^(\d+d)?(\d+h)?(\d+m)?(\d+s)?$");
-            Console.WriteLine(timeString.Trim());
-            Console.WriteLine(timeRegex);
             var timeMatch = timeRegex.Match(timeString);
             if (!timeMatch.Success)
             {
@@ -961,12 +955,6 @@ namespace DeathmicChatbot.IRC
         }
         #endregion
         #endregion
-
-
-
-
-
-
         #region counter stuff
         private void CounterCommand(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
@@ -1003,7 +991,6 @@ namespace DeathmicChatbot.IRC
         private void ToggleUserLogging(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
-            Console.WriteLine("test");
             client.LocalUser.SendNotice(source.Name, xmlprovider.ToggleUserLogging(source.Name));
         }
         

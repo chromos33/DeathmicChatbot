@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DeathmicChatbot
 {
-    static class Usefull_Functions
+    static class Useful_Functions
     {
         public static String[] String_Array_Push(String[] _input,string item)
         {

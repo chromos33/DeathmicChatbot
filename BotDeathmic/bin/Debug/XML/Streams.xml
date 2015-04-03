@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Streams>
   <Stream Channel="test" starttime="" stoptime="" running="false" provider="" />
-  <Stream Channel="chromos33" starttime="03.04.2015 15:38:42" stoptime="03.04.2015 15:38:57" running="true" provider="" twitchlink="http://www.twitch.tv/chromos33" game="Tales of Vesperia" />
+  <Stream Channel="chromos33" starttime="03.04.2015 23:38:33" stoptime="03.04.2015 23:39:35" running="true" provider="" lastglobalnotice="03.04.2015 23:57:54" />
+  <Stream Channel="deathmic" starttime="03.04.2015 23:05:49" stoptime="03.04.2015 23:32:47" running="false" provider="" game="Dark Souls II: Scholar of the First Sin" lastglobalnotice="03.04.2015 23:23:38" />
 </Streams>

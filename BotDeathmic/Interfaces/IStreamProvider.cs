@@ -10,6 +10,7 @@ namespace DeathmicChatbot.Interfaces
     {
         event EventHandler<StreamEventArgs> StreamStarted;
         event EventHandler<StreamEventArgs> StreamStopped;
+        event EventHandler<StreamEventArgs> StreamGlobalNotification;
         bool AddStream(string stream);
         void RemoveStream(string stream);
         void CheckStreams();

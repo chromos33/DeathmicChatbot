@@ -54,6 +54,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         public event EventHandler<StreamEventArgs> StreamStarted;
         public event EventHandler<StreamEventArgs> StreamStopped;
+        public event EventHandler<StreamEventArgs> StreamGlobalNotification;
 
         public bool AddStream(string stream)
         {
@@ -110,6 +111,10 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
         {
             if (_streamsToCheck.Count == 0)
                 return;
+            if(StreamStarted == null)
+            {
+                return;
+            }
             var stream = _streamsToCheck.Dequeue();
             
             var result = CheckStreamOnlineStatus(stream);
@@ -117,10 +122,9 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
             if (result == null || result.livestream.Count != 1)
                 return;
-            Console.WriteLine(result.livestream[0].media_is_live);
             if (result.livestream[0].media_is_live == "1")
             {
-                
+                Console.WriteLine(_streamData.ContainsKey(stream));
                 if (!_streamData.ContainsKey(stream))
                 {
                     
@@ -129,10 +133,15 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
                         Started = DateTime.Now,
                         Stream = result.livestream[0]
                     };
-                    
+                    bool globalancounce = false;
+                    if (_streamData.Keys.Contains(stream))
+                    {
+                        globalancounce = true;
+                    }
                     var bTryAddResult = _streamData.TryAdd(stream,
                                                            hitboxStreamData);
-                    if (bTryAddResult && StreamStarted != null)
+
+                    if (bTryAddResult)
                     {
                         var stream1 = new Stream
                         {
@@ -152,6 +161,65 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
                         var streamEventArgs = new StreamEventArgs(streamData);
                         StreamStarted(this, streamEventArgs);
+                        StreamGlobalNotification(this, streamEventArgs);
+                    }
+                    if (!bTryAddResult && globalancounce)
+                    {
+
+                        var stream1 = new Stream
+                        {
+                            Channel = hitboxStreamData.Stream.media_user_name,
+                            Game =
+                                hitboxStreamData.Stream.category_name ??
+                                "<no game>",
+                            Message = hitboxStreamData.Stream.media_status,
+                        };
+
+                        var streamData = new StreamData
+                        {
+                            Started = DateTime.Now,
+                            Stream = stream1,
+                            StreamProvider = this
+                        };
+
+                        var streamEventArgs = new StreamEventArgs(streamData);
+                        StreamGlobalNotification(this, streamEventArgs);
+                    }
+                }
+                else
+                {
+                    var hitboxStreamData = new HitboxStreamData
+                    {
+                        Started = DateTime.Now,
+                        Stream = result.livestream[0]
+                    };
+                    bool globalancounce = false;
+                    if (_streamData.Keys.Contains(stream))
+                    {
+                        globalancounce = true;
+                    }
+                    var bTryAddResult = _streamData.TryAdd(stream,
+                                                           hitboxStreamData);
+                    if (!bTryAddResult && globalancounce)
+                    {
+                        var stream1 = new Stream
+                        {
+                            Channel = hitboxStreamData.Stream.media_user_name,
+                            Game =
+                                hitboxStreamData.Stream.category_name ??
+                                "<no game>",
+                            Message = hitboxStreamData.Stream.media_status,
+                        };
+
+                        var streamData = new StreamData
+                        {
+                            Started = DateTime.Now,
+                            Stream = stream1,
+                            StreamProvider = this
+                        };
+
+                        var streamEventArgs = new StreamEventArgs(streamData);
+                        StreamGlobalNotification(this, streamEventArgs);
                     }
                 }
                 WriteStreamDataToFile();
