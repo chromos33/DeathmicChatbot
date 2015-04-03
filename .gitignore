@@ -41,3 +41,10 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+BotDeathmic/bin/Debug/DeathmicChatbot.exe.config
+BotDeathmic/bin/Debug/DeathmicChatbot.vshost.exe
+BotDeathmic/bin/Debug/DeathmicChatbot.vshost.exe.config
+BotDeathmic/bin/Debug/DeathmicChatbot.vshost.exe.manifest
+*.exe
+*.pdb
+BotDeathmic/bin/Debug/IrcDotNet.dll

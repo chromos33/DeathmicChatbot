@@ -34,7 +34,7 @@ namespace DeathmicChatbot
                 bot = new BotDeathmic();
                 bot.Connect(Settings.Default.Server,bot.RegistrationInfo);
                 //Quakenet connect duration fix
-                
+                ConnectToIRC();
                 while(true)
                 {
                     foreach (var _client in bot.Clients)

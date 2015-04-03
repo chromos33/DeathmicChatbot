@@ -22,7 +22,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         private TwitchRootObject _lastroot;
         private XMLProvider xmlprovider;
-        private System.Timers.Timer _timer;
 
         public TwitchProvider()
         {
