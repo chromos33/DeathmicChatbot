@@ -3,7 +3,7 @@ using DeathmicChatbot.Properties;
 using IrcDotNet;
 using System;
 using IrcDotNet.Ctcp;
-using System.Net.WebClient;
+using System.Net;
 
 namespace DeathmicChatbot
 {

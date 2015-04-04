@@ -61,6 +61,7 @@ namespace DeathmicChatbot.IRC
         private static bool isVoteRunning = false;
         public System.Timers.Timer reconnectimer;
         private static URLExtractor urlExtractor = new URLExtractor();
+        private bool Disconnected = false;
         private static List<IURLHandler> handlers = new List<IURLHandler>() { new LinkParser.YoutubeHandler(), new LinkParser.Imgur(), new LinkParser.WebsiteHandler() };
         #endregion
         #region Constructor
@@ -95,7 +96,7 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnClientDisconnect(IrcClient client)
         {
-
+            Disconnected = true;
         }
 
         protected override void OnClientRegistered(IrcClient client)
@@ -128,30 +129,13 @@ namespace DeathmicChatbot.IRC
         private void Reconnect()
         {
             Console.WriteLine("Reconnect");
+            ReconnectInbound = false;
             thisclient.Disconnect();
-            try
-            {
-                try
-                {
-                    this.Connect(Settings.Default.Server, RegistrationInfo);
-                } catch (Exception ex)
-                {
-                    return;
-                }
-                
-
-                if (Settings.Default.Server.Contains("quakenet"))
-                {
-                    string quakeservername = null;
-                }
-            }catch(Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+            
         }
         private void OnReconnectTimer(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (!ReconnectInbound)
+            if (!ReconnectInbound && !Disconnected)
             {
                 ReconnectInbound = true;
                 thisclient.LocalUser.SendMessage(Properties.Settings.Default.Name, "!reconnect");
