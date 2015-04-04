@@ -132,7 +132,7 @@ namespace DeathmicChatbot.IRC
             Console.WriteLine("Reconnect");
             try
             {
-                thisclient.Connect(new Uri(Settings.Default.Server), RegistrationInfo);
+                this.Connect(Settings.Default.Server, RegistrationInfo);
 
                 if (Settings.Default.Server.Contains("quakenet"))
                 {
