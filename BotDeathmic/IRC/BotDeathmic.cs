@@ -144,8 +144,8 @@ namespace DeathmicChatbot.IRC
                     }
 
                     System.Diagnostics.Debug.WriteLine("servername");
-                    
-                    var quakeclient = this.GetClientFromServerNameMask(quakeservername);
+
+                    var quakeclient = this.GetClientFromServerNameMask(thisclient.ServerName);
                     System.Diagnostics.Debug.WriteLine(Properties.Settings.Default.Channel + " " + quakeservername);
                     quakeclient.Channels.Join(Properties.Settings.Default.Channel);
                 }
