@@ -106,6 +106,7 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnLocalUserJoinedChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
         {
+            ReconnectInbound = false;
             //OnClientRegistered may happen before joined channel thus...
             _streamProviderManager = new StreamProviderManager();
             _streamProviderManager.StreamStarted += OnStreamStarted;
@@ -157,7 +158,6 @@ namespace DeathmicChatbot.IRC
                     var quakeclient = this.GetClientFromServerNameMask(quakeservername);
                     System.Diagnostics.Debug.WriteLine(Properties.Settings.Default.Channel + " " + quakeservername);
                     quakeclient.Channels.Join(Properties.Settings.Default.Channel);
-                    ReconnectInbound = false;
                 }
             }catch(Exception ex)
             {
@@ -198,28 +198,46 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnChannelUserJoined(IrcChannel channel, IrcChannelUserEventArgs e)
         {
+            Console.WriteLine("channeluserjoined");
             #region whisperstatsonjoin
             string[] userdata = xmlprovider.UserInfo(e.ChannelUser.User.ToString()).Split(',');
-            System.Diagnostics.Debug.WriteLine(userdata[1]);
-            String days_since_last_visit = DateTime.Now.Subtract(Convert.ToDateTime(userdata[1])).ToString("d' days 'h':'mm':'ss");
-            string visitstring = "";
-            switch (userdata[0])
+            if(userdata.Count() > 0)
             {
-                case "1": visitstring = userdata[0] + "st"; break;
-                case "2": visitstring = userdata[0] + "nd"; break;
-                case "3": visitstring = userdata[0] + "rd"; break;
-                default: visitstring = userdata[0] + "th"; break;
-            }
-            String output = "This is " + e.ChannelUser.User.ToString() + "'s " + visitstring + " visit. Their last visit was on " + userdata[1] + " (" + days_since_last_visit + " ago)";
-            foreach (var loggingOp in xmlprovider.LoggingUser())
-                thisclient.LocalUser.SendNotice(loggingOp, output);
+                if(userdata.Count() > 1)
+                {
+                    String days_since_last_visit = DateTime.Now.Subtract(Convert.ToDateTime(userdata[1])).ToString("d' days 'h':'mm':'ss");
+                    string visitstring = "";
+                    switch (userdata[0])
+                    {
+                        case "1": visitstring = userdata[0] + "st"; break;
+                        case "2": visitstring = userdata[0] + "nd"; break;
+                        case "3": visitstring = userdata[0] + "rd"; break;
+                        default: visitstring = userdata[0] + "th"; break;
+                    }
+                    String output = "This is " + e.ChannelUser.User.ToString() + "'s " + visitstring + " visit. Their last visit was on " + userdata[1] + " (" + days_since_last_visit + " ago)";
+                    foreach (var loggingOp in xmlprovider.LoggingUser())
+                        thisclient.LocalUser.SendNotice(loggingOp, output);
             #endregion
+
+
+                    foreach (var msg in _streamProviderManager.GetStreamInfoArray())
+                        thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), msg);
+                    if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
+                }
+                else
+                {
+                    String output = "This is " + e.ChannelUser.User.ToString() + "'s first Visit.";
+                    foreach (var loggingOp in xmlprovider.LoggingUser())
+                        thisclient.LocalUser.SendNotice(loggingOp, output);
+                }
+            }
+            else
+            {
+                String output = "This is " + e.ChannelUser.User.ToString()+"'s first Visit.";
+                foreach (var loggingOp in xmlprovider.LoggingUser())
+                    thisclient.LocalUser.SendNotice(loggingOp, output);
+            }
             xmlprovider.AddorUpdateUser(e.ChannelUser.User.ToString());
-
-
-            foreach (var msg in _streamProviderManager.GetStreamInfoArray())
-                thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), msg);
-            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
         }
 
         protected override void OnChannelUserLeft(IrcChannel channel, IrcChannelUserEventArgs e)
@@ -233,20 +251,27 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnChannelMessageReceived(IrcChannel channel, IrcMessageEventArgs e)
         {
-            IEnumerable<string> urls = urlExtractor.extractYoutubeURLs(e.Text);
-
-            if (urls.Count() > 0)
+            try
             {
-            }
+                IEnumerable<string> urls = urlExtractor.extractYoutubeURLs(e.Text);
 
-            foreach (var url in urls)
-            {
-                foreach (var handler in handlers)
+                if (urls.Count() > 0)
                 {
-                    if (handler.handleURL(url, thisclient))
-                        break;
                 }
+
+                foreach (var url in urls)
+                {
+                    foreach (var handler in handlers)
+                    {
+                        if (handler.handleURL(url, thisclient))
+                            break;
+                    }
+                } 
+            } catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
+                           
         }
         #endregion
         #region commandinit
