@@ -69,6 +69,15 @@ namespace DeathmicChatbot
                     bot.ctcpClient1 = new CtcpClient(_client);
                 }
             }
+            while (true)
+            {
+                if (!bot.thisclient.IsConnected)
+                {
+                    bot.Dispose();
+                    ConnectBot();
+                    break;
+                }
+            }
         }
     }
 }
