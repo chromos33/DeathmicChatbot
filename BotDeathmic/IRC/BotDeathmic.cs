@@ -418,7 +418,6 @@ namespace DeathmicChatbot.IRC
         private void OnStreamStarted(object sender, StreamEventArgs args)
         {
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
-            Console.WriteLine(args.StreamData.StreamProvider.ToString());
             if (xmlprovider.isinStreamList(args.StreamData.Stream.Channel))
             {
                 if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel,"running") == "false")
