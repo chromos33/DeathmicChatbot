@@ -805,7 +805,7 @@ namespace DeathmicChatbot
 
                     }
                     else
-                    {
+                    { 
                     }
                 }
                 catch (Exception ex)
@@ -814,6 +814,10 @@ namespace DeathmicChatbot
             }
             else
             {
+            }
+            if(answer == "")
+            {
+                return answer;
             }
 
             return answer.Substring(0, answer.Length - 1);
