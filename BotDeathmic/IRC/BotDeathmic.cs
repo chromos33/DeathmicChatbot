@@ -90,16 +90,17 @@ namespace DeathmicChatbot.IRC
         #region IRCConnectionEvents
         protected override void OnClientConnect(IrcClient client)
         {
-            
+            Console.WriteLine("Connected");
         }
 
         protected override void OnClientDisconnect(IrcClient client)
         {
-           
+            Console.WriteLine("Disconnected");
         }
 
         protected override void OnClientRegistered(IrcClient client)
         {
+            Console.WriteLine("OnClientRegistered");
             if (ReconnectInbound)
             {
                 thisclient.Channels.Join(Properties.Settings.Default.Channel);
