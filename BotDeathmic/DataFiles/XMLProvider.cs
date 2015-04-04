@@ -391,6 +391,42 @@ namespace DeathmicChatbot
             return answer;
         }
 
+        public void AddStreamLivedata(string Channel, string URL,string Game)
+        {
+            if (File.Exists("XML/Streams.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Streams.xml");
+                try
+                {
+                    IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() where el.Attribute("Channel").Value == Channel.ToLower() select el;
+                    foreach (var element in childlist)
+                    {
+                        if (element.Attribute("game") == null)
+                        {
+                            element.Add(new XAttribute("game", Game));
+                        }
+                        else
+                        {
+                            element.Attribute("game").Value = Game;
+                        }
+                        if (element.Attribute("URL") == null)
+                        {
+                            element.Add(new XAttribute("URL", URL));
+                        }
+                        else
+                        {
+                            element.Attribute("URL").Value = URL;
+                        }
+                    }
+                    xdoc.Save("XML/Streams.xml");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+
+            }
+        }
         //returns Streamlist as CSV data
         public string StreamList(string provider = "")
         {

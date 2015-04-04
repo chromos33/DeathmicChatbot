@@ -332,7 +332,7 @@ namespace DeathmicChatbot.IRC
             {
                 string[] streamprovidersplit = stream.Split(',');
                 //TODO add provider link completion
-                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), streamprovidersplit[0] + "is currently streaming at " + streamprovidersplit[1]);
+                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), streamprovidersplit[0] + " is currently streaming at " + streamprovidersplit[1]);
             }
             if (xmlprovider.OnlineStreamList().Count() == 0)
             {
@@ -378,7 +378,7 @@ namespace DeathmicChatbot.IRC
                     {
                         game = xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "game");
                     }
-
+                    xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
                     thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format(
                                                            "Stream running: {0} ({1}) at {2}/{0}",
                                                            args.StreamData.Stream
@@ -398,6 +398,7 @@ namespace DeathmicChatbot.IRC
             {
                 if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel,"running") == "false")
                 {
+                    xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, args.StreamData.Stream.Message);
                     Console.WriteLine("{0}: Stream started: {1}",
                               DateTime.Now,
                               args.StreamData.Stream.Channel);
