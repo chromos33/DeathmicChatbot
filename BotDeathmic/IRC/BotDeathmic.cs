@@ -332,7 +332,7 @@ namespace DeathmicChatbot.IRC
             {
                 string[] streamprovidersplit = stream.Split(',');
                 //TODO add provider link completion
-                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), streamprovidersplit[0] + " is currently streaming at " + streamprovidersplit[1]);
+                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), streamprovidersplit[0] + " is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[1], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[1], "URL"));
             }
             if (xmlprovider.OnlineStreamList().Count() == 0)
             {
