@@ -834,7 +834,7 @@ namespace DeathmicChatbot.IRC
                 client.LocalUser.SendNotice(source.Name, string.Format("Please use the following format: !startvote <time> | <question> | <answer1,answer2,...>"));
                 return;
             }
-            var timeString = singleparams[0];
+            var timeString = singleparams[0].Trim();
             var timeRegex = new Regex(@"^(\d+d)?(\d+h)?(\d+m)?(\d+s)?$");
             var timeMatch = timeRegex.Match(timeString);
             if (!timeMatch.Success)
@@ -853,8 +853,8 @@ namespace DeathmicChatbot.IRC
                 span += tmpSpan;
             if (TimeSpan.TryParseExact(timeMatch.Groups[4].Value, "s's'", null, out tmpSpan))
                 span += tmpSpan;
-            var question = singleparams[1];
-            var answers = new List<string>(singleparams[2].Split(','));
+            var question = singleparams[1].Trim();
+            var answers = new List<string>(singleparams[2].Trim().Split(','));
             var endTime = DateTime.Now + span;
             try
             {
