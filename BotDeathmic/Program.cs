@@ -76,10 +76,12 @@ namespace DeathmicChatbot
                 {
                     if (CheckForInternetConnection())
                     {
+                        Console.WriteLine("Connection possible");
                         bot.Dispose();
                         ConnectBot();
                         break;
                     }
+                    System.Threading.Thread.Sleep(1000);
                 }
             }
         }
