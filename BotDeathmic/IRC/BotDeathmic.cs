@@ -787,21 +787,24 @@ namespace DeathmicChatbot.IRC
             try
             {
                 string output;
-                if (parameters.Count() > 0 && parameters[0] != "")
+                if(parameters.Count() > 0)
                 {
-                    output = xmlprovider.ReasonUserList(parameters[0]);
-                }
-                else
-                {
-                    output = xmlprovider.ReasonUserList();
-                }
-                if (output == "")
-                {
-                    client.LocalUser.SendNotice(source.Name, "No Result from this query.");
-                }
-                else
-                {
-                    client.LocalUser.SendNotice(source.Name, output);
+                    if (parameters[0] != "")
+                    {
+                        output = xmlprovider.ReasonUserList(parameters[0]);
+                    }
+                    else
+                    {
+                        output = xmlprovider.ReasonUserList();
+                    }
+                    if (output == "")
+                    {
+                        client.LocalUser.SendNotice(source.Name, "No Result from this query.");
+                    }
+                    else
+                    {
+                        client.LocalUser.SendNotice(source.Name, output);
+                    }
                 }
             }catch(Exception ex)
             {
