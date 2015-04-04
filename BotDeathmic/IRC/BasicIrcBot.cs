@@ -34,8 +34,8 @@ namespace DeathmicChatbot.IRC
 
             // List all commands recognized by this bot.
             var replyTarget = GetDefaultReplyTarget(client, source, targets);
-            client.LocalUser.SendMessage(replyTarget, "Commands recognized by bot:");
-            client.LocalUser.SendMessage(replyTarget, string.Join(", ",
+            client.LocalUser.SendNotice(source.Name, "Commands recognized by bot:");
+            client.LocalUser.SendNotice(source.Name, string.Join(", ",
                 this.ChatCommandProcessors.Select(kvPair => kvPair.Key)));
         }
 
