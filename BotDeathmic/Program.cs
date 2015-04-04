@@ -15,13 +15,6 @@ namespace DeathmicChatbot
             try
             {
                 ConnectBot();
-                while(true)
-                {
-                   if(!bot.thisclient.IsConnected)
-                   {
-                       Console.Write("Bot Disconnected Do something");
-                   }
-                }
                 // bot.Run starts console interface with input for commands not really needed
                 //bot.Run();
             }catch(Exception ex)
