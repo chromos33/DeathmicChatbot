@@ -90,6 +90,7 @@ namespace DeathmicChatbot.IRC
         #region IRCConnectionEvents
         protected override void OnClientConnect(IrcClient client)
         {
+            
         }
 
         protected override void OnClientDisconnect(IrcClient client)
@@ -99,14 +100,17 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnClientRegistered(IrcClient client)
         {
-            
+            if (ReconnectInbound)
+            {
+                thisclient.Channels.Join(Properties.Settings.Default.Channel);
+                ReconnectInbound = false;
+            }
         }
 
         
 
         protected override void OnLocalUserJoinedChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
         {
-            ReconnectInbound = false;
             //OnClientRegistered may happen before joined channel thus...
             _streamProviderManager = new StreamProviderManager();
             _streamProviderManager.StreamStarted += OnStreamStarted;
@@ -132,22 +136,18 @@ namespace DeathmicChatbot.IRC
             thisclient.Disconnect();
             try
             {
-                this.Connect(Settings.Default.Server, RegistrationInfo);
+                try
+                {
+                    this.Connect(Settings.Default.Server, RegistrationInfo);
+                } catch (Exception ex)
+                {
+                    return;
+                }
+                
 
                 if (Settings.Default.Server.Contains("quakenet"))
                 {
                     string quakeservername = null;
-
-                    while (thisclient.ServerName == null)
-                    {
-                        System.Diagnostics.Debug.WriteLine("noservername");
-                    }
-
-                    System.Diagnostics.Debug.WriteLine("servername");
-
-                    var quakeclient = this.GetClientFromServerNameMask(thisclient.ServerName);
-                    System.Diagnostics.Debug.WriteLine(Properties.Settings.Default.Channel + " " + quakeservername);
-                    thisclient.Channels.Join(Properties.Settings.Default.Channel);
                 }
             }catch(Exception ex)
             {
