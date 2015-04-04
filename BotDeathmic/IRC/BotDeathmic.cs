@@ -121,7 +121,7 @@ namespace DeathmicChatbot.IRC
                 reconnectimer.Dispose();
             }
 
-            reconnectimer = new System.Timers.Timer(5000);
+            reconnectimer = new System.Timers.Timer(60000);
             reconnectimer.Elapsed += OnReconnectTimer;
             reconnectimer.Enabled = true;
         }
@@ -159,6 +159,7 @@ namespace DeathmicChatbot.IRC
                     var quakeclient = this.GetClientFromServerNameMask(quakeservername);
                     System.Diagnostics.Debug.WriteLine(Properties.Settings.Default.Channel + " " + quakeservername);
                     quakeclient.Channels.Join(Properties.Settings.Default.Channel);
+                    ReconnectInbound = false;
                 }
             }catch(Exception ex)
             {
@@ -179,7 +180,6 @@ namespace DeathmicChatbot.IRC
         }
         private void ReconnectDisableRequester(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            Console.WriteLine("ReconnectDisableRequester");
             ReconnectInbound = false;
         }
         #endregion
