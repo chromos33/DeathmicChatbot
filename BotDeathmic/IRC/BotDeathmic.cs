@@ -90,25 +90,16 @@ namespace DeathmicChatbot.IRC
         #region IRCConnectionEvents
         protected override void OnClientConnect(IrcClient client)
         {
-            Console.WriteLine("Connected");
-            if (ReconnectInbound)
-            {
-                Console.WriteLine("bla");
-                client.Channels.Join(Properties.Settings.Default.Channel);
-                ReconnectInbound = false;
-            }
+          
         }
 
         protected override void OnClientDisconnect(IrcClient client)
         {
-            Console.WriteLine("Disconnected");
+
         }
 
         protected override void OnClientRegistered(IrcClient client)
-        {
-            Console.WriteLine("OnClientRegistered");
-           
-            
+        { 
         }
 
         
@@ -128,7 +119,7 @@ namespace DeathmicChatbot.IRC
                 reconnectimer.Dispose();
             }
 
-            reconnectimer = new System.Timers.Timer(60000);
+            reconnectimer = new System.Timers.Timer(30000);
             reconnectimer.Elapsed += OnReconnectTimer;
             reconnectimer.Enabled = true;
         }
