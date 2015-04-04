@@ -3,6 +3,7 @@ using DeathmicChatbot.Properties;
 using IrcDotNet;
 using System;
 using IrcDotNet.Ctcp;
+using System.Net.WebClient;
 
 namespace DeathmicChatbot
 {
@@ -73,10 +74,29 @@ namespace DeathmicChatbot
             {
                 if (!bot.thisclient.IsConnected)
                 {
-                    bot.Dispose();
-                    ConnectBot();
-                    break;
+                    if (CheckForInternetConnection())
+                    {
+                        bot.Dispose();
+                        ConnectBot();
+                        break;
+                    }
                 }
+            }
+        }
+
+        public static bool CheckForInternetConnection()
+        {
+            try
+            {
+                using (var client = new System.Net.WebClient())
+                using (var stream = client.OpenRead("http://www.google.com"))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
             }
         }
     }
