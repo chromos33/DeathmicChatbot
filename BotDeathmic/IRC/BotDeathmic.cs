@@ -129,6 +129,7 @@ namespace DeathmicChatbot.IRC
         private void Reconnect()
         {
             Console.WriteLine("Reconnect");
+            thisclient.Disconnect();
             try
             {
                 this.Connect(Settings.Default.Server, RegistrationInfo);
@@ -136,25 +137,14 @@ namespace DeathmicChatbot.IRC
                 if (Settings.Default.Server.Contains("quakenet"))
                 {
                     string quakeservername = null;
-                    foreach (var _client in this.Clients)
+
+                    while (thisclient.ServerName == null)
                     {
-                        while (_client.ServerName == null)
-                        {
-
-                        }
-                        if (_client.ServerName.Contains("quakenet"))
-                        {
-                            quakeservername = _client.ServerName;
-                            this.thisclient = _client;
-                            this.ctcpClient1 = new CtcpClient(_client);
-                            this.ctcpClient1.ClientVersion = this.clientVersionInfo;
-                            this.ctcpClient1.PingResponseReceived += this.ctcpClient_PingResponseReceived;
-                            this.ctcpClient1.VersionResponseReceived += this.ctcpClient_VersionResponseReceived;
-                            this.ctcpClient1.TimeResponseReceived += this.ctcpClient_TimeResponseReceived;
-                            this.ctcpClient1.ActionReceived += this.ctcpClient_ActionReceived;
-                        }
-
+                        System.Diagnostics.Debug.WriteLine("noservername");
                     }
+
+                    System.Diagnostics.Debug.WriteLine("servername");
+                    
                     var quakeclient = this.GetClientFromServerNameMask(quakeservername);
                     System.Diagnostics.Debug.WriteLine(Properties.Settings.Default.Channel + " " + quakeservername);
                     quakeclient.Channels.Join(Properties.Settings.Default.Channel);
