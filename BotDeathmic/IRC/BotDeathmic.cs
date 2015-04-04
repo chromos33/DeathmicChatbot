@@ -832,6 +832,7 @@ namespace DeathmicChatbot.IRC
             if (singleparams.Count() < 3)
             {
                 client.LocalUser.SendNotice(source.Name, string.Format("Please use the following format: !startvote <time> | <question> | <answer1,answer2,...>"));
+                return;
             }
             var timeString = singleparams[0];
             var timeRegex = new Regex(@"^(\d+d)?(\d+h)?(\d+m)?(\d+s)?$");
@@ -840,6 +841,7 @@ namespace DeathmicChatbot.IRC
             {
                 client.LocalUser.SendNotice(source.Name, "Time needs to be in the following format: [<num>d][<num>h][<num>m][<num>s]");
                 client.LocalUser.SendNotice(source.Name, "Examples: 10m30s or n5h or n1d or n1d6h");
+                return;
             }
             var span = new TimeSpan();
             TimeSpan tmpSpan;
