@@ -806,6 +806,10 @@ namespace DeathmicChatbot.IRC
                         client.LocalUser.SendNotice(source.Name, output);
                     }
                 }
+                else
+                {
+                    client.LocalUser.SendNotice(source.Name, "No Result from this query (Create Pick with Reasons first).");
+                }
             }catch(Exception ex)
             {
                 Console.WriteLine(ex.ToString());
