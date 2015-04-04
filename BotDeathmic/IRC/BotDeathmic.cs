@@ -106,6 +106,7 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnLocalUserJoinedChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
         {
+            ReconnectInbound = false;
             //OnClientRegistered may happen before joined channel thus...
             _streamProviderManager = new StreamProviderManager();
             _streamProviderManager.StreamStarted += OnStreamStarted;
@@ -157,7 +158,6 @@ namespace DeathmicChatbot.IRC
                     var quakeclient = this.GetClientFromServerNameMask(quakeservername);
                     System.Diagnostics.Debug.WriteLine(Properties.Settings.Default.Channel + " " + quakeservername);
                     quakeclient.Channels.Join(Properties.Settings.Default.Channel);
-                    ReconnectInbound = false;
                 }
             }catch(Exception ex)
             {
