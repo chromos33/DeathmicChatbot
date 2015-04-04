@@ -1,5 +1,4 @@
-﻿using System;
-using IrcDotNet;
+﻿using IrcDotNet;
 namespace DeathmicChatbot.Interfaces
 {
     internal interface IURLHandler

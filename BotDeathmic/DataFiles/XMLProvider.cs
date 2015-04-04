@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 using System.IO;
 using DeathmicChatbot.StreamInfo.Twitch;
-using DeathmicChatbot.StreamInfo.Hitbox;
 
 
 namespace DeathmicChatbot

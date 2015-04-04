@@ -1,23 +1,7 @@
-﻿//using DeathmicChatbot.StreamInfo.Hitbox;
-//using DeathmicChatbot.StreamInfo.Twitch;
-using DeathmicChatbot.Exceptions;
-using DeathmicChatbot.IRC;
-//using DeathmicChatbot.Interfaces;
+﻿using DeathmicChatbot.IRC;
 using DeathmicChatbot.Properties;
-//using RestSharp;
 using IrcDotNet;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 using IrcDotNet.Ctcp;
 
 namespace DeathmicChatbot

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using DeathmicChatbot.Exceptions;
-using DeathmicChatbot.IRC;
-using DeathmicChatbot.Properties;
 using IrcDotNet;
 
 namespace DeathmicChatbot.IRC

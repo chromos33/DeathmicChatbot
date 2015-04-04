@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using DeathmicChatbot.StreamInfo;
-using DeathmicChatbot.StreamInfo.Twitch;
 //using DeathmicChatbot.StreamInfo.Hitbox;
 
 namespace DeathmicChatbot.Interfaces
