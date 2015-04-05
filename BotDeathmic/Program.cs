@@ -77,6 +77,7 @@ namespace DeathmicChatbot
                     if (!bot.thisclient.IsConnected)
                     {
                         bot.Dispose();
+                        bot = null;
                     }
                 }
                 
