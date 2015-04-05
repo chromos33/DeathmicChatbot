@@ -120,7 +120,7 @@ namespace DeathmicChatbot.IRC
                 reconnectimer.Dispose();
             }
 
-            reconnectimer = new System.Timers.Timer(30000);
+            reconnectimer = new System.Timers.Timer(60000);
             reconnectimer.Elapsed += OnReconnectTimer;
             reconnectimer.Enabled = true;
         }
