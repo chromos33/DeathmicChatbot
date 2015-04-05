@@ -74,10 +74,10 @@ namespace DeathmicChatbot
             {
                 if (!bot.thisclient.IsConnected)
                 {
+                    bot.Dispose();
                     if (CheckForInternetConnection())
                     {
                         Console.WriteLine("Connection possible");
-                        bot.Dispose();
                         ConnectBot();
                         break;
                     }
