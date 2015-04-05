@@ -49,3 +49,4 @@ BotDeathmic/bin/Debug/DeathmicChatbot.vshost.exe.manifest
 *.pdb
 BotDeathmic/bin/Debug/IrcDotNet.dll
 BotDeathmic/bin/Debug/RestSharp.dll
+BotDeathmic/bin/Debug
