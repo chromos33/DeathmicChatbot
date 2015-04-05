@@ -43,15 +43,6 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("irc.rizon.net")]
-        public string Server {
-            get {
-                return ((string)(this["Server"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("15")]
         public int StreamcheckIntervalSeconds {
             get {
@@ -61,7 +52,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("@Q")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string pickIgnores {
             get {
                 return ((string)(this["pickIgnores"]));
@@ -70,19 +61,19 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("DeathmicChatbot.sqlite")]
-        public string SqliteDbFileName {
+        [global::System.Configuration.DefaultSettingValueAttribute("#deathmic")]
+        public string Channel {
             get {
-                return ((string)(this["SqliteDbFileName"]));
+                return ((string)(this["Channel"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#deathmictest")]
-        public string Channel {
+        [global::System.Configuration.DefaultSettingValueAttribute("irc.quakenet.org")]
+        public string Server {
             get {
-                return ((string)(this["Channel"]));
+                return ((string)(this["Server"]));
             }
         }
     }

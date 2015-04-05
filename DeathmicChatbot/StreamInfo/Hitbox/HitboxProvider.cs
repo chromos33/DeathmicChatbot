@@ -1,6 +1,4 @@
-﻿#region Using
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -10,23 +8,18 @@ using DeathmicChatbot.Interfaces;
 using RestSharp;
 using RestSharp.Deserializers;
 using RestSharp.Serializers;
-
-#endregion
-
+using DeathmicChatbot.StreamInfo;
 
 namespace DeathmicChatbot.StreamInfo.Hitbox
 {
     public class HitboxProvider : IStreamProvider, IDisposable
     {
-        public const string STREAMS_FILE = "streams_hitbox.txt";
         private const string STREAMDATA_FILE = "streamdata_hitbox.txt";
-        private const int TIME_MS_HITBOX_QUERY_THREAD_SLEEP = 500;
+        private const int TIME_MS_HITBOX_QUERY_THREAD_SLEEP = 1000;
         private XMLProvider xmlprovider;
 
-        private readonly bool _debugMode;
         private readonly Dictionary<string, HitboxRootObject> _lastRequests =
             new Dictionary<string, HitboxRootObject>();
-        private readonly ILogManagerProvider _log;
         private readonly IRestClientProvider _restClientProvider;
 
         private readonly ConcurrentDictionary<string, HitboxStreamData>
@@ -34,32 +27,19 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
         private readonly List<string> _streams = new List<string>();
 
         private readonly Queue<string> _streamsToCheck = new Queue<string>();
-        private readonly ITextFile _textFileStreams;
-        private readonly Timer _timer;
+        private Timer _timer;
+        
 
-        public HitboxProvider(IRestClientProvider restClientProvider,
-                              ILogManagerProvider log,
-                              ITextFile textFileStreams,
-                              bool debugMode = false)
+        public HitboxProvider()
         {
-            if (restClientProvider == null)
-                throw new ArgumentNullException("restClientProvider");
-
-            if (log == null)
-                throw new ArgumentNullException("log");
-
-            if (textFileStreams == null)
-                throw new ArgumentNullException("textFileStreams");
-
-            _log = log;
-            _debugMode = debugMode;
-            _textFileStreams = textFileStreams;
-
-            _restClientProvider = restClientProvider;
+            _restClientProvider = new RestClientProvider(new RestClient("http://api.hitbox.tv"));
 
             LoadStreams();
             LoadStreamData();
-
+        }
+        public void StartTimer()
+        {
+            Console.WriteLine("StartTimer");
             _timer = new Timer(TIME_MS_HITBOX_QUERY_THREAD_SLEEP);
             _timer.Elapsed += (sender, args) => QueryHitboxForQueuedStream();
             _timer.Start();
@@ -75,6 +55,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         public event EventHandler<StreamEventArgs> StreamStarted;
         public event EventHandler<StreamEventArgs> StreamStopped;
+        public event EventHandler<StreamEventArgs> StreamGlobalNotification;
 
         public bool AddStream(string stream)
         {
@@ -82,7 +63,6 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             if (!_streams.Contains(stream))
             {
                 _streams.Add(stream);
-                WriteStreamsToFile();
 
                 if (_streams.Count == 1)
                 {
@@ -100,7 +80,6 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
         {
             stream = stream.ToLower();
             _streams.Remove(stream);
-            WriteStreamsToFile();
         }
 
         public void CheckStreams()
@@ -131,83 +110,153 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
 
         private void QueryHitboxForQueuedStream()
         {
-            if (_streamsToCheck.Count == 0)
-                return;
-            var stream = _streamsToCheck.Dequeue();
-            
-            var result = CheckStreamOnlineStatus(stream);
-
-            if (result == null || result.livestream.Count != 1)
-                return;
-
-            if (result.livestream[0].media_is_live == "1")
-            {
-                if (!_streamData.ContainsKey(stream))
+                if (_streamsToCheck.Count == 0)
+                    return;
+                if (StreamStarted == null)
                 {
-                    var hitboxStreamData = new HitboxStreamData
+                    return;
+                }
+                var stream = _streamsToCheck.Dequeue();
+
+                var result = CheckStreamOnlineStatus(stream);
+
+
+                if (result == null || result.livestream.Count != 1)
+                    return;
+                if (result.livestream[0].media_is_live == "1")
+                {
+                    Console.WriteLine(_streamData.ContainsKey(stream));
+                    if (!_streamData.ContainsKey(stream))
                     {
-                        Started = DateTime.Now,
-                        Stream = result.livestream[0]
-                    };
 
-                    var bTryAddResult = _streamData.TryAdd(stream,
-                                                           hitboxStreamData);
-
-                    if (bTryAddResult && StreamStarted != null)
-                    {
-                        var stream1 = new Stream
-                        {
-                            Channel = hitboxStreamData.Stream.media_user_name,
-                            Game =
-                                hitboxStreamData.Stream.category_name ??
-                                "<no game>",
-                            Message = hitboxStreamData.Stream.media_status,
-                        };
-
-                        var streamData = new StreamData
+                        var hitboxStreamData = new HitboxStreamData
                         {
                             Started = DateTime.Now,
-                            Stream = stream1,
-                            StreamProvider = this
+                            Stream = result.livestream[0]
                         };
+                        bool globalancounce = false;
+                        if (_streamData.Keys.Contains(stream))
+                        {
+                            globalancounce = true;
+                        }
+                        var bTryAddResult = _streamData.TryAdd(stream,
+                                                               hitboxStreamData);
 
-                        var streamEventArgs = new StreamEventArgs(streamData);
-                        StreamStarted(this, streamEventArgs);
+                        if (bTryAddResult)
+                        {
+                            var stream1 = new Stream
+                            {
+                                Channel = hitboxStreamData.Stream.media_user_name,
+                                Game =
+                                    hitboxStreamData.Stream.category_name ??
+                                    "<no game>",
+                                Message = hitboxStreamData.Stream.media_status,
+                            };
+
+                            var streamData = new StreamData
+                            {
+                                Started = DateTime.Now,
+                                Stream = stream1,
+                                StreamProvider = this
+                            };
+
+                            var streamEventArgs = new StreamEventArgs(streamData);
+                            StreamStarted(this, streamEventArgs);
+                            StreamGlobalNotification(this, streamEventArgs);
+                        }
+                        if (!bTryAddResult && globalancounce)
+                        {
+
+                            var stream1 = new Stream
+                            {
+                                Channel = hitboxStreamData.Stream.media_user_name,
+                                Game =
+                                    hitboxStreamData.Stream.category_name ??
+                                    "<no game>",
+                                Message = hitboxStreamData.Stream.media_status,
+                            };
+
+                            var streamData = new StreamData
+                            {
+                                Started = DateTime.Now,
+                                Stream = stream1,
+                                StreamProvider = this
+                            };
+
+                            var streamEventArgs = new StreamEventArgs(streamData);
+                            StreamGlobalNotification(this, streamEventArgs);
+                        }
                     }
-                }
-                WriteStreamDataToFile();
-            }
-            else
-            {
-                if (_streamData.ContainsKey(stream))
-                {
-                    HitboxStreamData hitboxStreamData;
+                    else
+                    {
+                        var hitboxStreamData = new HitboxStreamData
+                        {
+                            Started = DateTime.Now,
+                            Stream = result.livestream[0]
+                        };
+                        bool globalancounce = false;
+                        if (_streamData.Keys.Contains(stream))
+                        {
+                            globalancounce = true;
+                        }
+                        var bTryAddResult = _streamData.TryAdd(stream,
+                                                               hitboxStreamData);
+                        if (!bTryAddResult && globalancounce)
+                        {
+                            var stream1 = new Stream
+                            {
+                                Channel = hitboxStreamData.Stream.media_user_name,
+                                Game =
+                                    hitboxStreamData.Stream.category_name ??
+                                    "<no game>",
+                                Message = hitboxStreamData.Stream.media_status,
+                            };
 
-                    var bTryRemoveResult = _streamData.TryRemove(stream,
-                                                                 out
+                            var streamData = new StreamData
+                            {
+                                Started = DateTime.Now,
+                                Stream = stream1,
+                                StreamProvider = this
+                            };
+
+                            var streamEventArgs = new StreamEventArgs(streamData);
+                            StreamGlobalNotification(this, streamEventArgs);
+                        }
+                    }
+                    WriteStreamDataToFile();
+                }
+                else
+                {
+                    if (_streamData.ContainsKey(stream))
+                    {
+                        HitboxStreamData hitboxStreamData;
+
+                        var bTryRemoveResult = _streamData.TryRemove(stream,
+                                                                     out
                                                                      hitboxStreamData);
-                    if (bTryRemoveResult && StreamStopped != null)
-                    {
-                        var stream1 = new Stream
+                        if (bTryRemoveResult && StreamStopped != null)
                         {
-                            Channel = hitboxStreamData.Stream.media_user_name,
-                            Game = hitboxStreamData.Stream.category_name,
-                            Message = hitboxStreamData.Stream.media_status
-                        };
+                            var stream1 = new Stream
+                            {
+                                Channel = hitboxStreamData.Stream.media_user_name,
+                                Game = hitboxStreamData.Stream.category_name,
+                                Message = hitboxStreamData.Stream.media_status
+                            };
 
-                        var streamData = new StreamData
-                        {
-                            Started = DateTime.Now,
-                            Stream = stream1,
-                            StreamProvider = this
-                        };
+                            var streamData = new StreamData
+                            {
+                                Started = DateTime.Now,
+                                Stream = stream1,
+                                StreamProvider = this
+                            };
 
-                        var streamEventArgs = new StreamEventArgs(streamData);
+                            var streamEventArgs = new StreamEventArgs(streamData);
 
-                        StreamStopped(this, streamEventArgs);
+                            StreamStopped(this, streamEventArgs);
+                        }
                     }
                 }
-            }
+            
         }
 
         private void WriteStreamDataToFile()
@@ -226,9 +275,6 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             // If no data gets returned then stream is hidden
             var req = new RestRequest("/media/live/" + sStream, Method.GET);
             var response = _restClientProvider.Execute(req);
-            
-
-            WriteDebugInfoIfDebugMode(response);
             try
             {
                 var des = new JsonDeserializer();
@@ -247,35 +293,16 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             }
             catch (Exception ex)
             {
-                _log.WriteToLog("CaughtException",
-                                string.Format(
-                                    "Returning last stream state due to exception: {0}",
-                                    ex.Message));
+                
 
                 if (response.Content == "no_media_found")
                 {
-                    _log.WriteToLog("Info",
-                                    string.Format(
-                                        "Removing stream '{0}': Not found on hitbox.",
-                                        sStream));
                     _streams.Remove(sStream);
                 }
 
                 return _lastRequests.ContainsKey(sStream)
                            ? _lastRequests[sStream]
                            : null;
-            }
-        }
-
-        private void WriteStreamsToFile() { _textFileStreams.WriteLines(_streams); }
-
-        private void WriteDebugInfoIfDebugMode(IRestResponse response)
-        {
-            if (_debugMode)
-            {
-                _log.WriteToLog("Debug",
-                                string.Format("Got Response from Hitbox: {0}",
-                                              response.Content));
             }
         }
 
@@ -291,26 +318,8 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
                 if(!_streams.Contains(item))
                 {
                     AddStream(item);
-                    _log.WriteToLog("Information",
-                                    string.Format(
-                                        "Added stream '{0}' from saved streams file to list.",
-                                        item));
                 }
-                
-            }/*
-            var lines = _textFileStreams.ReadWholeFileInLines();
-
-            if (lines.Count == 0)
-                return;
-            foreach (var line in lines.Where(line => !_streams.Contains(line)))
-            {
-                _streams.Add(line);
-                _log.WriteToLog("Information",
-                                string.Format(
-                                    "Added stream '{0}' from saved streams file to list.",
-                                    line));
             }
-             * */
         }
 
         private void LoadStreamData()
@@ -340,4 +349,5 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             reader.Close();
         }
     }
+    
 }

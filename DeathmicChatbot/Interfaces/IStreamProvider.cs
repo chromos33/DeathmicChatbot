@@ -1,10 +1,7 @@
-﻿#region Using
-
-using System;
+﻿using System;
 using System.Collections.Generic;
-
-#endregion
-
+using DeathmicChatbot.StreamInfo;
+//using DeathmicChatbot.StreamInfo.Hitbox;
 
 namespace DeathmicChatbot.Interfaces
 {
@@ -12,10 +9,13 @@ namespace DeathmicChatbot.Interfaces
     {
         event EventHandler<StreamEventArgs> StreamStarted;
         event EventHandler<StreamEventArgs> StreamStopped;
+        event EventHandler<StreamEventArgs> StreamGlobalNotification;
         bool AddStream(string stream);
         void RemoveStream(string stream);
         void CheckStreams();
         List<string> GetStreamInfoArray();
         string GetLink();
+        void StartTimer();
+        
     }
 }

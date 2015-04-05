@@ -1,10 +1,5 @@
-namespace DeathmicChatbot.StreamInfo.Twitch
+﻿namespace DeathmicChatbot.StreamInfo.Twitch
 {
-    // ReSharper disable UnusedMember.Global
-    // ReSharper disable UnusedAutoPropertyAccessor.Global
-    // ReSharper disable ClassNeverInstantiated.Global
-    // ReSharper disable InconsistentNaming
-
     public class Links3
     {
         public string Featured { get; set; }
@@ -13,9 +8,4 @@ namespace DeathmicChatbot.StreamInfo.Twitch
         public string Self { get; set; }
         public string Summary { get; set; }
     }
-
-    // ReSharper restore InconsistentNaming
-    // ReSharper restore ClassNeverInstantiated.Global
-    // ReSharper restore UnusedAutoPropertyAccessor.Global
-    // ReSharper restore UnusedMember.Global
 }

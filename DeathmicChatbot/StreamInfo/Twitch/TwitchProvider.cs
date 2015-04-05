@@ -1,6 +1,4 @@
-﻿#region Using
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -10,18 +8,12 @@ using RestSharp;
 using RestSharp.Deserializers;
 using RestSharp.Serializers;
 
-#endregion
-
-
 namespace DeathmicChatbot.StreamInfo.Twitch
 {
     public class TwitchProvider : IStreamProvider
     {
-        private const string STREAMS_FILE = "streams_twitch.txt";
-        private const string STREAMDATA_FILE = "streamdata_twitch.txt";
-        private readonly bool _bDebugMode;
         private readonly RestClient _client;
-        private readonly LogManager _log;
+        private const string STREAMDATA_FILE = "streamdata_twitch.txt";
         private readonly ConcurrentDictionary<string, TwitchStreamData>
             _streamData = new ConcurrentDictionary<string, TwitchStreamData>();
         private readonly StreamStopCounter _streamStopCounter =
@@ -31,10 +23,8 @@ namespace DeathmicChatbot.StreamInfo.Twitch
         private TwitchRootObject _lastroot;
         private XMLProvider xmlprovider;
 
-        public TwitchProvider(LogManager log, bool bDebugMode = false)
+        public TwitchProvider()
         {
-            _log = log;
-            _bDebugMode = bDebugMode;
             _client = new RestClient("https://api.twitch.tv");
             _streams = new List<string>();
 
@@ -46,7 +36,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         public event EventHandler<StreamEventArgs> StreamStarted;
         public event EventHandler<StreamEventArgs> StreamStopped;
-
+        public event EventHandler<StreamEventArgs> StreamGlobalNotification;
         public bool AddStream(string stream)
         {
 
@@ -54,7 +44,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             if (!_streams.Contains(stream))
             {
                 _streams.Add(stream);
-                //WriteStreamsToFile();
                 return true;
             }
             return false;
@@ -63,7 +52,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
         public void RemoveStream(string stream)
         {
             _streams.Remove(stream.ToLower());
-            //WriteStreamsToFile();
         }
 
         public void CheckStreams()
@@ -76,40 +64,59 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             // SSL certificates installed), this prevents the bot from crashing.
             if (obj == null)
                 return;
-
             RemoveStoppedStreams(obj);
-
             AddNewlyStartedStreams(obj);
-
+            
             WriteStreamDataToFile();
         }
 
         public List<string> GetStreamInfoArray()
         {
             List<string> streaminfoarray = new List<string>();
-            foreach(var stream in _streamData.Values)
+            foreach (var stream in _streamData.Values)
             {
+
                 try
                 {
+                    AddStreamdatatoXML(stream);
                     if (Convert.ToBoolean(xmlprovider.StreamInfo(stream.Stream.Channel.Name, "running")))
                     {
+                        string name = stream.Stream.Channel.Name.ToString();
+                        string Game = xmlprovider.StreamInfo(stream.Stream.Channel.Name, "game");
+                        string started = xmlprovider.StreamInfo(stream.Stream.Channel.Name, "starttime");
+                        DateTime _started = Convert.ToDateTime(started);
+                        TimeSpan duration = DateTime.Now.Subtract(_started);
+
                         streaminfoarray.Add(
                         String.Format(
-                            "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4:HH}:{4:mm} ago) ===== Link: {5}/{0}",
-                            stream.Stream.Channel.Name,
-                            stream.Stream.Channel.Game,
+                            "{0} is streaming! ===== Game: {1} ===== Message: {2} ===== Started: {3:t} o'clock ({4} ago) ===== Link: {5}",
+                            name,
+                            Game,
                             stream.Stream.Channel.Status,
-                            stream.Started,
-                            new DateTime(stream.TimeSinceStart.Ticks),
-                            GetLink()));
+                            started,
+                            duration.ToString(@"hh\:mm"),
+                            stream.Stream.Channel.Url.ToString()));
                     }
-                }catch (FormatException)
+                }
+                catch (FormatException)
                 {
 
                 }
-                
+
             }
             return streaminfoarray;
+        }
+        public void AddStreamdatatoXML(TwitchStreamData stream)
+        {
+            try
+            {
+                xmlprovider.AddStreamdata("twitch", stream);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
         }
 
         public string GetLink() { return "http://www.twitch.tv"; }
@@ -118,7 +125,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         private void LoadStreams()
         {
-            
+
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
 
             string[] streamlist = xmlprovider.StreamList("twitch").Split(',');
@@ -127,35 +134,14 @@ namespace DeathmicChatbot.StreamInfo.Twitch
                 if (!_streams.Contains(item))
                 {
                     _streams.Add(item);
-                    _log.WriteToLog("Information",
-                                    string.Format(
-                                        "Added stream '{0}' from saved streams file to list.",
-                                        item));
                 }
 
             }
-            /*
-            if (!File.Exists(STREAMS_FILE))
-                File.Create(STREAMS_FILE).Close();
-            var reader = new StreamReader(STREAMS_FILE);
-
-            while (!reader.EndOfStream)
-            {
-                var sLine = reader.ReadLine();
-                if (_streams.Contains(sLine))
-                    continue;
-                _streams.Add(sLine);
-                _log.WriteToLog("Information",
-                                string.Format(
-                                    "Added stream '{0}' from saved streams file to list.",
-                                    sLine));
-            }
-            reader.Close();
-           */
         }
 
         private void LoadStreamData()
         {
+            
             if (!File.Exists(STREAMDATA_FILE))
                 File.Create(STREAMDATA_FILE).Close();
             var reader = new StreamReader(STREAMDATA_FILE);
@@ -178,51 +164,26 @@ namespace DeathmicChatbot.StreamInfo.Twitch
                     _streamData.TryAdd(streamData.Stream.Channel.Name,
                                        streamData);
             }
-            reader.Close();
-        }
+            reader.Close();        }
 
         private TwitchRootObject GetOnlineStreams()
         {
             var req = new RestRequest("/kraken/streams", Method.GET);
             req.AddParameter("channel", ArrayToString(_streams));
-
             var response = _client.Execute(req);
-
-            WriteDebugInfoIfDebugMode(response);
-
             try
             {
                 var des = new JsonDeserializer();
                 var data = des.Deserialize<TwitchRootObject>(response);
+                System.Diagnostics.Debug.WriteLine(response.Content);
+                
                 _lastroot = data;
                 return data;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _log.WriteToLog("CaughtException",
-                                string.Format(
-                                    "Returning last stream state due to exception: {0}",
-                                    ex.Message));
                 return _lastroot;
             }
-        }
-
-        private void WriteDebugInfoIfDebugMode(IRestResponse response)
-        {
-            if (_bDebugMode)
-            {
-                _log.WriteToLog("Debug",
-                                string.Format("Got Response from Twitch: {0}",
-                                              response.Content));
-            }
-        }
-
-        private void WriteStreamsToFile()
-        {
-            var writer = new StreamWriter(STREAMS_FILE, false);
-            foreach (var stream in _streams)
-                writer.WriteLine(stream);
-            writer.Close();
         }
 
         private static string ArrayToString(IEnumerable<string> arr) { return string.Join(",", arr); }
@@ -232,79 +193,115 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             if (obj == null || obj.Streams == null || obj.Streams.Count == 0)
                 return;
 
-            foreach (var streamEventArgs in
-                from stream in
-                    (from stream in
-                         obj.Streams.Where(
-                             stream =>
-                             !_streamData.ContainsKey(stream.Channel.Name))
-                     let bTryAddresult =
-                         _streamData.TryAdd(stream.Channel.Name,
-                                            new TwitchStreamData
-                                            {
-                                                Started = DateTime.Now,
-                                                Stream = stream
-                                            })
-                     where bTryAddresult && StreamStarted != null
-                     select stream)
-                select new DeathmicChatbot.Stream
+            
+            
+            foreach(var stream in obj.Streams)
+            {
+                bool globalancounce = false;
+                if(_streamData.Keys.Contains(stream.Channel.Name))
                 {
-                    Channel = stream.Channel.Name,
-                    Game = stream.Game,
-                    Message = stream.Channel.Status
+                    globalancounce = true;
                 }
-                into stream1 select new StreamData
+                bool bTryAddresult = _streamData.TryAdd(stream.Channel.Name, new TwitchStreamData { Started = DateTime.Now, Stream = stream });
+
+                if(bTryAddresult)
                 {
-                    Stream = stream1,
-                    Started = DateTime.Now,
-                    StreamProvider = this
+                    // Probably helps differentiate between different Game Titles from Response
+                    string oldgame = xmlprovider.StreamInfo(stream.Channel.Name, "game");
+                    string _game = "";
+                    if (oldgame != stream.Channel.Game)
+                    {
+                        _game = stream.Channel.Game;
+                    }
+                    if (oldgame != stream.Game)
+                    {
+                        _game = stream.Game;
+                    }
+                    var _stream = new DeathmicChatbot.StreamInfo.Stream
+                    {
+                        Channel = stream.Channel.Name,
+                        Game = _game,
+                        Message = stream.Channel.Status
+                    };
+                    var _streamdata = new StreamData
+                    {
+                        Stream = _stream,
+                        Started = DateTime.Now,
+                        StreamProvider = this
+                    };
+                    StreamEventArgs streamEventArgs = new StreamEventArgs(_streamdata);                    
+                    StreamStarted(this, streamEventArgs);
                 }
-                into streamData select new StreamEventArgs(streamData))
-                StreamStarted(this, streamEventArgs);
+                if(!bTryAddresult && globalancounce)
+                {
+                    string oldgame = xmlprovider.StreamInfo(stream.Channel.Name, "game");
+                    string _game = "";
+                    if (oldgame != stream.Channel.Game)
+                    {
+                        _game = stream.Channel.Game;
+                    }
+                    if (oldgame != stream.Game)
+                    {
+                        _game = stream.Game;
+                    }
+
+                    var _stream = new DeathmicChatbot.StreamInfo.Stream
+                    {
+                        Channel = stream.Channel.Name,
+                        Game = _game,
+                        Message = stream.Channel.Status
+                    };
+                    var _streamdata = new StreamData
+                    {
+                        Stream = _stream,
+                        Started = DateTime.Now,
+                        StreamProvider = this
+                    };
+                    StreamEventArgs streamEventArgs = new StreamEventArgs(_streamdata);
+                    StreamGlobalNotification(this, streamEventArgs);
+                }
+                
+                
+            }
         }
 
         private void RemoveStoppedStreams(TwitchRootObject obj)
         {
-            foreach (var pair in from pair in _streamData
-                                 let bFound =
-                                     obj.Streams.Any(
-                                         stream =>
-                                         pair.Key == stream.Channel.Name)
-                                 where !bFound && StreamStopped != null
-                                 select pair)
+            foreach (var pair in from pair in _streamData where StreamStopped != null select pair)
             {
-                TwitchStreamData sd;
-
-                _streamStopCounter.StreamTriesToStop(pair.Key);
-                if (
-                    !_streamStopCounter.StreamHasTriedStoppingEnoughTimes(
-                        pair.Key) || !_streamData.TryRemove(pair.Key, out sd))
-                    continue;
-
-                _streamStopCounter.StreamHasStopped(pair.Key);
-
-                var stream = new DeathmicChatbot.Stream
+                bool bFound = obj.Streams.Any(stream => pair.Key == stream.Channel.Name);
+                if(!bFound)
                 {
-                    Channel = pair.Value.Stream.Channel.Name,
-                    Game = pair.Value.Stream.Game,
-                    Message = pair.Value.Stream.Channel.Status
-                };
+                    TwitchStreamData sd;
+                    _streamStopCounter.StreamTriesToStop(pair.Key);
+                    if(_streamStopCounter.StreamHasTriedStoppingEnoughTimes(pair.Key) || !_streamData.TryRemove(pair.Key,out sd))
+                    {
+                        continue;
+                    }
+                    _streamStopCounter.StreamHasStopped(pair.Key);
+                    var stream = new DeathmicChatbot.StreamInfo.Stream
+                    {
+                        Channel = pair.Value.Stream.Channel.Name,
+                        Game = pair.Value.Stream.Game,
+                        Message = pair.Value.Stream.Channel.Status
+                    };
+                    var streamData = new StreamData
+                    {
+                        Started = DateTime.Now,
+                        Stream = stream,
+                        StreamProvider = this
+                    };
+                    var streamEventArgs = new StreamEventArgs(streamData);
+                    StreamStopped(this, streamEventArgs);
+                    
 
-                var streamData = new StreamData
-                {
-                    Started = DateTime.Now,
-                    Stream = stream,
-                    StreamProvider = this
-                };
-
-                var streamEventArgs = new StreamEventArgs(streamData);
-
-                StreamStopped(this, streamEventArgs);
+                }
             }
         }
 
         private void WriteStreamDataToFile()
         {
+            
             var serializer = new JsonSerializer();
             var writer = new StreamWriter(STREAMDATA_FILE, false);
 
@@ -312,6 +309,10 @@ namespace DeathmicChatbot.StreamInfo.Twitch
                 writer.WriteLine(serializer.Serialize(pair.Value));
 
             writer.Close();
+        }
+        public void StartTimer()
+        {
+            // Only used in Hitbox but since i have to add it to interface ...
         }
     }
 }

@@ -1,9 +1,4 @@
-#region Using
-
-using System;
-
-#endregion
-
+﻿using System;
 
 namespace DeathmicChatbot.StreamInfo.Twitch
 {
