@@ -75,6 +75,9 @@ namespace DeathmicChatbot
                 if (!bot.thisclient.IsConnected)
                 {
                     bot.Dispose();
+                }
+                if(bot == null)
+                {
                     if (CheckForInternetConnection())
                     {
                         Console.WriteLine("Connection possible");
