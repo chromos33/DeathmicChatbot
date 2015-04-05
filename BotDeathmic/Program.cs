@@ -72,10 +72,14 @@ namespace DeathmicChatbot
             }
             while (true)
             {
-                if (!bot.thisclient.IsConnected)
+                if(bot != null)
                 {
-                    bot.Dispose();
+                    if (!bot.thisclient.IsConnected)
+                    {
+                        bot.Dispose();
+                    }
                 }
+                
                 if(bot == null)
                 {
                     if (CheckForInternetConnection())
