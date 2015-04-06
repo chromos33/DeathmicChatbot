@@ -136,12 +136,12 @@ namespace DeathmicChatbot.IRC
                 }
                 catch (Exception ex)
                 {
-                    ConsoleUtilities.WriteError("Error: {0}", ex.Message);
+                    Console.WriteLine("Error: {0}", ex.Message);
                 }
             }
             else
             {
-                ConsoleUtilities.WriteError("Command '{0}' not recognized.", command);
+                Console.WriteLine("Command '{0}' not recognized.", command);
             }
         }
 
@@ -162,7 +162,7 @@ namespace DeathmicChatbot.IRC
                 if (!connectedEvent.Wait(10000))
                 {
                     client.Dispose();
-                    ConsoleUtilities.WriteError("Connection to '{0}' timed out.", server);
+                    Console.WriteLine("Connection to '{0}' timed out.", server);
                     return;
                 }
             }

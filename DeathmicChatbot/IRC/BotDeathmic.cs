@@ -239,8 +239,7 @@ namespace DeathmicChatbot.IRC
             } catch(Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-            }
-                           
+            }           
         }
         #endregion
         #region commandinit
@@ -544,8 +543,8 @@ namespace DeathmicChatbot.IRC
                     {
                         if (checkparams.Count() == 0 || checkparams.Count() >= 4)
                         {
-                                client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
-                                client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
+                            client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
+                            client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
                             return;
                         }
                         if (checkparams[checkparams.Count() - 1] == "")
@@ -654,6 +653,22 @@ namespace DeathmicChatbot.IRC
 
                             }
                             else if (reason)
+                            {
+                                if (filteredTargets.Count() > 0)
+                                {
+                                    pickeduser = filteredTargets[Rnd.Next(filteredTargets.Count())];
+                                    if ((xmlprovider.CreateUserPick(reasonvalue, pickeduser)))
+                                    {
+                                        pickeduseroutput.Add(pickeduser);
+                                    }
+                                }
+                                else
+                                {
+                                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "No Users left after Ignorefilter");
+                                    return;
+                                }
+                            }
+                            else
                             {
                                 if (filteredTargets.Count() > 0)
                                 {

@@ -87,7 +87,6 @@
     <Compile Include="Interfaces\IURLHandler.cs" />
     <Compile Include="IRC\BasicIrcBot.cs" />
     <Compile Include="IRC\BotDeathmic.cs" />
-    <Compile Include="IRC\ConsoleUtilities.cs" />
     <Compile Include="IRC\IrcBot.cs" />
     <Compile Include="LinkParser\Imgur.cs" />
     <Compile Include="LinkParser\URLExtractor.cs" />

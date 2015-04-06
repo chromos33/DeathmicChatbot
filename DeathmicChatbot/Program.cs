@@ -20,7 +20,7 @@ namespace DeathmicChatbot
                 //bot.Run();
             }catch(Exception ex)
             {
-                ConsoleUtilities.WriteError("Fatal error: " + ex.Message);
+                Console.WriteLine("Fatal error: " + ex.Message);
                 Environment.ExitCode = 1;
             }
             finally
