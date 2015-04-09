@@ -174,7 +174,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             var response = _client.Execute(req);
             try
             {
-                Console.WriteLine(response);
+                Console.WriteLine(response.Content);
                 var des = new JsonDeserializer();
                 var data = des.Deserialize<TwitchRootObject>(response);
                 
