@@ -275,6 +275,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             // If no data gets returned then stream is hidden
             var req = new RestRequest("/media/live/" + sStream, Method.GET);
             var response = _restClientProvider.Execute(req);
+            Console.WriteLine(DateTime.Now);
             try
             {
                 var des = new JsonDeserializer();

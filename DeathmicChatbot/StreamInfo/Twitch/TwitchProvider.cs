@@ -170,17 +170,13 @@ namespace DeathmicChatbot.StreamInfo.Twitch
         private TwitchRootObject GetOnlineStreams()
         {
 
-            var URLwithParameters = "/kraken/streams?channel=";
-            URLwithParameters += ArrayToString(_streams);
-
-            var req = new RestRequest(URLwithParameters, Method.GET);
-            //req.AddParameter("channel", ArrayToString(_streams));
-            Console.WriteLine(req.Resource);
+            var req = new RestRequest("/kraken/streams", Method.GET);
+            req.AddParameter("channel", ArrayToString(_streams));
             
             var response = _client.Execute(req);
+            Console.WriteLine(DateTime.Now);
             try
             {
-                Console.WriteLine(response.Content);
                 var des = new JsonDeserializer();
                 var data = des.Deserialize<TwitchRootObject>(response);
                 
