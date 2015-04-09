@@ -175,8 +175,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             var req = new RestRequest("/kraken/streams", Method.GET);
             req.AddParameter("channel", ArrayToString(_streams));
             var response = _client.Execute(req);
-            Console.WriteLine(ArrayToString(_streams));
-            Console.WriteLine(response.Content);
             try
             {
                 var des = new JsonDeserializer();
@@ -201,7 +199,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             if (obj == null || obj.Streams == null || obj.Streams.Count == 0)
                 return;
 
-            
+            Console.WriteLine("AddNewlyStartedStreamscontinue");
             
             foreach(var stream in obj.Streams)
             {
