@@ -195,12 +195,9 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         private void AddNewlyStartedStreams(TwitchRootObject obj)
         {
-            Console.WriteLine("AddNewlyStartedStreams");
             if (obj == null || obj.Streams == null || obj.Streams.Count == 0)
                 return;
 
-            Console.WriteLine("AddNewlyStartedStreamscontinue");
-            
             foreach(var stream in obj.Streams)
             {
                 bool globalancounce = false;
