@@ -57,7 +57,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
         public void CheckStreams()
         {
             // Get all live streams from server
-            Console.WriteLine("CheckStreams");
             var obj = GetOnlineStreams();
 
             // If querying Twitch for running streams always fails (maybe Twitch
@@ -176,14 +175,13 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             {
                 var des = new JsonDeserializer();
                 var data = des.Deserialize<TwitchRootObject>(response);
-                Console.WriteLine("GetOnlineStreams");
+                System.Diagnostics.Debug.WriteLine(response.Content);
                 
                 _lastroot = data;
                 return data;
             }
             catch (Exception)
             {
-                Console.WriteLine("GetOnlineStreamsException");
                 return _lastroot;
             }
         }
@@ -192,7 +190,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         private void AddNewlyStartedStreams(TwitchRootObject obj)
         {
-            Console.WriteLine("AddNewlyStartedStreams");
             if (obj == null || obj.Streams == null || obj.Streams.Count == 0)
                 return;
 
@@ -270,7 +267,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         private void RemoveStoppedStreams(TwitchRootObject obj)
         {
-            Console.WriteLine("removeStoppedStreams");
             foreach (var pair in from pair in _streamData where StreamStopped != null select pair)
             {
                 bool bFound = obj.Streams.Any(stream => pair.Key == stream.Channel.Name);
