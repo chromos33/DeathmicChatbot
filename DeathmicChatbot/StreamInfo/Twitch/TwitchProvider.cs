@@ -190,7 +190,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             }
             catch (Exception ex)
             {
-                //Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.ToString());
                 return _lastroot;
             }
         }
