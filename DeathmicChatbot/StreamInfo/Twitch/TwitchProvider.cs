@@ -7,6 +7,8 @@ using DeathmicChatbot.Interfaces;
 using RestSharp;
 using RestSharp.Deserializers;
 using RestSharp.Serializers;
+using System.Net;
+using System.Net.Security;
 
 namespace DeathmicChatbot.StreamInfo.Twitch
 {
@@ -172,7 +174,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
             var req = new RestRequest("/kraken/streams", Method.GET);
             req.AddParameter("channel", ArrayToString(_streams));
-
+            ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(delegate { return true; });
             var response = _client.Execute(req);
             Console.WriteLine(response.ErrorException);
             Console.WriteLine(response.ErrorMessage);
