@@ -171,7 +171,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         private TwitchRootObject GetOnlineStreams()
         {
-
             var req = new RestRequest("/kraken/streams", Method.GET);
             req.AddParameter("channel", ArrayToString(_streams));
             var response = _client.Execute(req);
@@ -209,6 +208,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
                 if(bTryAddresult)
                 {
+                    Console.WriteLine("test");
                     // Probably helps differentiate between different Game Titles from Response
                     string oldgame = xmlprovider.StreamInfo(stream.Channel.Name, "game");
                     string _game = "";
@@ -237,6 +237,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
                 }
                 if(!bTryAddresult && globalancounce)
                 {
+                    Console.WriteLine("test2");
                     string oldgame = xmlprovider.StreamInfo(stream.Channel.Name, "game");
                     string _game = "";
                     if (oldgame != stream.Channel.Game)
@@ -270,7 +271,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
         private void RemoveStoppedStreams(TwitchRootObject obj)
         {
-            Console.WriteLine("removeStoppedStreams");
             foreach (var pair in from pair in _streamData where StreamStopped != null select pair)
             {
                 bool bFound = obj.Streams.Any(stream => pair.Key == stream.Channel.Name);
