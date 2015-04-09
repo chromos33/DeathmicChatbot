@@ -181,9 +181,9 @@ namespace DeathmicChatbot.StreamInfo.Twitch
                 _lastroot = data;
                 return data;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Console.WriteLine("GetOnlineStreamsException");
+                Console.WriteLine(ex.ToString());
                 return _lastroot;
             }
         }
