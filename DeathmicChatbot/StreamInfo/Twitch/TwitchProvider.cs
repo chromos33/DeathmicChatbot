@@ -171,8 +171,9 @@ namespace DeathmicChatbot.StreamInfo.Twitch
         {
 
             var req = new RestRequest("/kraken/streams", Method.GET);
+            req.AddHeader("Content-Type", "application/json;charset=utf-8");
             req.AddParameter("channel", ArrayToString(_streams));
-            Console.WriteLine(req.DateFormat);
+
             var response = _client.Execute(req);
             Console.WriteLine(response.ErrorMessage);
             try
