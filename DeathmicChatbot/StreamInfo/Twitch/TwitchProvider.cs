@@ -171,10 +171,10 @@ namespace DeathmicChatbot.StreamInfo.Twitch
         {
 
             var req = new RestRequest("/kraken/streams", Method.GET);
-            req.AddHeader("Accept", "application/json");
             req.AddParameter("channel", ArrayToString(_streams));
 
             var response = _client.Execute(req);
+            Console.WriteLine(response.ErrorException);
             Console.WriteLine(response.ErrorMessage);
             try
             {
