@@ -300,11 +300,12 @@ namespace DeathmicChatbot.IRC
             // TODO continue when streamprovider stuff implemented
             string message = xmlprovider.AddStream(parameters[0], source.Name);
             //_streamProviderManager.AddStream(commandArgs);
-            if (message == (source.Name + " added Stream to the streamlist"))
+            string username = source.Name.ToLower();
+            if (message == (username + " added Stream to the streamlist"))
             {
                 client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), String.Format("{0} added {1} to the streamlist", source.Name, parameters[0]));
             }
-            else if (message == (source.Name + " wanted to readd Stream to the streamlist."))
+            else if (message == (username + " wanted to readd Stream to the streamlist."))
             {
                 BotDeathmicMessageTarget target = new BotDeathmicMessageTarget();
                 target.Name = Properties.Settings.Default.Channel.ToString();
