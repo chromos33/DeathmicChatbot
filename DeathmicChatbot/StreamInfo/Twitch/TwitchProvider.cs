@@ -176,6 +176,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             req.AddParameter("channel", ArrayToString(_streams));
             var response = _client.Execute(req);
             Console.WriteLine(ArrayToString(_streams));
+            Console.WriteLine(response.Content);
             try
             {
                 var des = new JsonDeserializer();
