@@ -257,11 +257,10 @@ namespace DeathmicChatbot
         }
 
         #region stream stuff
-        public string AddStream(string channel, string user)
+        public int AddStream(string channel)
         {
             channel = channel.ToLower();
-            user = user.ToLower();
-            string answer = "";
+            int answer = 0;
             //Query XML File for User Update
             XDocument xdoc = new XDocument();
             if (!Directory.Exists("XML"))
@@ -274,8 +273,7 @@ namespace DeathmicChatbot
                 IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() where el.Attribute("Channel").Value == channel select el;
                 if (childlist.Count() > 0)
                 {
-
-                    answer = user + " wanted to readd Stream to the streamlist.";
+                    answer = 2;
                 }
                 else
                 {
@@ -289,7 +287,7 @@ namespace DeathmicChatbot
                             new XAttribute("provider", "")
                            );
                         xdoc.Element("Streams").Add(_element);
-                        answer = user + " added Stream to the streamlist";
+                        answer = 1;
 
                     }
                     catch (Exception ex)
@@ -308,7 +306,7 @@ namespace DeathmicChatbot
                             new XAttribute("running", "false"),
                             new XAttribute("provider", "")
                             )));
-                answer = user + " added Stream to the streamlist";
+                answer = 1;
             }
             xdoc.Save("XML/Streams.xml");
             return answer;
