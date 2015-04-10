@@ -7,6 +7,8 @@ using DeathmicChatbot.Interfaces;
 using RestSharp;
 using RestSharp.Deserializers;
 using RestSharp.Serializers;
+using System.Net;
+using System.Net.Security;
 
 namespace DeathmicChatbot.StreamInfo.Twitch
 {
@@ -57,6 +59,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
         public void CheckStreams()
         {
             // Get all live streams from server
+            Console.WriteLine("CheckStreams");
             var obj = GetOnlineStreams();
 
             // If querying Twitch for running streams always fails (maybe Twitch
@@ -175,13 +178,14 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             {
                 var des = new JsonDeserializer();
                 var data = des.Deserialize<TwitchRootObject>(response);
-                System.Diagnostics.Debug.WriteLine(response.Content);
+                
                 
                 _lastroot = data;
                 return data;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
                 return _lastroot;
             }
         }
@@ -193,8 +197,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             if (obj == null || obj.Streams == null || obj.Streams.Count == 0)
                 return;
 
-            
-            
             foreach(var stream in obj.Streams)
             {
                 bool globalancounce = false;

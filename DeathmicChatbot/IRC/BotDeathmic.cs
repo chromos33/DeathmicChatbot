@@ -239,8 +239,7 @@ namespace DeathmicChatbot.IRC
             } catch(Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-            }
-                           
+            }           
         }
         #endregion
         #region commandinit
@@ -298,20 +297,24 @@ namespace DeathmicChatbot.IRC
                 _streamProviderManager.AddStream(parameters[0]);
             }
             // TODO continue when streamprovider stuff implemented
-            string message = xmlprovider.AddStream(parameters[0], source.Name);
+            int message = xmlprovider.AddStream(parameters[0]);
             //_streamProviderManager.AddStream(commandArgs);
-            string username = source.Name.ToLower();
-            if (message == (username + " added Stream to the streamlist"))
+            if (message == 1)
             {
                 client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), String.Format("{0} added {1} to the streamlist", source.Name, parameters[0]));
             }
-            else if (message == (username + " wanted to readd Stream to the streamlist."))
+            else if (message == 2)
+
             {
                 BotDeathmicMessageTarget target = new BotDeathmicMessageTarget();
                 target.Name = Properties.Settings.Default.Channel.ToString();
 
                 string textMessage = "slaps " + source.Name + " around for being an idiot.";
                 ctcpClient1.SendAction(target, textMessage);
+            }
+            else if(message == 0)
+            {
+                client.LocalUser.SendNotice(source.Name, "There has been an error please report to a programmer.");
             }
             
         }
@@ -356,6 +359,7 @@ namespace DeathmicChatbot.IRC
         }
         private void OnStreamGlobalNotification(object sender, StreamEventArgs args)
         {
+            
             if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "true")
             {
                 if(xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
@@ -387,6 +391,7 @@ namespace DeathmicChatbot.IRC
 
         private void OnStreamStarted(object sender, StreamEventArgs args)
         {
+            Console.WriteLine("streamstarted");
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             if (xmlprovider.isinStreamList(args.StreamData.Stream.Channel))
             {
@@ -545,8 +550,8 @@ namespace DeathmicChatbot.IRC
                     {
                         if (checkparams.Count() == 0 || checkparams.Count() >= 4)
                         {
-                                client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
-                                client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
+                            client.LocalUser.SendNotice(source.Name, "The command to for PickRandomUser looks like this: '!PickRandomUser #[Number of Picks] R_[Reason] Ig_[Ignored User 1],[Ignored User 2]... no space'.");
+                            client.LocalUser.SendNotice(source.Name, "All parameter (and Order) are optional. [Reason] saves Picks into XML for later use filtering");
                             return;
                         }
                         if (checkparams[checkparams.Count() - 1] == "")
@@ -655,6 +660,22 @@ namespace DeathmicChatbot.IRC
 
                             }
                             else if (reason)
+                            {
+                                if (filteredTargets.Count() > 0)
+                                {
+                                    pickeduser = filteredTargets[Rnd.Next(filteredTargets.Count())];
+                                    if ((xmlprovider.CreateUserPick(reasonvalue, pickeduser)))
+                                    {
+                                        pickeduseroutput.Add(pickeduser);
+                                    }
+                                }
+                                else
+                                {
+                                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "No Users left after Ignorefilter");
+                                    return;
+                                }
+                            }
+                            else
                             {
                                 if (filteredTargets.Count() > 0)
                                 {
