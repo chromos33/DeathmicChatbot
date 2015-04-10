@@ -297,19 +297,23 @@ namespace DeathmicChatbot.IRC
                 _streamProviderManager.AddStream(parameters[0]);
             }
             // TODO continue when streamprovider stuff implemented
-            string message = xmlprovider.AddStream(parameters[0], source.Name);
+            int message = xmlprovider.AddStream(parameters[0]);
             //_streamProviderManager.AddStream(commandArgs);
-            if (message == (source.Name + " added Stream to the streamlist"))
+            if (message == 1)
             {
                 client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), String.Format("{0} added {1} to the streamlist", source.Name, parameters[0]));
             }
-            else if (message == (source.Name + " wanted to readd Stream to the streamlist."))
+            else if (message == 2)
             {
                 BotDeathmicMessageTarget target = new BotDeathmicMessageTarget();
                 target.Name = Properties.Settings.Default.Channel.ToString();
 
                 string textMessage = "slaps " + source.Name + " around for being an idiot.";
                 ctcpClient1.SendAction(target, textMessage);
+            }
+            else if(message == 0)
+            {
+                client.LocalUser.SendNotice(source.Name, "There has been an error please report to a programmer.");
             }
             
         }
@@ -354,6 +358,7 @@ namespace DeathmicChatbot.IRC
         }
         private void OnStreamGlobalNotification(object sender, StreamEventArgs args)
         {
+            
             if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "true")
             {
                 if(xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
@@ -385,7 +390,7 @@ namespace DeathmicChatbot.IRC
 
         private void OnStreamStarted(object sender, StreamEventArgs args)
         {
-            Console.WriteLine("test");
+            Console.WriteLine("streamstarted");
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             if (xmlprovider.isinStreamList(args.StreamData.Stream.Channel))
             {

@@ -208,7 +208,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
                 if(bTryAddresult)
                 {
-                    Console.WriteLine("test");
                     // Probably helps differentiate between different Game Titles from Response
                     string oldgame = xmlprovider.StreamInfo(stream.Channel.Name, "game");
                     string _game = "";
@@ -237,7 +236,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
                 }
                 if(!bTryAddresult && globalancounce)
                 {
-                    Console.WriteLine("test2");
                     string oldgame = xmlprovider.StreamInfo(stream.Channel.Name, "game");
                     string _game = "";
                     if (oldgame != stream.Channel.Game)
