@@ -304,6 +304,7 @@ namespace DeathmicChatbot.IRC
                 client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), String.Format("{0} added {1} to the streamlist", source.Name, parameters[0]));
             }
             else if (message == 2)
+
             {
                 BotDeathmicMessageTarget target = new BotDeathmicMessageTarget();
                 target.Name = Properties.Settings.Default.Channel.ToString();
