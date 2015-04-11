@@ -31,7 +31,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             _streams = new List<string>();
 
             LoadStreams();
-            LoadStreamData();
+            //LoadStreamData();
         }
 
         #region IStreamProvider Members
@@ -70,7 +70,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             RemoveStoppedStreams(obj);
             AddNewlyStartedStreams(obj);
             
-            WriteStreamDataToFile();
+            //WriteStreamDataToFile();
         }
 
         public List<string> GetStreamInfoArray()
@@ -81,7 +81,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
                 try
                 {
-                    AddStreamdatatoXML(stream);
                     if (Convert.ToBoolean(xmlprovider.StreamInfo(stream.Stream.Channel.Name, "running")))
                     {
                         string name = stream.Stream.Channel.Name.ToString();
@@ -231,7 +230,25 @@ namespace DeathmicChatbot.StreamInfo.Twitch
                         Started = DateTime.Now,
                         StreamProvider = this
                     };
-                    StreamEventArgs streamEventArgs = new StreamEventArgs(_streamdata);                    
+                    TwitchStreamData _tstreamdata = new TwitchStreamData();
+                    _tstreamdata.Started = DateTime.Now;
+                    _tstreamdata.Stream = new DeathmicChatbot.StreamInfo.Twitch.Stream();
+                    _tstreamdata.Stream.Channel = new DeathmicChatbot.StreamInfo.Twitch.Channel();
+                    _tstreamdata.Stream.Channel.Name = stream.Channel.Name;
+                    _tstreamdata.Stream.Channel.Mature = stream.Channel.Mature;
+                    _tstreamdata.Stream.Channel.ID = stream.Channel.ID;
+                    _tstreamdata.Stream.Channel.Delay = stream.Channel.Delay;
+                    _tstreamdata.Stream.Channel.Created_At = stream.Channel.Created_At;
+                    _tstreamdata.Stream.Channel.Display_Name = stream.Channel.Display_Name;
+                    _tstreamdata.Stream.Channel.Links = stream.Channel.Links;
+                    _tstreamdata.Stream.Channel.Profile_Banner = stream.Channel.Profile_Banner;
+                    _tstreamdata.Stream.Channel.Url = stream.Channel.Url;
+                    _tstreamdata.Stream.Channel.Updated_At = stream.Channel.Updated_At;
+                    _tstreamdata.Stream.Game = _game;
+                    _tstreamdata.Stream.Channel.Game = _game;
+
+                    AddStreamdatatoXML(_tstreamdata);
+                    StreamEventArgs streamEventArgs = new StreamEventArgs(_streamdata);
                     StreamStarted(this, streamEventArgs);
                 }
                 if(!bTryAddresult && globalancounce)

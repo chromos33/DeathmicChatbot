@@ -343,49 +343,57 @@ namespace DeathmicChatbot
         public bool AddStreamdata(string provider ,TwitchStreamData stream)
         {
             bool answer = false;
-
-            
-            if (File.Exists("XML/Streams.xml"))
+            try
             {
-                XDocument xdoc = XDocument.Load("XML/Streams.xml");
-                try
+                if (File.Exists("XML/Streams.xml"))
                 {
-                    if(provider == "twitch")
+                    XDocument xdoc = XDocument.Load("XML/Streams.xml");
+                    if (provider == "twitch")
                     {
                         IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() where el.Attribute("Channel").Value == stream.Stream.Channel.Name.ToString().ToLower() select el;
-                        foreach(var element in childlist)
+                        foreach (var element in childlist)
                         {
                             if (element.Attribute("game") == null)
                             {
                                 element.Add(new XAttribute("game", ""));
                             }
-                            
+                            string game = "";
                             string currentgame = element.Attribute("game").Value;
                             if (currentgame != stream.Stream.Channel.Game.ToString())
                             {
-                                element.Attribute("game").Value = stream.Stream.Channel.Game.ToString();
+                                game = stream.Stream.Channel.Game.ToString();
                             }
-                            if(currentgame != stream.Stream.Game.ToString())
+                            if (currentgame != stream.Stream.Game.ToString())
                             {
-                                element.Attribute("game").Value = stream.Stream.Game.ToString();
+                                game = stream.Stream.Game.ToString();
                             }
-                            if(element.Attribute("Provider") != null)
+                            if (element.Attribute("game") == null)
                             {
-                                element.Attribute("Provider").Value = stream.Stream.Channel.Url;
+                                element.Add(new XAttribute("game", game));
+                            }
+                            else
+                            {
+                                element.Attribute("game").Value = game;
+                            }
+
+
+                            if (element.Attribute("URL") == null)
+                            {
+                                element.Add(new XAttribute("URL", stream.Stream.Channel.Url));
+                            }
+                            else
+                            {
+                                element.Attribute("URL").Value = stream.Stream.Channel.Url;
                             }
                         }
                     }
                     answer = true;
                     xdoc.Save("XML/Streams.xml");
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-                
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
-
-            
             return answer;
         }
 
@@ -402,6 +410,7 @@ namespace DeathmicChatbot
                         if (element.Attribute("game") == null)
                         {
                             element.Add(new XAttribute("game", Game));
+                            xdoc.Save("XML/Streams.xml");
                         }
                         else
                         {
@@ -410,6 +419,7 @@ namespace DeathmicChatbot
                         if (element.Attribute("URL") == null)
                         {
                             element.Add(new XAttribute("URL", URL));
+                            xdoc.Save("XML/Streams.xml");
                         }
                         else
                         {
@@ -462,7 +472,7 @@ namespace DeathmicChatbot
                 {
                     foreach (var stream in childlist)
                     {
-                        answer.Add(stream.Attribute("Channel").Value + "," + stream.Attribute("Provider"));
+                        answer.Add(stream.Attribute("Channel").Value);
                     }
                 }
             }
