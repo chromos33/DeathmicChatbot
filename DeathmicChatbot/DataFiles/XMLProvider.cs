@@ -4,6 +4,8 @@ using System.Linq;
 using System.Xml.Linq;
 using System.IO;
 using DeathmicChatbot.StreamInfo.Twitch;
+using System.Globalization;
+using System.Threading;
 
 
 namespace DeathmicChatbot
@@ -13,6 +15,8 @@ namespace DeathmicChatbot
         #region User Stuff
         public string UserInfo(string nick)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             nick = nick.ToLower();
             string answer = "";
             if (File.Exists("XML/Users.xml"))
@@ -34,13 +38,15 @@ namespace DeathmicChatbot
                 }
                 else
                 {
-                    return "0," + DateTime.Now.ToString();
+                    return "0," + DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ");
                 }
             }
             return answer;
         }
         public string ToggleUserLogging(string nick)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             string answer = "";
             nick = nick.ToLower();
             if (File.Exists("XML/Users.xml"))
@@ -69,6 +75,8 @@ namespace DeathmicChatbot
         // returns All Users Ever Joined/Added and returns them in CSV data as string
         public string AllUserEverJoinedList()
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             string answer = "";
 
 
@@ -93,6 +101,8 @@ namespace DeathmicChatbot
 
         public List<String> LoggingUser()
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             List<String> answer = new List<string>();
 
 
@@ -110,6 +120,8 @@ namespace DeathmicChatbot
         //Adds User or Upates information like Visit Count and Last Visit
         public string AddorUpdateUser(string nick, bool leave = false)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             nick = nick.ToLower();
             string answer = "";
             //Query XML File for User Update
@@ -131,7 +143,7 @@ namespace DeathmicChatbot
                         foreach (XElement element in childlist)
                         {
 
-                            element.Attribute("LastVisit").Value = DateTime.Now.ToString();
+                            element.Attribute("LastVisit").Value = DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ");
                             if (!leave)
                             {
                                 int _visitcount = Int32.Parse(element.Attribute("VisitCount").Value);
@@ -151,7 +163,7 @@ namespace DeathmicChatbot
                     {
                         var _element = new XElement("User",
                             new XAttribute("Nick", nick),
-                            new XAttribute("LastVisit", DateTime.Now.ToString()),
+                            new XAttribute("LastVisit", DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ")),
                             new XAttribute("VisitCount", "1"),
                             new XAttribute("isloggingOp", "false"),
                             new XElement("Alias", new XAttribute("Value", ""))
@@ -171,7 +183,7 @@ namespace DeathmicChatbot
 
                 xdoc = new XDocument(new XElement("Users", new XElement("User",
                         new XAttribute("Nick", nick),
-                        new XAttribute("LastVisit", DateTime.Now.ToString()),
+                        new XAttribute("LastVisit", DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ")),
                         new XAttribute("VisitCount", "1"),
                         new XAttribute("isloggingOp", "false"),
                             new XElement("Alias", new XAttribute("Value", ""))
@@ -183,7 +195,6 @@ namespace DeathmicChatbot
         }
         #endregion
         //returns data of User as CSV data in following order VisitCount, LastVisit
-        
         //Adds Alias to User (?where to use no idea implemented because SQlite structure suggested Usage)
         public string AddAlias(string nick, string alias)
         {
@@ -259,6 +270,8 @@ namespace DeathmicChatbot
         #region stream stuff
         public int AddStream(string channel)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             int answer = 0;
             //Query XML File for User Update
@@ -314,6 +327,8 @@ namespace DeathmicChatbot
 
         public string RemoveStream(string channel)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             string answer = "";
             if (File.Exists("XML/Streams.xml"))
@@ -342,55 +357,67 @@ namespace DeathmicChatbot
         // Twitch Double Game Title Fix
         public bool AddStreamdata(string provider ,TwitchStreamData stream)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             bool answer = false;
-
-            
-            if (File.Exists("XML/Streams.xml"))
+            try
             {
-                XDocument xdoc = XDocument.Load("XML/Streams.xml");
-                try
+                if (File.Exists("XML/Streams.xml"))
                 {
-                    if(provider == "twitch")
+                    XDocument xdoc = XDocument.Load("XML/Streams.xml");
+                    if (provider == "twitch")
                     {
                         IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() where el.Attribute("Channel").Value == stream.Stream.Channel.Name.ToString().ToLower() select el;
-                        foreach(var element in childlist)
+                        foreach (var element in childlist)
                         {
                             if (element.Attribute("game") == null)
                             {
                                 element.Add(new XAttribute("game", ""));
                             }
-                            
+                            string game = "";
                             string currentgame = element.Attribute("game").Value;
                             if (currentgame != stream.Stream.Channel.Game.ToString())
                             {
-                                element.Attribute("game").Value = stream.Stream.Channel.Game.ToString();
+                                game = stream.Stream.Channel.Game.ToString();
                             }
-                            if(currentgame != stream.Stream.Game.ToString())
+                            if (currentgame != stream.Stream.Game.ToString())
                             {
-                                element.Attribute("game").Value = stream.Stream.Game.ToString();
+                                game = stream.Stream.Game.ToString();
                             }
-                            if(element.Attribute("Provider") != null)
+                            if (element.Attribute("game") == null)
                             {
-                                element.Attribute("Provider").Value = stream.Stream.Channel.Url;
+                                element.Add(new XAttribute("game", game));
+                            }
+                            else
+                            {
+                                element.Attribute("game").Value = game;
+                            }
+
+
+                            if (element.Attribute("URL") == null)
+                            {
+                                element.Add(new XAttribute("URL", stream.Stream.Channel.Url));
+                            }
+                            else
+                            {
+                                element.Attribute("URL").Value = stream.Stream.Channel.Url;
                             }
                         }
                     }
                     answer = true;
                     xdoc.Save("XML/Streams.xml");
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-                
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
-
-            
             return answer;
         }
 
         public void AddStreamLivedata(string Channel, string URL,string Game)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             if (File.Exists("XML/Streams.xml"))
             {
                 XDocument xdoc = XDocument.Load("XML/Streams.xml");
@@ -402,6 +429,7 @@ namespace DeathmicChatbot
                         if (element.Attribute("game") == null)
                         {
                             element.Add(new XAttribute("game", Game));
+                            xdoc.Save("XML/Streams.xml");
                         }
                         else
                         {
@@ -410,6 +438,7 @@ namespace DeathmicChatbot
                         if (element.Attribute("URL") == null)
                         {
                             element.Add(new XAttribute("URL", URL));
+                            xdoc.Save("XML/Streams.xml");
                         }
                         else
                         {
@@ -428,6 +457,8 @@ namespace DeathmicChatbot
         //returns Streamlist as CSV data
         public string StreamList(string provider = "")
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             //Maybe add provider filtering but have to somewhere add the provider
             string answer = "";
 
@@ -450,6 +481,8 @@ namespace DeathmicChatbot
         }
         public string[] OnlineStreamList()
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             //Maybe add provider filtering but have to somewhere add the provider
             List<string> answer = new List<string>();
 
@@ -462,7 +495,7 @@ namespace DeathmicChatbot
                 {
                     foreach (var stream in childlist)
                     {
-                        answer.Add(stream.Attribute("Channel").Value + "," + stream.Attribute("Provider"));
+                        answer.Add(stream.Attribute("Channel").Value);
                     }
                 }
             }
@@ -470,6 +503,8 @@ namespace DeathmicChatbot
         }
         public bool isinStreamList(string stream)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             stream = stream.ToLower();
             //Maybe add provider filtering but have to somewhere add the provider
             bool answer = false;
@@ -488,6 +523,8 @@ namespace DeathmicChatbot
 
         public void StreamStartUpdate(string channel, bool end = false)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             if (File.Exists("XML/Streams.xml"))
             {
@@ -514,19 +551,19 @@ namespace DeathmicChatbot
                                     System.Diagnostics.Debug.WriteLine(diff.TotalSeconds);
                                     if (diff.TotalSeconds > 600)
                                     {
-                                        stream.Attribute("starttime").Value = DateTime.Now.ToString();
+                                        stream.Attribute("starttime").Value = DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ");
                                     }
                                     
                                 }
                                 catch (FormatException)
                                 {
-                                    stream.Attribute("starttime").Value = DateTime.Now.ToString();
+                                    stream.Attribute("starttime").Value = DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ");
                                 }
                                 stream.Attribute("running").Value = "true";
                             }
                             if(stream.Attribute("lastglobalnotice") == null)
                             {
-                                stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now)));
+                                stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ"))));
                             }
                         }
                         xdoc.Save("XML/Streams.xml");
@@ -543,7 +580,7 @@ namespace DeathmicChatbot
                             if (stream.Attribute("running").Value == "true")
                             {
                                 stream.Attribute("running").Value = "false";
-                                stream.Attribute("stoptime").Value = DateTime.Now.ToString();
+                                stream.Attribute("stoptime").Value = DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ");
                             }
                         }
                         xdoc.Save("XML/Streams.xml");
@@ -553,6 +590,8 @@ namespace DeathmicChatbot
         }
         public string StreamInfo(string channel, string inforequested)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             string answer = "";
             if (File.Exists("XML/Streams.xml"))
@@ -582,6 +621,8 @@ namespace DeathmicChatbot
 
         public bool GlobalAnnouncementDue(string channel)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             bool answer = false;
 
             channel = channel.ToLower();
@@ -597,7 +638,7 @@ namespace DeathmicChatbot
                     {
                         if (stream.Attribute("lastglobalnotice") == null)
                         {
-                            stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now)));
+                            stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ"))));
                             answer = true;
                             xdoc.Save("XML/Streams.xml");
                         }
@@ -608,7 +649,7 @@ namespace DeathmicChatbot
                             if (difference.TotalMinutes >= 60)
                             {
                                 answer = true;
-                                stream.Attribute("lastglobalnotice").Value = Convert.ToString(DateTime.Now);
+                                stream.Attribute("lastglobalnotice").Value = Convert.ToString(DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ"));
                                 xdoc.Save("XML/Streams.xml");
                             }
                             
@@ -627,6 +668,8 @@ namespace DeathmicChatbot
         #region PickUserStuff etc
         public bool CreateUserPick(string Reason,string User)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             Reason = Reason.ToLower();
             User = User.ToLower();
             bool anser = false;
@@ -707,6 +750,8 @@ namespace DeathmicChatbot
         }
         public bool CheckforUserinPick(string Reason,string User)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             Reason = Reason.ToLower();
             User = User.ToLower();
@@ -759,6 +804,8 @@ namespace DeathmicChatbot
         }
         public string ReasonUserList(string Reason ="")
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             string answer = "";
             Reason = Reason.ToLower();
             //Query XML File for User Update
@@ -823,6 +870,8 @@ namespace DeathmicChatbot
         }
         public bool DeletePickData(string Reason)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             bool answer = false;
             Reason = Reason.ToLower();
             //Query XML File for User Update
@@ -861,6 +910,8 @@ namespace DeathmicChatbot
         #region Counter stuff
         public string Counter(string counter,bool reset = false, bool read = false)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             XDocument xdoc = new XDocument();
             int count = 0;
             if (!Directory.Exists("XML"))

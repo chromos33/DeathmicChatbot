@@ -35,7 +35,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             _restClientProvider = new RestClientProvider(new RestClient("http://api.hitbox.tv"));
 
             LoadStreams();
-            LoadStreamData();
+            //LoadStreamData();
         }
         public void StartTimer()
         {
@@ -159,6 +159,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
                                 Stream = stream1,
                                 StreamProvider = this
                             };
+                            xmlprovider.AddStreamLivedata(hitboxStreamData.Stream.media_user_name, "http://www.hitbox.tv/" + hitboxStreamData.Stream.media_user_name.ToString(),hitboxStreamData.Stream.category_name);
 
                             var streamEventArgs = new StreamEventArgs(streamData);
                             StreamStarted(this, streamEventArgs);
@@ -223,7 +224,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
                             StreamGlobalNotification(this, streamEventArgs);
                         }
                     }
-                    WriteStreamDataToFile();
+                    //WriteStreamDataToFile();
                 }
                 else
                 {
