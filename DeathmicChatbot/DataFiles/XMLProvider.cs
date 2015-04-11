@@ -4,6 +4,8 @@ using System.Linq;
 using System.Xml.Linq;
 using System.IO;
 using DeathmicChatbot.StreamInfo.Twitch;
+using System.Globalization;
+using System.Threading;
 
 
 namespace DeathmicChatbot
@@ -183,7 +185,6 @@ namespace DeathmicChatbot
         }
         #endregion
         //returns data of User as CSV data in following order VisitCount, LastVisit
-        
         //Adds Alias to User (?where to use no idea implemented because SQlite structure suggested Usage)
         public string AddAlias(string nick, string alias)
         {

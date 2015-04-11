@@ -11,6 +11,8 @@ using DeathmicChatbot.StreamInfo.Twitch;
 using DeathmicChatbot.StreamInfo.Hitbox;
 using DeathmicChatbot.LinkParser;
 using DeathmicChatbot.Interfaces;
+using System.Globalization;
+
 namespace DeathmicChatbot.IRC
 {
     public class BotDeathmicMessageTarget : IrcDotNet.IIrcMessageTarget // Summary:
@@ -68,6 +70,9 @@ namespace DeathmicChatbot.IRC
         public BotDeathmic()
             : base()
         {
+
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             _voting = new VoteManager();
             _voting.VotingStarted += VotingOnVotingStarted;
             _voting.VotingEnded += VotingOnVotingEnded;
