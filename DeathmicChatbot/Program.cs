@@ -4,7 +4,7 @@ using IrcDotNet;
 using System;
 using IrcDotNet.Ctcp;
 using System.Net;
-
+using System.Threading;
 namespace DeathmicChatbot
 {
     class Program
@@ -91,6 +91,7 @@ namespace DeathmicChatbot
                     }
                     System.Threading.Thread.Sleep(1000);
                 }
+                Thread.Sleep(5000);
             }
         }
 
