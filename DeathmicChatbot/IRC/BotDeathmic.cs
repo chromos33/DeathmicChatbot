@@ -402,7 +402,7 @@ namespace DeathmicChatbot.IRC
 
         private void OnStreamStarted(object sender, StreamEventArgs args)
         {
-            Console.WriteLine("streamstarted");
+           
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             if (xmlprovider.isinStreamList(args.StreamData.Stream.Channel))
             {
