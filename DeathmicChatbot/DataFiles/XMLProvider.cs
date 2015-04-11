@@ -15,6 +15,8 @@ namespace DeathmicChatbot
         #region User Stuff
         public string UserInfo(string nick)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             nick = nick.ToLower();
             string answer = "";
             if (File.Exists("XML/Users.xml"))
@@ -43,6 +45,8 @@ namespace DeathmicChatbot
         }
         public string ToggleUserLogging(string nick)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             string answer = "";
             nick = nick.ToLower();
             if (File.Exists("XML/Users.xml"))
@@ -71,6 +75,8 @@ namespace DeathmicChatbot
         // returns All Users Ever Joined/Added and returns them in CSV data as string
         public string AllUserEverJoinedList()
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             string answer = "";
 
 
@@ -95,6 +101,8 @@ namespace DeathmicChatbot
 
         public List<String> LoggingUser()
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             List<String> answer = new List<string>();
 
 
@@ -112,6 +120,8 @@ namespace DeathmicChatbot
         //Adds User or Upates information like Visit Count and Last Visit
         public string AddorUpdateUser(string nick, bool leave = false)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             nick = nick.ToLower();
             string answer = "";
             //Query XML File for User Update
@@ -260,6 +270,8 @@ namespace DeathmicChatbot
         #region stream stuff
         public int AddStream(string channel)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             int answer = 0;
             //Query XML File for User Update
@@ -315,6 +327,8 @@ namespace DeathmicChatbot
 
         public string RemoveStream(string channel)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             string answer = "";
             if (File.Exists("XML/Streams.xml"))
@@ -343,6 +357,8 @@ namespace DeathmicChatbot
         // Twitch Double Game Title Fix
         public bool AddStreamdata(string provider ,TwitchStreamData stream)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             bool answer = false;
             try
             {
@@ -400,6 +416,8 @@ namespace DeathmicChatbot
 
         public void AddStreamLivedata(string Channel, string URL,string Game)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             if (File.Exists("XML/Streams.xml"))
             {
                 XDocument xdoc = XDocument.Load("XML/Streams.xml");
@@ -439,6 +457,8 @@ namespace DeathmicChatbot
         //returns Streamlist as CSV data
         public string StreamList(string provider = "")
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             //Maybe add provider filtering but have to somewhere add the provider
             string answer = "";
 
@@ -461,6 +481,8 @@ namespace DeathmicChatbot
         }
         public string[] OnlineStreamList()
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             //Maybe add provider filtering but have to somewhere add the provider
             List<string> answer = new List<string>();
 
@@ -481,6 +503,8 @@ namespace DeathmicChatbot
         }
         public bool isinStreamList(string stream)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             stream = stream.ToLower();
             //Maybe add provider filtering but have to somewhere add the provider
             bool answer = false;
@@ -499,6 +523,8 @@ namespace DeathmicChatbot
 
         public void StreamStartUpdate(string channel, bool end = false)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             if (File.Exists("XML/Streams.xml"))
             {
@@ -564,6 +590,8 @@ namespace DeathmicChatbot
         }
         public string StreamInfo(string channel, string inforequested)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             string answer = "";
             if (File.Exists("XML/Streams.xml"))
@@ -593,6 +621,8 @@ namespace DeathmicChatbot
 
         public bool GlobalAnnouncementDue(string channel)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             bool answer = false;
 
             channel = channel.ToLower();
@@ -638,6 +668,8 @@ namespace DeathmicChatbot
         #region PickUserStuff etc
         public bool CreateUserPick(string Reason,string User)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             Reason = Reason.ToLower();
             User = User.ToLower();
             bool anser = false;
@@ -718,6 +750,8 @@ namespace DeathmicChatbot
         }
         public bool CheckforUserinPick(string Reason,string User)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             Reason = Reason.ToLower();
             User = User.ToLower();
@@ -770,6 +804,8 @@ namespace DeathmicChatbot
         }
         public string ReasonUserList(string Reason ="")
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             string answer = "";
             Reason = Reason.ToLower();
             //Query XML File for User Update
@@ -834,6 +870,8 @@ namespace DeathmicChatbot
         }
         public bool DeletePickData(string Reason)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             bool answer = false;
             Reason = Reason.ToLower();
             //Query XML File for User Update
@@ -872,6 +910,8 @@ namespace DeathmicChatbot
         #region Counter stuff
         public string Counter(string counter,bool reset = false, bool read = false)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             XDocument xdoc = new XDocument();
             int count = 0;
             if (!Directory.Exists("XML"))
