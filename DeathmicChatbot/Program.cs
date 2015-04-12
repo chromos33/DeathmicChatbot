@@ -5,6 +5,8 @@ using System;
 using IrcDotNet.Ctcp;
 using System.Net;
 using System.Threading;
+using System.IO;
+
 namespace DeathmicChatbot
 {
     class Program
@@ -12,15 +14,12 @@ namespace DeathmicChatbot
         public static BotDeathmic bot = null;
         static void Main(string[] args)
         {
-            Console.WriteLine(System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Length);
-            if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Length > 1)
+            if(!File.Exists(Directory.GetCurrentDirectory()+"/botlock"))
             {
-                Environment.Exit(1);
-            }
-            else
-            {
+                
                 try
                 {
+                    File.Create(Directory.GetCurrentDirectory() + "/botlock");
                     ConnectBot();
                     // bot.Run starts console interface with input for commands not really needed
                     //bot.Run();
@@ -35,6 +34,10 @@ namespace DeathmicChatbot
                     if (bot != null)
                         bot.Dispose();
                 }
+            }
+            else
+            {
+                Environment.Exit(1);
             }
         }
         static void ConnectBot()
