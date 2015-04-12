@@ -12,23 +12,30 @@ namespace DeathmicChatbot
         public static BotDeathmic bot = null;
         static void Main(string[] args)
         {
-            
-            try
+            Console.WriteLine(System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Length);
+            if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Length > 1)
             {
-                ConnectBot();
-                // bot.Run starts console interface with input for commands not really needed
-                //bot.Run();
-            }catch(Exception ex)
-            {
-                Console.WriteLine("Fatal error: " + ex.Message);
-                Environment.ExitCode = 1;
+                Environment.Exit(1);
             }
-            finally
+            else
             {
-                if (bot != null)
-                    bot.Dispose();
+                try
+                {
+                    ConnectBot();
+                    // bot.Run starts console interface with input for commands not really needed
+                    //bot.Run();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Fatal error: " + ex.Message);
+                    Environment.ExitCode = 1;
+                }
+                finally
+                {
+                    if (bot != null)
+                        bot.Dispose();
+                }
             }
-
         }
         static void ConnectBot()
         {
@@ -85,6 +92,7 @@ namespace DeathmicChatbot
                 {
                     if (CheckForInternetConnection())
                     {
+                        // Integrate Self kill if Connection possible but nor irc connection because nick etc is already in use etc
                         Console.WriteLine("Connection possible");
                         ConnectBot();
                         break;
