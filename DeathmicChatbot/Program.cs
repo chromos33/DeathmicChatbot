@@ -5,6 +5,8 @@ using System;
 using IrcDotNet.Ctcp;
 using System.Net;
 using System.Threading;
+using System.IO;
+
 namespace DeathmicChatbot
 {
     class Program
@@ -12,23 +14,31 @@ namespace DeathmicChatbot
         public static BotDeathmic bot = null;
         static void Main(string[] args)
         {
-            
-            try
+            if(!File.Exists(Directory.GetCurrentDirectory()+"/botlock"))
             {
-                ConnectBot();
-                // bot.Run starts console interface with input for commands not really needed
-                //bot.Run();
-            }catch(Exception ex)
-            {
-                Console.WriteLine("Fatal error: " + ex.Message);
-                Environment.ExitCode = 1;
+                
+                try
+                {
+                    File.Create(Directory.GetCurrentDirectory() + "/botlock");
+                    ConnectBot();
+                    // bot.Run starts console interface with input for commands not really needed
+                    //bot.Run();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Fatal error: " + ex.Message);
+                    Environment.ExitCode = 1;
+                }
+                finally
+                {
+                    if (bot != null)
+                        bot.Dispose();
+                }
             }
-            finally
+            else
             {
-                if (bot != null)
-                    bot.Dispose();
+                Environment.Exit(1);
             }
-
         }
         static void ConnectBot()
         {
@@ -85,6 +95,7 @@ namespace DeathmicChatbot
                 {
                     if (CheckForInternetConnection())
                     {
+                        // Integrate Self kill if Connection possible but nor irc connection because nick etc is already in use etc
                         Console.WriteLine("Connection possible");
                         ConnectBot();
                         break;
