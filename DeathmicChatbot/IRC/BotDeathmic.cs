@@ -41,7 +41,7 @@ namespace DeathmicChatbot.IRC
     public class BotDeathmic : BasicIrcBot
     {
         #region global Definitions
-        protected bool debug = true;
+        protected bool debug = false;
 
         private static bool automaticmessages = false;
 
@@ -163,7 +163,6 @@ namespace DeathmicChatbot.IRC
             }
             else
             {
-                thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, "Reconnecting");
                 Reconnect();
             }
             

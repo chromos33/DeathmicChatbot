@@ -106,6 +106,7 @@ namespace DeathmicChatbot
                     {
                         // Integrate Self kill if Connection possible but nor irc connection because nick etc is already in use etc
                         Console.WriteLine("Connection possible");
+                        timestamp = DateTime.Now;
                         ConnectBot();
                         break;
                     }
