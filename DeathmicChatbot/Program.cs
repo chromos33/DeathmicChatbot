@@ -98,12 +98,17 @@ namespace DeathmicChatbot
                 
                 if(bot == null)
                 {
+                    Console.WriteLine("Connection Check");
                     if (CheckForInternetConnection())
                     {
                         // Integrate Self kill if Connection possible but nor irc connection because nick etc is already in use etc
                         Console.WriteLine("Connection possible");
                         ConnectBot();
                         break;
+                    }
+                    if (DateTime.Now.Subtract(timestamp).TotalSeconds >= 600)
+                    {
+                        Environment.Exit(1);
                     }
                     System.Threading.Thread.Sleep(1000);
                 }
