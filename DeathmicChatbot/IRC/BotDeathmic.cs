@@ -135,6 +135,7 @@ namespace DeathmicChatbot.IRC
         {
             Console.WriteLine("Reconnect");
             ReconnectInbound = false;
+            _streamProviderManager = null;
             thisclient.Disconnect();
             
         }

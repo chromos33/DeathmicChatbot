@@ -18,12 +18,6 @@ namespace DeathmicChatbot
         {
             if(!File.Exists(Directory.GetCurrentDirectory()+"/botlock"))
             {
-                ProcessThreadCollection currentThreads = Process.GetCurrentProcess().Threads;
-
-                foreach (ProcessThread thread in currentThreads)
-                {
-                    Console.WriteLine(thread.Id);
-                }
                 timestamp = DateTime.Now;
                 try
                 {
@@ -105,12 +99,6 @@ namespace DeathmicChatbot
                 
                 if(bot == null)
                 {
-                    ProcessThreadCollection currentThreads = Process.GetCurrentProcess().Threads;
-
-                    foreach (ProcessThread thread in currentThreads)
-                    {
-                        Console.WriteLine(thread.Id);
-                    }
                     Console.WriteLine("Connection Check");
                     if (CheckForInternetConnection())
                     {
