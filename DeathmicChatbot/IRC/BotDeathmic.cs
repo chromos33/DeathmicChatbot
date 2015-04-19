@@ -41,7 +41,7 @@ namespace DeathmicChatbot.IRC
     public class BotDeathmic : BasicIrcBot
     {
         #region global Definitions
-        protected bool debug = false;
+        protected bool debug = true;
 
         private static bool automaticmessages = false;
 
