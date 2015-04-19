@@ -12,11 +12,12 @@ namespace DeathmicChatbot
     class Program
     {
         public static BotDeathmic bot = null;
+        public static DateTime timestamp;
         static void Main(string[] args)
         {
             if(!File.Exists(Directory.GetCurrentDirectory()+"/botlock"))
             {
-                
+                timestamp = DateTime.Now;
                 try
                 {
                     File.Create(Directory.GetCurrentDirectory() + "/botlock");
@@ -86,6 +87,10 @@ namespace DeathmicChatbot
                 {
                     if (!bot.thisclient.IsConnected)
                     {
+                        if(DateTime.Now.Subtract(timestamp).TotalSeconds >= 600)
+                        {
+                            Environment.Exit(1);
+                        }
                         bot.Dispose();
                         bot = null;
                     }
