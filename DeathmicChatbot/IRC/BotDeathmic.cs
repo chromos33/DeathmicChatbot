@@ -41,6 +41,8 @@ namespace DeathmicChatbot.IRC
     public class BotDeathmic : BasicIrcBot
     {
         #region global Definitions
+        protected bool debug = false;
+
         private static bool automaticmessages = false;
 
         private static StreamProviderManager _streamProviderManager;
@@ -125,7 +127,14 @@ namespace DeathmicChatbot.IRC
                 reconnectimer.Dispose();
             }
 
-            reconnectimer = new System.Timers.Timer(60000);
+            if (!debug)
+            {
+                reconnectimer = new System.Timers.Timer(60000);
+            }
+            else
+            {
+                reconnectimer = new System.Timers.Timer(120000);
+            }
             reconnectimer.Elapsed += OnReconnectTimer;
             reconnectimer.Enabled = true;
         }
@@ -140,15 +149,24 @@ namespace DeathmicChatbot.IRC
         }
         private void OnReconnectTimer(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (!ReconnectInbound && !Disconnected)
+            if (!debug)
             {
-                ReconnectInbound = true;
-                thisclient.LocalUser.SendMessage(Properties.Settings.Default.Name, "!reconnect");
+                if (!ReconnectInbound && !Disconnected)
+                {
+                    ReconnectInbound = true;
+                    thisclient.LocalUser.SendMessage(Properties.Settings.Default.Name, "!reconnect");
+                }
+                else
+                {
+                    Reconnect();
+                }
             }
             else
             {
+                thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, "Reconnecting");
                 Reconnect();
             }
+            
         }
         private void ReconnectDisableRequester(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
