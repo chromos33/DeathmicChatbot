@@ -94,6 +94,7 @@ namespace DeathmicChatbot
                         }
                         bot.Dispose();
                         bot = null;
+                        GC.Collect();
                     }
                 }
                 

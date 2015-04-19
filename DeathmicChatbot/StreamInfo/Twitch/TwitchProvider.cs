@@ -12,7 +12,7 @@ using System.Net.Security;
 
 namespace DeathmicChatbot.StreamInfo.Twitch
 {
-    public class TwitchProvider : IStreamProvider,IDisposable
+    public class TwitchProvider : IStreamProvider
     {
         private readonly RestClient _client;
         private const string STREAMDATA_FILE = "streamdata_twitch.txt";
@@ -32,9 +32,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
             LoadStreams();
             //LoadStreamData();
-        }
-        public void Dispose() {
-            GC.SuppressFinalize(this);
         }
         #region IStreamProvider Members
 
