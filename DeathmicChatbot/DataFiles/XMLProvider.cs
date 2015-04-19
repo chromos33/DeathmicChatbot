@@ -38,7 +38,7 @@ namespace DeathmicChatbot
                 }
                 else
                 {
-                    return "0," + DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ");
+                    return "0," + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 }
             }
             return answer;
@@ -143,7 +143,7 @@ namespace DeathmicChatbot
                         foreach (XElement element in childlist)
                         {
 
-                            element.Attribute("LastVisit").Value = DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ");
+                            element.Attribute("LastVisit").Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                             if (!leave)
                             {
                                 int _visitcount = Int32.Parse(element.Attribute("VisitCount").Value);
@@ -163,7 +163,7 @@ namespace DeathmicChatbot
                     {
                         var _element = new XElement("User",
                             new XAttribute("Nick", nick),
-                            new XAttribute("LastVisit", DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ")),
+                            new XAttribute("LastVisit", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                             new XAttribute("VisitCount", "1"),
                             new XAttribute("isloggingOp", "false"),
                             new XElement("Alias", new XAttribute("Value", ""))
@@ -183,7 +183,7 @@ namespace DeathmicChatbot
 
                 xdoc = new XDocument(new XElement("Users", new XElement("User",
                         new XAttribute("Nick", nick),
-                        new XAttribute("LastVisit", DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ")),
+                        new XAttribute("LastVisit", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                         new XAttribute("VisitCount", "1"),
                         new XAttribute("isloggingOp", "false"),
                             new XElement("Alias", new XAttribute("Value", ""))
@@ -551,19 +551,19 @@ namespace DeathmicChatbot
                                     System.Diagnostics.Debug.WriteLine(diff.TotalSeconds);
                                     if (diff.TotalSeconds > 600)
                                     {
-                                        stream.Attribute("starttime").Value = DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ");
+                                        stream.Attribute("starttime").Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                                     }
                                     
                                 }
                                 catch (FormatException)
                                 {
-                                    stream.Attribute("starttime").Value = DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ");
+                                    stream.Attribute("starttime").Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                                 }
                                 stream.Attribute("running").Value = "true";
                             }
                             if(stream.Attribute("lastglobalnotice") == null)
                             {
-                                stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ"))));
+                                stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))));
                             }
                         }
                         xdoc.Save("XML/Streams.xml");
@@ -580,7 +580,7 @@ namespace DeathmicChatbot
                             if (stream.Attribute("running").Value == "true")
                             {
                                 stream.Attribute("running").Value = "false";
-                                stream.Attribute("stoptime").Value = DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ");
+                                stream.Attribute("stoptime").Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                             }
                         }
                         xdoc.Save("XML/Streams.xml");
@@ -638,7 +638,7 @@ namespace DeathmicChatbot
                     {
                         if (stream.Attribute("lastglobalnotice") == null)
                         {
-                            stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ"))));
+                            stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))));
                             answer = true;
                             xdoc.Save("XML/Streams.xml");
                         }
@@ -649,7 +649,7 @@ namespace DeathmicChatbot
                             if (difference.TotalMinutes >= 60)
                             {
                                 answer = true;
-                                stream.Attribute("lastglobalnotice").Value = Convert.ToString(DateTime.Now.ToString("yyyy-MM-ddTHH:mmZ"));
+                                stream.Attribute("lastglobalnotice").Value = Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                                 xdoc.Save("XML/Streams.xml");
                             }
                             

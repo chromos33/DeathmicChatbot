@@ -9,6 +9,7 @@ namespace DeathmicChatbot.StreamInfo
 {
     public class StreamProviderManager
     {
+        bool disposed = false;
         private readonly Thread _streamCheckThread;
         private readonly List<IStreamProvider> _streamProviders =
             new List<IStreamProvider>();
