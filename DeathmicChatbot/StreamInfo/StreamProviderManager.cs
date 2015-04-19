@@ -7,8 +7,9 @@ using DeathmicChatbot.Properties;
 
 namespace DeathmicChatbot.StreamInfo
 {
-    public class StreamProviderManager
+    public class StreamProviderManager : IDisposable
     {
+        bool disposed = false;
         private readonly Thread _streamCheckThread;
         private readonly List<IStreamProvider> _streamProviders =
             new List<IStreamProvider>();
@@ -97,5 +98,28 @@ namespace DeathmicChatbot.StreamInfo
         public event EventHandler<StreamEventArgs> StreamStarted;
         public event EventHandler<StreamEventArgs> StreamStopped;
         public event EventHandler<StreamEventArgs> StreamGlobalNotification;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                foreach(var streamprovider in _streamProviders)
+                {
+                    streamprovider.Dispose();
+                }
+            }
+
+            // Free any unmanaged objects here. 
+            //
+            disposed = true;
+        }
     }
 }
