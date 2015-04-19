@@ -6,6 +6,7 @@ using IrcDotNet.Ctcp;
 using System.Net;
 using System.Threading;
 using System.IO;
+using System.Diagnostics;
 
 namespace DeathmicChatbot
 {
@@ -17,6 +18,12 @@ namespace DeathmicChatbot
         {
             if(!File.Exists(Directory.GetCurrentDirectory()+"/botlock"))
             {
+                ProcessThreadCollection currentThreads = Process.GetCurrentProcess().Threads;
+
+                foreach (ProcessThread thread in currentThreads)
+                {
+                    Console.WriteLine(thread.Id);
+                }
                 timestamp = DateTime.Now;
                 try
                 {
@@ -98,6 +105,12 @@ namespace DeathmicChatbot
                 
                 if(bot == null)
                 {
+                    ProcessThreadCollection currentThreads = Process.GetCurrentProcess().Threads;
+
+                    foreach (ProcessThread thread in currentThreads)
+                    {
+                        Console.WriteLine(thread.Id);
+                    }
                     Console.WriteLine("Connection Check");
                     if (CheckForInternetConnection())
                     {
