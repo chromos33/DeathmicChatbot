@@ -6,17 +6,19 @@ using IrcDotNet.Ctcp;
 using System.Net;
 using System.Threading;
 using System.IO;
+using System.Diagnostics;
 
 namespace DeathmicChatbot
 {
     class Program
     {
         public static BotDeathmic bot = null;
+        public static DateTime timestamp;
         static void Main(string[] args)
         {
             if(!File.Exists(Directory.GetCurrentDirectory()+"/botlock"))
             {
-                
+                timestamp = DateTime.Now;
                 try
                 {
                     File.Create(Directory.GetCurrentDirectory() + "/botlock");
@@ -86,19 +88,31 @@ namespace DeathmicChatbot
                 {
                     if (!bot.thisclient.IsConnected)
                     {
+                        Console.WriteLine("Object Terminated");
+                        if(DateTime.Now.Subtract(timestamp).TotalSeconds >= 600)
+                        {
+                            Environment.Exit(1);
+                        }
                         bot.Dispose();
                         bot = null;
+                        GC.Collect();
                     }
                 }
                 
                 if(bot == null)
                 {
+                    Console.WriteLine("Connection Check");
                     if (CheckForInternetConnection())
                     {
                         // Integrate Self kill if Connection possible but nor irc connection because nick etc is already in use etc
                         Console.WriteLine("Connection possible");
+                        timestamp = DateTime.Now;
                         ConnectBot();
                         break;
+                    }
+                    if (DateTime.Now.Subtract(timestamp).TotalSeconds >= 600)
+                    {
+                        Environment.Exit(1);
                     }
                     System.Threading.Thread.Sleep(1000);
                 }

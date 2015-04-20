@@ -34,15 +34,6 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("BotDeathmicdev")]
-        public string Name {
-            get {
-                return ((string)(this["Name"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("15")]
         public int StreamcheckIntervalSeconds {
             get {
@@ -61,19 +52,28 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#deathmictest")]
-        public string Channel {
+        [global::System.Configuration.DefaultSettingValueAttribute("irc.quakenet.org")]
+        public string Server {
             get {
-                return ((string)(this["Channel"]));
+                return ((string)(this["Server"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("irc.quakenet.org")]
-        public string Server {
+        [global::System.Configuration.DefaultSettingValueAttribute("BotDeathmicdev")]
+        public string Name {
             get {
-                return ((string)(this["Server"]));
+                return ((string)(this["Name"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#deathmictest")]
+        public string Channel {
+            get {
+                return ((string)(this["Channel"]));
             }
         }
     }

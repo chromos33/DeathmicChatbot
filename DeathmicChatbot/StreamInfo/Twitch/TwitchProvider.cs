@@ -33,7 +33,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
             LoadStreams();
             //LoadStreamData();
         }
-
         #region IStreamProvider Members
 
         public event EventHandler<StreamEventArgs> StreamStarted;
