@@ -89,7 +89,7 @@ namespace DeathmicChatbot
                     if (!bot.thisclient.IsConnected)
                     {
                         Console.WriteLine("Object Terminated");
-                        if(DateTime.Now.Subtract(timestamp).TotalSeconds >= 150)
+                        if (DateTime.Now.Subtract(timestamp).TotalSeconds >= 150 && DateTime.Now.Subtract(timestamp).TotalSeconds <= 200)
                         {
                             Environment.Exit(1);
                         }
