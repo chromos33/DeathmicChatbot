@@ -89,7 +89,7 @@ namespace DeathmicChatbot
                     if (!bot.thisclient.IsConnected)
                     {
                         Console.WriteLine("Object Terminated");
-                        if(DateTime.Now.Subtract(timestamp).TotalSeconds >= 600)
+                        if (DateTime.Now.Subtract(timestamp).TotalSeconds >= 150 && DateTime.Now.Subtract(timestamp).TotalSeconds <= 200)
                         {
                             Environment.Exit(1);
                         }
@@ -106,11 +106,11 @@ namespace DeathmicChatbot
                     {
                         // Integrate Self kill if Connection possible but nor irc connection because nick etc is already in use etc
                         Console.WriteLine("Connection possible");
-                        timestamp = DateTime.Now;
+                        System.Threading.Thread.Sleep(1000);
                         ConnectBot();
                         break;
                     }
-                    if (DateTime.Now.Subtract(timestamp).TotalSeconds >= 600)
+                    if (DateTime.Now.Subtract(timestamp).TotalSeconds >= 150 && DateTime.Now.Subtract(timestamp).TotalSeconds <= 200)
                     {
                         Environment.Exit(1);
                     }
