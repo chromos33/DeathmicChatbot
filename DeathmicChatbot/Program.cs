@@ -16,7 +16,7 @@ namespace DeathmicChatbot
         public static DateTime timestamp;
         static void Main(string[] args)
         {
-            if(!File.Exists(Directory.GetCurrentDirectory()+"/botlock"))
+            if(!File.Exists(Directory.GetCurrentDirectory()+"/botlock") || Settings.Default.Debug)
             {
                 timestamp = DateTime.Now;
                 try
@@ -44,6 +44,7 @@ namespace DeathmicChatbot
         }
         static void ConnectBot()
         {
+            System.Threading.Thread.Sleep(1000);
             bot = new BotDeathmic();
             bot.Connect(Settings.Default.Server, bot.RegistrationInfo);
             //Quakenet connect duration fix
@@ -84,15 +85,12 @@ namespace DeathmicChatbot
             }
             while (true)
             {
+                System.Threading.Thread.Sleep(1000);
                 if(bot != null)
                 {
                     if (!bot.thisclient.IsConnected)
                     {
                         Console.WriteLine("Object Terminated");
-                        if (DateTime.Now.Subtract(timestamp).TotalSeconds >= 150 && DateTime.Now.Subtract(timestamp).TotalSeconds <= 200)
-                        {
-                            Environment.Exit(1);
-                        }
                         bot.Dispose();
                         bot = null;
                         GC.Collect();
@@ -102,6 +100,10 @@ namespace DeathmicChatbot
                 if(bot == null)
                 {
                     Console.WriteLine("Connection Check");
+                    if (DateTime.Now.Subtract(timestamp).TotalSeconds >= 150 && DateTime.Now.Subtract(timestamp).TotalSeconds <= 240)
+                    {
+                        Environment.Exit(1);
+                    }
                     if (CheckForInternetConnection())
                     {
                         // Integrate Self kill if Connection possible but nor irc connection because nick etc is already in use etc
@@ -109,10 +111,6 @@ namespace DeathmicChatbot
                         System.Threading.Thread.Sleep(1000);
                         ConnectBot();
                         break;
-                    }
-                    if (DateTime.Now.Subtract(timestamp).TotalSeconds >= 150 && DateTime.Now.Subtract(timestamp).TotalSeconds <= 200)
-                    {
-                        Environment.Exit(1);
                     }
                     System.Threading.Thread.Sleep(1000);
                 }

@@ -1,31 +1,23 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using Google.YouTube;
 using DeathmicChatbot.Interfaces;
+using System.Net;
+using Newtonsoft.Json.Linq;
+using System.IO;
+using System.Text;
 
 namespace DeathmicChatbot.LinkParser
 {
     internal class YoutubeHandler : IURLHandler
     {
         private readonly Regex _reg;
-        private readonly YouTubeRequest _request;
 
         public YoutubeHandler()
         {
-            var settings = new YouTubeRequestSettings("Youtube Title Bot",
-                                                      "AI39si6DFGChi5M0rnrX6p5dasT6STlFELYpJdbxdVXR3L1-Cj5RzNUU2nsm2LPmshlVGHuYmeaZ30zGJgqdhSSNoWQgJmEEDA");
-            _request = new YouTubeRequest(settings);
+
             _reg =
                 new Regex(
                     "^(?:https?\\:\\/\\/)?(?:www\\.)?(?:youtu\\.be\\/|youtube\\.com\\/(?:embed\\/|v\\/|watch\\?v\\=))([\\w-]{10,12})(?:[\\&\\?\\#].*?)*?(?:[\\&\\?\\#]t=([\\dhm]+s))?$");
-        }
-
-        public Video GetVideoInfo(string addr)
-        {
-            var videoEntryUrl =
-                new Uri("http://gdata.youtube.com/feeds/api/videos/" + addr);
-            Console.WriteLine(addr);
-            return _request.Retrieve<Video>(videoEntryUrl);
         }
 
         public string IsYtLink(string txt)
@@ -36,16 +28,46 @@ namespace DeathmicChatbot.LinkParser
 
         public bool handleURL(string URL, IrcDotNet.IrcClient ctx)
         {
+            string answer ="";
             var match = IsYtLink(URL);
-            Console.WriteLine(URL);
-            if (match != null)
+            if(match != null)
             {
-                ctx.LocalUser.SendMessage(Properties.Settings.Default.Channel,GetInfoString(GetVideoInfo(match)));
+                string url = "https://www.googleapis.com/youtube/v3/videos";
+                // video ID
+                url += "?id=";
+                url += match;
+                // API Token
+                url += "&key=";
+                url += "AIzaSyBQwWTl6Md5oOm858tKi4xIBGH3ELSaa_A";
+                // Fields
+                url += "&fields=";
+                url += "items%28id,snippet%28channelId,title,categoryId%29,statistics%29&part=snippet,statistics";
+                WebRequest request = WebRequest.Create(url);
+                WebResponse response = request.GetResponse();
+                Stream receivedstream = response.GetResponseStream();
+                Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
+                StreamReader readStream = new StreamReader(receivedstream, encode);
+                Char[] read = new Char[1000000];
+                // setting max Chars for read (1M suffice aprox. 4700 Tickets)
+                int count = readStream.Read(read, 0, 1000000);
+                String str = "";
+                while (count > 0)
+                {
+                    str = new String(read, 0, count);
+                    count = readStream.Read(read, 0, 1000000);
+                }
+                JObject obj = JObject.Parse(str);
+                JArray jarr = (JArray)obj["items"];
+
+                foreach (var item in jarr)
+                {
+                    answer = item["snippet"].SelectToken("title").ToString();
+
+                }
+                ctx.LocalUser.SendMessage(Properties.Settings.Default.Channel, answer);
                 return true;
             }
             return false;
         }
-
-        public static string GetInfoString(Video vi) { return vi.Title + " " + Math.Round(vi.RatingAverage, 2) + "Ø"; }
     }
 }
