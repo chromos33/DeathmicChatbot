@@ -61,7 +61,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("BotDeathmicdev")]
+        [global::System.Configuration.DefaultSettingValueAttribute("BotDeathmic")]
         public string Name {
             get {
                 return ((string)(this["Name"]));
@@ -70,7 +70,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("#deathmictest")]
+        [global::System.Configuration.DefaultSettingValueAttribute("#deathmic")]
         public string Channel {
             get {
                 return ((string)(this["Channel"]));
@@ -79,7 +79,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool Debug {
             get {
                 return ((bool)(this["Debug"]));
