@@ -214,7 +214,7 @@ namespace DeathmicChatbot.IRC
                     {
                         string _streamname = streamname.Replace(",", "");
                         thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
-                                                           "Stream running: {0} ({1}) at {2}",
+                                                           "Stream running: _{0}_ ({1}) at {2}",
                                                            _streamname,
                                                            xmlprovider.StreamInfo(_streamname, "game"),
                                                            xmlprovider.StreamInfo(_streamname, "URL")
@@ -358,7 +358,7 @@ namespace DeathmicChatbot.IRC
             {
                 string[] streamprovidersplit = stream.Split(',');
                 //TODO add provider link completion
-                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), streamprovidersplit[0] + " is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[0], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[0], "URL"));
+                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),"_"+ streamprovidersplit[0] + "_ is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[0], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[0], "URL"));
             }
             if (xmlprovider.OnlineStreamList().Count() == 0)
             {
@@ -377,7 +377,7 @@ namespace DeathmicChatbot.IRC
                                   DateTime.Now,
                                   args.StreamData.Stream.Channel);
                 thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel,String.Format(
-                                                       "Stream stopped after {1}: {0}",
+                                                       "Stream stopped after _{1}_: {0}",
                                                        args.StreamData.Stream
                                                            .Channel,
                                                        duration));
@@ -407,7 +407,7 @@ namespace DeathmicChatbot.IRC
                     }
                     xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
                     thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format(
-                                                           "Stream running: {0} ({1}) at {2}/{0}",
+                                                           "Stream running: _{0}_ ({1}) at {2}/{0}",
                                                            args.StreamData.Stream
                                                                .Channel,
                                                            game,
@@ -437,7 +437,7 @@ namespace DeathmicChatbot.IRC
                               args.StreamData.Stream.Channel);
                     
                     thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format(
-                                                           "Stream started: {0} ({1}: {2}) at {3}/{0}",
+                                                           "Stream started: _{0}_ ({1}: {2}) at {3}/{0}",
                                                            args.StreamData.Stream
                                                                .Channel,
                                                            args.StreamData.Stream.Game,
@@ -634,56 +634,66 @@ namespace DeathmicChatbot.IRC
                             }
                             if (multiple && reason)
                             {
-                                for (int i = 0; int.Parse(multiplevalue) > i; i++)
+                                int tries = int.Parse(multiplevalue);
+                                if (int.Parse(multiplevalue) > filteredTargets.Count())
                                 {
-                                    int randcounter = 0;
-                                    if(filteredTargets.Count() > 0)
-                                    {
-                                        do
-                                        {
-                                            randcounter++;
-                                            pickeduser = filteredTargets[Rnd.Next(filteredTargets.Count())];
-                                            if (xmlprovider.CheckforUserinPick(reasonvalue, pickeduser) == false)
-                                            {
-                                                xmlprovider.CreateUserPick(reasonvalue, pickeduser);
-                                                pickeduseroutput.Add(pickeduser);
-                                                break;
-                                            }
-                                            if (randcounter == 20)
-                                            {
-                                                break;
-                                            }
-                                        } while (xmlprovider.CheckforUserinPick(reasonvalue, pickeduser) == false);
-                                    }
-                                    else
-                                    {
-                                        client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "No Users left after Ignorefilter");
-                                        return;
-                                    } 
+                                    tries = filteredTargets.Count();
                                 }
+                                
+                                if(filteredTargets.Count() > 0)
+                                {
+                                    foreach (string user in filteredTargets.ToList())
+                                    {
+                                        if (xmlprovider.CheckforUserinPick(reasonvalue, user))
+                                        {
+                                            filteredTargets.Remove(user);
+                                        }
+                                        Console.WriteLine(filteredTargets.Count());
+                                        if (filteredTargets.Count() == 0)
+                                        {
+                                            client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "No Users left that have not been chosen yet or that are in the ignore filter");
+                                            return;
+                                        }
+                                    }
+                                    for (int i = 0; tries > i; i++)
+                                    {
+                                        pickeduser = filteredTargets[Rnd.Next(filteredTargets.Count())];
+                                        xmlprovider.CreateUserPick(reasonvalue, pickeduser);
+                                        pickeduseroutput.Add(pickeduser);
+                                        filteredTargets.Remove(pickeduser);
+
+                                        if (filteredTargets.Count() == 0)
+                                        {
+                                            client.LocalUser.SendNotice(source.Name, "Not enough Users left in the Channel to completely fulfill your request.");
+                                            break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "No Users left after Ignorefilter");
+                                    return;
+                                } 
                             }
                             else if (multiple)
                             {
                                 if (filteredTargets.Count() > 0)
                                 {
-                                    for (int i = 0; int.Parse(multiplevalue) > i; i++)
+                                    int tries = int.Parse(multiplevalue);
+                                    if (int.Parse(multiplevalue) > filteredTargets.Count())
                                     {
-                                        int randcounter = 0;
-                                        do
+                                        tries = filteredTargets.Count();
+                                    }
+                                    for (int i = 0; tries > i; i++)
+                                    {
+                                        pickeduser = filteredTargets[Rnd.Next(filteredTargets.Count())];
+                                        pickeduseroutput.Add(pickeduser);
+                                        filteredTargets.Remove(pickeduser);
+                                        if (filteredTargets.Count() == 0)
                                         {
-                                            randcounter++;
-                                            pickeduser = filteredTargets[Rnd.Next(filteredTargets.Count())];
-                                            if (!pickeduseroutput.Contains(pickeduser))
-                                            {
-                                                pickeduseroutput.Add(pickeduser);
-                                                break;
-                                            }
-                                            if (randcounter == 20)
-                                            {
-                                                break;
-                                            }
-                                        } while (!pickeduseroutput.Contains(pickeduser));
-
+                                            client.LocalUser.SendNotice(source.Name, "Not enough Users left in the Channel to completely fulfill your request.");
+                                            break;
+                                        }
                                     }
                                 }
                                 else
