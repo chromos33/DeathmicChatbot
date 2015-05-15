@@ -376,11 +376,11 @@ namespace DeathmicChatbot
                             }
                             string game = "";
                             string currentgame = element.Attribute("game").Value;
-                            if (currentgame != stream.Stream.Channel.Game.ToString())
+                            if (currentgame != stream.Stream.Channel.Game.ToString() && stream.Stream.Channel.Game.ToString() != "")
                             {
                                 game = stream.Stream.Channel.Game.ToString();
                             }
-                            if (currentgame != stream.Stream.Game.ToString())
+                            if (currentgame != stream.Stream.Game.ToString() && stream.Stream.Game.ToString() != "")
                             {
                                 game = stream.Stream.Game.ToString();
                             }

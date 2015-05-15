@@ -13,12 +13,10 @@ namespace DeathmicChatbot
     class Program
     {
         public static BotDeathmic bot = null;
-        public static DateTime timestamp;
         static void Main(string[] args)
         {
             if(!File.Exists(Directory.GetCurrentDirectory()+"/botlock") || Settings.Default.Debug)
             {
-                timestamp = DateTime.Now;
                 try
                 {
                     File.Create(Directory.GetCurrentDirectory() + "/botlock");
@@ -99,11 +97,6 @@ namespace DeathmicChatbot
                 
                 if(bot == null)
                 {
-                    Console.WriteLine("Connection Check");
-                    if (DateTime.Now.Subtract(timestamp).TotalSeconds >= 150 && DateTime.Now.Subtract(timestamp).TotalSeconds <= 240)
-                    {
-                        Environment.Exit(1);
-                    }
                     if (CheckForInternetConnection())
                     {
                         // Integrate Self kill if Connection possible but nor irc connection because nick etc is already in use etc

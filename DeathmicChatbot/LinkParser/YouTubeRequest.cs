@@ -8,9 +8,7 @@ using System.Text;
 
 namespace DeathmicChatbot.LinkParser
 {
-    //TODO: Handle Playlist Requests
-    //Request should look like this 
-    //https://www.googleapis.com/youtube/v3/playlists?id=id&key=key&part=snippet
+  
     internal class YoutubeHandler : IURLHandler
     {
         private readonly Regex _reg;
@@ -28,6 +26,9 @@ namespace DeathmicChatbot.LinkParser
             var match = _reg.Match(txt);
             return match.Success ? match.Groups[1].Value : null;
         }
+        //TODO: Handle Playlist Requests
+        //Request should look like this 
+        //https://www.googleapis.com/youtube/v3/playlists?id=id&key=key&part=snippet
 
         public bool handleURL(string URL, IrcDotNet.IrcClient ctx)
         {
@@ -35,6 +36,7 @@ namespace DeathmicChatbot.LinkParser
             var match = IsYtLink(URL);
             if(match != null)
             {
+                Console.WriteLine("teste");
                 string url = "https://www.googleapis.com/youtube/v3/videos";
                 // video ID
                 url += "?id=";
@@ -69,6 +71,47 @@ namespace DeathmicChatbot.LinkParser
                 }
                 ctx.LocalUser.SendMessage(Properties.Settings.Default.Channel, answer);
                 return true;
+            }
+            else
+            {
+                if(URL.IndexOf("playlist?list") > 0)
+                {
+                    string url = "https://www.googleapis.com/youtube/v3/playlists";
+                    // video ID
+                    url += "?id=";
+                    url += URL.Substring(URL.IndexOf("playlist?list=") + 14, URL.Length - (URL.IndexOf("playlist?list=") + 14));
+                    url += "&fields=items%2Fsnippet";
+                    // API Token
+                    url += "&key=";
+                    url += "AIzaSyBQwWTl6Md5oOm858tKi4xIBGH3ELSaa_A";
+                    // Fields
+                    url += "&part=snippet";
+                    System.Diagnostics.Debug.WriteLine(url);
+                    WebRequest request = WebRequest.Create(url);
+                    WebResponse response = request.GetResponse();
+                    Stream receivedstream = response.GetResponseStream();
+                    Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
+                    StreamReader readStream = new StreamReader(receivedstream, encode);
+                    Char[] read = new Char[1000000];
+                    // setting max Chars for read (1M suffice aprox. 4700 Tickets)
+                    int count = readStream.Read(read, 0, 1000000);
+                    String str = "";
+                    while (count > 0)
+                    {
+                        str = new String(read, 0, count);
+                        count = readStream.Read(read, 0, 1000000);
+                    }
+                    JObject obj = JObject.Parse(str);
+                    JArray jarr = (JArray)obj["items"];
+
+                    foreach (var item in jarr)
+                    {
+                        answer = item["snippet"].SelectToken("title").ToString();
+
+                    }
+                    ctx.LocalUser.SendMessage(Properties.Settings.Default.Channel, answer);
+                    return true;
+                }
             }
             return false;
         }
