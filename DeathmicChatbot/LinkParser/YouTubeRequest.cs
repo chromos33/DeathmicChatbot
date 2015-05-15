@@ -8,6 +8,9 @@ using System.Text;
 
 namespace DeathmicChatbot.LinkParser
 {
+    //TODO: Handle Playlist Requests
+    //Request should look like this 
+    //https://www.googleapis.com/youtube/v3/playlists?id=id&key=key&part=snippet
     internal class YoutubeHandler : IURLHandler
     {
         private readonly Regex _reg;
