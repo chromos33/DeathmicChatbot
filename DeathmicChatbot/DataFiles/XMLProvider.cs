@@ -196,10 +196,6 @@ namespace DeathmicChatbot
         #endregion
         public void DateTimeCorrection()
         {
-            if (!Directory.Exists("XML"))
-            {
-                Directory.CreateDirectory("XML");
-            }
             if (File.Exists("XML/Users.xml"))
             {
                 XDocument xdoc = XDocument.Load("XML/Users.xml");
@@ -208,9 +204,17 @@ namespace DeathmicChatbot
                 {
                     foreach (XElement item in childlist)
                     {
-                        DateTime OldDateTime = DateTime.ParseExact(item.Attribute("LastVisit").Value, "dd.MM.yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-                        Console.WriteLine(OldDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
-                        item.Attribute("LastVisit").Value = OldDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+                        try
+                        {
+                            DateTime OldDateTime = DateTime.ParseExact(item.Attribute("LastVisit").Value, "dd.MM.yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+                            Console.WriteLine(OldDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                            item.Attribute("LastVisit").Value = OldDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+                        }
+                        catch(Exception)
+                        {
+                            
+                        }
+                        
                     }
                     xdoc.Save("XML/Users.xml");
                 }
