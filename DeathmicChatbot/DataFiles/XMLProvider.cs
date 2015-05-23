@@ -135,7 +135,7 @@ namespace DeathmicChatbot
                 xdoc = XDocument.Load("XML/Users.xml");
                 try
                 {
-                    IEnumerable<XElement> childlist = xdoc.Root.Elements().Where(user => user.Attribute("Nick").Value == nick || user.Elements("Alias").Any(alias => alias.Attribute("Value").Value == nick));
+                    IEnumerable<XElement> childlist = xdoc.Root.Elements().Where(user => user.Attribute("Nick").Value == nick);
 
                     if (childlist.Count() > 0)
                     {
@@ -194,6 +194,28 @@ namespace DeathmicChatbot
             return answer;
         }
         #endregion
+        public void DateTimeCorrection()
+        {
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/Users.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Users.xml");
+                IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() select el;
+                if (childlist.Count() > 0)
+                {
+                    foreach (XElement item in childlist)
+                    {
+                        DateTime OldDateTime = DateTime.ParseExact(item.Attribute("LastVisit").Value, "dd.MM.yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+                        Console.WriteLine(OldDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                        item.Attribute("LastVisit").Value = OldDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+                    }
+                    xdoc.Save("XML/Users.xml");
+                }
+            }
+        }
         //returns data of User as CSV data in following order VisitCount, LastVisit
         //Adds Alias to User (?where to use no idea implemented because SQlite structure suggested Usage)
         public string AddAlias(string nick, string alias)

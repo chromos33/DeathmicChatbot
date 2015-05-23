@@ -79,7 +79,19 @@ namespace DeathmicChatbot.IRC
             _voting.VotingStarted += VotingOnVotingStarted;
             _voting.VotingEnded += VotingOnVotingEnded;
             _voting.Voted += VotingOnVoted;
-            _voting.VoteRemoved += VotingOnVoteRemoved;        
+            _voting.VoteRemoved += VotingOnVoteRemoved;
+            try
+            {
+                if (!Properties.Settings.Default.DateTimeFormatCorrected)
+                {
+                    xmlprovider.DateTimeCorrection();
+                }
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            
+            
         }
 
         public override IrcRegistrationInfo RegistrationInfo
