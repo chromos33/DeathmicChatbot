@@ -79,7 +79,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool Debug {
             get {
                 return ((bool)(this["Debug"]));
@@ -88,7 +88,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool DateTimeFormatCorrected {
             get {
                 return ((bool)(this["DateTimeFormatCorrected"]));

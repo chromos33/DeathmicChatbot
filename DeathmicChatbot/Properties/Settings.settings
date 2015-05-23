@@ -21,10 +21,10 @@
       <Value Profile="(Default)">#deathmic</Value>
     </Setting>
     <Setting Name="Debug" Type="System.Boolean" Scope="Application">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="DateTimeFormatCorrected" Type="System.Boolean" Scope="Application">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>
