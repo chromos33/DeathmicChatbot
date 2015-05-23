@@ -207,12 +207,10 @@ namespace DeathmicChatbot
                         try
                         {
                             DateTime OldDateTime = DateTime.ParseExact(item.Attribute("LastVisit").Value, "dd.MM.yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-                            Console.WriteLine(OldDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
                             item.Attribute("LastVisit").Value = OldDateTime.ToString("yyyy-MM-dd HH:mm:ss");
                         }
                         catch(Exception)
                         {
-                            
                         }
                         
                     }
