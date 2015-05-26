@@ -191,12 +191,12 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnLocalUserNoticeReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
         {
-            //
+            Console.WriteLine(e.Text);
         }
 
         protected override void OnLocalUserMessageReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
         {
-            //
+
         }
 
         protected override void OnChannelUserJoined(IrcChannel channel, IrcChannelUserEventArgs e)
@@ -255,11 +255,12 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnChannelNoticeReceived(IrcChannel channel, IrcMessageEventArgs e)
         {
-            //
+            Console.WriteLine(e.Text);
         }
 
         protected override void OnChannelMessageReceived(IrcChannel channel, IrcMessageEventArgs e)
         {
+            Console.WriteLine(e.Text);
             try
             {
                 IEnumerable<string> urls = urlExtractor.extractYoutubeURLs(e.Text);

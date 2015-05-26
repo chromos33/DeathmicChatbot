@@ -148,7 +148,7 @@ namespace DeathmicChatbot.IRC
         public void Connect(string server, IrcRegistrationInfo registrationInfo)
         {
             // Create new IRC client and connect to given server.
-            var client = new IrcClient();
+            var client = new StandardIrcClient();
             client.FloodPreventer = new IrcStandardFloodPreventer(4, 2000);
             client.Connected += IrcClient_Connected;
             client.Disconnected += IrcClient_Disconnected;
