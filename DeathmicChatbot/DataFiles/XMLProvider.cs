@@ -567,7 +567,7 @@ namespace DeathmicChatbot
 
                                 try
                                 {
-                                    DateTime start = Convert.ToDateTime(stream.Attribute("starttime").Value);
+                                    DateTime start = DateTime.Now;
                                     System.Diagnostics.Debug.WriteLine(start);
                                     DateTime stop = Convert.ToDateTime(stream.Attribute("stoptime").Value);
                                     System.Diagnostics.Debug.WriteLine(stop);
