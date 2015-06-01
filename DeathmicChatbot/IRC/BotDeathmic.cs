@@ -191,7 +191,7 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnLocalUserNoticeReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
         {
-            Console.WriteLine(e.Text);
+
         }
 
         protected override void OnLocalUserMessageReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
@@ -891,48 +891,113 @@ namespace DeathmicChatbot.IRC
        #endregion
         #region Voting Stuff
         #region Voting Commands
+
+        private int CheckVotingParam(string param)
+        {
+            if (param.IndexOf("t_") >= 0 || param.IndexOf("T_") >= 0)
+            {
+                return 1;
+            }
+            if (param.IndexOf("d_") >= 0 || param.IndexOf("D_") >= 0)
+            {
+                return 2;
+            }
+            if (param.IndexOf("q_") >= 0 || param.IndexOf("Q_") >= 0)
+            {
+                return 3;
+            }
+            if (param.IndexOf("a_") >= 0 || param.IndexOf("A_") >= 0)
+            {
+                return 4;
+            }
+            if (param.IndexOf("m_") >= 0 || param.IndexOf("M_") >= 0)
+            {
+                return 5;
+            }
+            return 0;
+        }
         private void StartVoting(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-
-            string args = combineParameters(parameters);
-            string[] singleparams = args.Split('|');
-            if (singleparams.Count() < 3)
+            if(parameters.Count ==1)
             {
-                client.LocalUser.SendNotice(source.Name, string.Format("Please use the following format: !startvote <time> | <question> | <answer1,answer2,...>"));
-                return;
+                if(parameters[0] == "help")
+                {
+                    client.LocalUser.SendNotice(source.Name, string.Format("The works as follows: !startvote t_[time] | d_[date] | q_[question] | a_[answer1,answer2,...] | m_[multiple answers possible y,n]"));
+                    client.LocalUser.SendNotice(source.Name, string.Format("User Time or Date to specify the end of the Voting"));
+                    client.LocalUser.SendNotice(source.Name, string.Format("time like [1d][1h][1m] / date[15.05.2015_22:00]"));
+                    return;
+                }
             }
-            var timeString = singleparams[0].Trim();
-            var timeRegex = new Regex(@"^(\d+d)?(\d+h)?(\d+m)?(\d+s)?$");
-            var timeMatch = timeRegex.Match(timeString);
-            if (!timeMatch.Success)
+            string time = ""; string date = ""; string question = "";string answerposibilities ="";string multiple = "";
+            if(parameters.Count == 5)
             {
-                client.LocalUser.SendNotice(source.Name, "Time needs to be in the following format: [<num>d][<num>h][<num>m][<num>s]");
-                client.LocalUser.SendNotice(source.Name, "Examples: 10m30s or n5h or n1d or n1d6h");
-                return;
+                client.LocalUser.SendNotice(source.Name, string.Format("You cannot use time and date in the same voting. use !startvote help for information"));
             }
-            var span = new TimeSpan();
-            TimeSpan tmpSpan;
-            if (TimeSpan.TryParseExact(timeMatch.Groups[1].Value, "d'd'", null, out tmpSpan))
-                span += tmpSpan;
-            if (TimeSpan.TryParseExact(timeMatch.Groups[2].Value, "h'h'", null, out tmpSpan))
-                span += tmpSpan;
-            if (TimeSpan.TryParseExact(timeMatch.Groups[3].Value, "m'm'", null, out tmpSpan))
-                span += tmpSpan;
-            if (TimeSpan.TryParseExact(timeMatch.Groups[4].Value, "s's'", null, out tmpSpan))
-                span += tmpSpan;
-            var question = singleparams[1].Trim();
-            var answers = new List<string>(singleparams[2].Trim().Split(','));
-            var endTime = DateTime.Now + span;
-            try
+            else
             {
-                _voting.StartVoting(source.Name, question, answers, endTime);
-                //_log.WriteToLog("Information", String.Format("{0} started a voting: {1}. End Date is: {2}",source.Name,question,endTime));
+                string combinedParameters = combineParameters(parameters);
+                string[] splitParamters = combinedParameters.Split('|');
+                foreach (string param in splitParamters)
+                {
+                    switch (CheckVotingParam(param))
+                    {
+                        case 1: time = param; break;
+                        case 2: date = param; break;
+                        case 3: question = param; break;
+                        case 4: answerposibilities = param; break;
+                        case 5: multiple = param; break;
+                    }
+                }
             }
-            catch (InvalidOperationException e)
+            if((time != "" ||  date != "") && question != "" &&  answerposibilities != "")
             {
-
-                client.LocalUser.SendNotice(source.Name, e.Message);
-                //_log.WriteToLog("Error",String.Format("{0} tried starting a voting: {1}. But: {2}",source.Name,question,e.Message));
+                string terminationdate ="";
+                if(time != null && time != "")
+                {
+                    time = time.Replace("t_", "");
+                    var timeString = time.Trim();
+                    var timeRegex = new Regex(@"^(\d+d)?(\d+h)?(\d+m)?(\d+s)?$");
+                    var timeMatch = timeRegex.Match(timeString);
+                    if (!timeMatch.Success)
+                    {
+                        client.LocalUser.SendNotice(source.Name, "Time needs to be in the following format: [<num>d][<num>h][<num>m]");
+                        return;
+                    }
+                    var span = new TimeSpan();
+                    TimeSpan tmpSpan;
+                    if (TimeSpan.TryParseExact(timeMatch.Groups[1].Value, "d'd'", null, out tmpSpan))
+                        span += tmpSpan;
+                    if (TimeSpan.TryParseExact(timeMatch.Groups[2].Value, "h'h'", null, out tmpSpan))
+                        span += tmpSpan;
+                    if (TimeSpan.TryParseExact(timeMatch.Groups[3].Value, "m'm'", null, out tmpSpan))
+                        span += tmpSpan;
+                    if (TimeSpan.TryParseExact(timeMatch.Groups[4].Value, "s's'", null, out tmpSpan))
+                        span += tmpSpan;
+                    var endTime = DateTime.Now + span;
+                    terminationdate = endTime.ToString();
+                }
+                if (date != null && date != "")
+                {
+                    date = date.Replace("_", " ");
+                    date = date.Replace("d_", " ");
+                    terminationdate = date;
+                }
+                question = question.Replace("q_", "");
+                answerposibilities = answerposibilities.Replace("a_", "");
+                string[] answers = answerposibilities.Split(',');
+                bool multi = false;
+                if(multiple != "")
+                {
+                    multiple = multiple.Replace("m_", " ");
+                    if(multiple == "y"){multi = true;}
+                    else { multi = false; };
+                }
+                xmlprovider.startVote(DateTime.Parse(terminationdate), multi, answers, question);
+                
+            }
+            else
+            {
+                client.LocalUser.SendNotice(source.Name, string.Format("Please use the help command '!startvote help' for information"));
             }
         }
 
@@ -967,6 +1032,8 @@ namespace DeathmicChatbot.IRC
         }
         private void Vote(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
+            Console.WriteLine(xmlprovider.vote(source.ToString(),1,1));
+            /*
             if (!(parameters.Count() == 0))
             {
                 if (parameters.Count() < 2)
@@ -1001,6 +1068,7 @@ namespace DeathmicChatbot.IRC
                     }
                 }
             }
+             * */
         }
 
         private void RemoveVote(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)

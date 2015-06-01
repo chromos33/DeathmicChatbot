@@ -994,5 +994,87 @@ namespace DeathmicChatbot
             
         #endregion
 
+
+        #region Voting stuff
+        public void startVote(DateTime enddate,bool multiple,string[] answers, string question)
+        {
+            XDocument xdoc;
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/Votes.xml"))
+            {
+                xdoc = XDocument.Load("XML/Votes.xml");
+                IEnumerable<XElement> childlist = xdoc.Root.Elements();
+                XElement Question;
+                if(childlist.Count() > 0)
+                {
+                    Question = new XElement("question", new XAttribute("value", question.ToLower().Trim()), new XAttribute("enddate", enddate.ToString("yyyy-MM-dd HH:mm:ss")), new XAttribute("running", "true"), new XAttribute("ID", childlist.Count()+1));
+                }
+                else
+                {
+                    Question = new XElement("question", new XAttribute("value", question.ToLower().Trim()), new XAttribute("enddate", enddate.ToString("yyyy-MM-dd HH:mm:ss")), new XAttribute("running", "true"), new XAttribute("ID", "1"));
+                }
+                int i = 1;
+                foreach (string answer in answers)
+                {
+                    Question.Add(new XElement("answer", new XAttribute("ID", i.ToString()), new XAttribute("value", answer.ToLower().Trim())));
+                    i++;
+                }
+                xdoc.Add(Question);
+            }
+            else
+            {
+                xdoc = new XDocument();
+                XElement Question = new XElement("question", new XAttribute("value", question.ToLower().Trim()), new XAttribute("enddate", enddate.ToString("yyyy-MM-dd HH:mm:ss")), new XAttribute("running", "true"),new XAttribute("ID","1"));
+                int i = 1;
+                foreach(string answer in answers)
+                {
+                    Question.Add(new XElement("answer", new XAttribute("ID",i.ToString()), new XAttribute("value", answer.ToLower().Trim())));
+                    i++;
+                }
+                xdoc.Add(Question);
+            }
+            xdoc.Save("XML/Votes.xml");
+            
+        }
+        public int vote(string user,int question,int answer)
+        {
+            try
+            {
+                if (File.Exists("XML/Votes.xml"))
+                {
+                    XDocument xdoc = XDocument.Load("XML/Votes.xml");
+                    IEnumerable<XElement> childlist = xdoc.Root.Elements().Where(_question => Int32.Parse(_question.Attribute("ID").Value) == question);
+                    if (childlist.Count() > 0)
+                    {
+                        // Error lies hin Query
+                        IEnumerable<XElement> questionchildlist = childlist.Elements("answers").Where(_answer => Int32.Parse(_answer.Attribute("ID").Value) == answer).Elements("Users").Where(_users => _users.Attribute("value").Value != user);
+                        if(questionchildlist.Count() >0)
+                        {
+                            foreach(var item in questionchildlist)
+                            {
+                                item.Add(new XElement("user", new XAttribute("value", user)));
+                            }
+                            xdoc.Save("XML/Votes.xml");
+                            return 1;
+                        }
+                    }
+
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return 2;
+            }
+            
+
+            return 0;
+        }
+
+        #endregion
     }
 }
+
