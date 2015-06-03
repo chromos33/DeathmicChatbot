@@ -1034,6 +1034,11 @@ namespace DeathmicChatbot.IRC
                     try
                     {
                         xmlprovider.EndVote(Int32.Parse(parameters[0]));
+                        if (xmlprovider.VoteResult(Int32.Parse(parameters[0]), false).Count() == 0)
+                        {
+                            client.LocalUser.SendMessage(source.Name, "The vote id entered does not match any Votes in the Database");
+                            return;
+                        }
                         foreach (var result in xmlprovider.VoteResult(Int32.Parse(parameters[0]),false))
                         {
                             if (result == "There is no Question matching this ID")
@@ -1082,6 +1087,7 @@ namespace DeathmicChatbot.IRC
                     {
                         case 0: client.LocalUser.SendNotice(source.Name, string.Format("You have already voted on this Vote")); break;
                         case 1: client.LocalUser.SendNotice(source.Name, string.Format("Your Vote has been counted.")); break;
+                        case 3: client.LocalUser.SendNotice(source.Name, string.Format("The Question ID does not match any Questions")); break;
                         default: client.LocalUser.SendNotice(source.Name, string.Format("There was an error in your vote please report to an admin")); break;
                     }
                 }catch(FormatException)
