@@ -12,6 +12,8 @@ using DeathmicChatbot.StreamInfo.Hitbox;
 using DeathmicChatbot.LinkParser;
 using DeathmicChatbot.Interfaces;
 using System.Globalization;
+using System.Timers;
+using DeathmicChatbot.DataFiles;
 
 namespace DeathmicChatbot.IRC
 {
@@ -46,7 +48,6 @@ namespace DeathmicChatbot.IRC
         private static bool automaticmessages = false;
 
         private static StreamProviderManager _streamProviderManager;
-        private static VoteManager _voting;
         public string clientVersionInfo = "IRC.NET Community Bot";
         XMLProvider xmlprovider = new XMLProvider();
         String[] IgnoreTheseUsers = new String[] {"Q","AUTH","Global","py-ctcp","peer",Properties.Settings.Default.Name.ToString()};
@@ -67,6 +68,7 @@ namespace DeathmicChatbot.IRC
         private static URLExtractor urlExtractor = new URLExtractor();
         private bool Disconnected = false;
         private static List<IURLHandler> handlers = new List<IURLHandler>() { new LinkParser.YoutubeHandler(), new LinkParser.Imgur(), new LinkParser.WebsiteHandler() };
+        private static System.Timers.Timer VoteTimer;
         #endregion
         #region Constructor
         public BotDeathmic()
@@ -75,11 +77,6 @@ namespace DeathmicChatbot.IRC
 
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-            _voting = new VoteManager();
-            _voting.VotingStarted += VotingOnVotingStarted;
-            _voting.VotingEnded += VotingOnVotingEnded;
-            _voting.Voted += VotingOnVoted;
-            _voting.VoteRemoved += VotingOnVoteRemoved;
             try
             {
                 if (!Properties.Settings.Default.DateTimeFormatCorrected)
@@ -93,6 +90,7 @@ namespace DeathmicChatbot.IRC
             
             
         }
+        
 
         public override IrcRegistrationInfo RegistrationInfo
         {
@@ -126,6 +124,12 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnLocalUserJoinedChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
         {
+            if (xmlprovider.runningVotes().Count() > 0)
+            {
+                VoteTimer = new System.Timers.Timer(5000);
+                VoteTimer.Elapsed += OnVoteTimerEvent;
+                VoteTimer.Enabled = true;
+            }
             //OnClientRegistered may happen before joined channel thus...
             _streamProviderManager = new StreamProviderManager();
             _streamProviderManager.StreamStarted += OnStreamStarted;
@@ -191,7 +195,7 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnLocalUserNoticeReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
         {
-            Console.WriteLine(e.Text);
+
         }
 
         protected override void OnLocalUserMessageReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
@@ -298,7 +302,6 @@ namespace DeathmicChatbot.IRC
             this.ChatCommandProcessors.Add("roll", Roll);
             this.ChatCommandProcessors.Add("counter", CounterCommand);
             this.ChatCommandProcessors.Add("vote", Vote);
-            this.ChatCommandProcessors.Add("removevote", RemoveVote);
             this.ChatCommandProcessors.Add("listvotings", ListVotings);
             this.ChatCommandProcessors.Add("toggleuserloggin", ToggleUserLogging);
             this.ChatCommandProcessors.Add("sendmessage", SendMessage);
@@ -390,7 +393,7 @@ namespace DeathmicChatbot.IRC
                                   DateTime.Now,
                                   args.StreamData.Stream.Channel);
                 thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel,String.Format(
-                                                       "Stream stopped after _{1}_: {0}",
+                                                       "Stream stopped after {1}: _{0}_",
                                                        args.StreamData.Stream
                                                            .Channel,
                                                        duration));
@@ -891,205 +894,246 @@ namespace DeathmicChatbot.IRC
        #endregion
         #region Voting Stuff
         #region Voting Commands
+
+        private int CheckVotingParam(string param)
+        {
+            if (param.IndexOf("t_") >= 0 || param.IndexOf("T_") >= 0)
+            {
+                return 1;
+            }
+            if (param.IndexOf("d_") >= 0 || param.IndexOf("D_") >= 0)
+            {
+                return 2;
+            }
+            if (param.IndexOf("q_") >= 0 || param.IndexOf("Q_") >= 0)
+            {
+                return 3;
+            }
+            if (param.IndexOf("a_") >= 0 || param.IndexOf("A_") >= 0)
+            {
+                return 4;
+            }
+            if (param.IndexOf("m_") >= 0 || param.IndexOf("M_") >= 0)
+            {
+                return 5;
+            }
+            return 0;
+        }
         private void StartVoting(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-
-            string args = combineParameters(parameters);
-            string[] singleparams = args.Split('|');
-            if (singleparams.Count() < 3)
+            if(parameters.Count ==1)
             {
-                client.LocalUser.SendNotice(source.Name, string.Format("Please use the following format: !startvote <time> | <question> | <answer1,answer2,...>"));
+                if(parameters[0] == "help")
+                {
+                    client.LocalUser.SendNotice(source.Name, string.Format("The works as follows: !startvote t_[time] | d_[date] | q_[question] | a_[answer1,answer2,...] | m_[multiple answers possible y]"));
+                    client.LocalUser.SendNotice(source.Name, string.Format("User Time or Date to specify the end of the Voting"));
+                    client.LocalUser.SendNotice(source.Name, string.Format("time like [1d][1h][1m] / date[15.05.2015_22:00]"));
+                    client.LocalUser.SendNotice(source.Name, string.Format("ignore multiple option if not wanted"));
+                    return;
+                }
+            }
+            string time = ""; string date = ""; string question = "";string answerposibilities ="";string multiple = "";
+            
+            string combinedParameters = combineParameters(parameters);
+            string[] splitParamters = combinedParameters.Split('|');
+            if (CheckVotingParam(splitParamters[0]) == 1 && CheckVotingParam(splitParamters[1]) == 2)
+            {
+                client.LocalUser.SendNotice(source.Name, string.Format("You cannot use time and date in the same voting. use !startvote help for information"));
                 return;
             }
-            var timeString = singleparams[0].Trim();
-            var timeRegex = new Regex(@"^(\d+d)?(\d+h)?(\d+m)?(\d+s)?$");
-            var timeMatch = timeRegex.Match(timeString);
-            if (!timeMatch.Success)
+            foreach (string param in splitParamters)
             {
-                client.LocalUser.SendNotice(source.Name, "Time needs to be in the following format: [<num>d][<num>h][<num>m][<num>s]");
-                client.LocalUser.SendNotice(source.Name, "Examples: 10m30s or n5h or n1d or n1d6h");
-                return;
+                switch (CheckVotingParam(param))
+                {
+                    case 1: time = param; break;
+                    case 2: date = param; break;
+                    case 3: question = param; break;
+                    case 4: answerposibilities = param; break;
+                    case 5: multiple = param; break;
+                }
             }
-            var span = new TimeSpan();
-            TimeSpan tmpSpan;
-            if (TimeSpan.TryParseExact(timeMatch.Groups[1].Value, "d'd'", null, out tmpSpan))
-                span += tmpSpan;
-            if (TimeSpan.TryParseExact(timeMatch.Groups[2].Value, "h'h'", null, out tmpSpan))
-                span += tmpSpan;
-            if (TimeSpan.TryParseExact(timeMatch.Groups[3].Value, "m'm'", null, out tmpSpan))
-                span += tmpSpan;
-            if (TimeSpan.TryParseExact(timeMatch.Groups[4].Value, "s's'", null, out tmpSpan))
-                span += tmpSpan;
-            var question = singleparams[1].Trim();
-            var answers = new List<string>(singleparams[2].Trim().Split(','));
-            var endTime = DateTime.Now + span;
-            try
+            if((time != "" ||  date != "") && question != "" &&  answerposibilities != "")
             {
-                _voting.StartVoting(source.Name, question, answers, endTime);
-                //_log.WriteToLog("Information", String.Format("{0} started a voting: {1}. End Date is: {2}",source.Name,question,endTime));
+                string terminationdate ="";
+                if(time != null && time != "")
+                {
+                    time = time.Replace("t_", "");
+                    var timeString = time.Trim();
+                    var timeRegex = new Regex(@"^(\d+d)?(\d+h)?(\d+m)?(\d+s)?$");
+                    var timeMatch = timeRegex.Match(timeString);
+                    if (!timeMatch.Success)
+                    {
+                        client.LocalUser.SendNotice(source.Name, "Time needs to be in the following format: [<num>d][<num>h][<num>m]");
+                        return;
+                    }
+                    var span = new TimeSpan();
+                    TimeSpan tmpSpan;
+                    if (TimeSpan.TryParseExact(timeMatch.Groups[1].Value, "d'd'", null, out tmpSpan))
+                        span += tmpSpan;
+                    if (TimeSpan.TryParseExact(timeMatch.Groups[2].Value, "h'h'", null, out tmpSpan))
+                        span += tmpSpan;
+                    if (TimeSpan.TryParseExact(timeMatch.Groups[3].Value, "m'm'", null, out tmpSpan))
+                        span += tmpSpan;
+                    if (TimeSpan.TryParseExact(timeMatch.Groups[4].Value, "s's'", null, out tmpSpan))
+                        span += tmpSpan;
+                    var endTime = DateTime.Now + span;
+                    terminationdate = endTime.ToString();
+                }
+                if (date != null && date != "")
+                {
+                    date = date.Replace("_", " ");
+                    date = date.Replace("d_", " ");
+                    terminationdate = date;
+                }
+                question = question.Replace("q_", "");
+                answerposibilities = answerposibilities.Replace("a_", "");
+                string[] answers = answerposibilities.Split(',');
+                bool multi = false;
+                if(multiple != "")
+                {
+                    multiple = multiple.Replace("m_", " ");
+                    if(multiple.Trim() == "y"){multi = true;}
+                    else { multi = false; };
+                }
+                int questionid = xmlprovider.startVote(DateTime.Parse(terminationdate), multi, answers, question);
+                if (questionid != 0)
+                {
+                    client.LocalUser.SendMessage(Settings.Default.Channel, "The following vote has been started: " + question);
+                    client.LocalUser.SendMessage(Settings.Default.Channel, "to vote use the Command !vote " + questionid + " [answer number],[optional answernumber] ");
+                    client.LocalUser.SendMessage(Settings.Default.Channel, "Possible answers are:");
+                    int i = 1;
+                    foreach (var singleanswer in answers)
+                    {
+                        client.LocalUser.SendMessage(Settings.Default.Channel, i+": "+singleanswer.ToString());
+                        i++;
+                    }
+                    client.LocalUser.SendMessage(Settings.Default.Channel, source.Name+ " has started this Vote");
+                    if(VoteTimer.Enabled == false)
+                    {
+                        VoteTimer.Enabled = true;
+                    }
+                }
+                
             }
-            catch (InvalidOperationException e)
+            else
             {
-
-                client.LocalUser.SendNotice(source.Name, e.Message);
-                //_log.WriteToLog("Error",String.Format("{0} tried starting a voting: {1}. But: {2}",source.Name,question,e.Message));
+                client.LocalUser.SendNotice(source.Name, string.Format("Please use the help command '!startvote help' for information"));
             }
         }
 
         private void EndVoting(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            int index;
-            if (parameters.Count() > 0)
+            if(parameters.Count() == 1)
             {
-                if (!int.TryParse(parameters[0], out index))
+                if(parameters[0] == "help")
                 {
-                    client.LocalUser.SendNotice(source.Name, string.Format("The format for ending a vote is: !endvote <id>"));
+                    client.LocalUser.SendMessage(source.Name, "To end a vote use !endvotint [Vote_ID]");
+                }
+                else
+                {
+                    try
+                    {
+                        xmlprovider.EndVote(Int32.Parse(parameters[0]));
+                        foreach (var result in xmlprovider.VoteResult(Int32.Parse(parameters[0]),false))
+                        {
+                            if (result == "There is no Question matching this ID")
+                            {
+                                client.LocalUser.SendMessage(source.Name, result.ToString());
+                            }
+                            client.LocalUser.SendMessage(Settings.Default.Channel, result.ToString());
+                        }
+                    }
+                    catch(FormatException)
+                    {
+                        client.LocalUser.SendMessage(source.Name, "[Vote_ID] must be a number!");
+                    }
+                }
+            }
+            
+        }
+        private void Vote(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            if (parameters[0] != null)
+            {
+                if (parameters[0] == "help")
+                {
+                    client.LocalUser.SendNotice(source.Name, string.Format("The vote command works as follows: !vote [QuestionID] [AnswerID],[AnswerID]..."));
+                    client.LocalUser.SendNotice(source.Name, string.Format("If multiple answers aren't allowed in the vote only the first will be used."));
                     return;
                 }
+            }
+            if(parameters.Count() == 2)
+            {
                 try
                 {
-                    _voting.EndVoting(source.Name, index - 1);
-                }
-                catch (ArgumentOutOfRangeException e)
+                    List<int> answers = new List<int>();
+                    if (parameters[1].IndexOf(',') > 0)
+                    {
+                        foreach (var item in parameters[1].Split(','))
+                        {
+                            answers.Add(Int32.Parse(item));
+                        }
+                    }
+                    else
+                    {
+                        answers.Add(Int32.Parse(parameters[1]));
+                    }
+                    switch(xmlprovider.vote(source.Name, Int32.Parse(parameters[0]), answers))
+                    {
+                        case 0: client.LocalUser.SendNotice(source.Name, string.Format("You have already voted on this Vote")); break;
+                        case 1: client.LocalUser.SendNotice(source.Name, string.Format("Your Vote has been counted.")); break;
+                        default: client.LocalUser.SendNotice(source.Name, string.Format("There was an error in your vote please report to an admin")); break;
+                    }
+                }catch(FormatException)
                 {
-                    client.LocalUser.SendNotice(source.Name, "There is no voting with the id " + index);
+                    client.LocalUser.SendNotice(source.Name, string.Format("[QuestionID] and [AnswerID] must be whole numbers!"));
                 }
-                catch (InvalidOperationException e)
+                
+            }
+        }
+
+
+        private void ListVotings(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            List<VoteObject> Votings = xmlprovider.runningVotes();
+            if(Votings.Count() > 0)
+            {
+                thisclient.LocalUser.SendNotice(source.Name, "These are the votes currently running");
+                foreach(VoteObject vote in Votings)
                 {
-                    client.LocalUser.SendNotice(source.Name, e.Message);
+                    string output = vote.Question +"("+vote.QuestionID+")"+ " with the answers: " ;
+                    foreach(Answer answer in vote.Answers)
+                    {
+                        output+=answer.value+" ("+answer.id+"),";
+                    }
+                    thisclient.LocalUser.SendNotice(source.Name, output);
                 }
             }
             else
             {
-                client.LocalUser.SendNotice(source.Name, string.Format("The format for ending a vote is: !endvote <id>"));
-            }
-
-        }
-        private void Vote(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
-        {
-            if (!(parameters.Count() == 0))
-            {
-                if (parameters.Count() < 2)
-                {
-                    client.LocalUser.SendNotice(source.Name, string.Format("Format: /msg {0} vote <id> <answer>", source.Name));
-                    client.LocalUser.SendNotice(source.Name, string.Format("You can check the running votings with /msg {0} listvotings", source.Name));
-                    return;
-                }
-                int index;
-                var answer = parameters[1];
-                if (!int.TryParse(parameters[0], out index))
-                {
-                    client.LocalUser.SendNotice(source.Name, "id must be a number");
-                    return;
-                }
-                try
-                {
-                    _voting.Vote(source.Name, index - 1, answer);
-                }
-                catch (ArgumentOutOfRangeException e)
-                {
-                    switch (e.ParamName)
-                    {
-                        case "id":
-                            client.LocalUser.SendNotice(source.Name, string.Format("There is no voting with the id {0}", index));
-                            break;
-                        case "answer":
-                            client.LocalUser.SendNotice(source.Name, string.Format("The voting {0} has no answer {1}", index, answer));
-                            break;
-                        default:
-                            throw;
-                    }
-                }
-            }
-        }
-
-        private void RemoveVote(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
-        {
-            int index;
-            if (parameters == null || !int.TryParse(parameters[0], out index))
-            {
-                client.LocalUser.SendNotice(source.Name, string.Format("The format for removintg your vote is: /msg {0} removevote <id>", source.Name));
-                return;
-            }
-            try
-            {
-                _voting.RemoveVote(source.Name, index - 1);
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                if (e.ParamName == "id")
-                {
-                    client.LocalUser.SendNotice(source.Name, string.Format("There is no voting with the id {0}", index));
-                }
-                else
-
-                    throw;
-            }
-        }
-
-        private void ListVotings(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
-        {
-            if (_voting.Votings.Count == 0)
-            {
-                client.LocalUser.SendNotice(source.Name, "There are currently no votings running");
-            }
-            foreach (var voting in _voting.Votings.Values)
-            {
-                client.LocalUser.SendNotice(source.Name, string.Format("{0} - {1}", voting._iIndex + 1, voting._sQuestion));
-                client.LocalUser.SendNotice(source.Name, "Answers:");
-                foreach (var answer in voting._slAnswers)
-                    client.LocalUser.SendNotice(source.Name, string.Format("    {0}", answer));
-                client.LocalUser.SendNotice(source.Name, string.Format("Voting runs until {0}", voting._dtEndTime));
+                thisclient.LocalUser.SendNotice(source.Name, "There are no Votes running");
             }
         }
         #endregion
         #region Voting EventListeners
-        private static void CheckAllVotingsThreaded()
+        private void OnVoteTimerEvent(Object source, ElapsedEventArgs e)
         {
-            //Checks if any votings running to stop loop to perserve memry and cpu
-            while (_voting.anyVotings())
+            List<int> Votes = xmlprovider.expiredVotes();
+            foreach (int vote in Votes)
             {
-                _voting.CheckVotings();
-                Thread.Sleep(Settings.Default.StreamcheckIntervalSeconds * 1000);
+                xmlprovider.EndVote(vote);
+                List<string> Question = xmlprovider.VoteResult(vote,true);
+                foreach(string output in Question)
+                {
+                    thisclient.LocalUser.SendMessage(Settings.Default.Channel, output);
+                }
+            }
+            if (xmlprovider.runningVotes().Count() == 0)
+            {
+                VoteTimer.Enabled = false;
             }
         }
-        private void VotingOnVoteRemoved(object sender, VotingEventArgs args)
-        {
-            thisclient.LocalUser.SendNotice(args.User, String.Format("Your vote for '{0}' has been removed.", args.Voting._sQuestion));
-        }
-
-        private void VotingOnVoted(object sender, VotingEventArgs args)
-        {
-            thisclient.LocalUser.SendNotice(args.User, String.Format("Your vote for '{0}' has been counted.", args.Voting._sQuestion));
-        }
-
-        private void VotingOnVotingEnded(object sender, VotingEventArgs args)
-        {
-            thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format("The voting '{0}' has ended with the following results:", args.Voting._sQuestion));
-            var votes = new Dictionary<string, int>();
-            foreach (var answer in args.Voting._slAnswers)
-                votes[answer] = 0;
-            foreach (var answer in args.Voting._votes.Values)
-                ++votes[answer];
-            args.Voting._votes.Clear();
-            foreach (var vote in votes)
-            {
-                thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format("    {0}: {1} votes", vote.Key, vote.Value));
-            }
-        }
-
-        private void VotingOnVotingStarted(object sender, VotingEventArgs args)
-        {
-            thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format("{0} started a voting which runs until {1}.", args.User,args.Voting._dtEndTime));
-            thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, args.Voting._sQuestion +" Possible answers:");
-
-            foreach (var answer in args.Voting._slAnswers)
-                thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, string.Format("    {0}", answer));
-
-            thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format("Vote with /msg " + thisclient.LocalUser + " !vote {1} <answer>", args.User, args.Voting._iIndex + 1));
-            isVoteRunning = true;
-            CheckAllVotingsThreaded();
-        }
+      
         #endregion
         #endregion
         #region counter stuff

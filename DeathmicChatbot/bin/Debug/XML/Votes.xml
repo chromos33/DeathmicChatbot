@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<question value="what is your name?" enddate="2015-06-06 23:53:03" running="true" ID="1">
+  <answer ID="1" value="bla" />
+  <answer ID="2" value="blub" />
+  <answer ID="3" value="fuu" />
+</question>
