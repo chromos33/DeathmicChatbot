@@ -1097,6 +1097,11 @@ namespace DeathmicChatbot
                     }
                     
                 }
+                else
+                {
+                    return 3;
+                }
+                
             }
             catch(Exception ex)
             {
