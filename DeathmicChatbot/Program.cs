@@ -88,10 +88,7 @@ namespace DeathmicChatbot
                 {
                     if (!bot.thisclient.IsConnected)
                     {
-                        Console.WriteLine("Object Terminated");
-                        bot.Dispose();
-                        bot = null;
-                        GC.Collect();
+                        Environment.Exit(0);
                     }
                 }
                 
