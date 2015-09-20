@@ -83,6 +83,8 @@ namespace DeathmicChatbot
             }
             while (true)
             {
+                PerformanceCounter cpu = new PerformanceCounter("Processor","% Processor Time","_Total");
+                System.Diagnostics.Debug.WriteLine(cpu.NextValue());
                 System.Threading.Thread.Sleep(1000);
                 if(bot != null)
                 {
