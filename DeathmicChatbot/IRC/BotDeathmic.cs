@@ -195,12 +195,18 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnLocalUserNoticeReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
         {
-
+            if (e.Text == "SubscriptionInit")
+            {
+                xmlprovider.AddAllStreamsToUser();
+            }
         }
 
         protected override void OnLocalUserMessageReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
         {
-
+            if (e.Text == "SubscriptionInit")
+            {
+                xmlprovider.AddAllStreamsToUser();
+            }
         }
 
         protected override void OnChannelUserJoined(IrcChannel channel, IrcChannelUserEventArgs e)
@@ -259,7 +265,10 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnChannelNoticeReceived(IrcChannel channel, IrcMessageEventArgs e)
         {
-            Console.WriteLine(e.Text);
+            if(e.Text == "SubscriptionInit")
+            {
+                xmlprovider.AddAllStreamsToUser();
+            }
         }
 
         protected override void OnChannelMessageReceived(IrcChannel channel, IrcMessageEventArgs e)
@@ -307,6 +316,8 @@ namespace DeathmicChatbot.IRC
             this.ChatCommandProcessors.Add("sendmessage", SendMessage);
             // Don't add this to commandlist only bot should call it (doesn't matter if others call it but...)
             this.ChatCommandProcessors.Add("reconnect",ReconnectDisableRequester);
+            this.ChatCommandProcessors.Add("setpass", SetPassword);
+            this.ChatCommandProcessors.Add("changesubscription", ChangeSubscription);
 
             
         }
@@ -374,11 +385,19 @@ namespace DeathmicChatbot.IRC
             {
                 string[] streamprovidersplit = stream.Split(',');
                 //TODO add provider link completion
-                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(),"_"+ streamprovidersplit[0] + "_ is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[0], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[0], "URL"));
+                if(xmlprovider.SuscribedUsers(stream).Contains(source.Name))
+                {
+                    client.LocalUser.SendMessage(source.Name, streamprovidersplit[0] + " is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[0], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[0], "URL"));
+                }
+                else
+                {
+                    client.LocalUser.SendMessage(source.Name, "No Stream is currently running.");
+                }
+                
             }
             if (xmlprovider.OnlineStreamList().Count() == 0)
             {
-                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), "No Stream is currently running.");
+                client.LocalUser.SendMessage(source.Name, "No Stream is currently running.");
             }
         }
 
@@ -392,14 +411,12 @@ namespace DeathmicChatbot.IRC
                 Console.WriteLine("{0}: Stream stopped: {1}",
                                   DateTime.Now,
                                   args.StreamData.Stream.Channel);
-                thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel,String.Format(
+                thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel), String.Format(
                                                        "Stream stopped after {1}: _{0}_",
                                                        args.StreamData.Stream
                                                            .Channel,
                                                        duration));
             }
-
-
         }
         private void OnStreamGlobalNotification(object sender, StreamEventArgs args)
         {
@@ -422,7 +439,8 @@ namespace DeathmicChatbot.IRC
                         game = xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "game");
                     }
                     xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
-                    thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format(
+                    
+                    thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel), String.Format(
                                                            "Stream running: _{0}_ ({1}) at {2}/{0}",
                                                            args.StreamData.Stream
                                                                .Channel,
@@ -451,8 +469,7 @@ namespace DeathmicChatbot.IRC
                     Console.WriteLine("{0}: Stream started: {1}",
                               DateTime.Now,
                               args.StreamData.Stream.Channel);
-                    
-                    thisclient.LocalUser.SendMessage(Properties.Settings.Default.Channel, String.Format(
+                    thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel), String.Format(
                                                            "Stream started: _{0}_ ({1}: {2}) at {3}/{0}",
                                                            args.StreamData.Stream
                                                                .Channel,
@@ -1186,6 +1203,59 @@ namespace DeathmicChatbot.IRC
             client.LocalUser.SendNotice(source.Name, xmlprovider.ToggleUserLogging(source.Name));
         }
         
+        private void SetPassword(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            bool result = false;
+            if (parameters[0] == "help")
+            {
+                client.LocalUser.SendMessage(source.Name, "Password Command: '!setpass [New Password] [old Pass]' old Pass is optional on the First time");
+            }
+            if(parameters.Count == 1)
+            {
+                result = xmlprovider.AddorUpdatePassword(source.Name, parameters[0]);
+            }
+            if(parameters.Count == 2)
+            {
+                result =xmlprovider.AddorUpdatePassword(source.Name, parameters[0],parameters[1]);
+            }
+            if(result)
+            {
+                client.LocalUser.SendMessage(source.Name, "new Password Confirmed");
+            }
+            else
+            {
+                client.LocalUser.SendMessage(source.Name, "Entered current Password is incorrect or not entered, type !SetPassword help for the command");
+            }
+        }
+        private void ChangeSubscription(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            bool result = false;
+            if (parameters[0] == "help")
+            {
+                client.LocalUser.SendMessage(source.Name, "To update Subscripions use following structure '!changesubscription [add/remove] [streamname] [password]");
+                return;
+            }
+            Console.WriteLine(parameters.Count());
+            if (parameters.Count() == 3)
+            {
+                if(parameters[0] == "remove")
+                {
+                    result = xmlprovider.AddorUpdateSuscription(source.Name, parameters[1], parameters[2], true);
+                }
+                if(parameters[0] == "add")
+                {
+                    result = xmlprovider.AddorUpdateSuscription(source.Name, parameters[1], parameters[2], false);
+                }
+            }
+            if (result)
+            {
+                client.LocalUser.SendMessage(source.Name, "Subscription Changed");
+            }
+            else
+            {
+                client.LocalUser.SendMessage(source.Name, "Either Subscription not found or password is wrong");
+            }
+        }
         #endregion
         #region CTCP Client Event Handlers
 
