@@ -117,6 +117,35 @@ namespace DeathmicChatbot
             }
             return answer;
         }
+        public void AddAllStreamsToUser()
+        {
+            string[] streams = StreamList().Split(',');
+            foreach (string user in AllUser())
+            {
+                foreach (string stream in streams)
+                {
+                    AddorUpdateSuscription(user, stream.ToLower(), "", false, true);
+                }
+            }
+        }
+        public List<String> AllUser()
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+            List<String> answer = new List<string>();
+
+
+            if (File.Exists("XML/Users.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Users.xml");
+                IEnumerable<XElement> childlist = from users in xdoc.Root.Elements() select users;
+                foreach (var user in childlist)
+                {
+                    answer.Add(user.Attribute("Nick").Value);
+                }
+            }
+            return answer;
+        }
         //Adds User or Upates information like Visit Count and Last Visit
         public string AddorUpdateUser(string nick, bool leave = false)
         {
@@ -192,6 +221,187 @@ namespace DeathmicChatbot
             }
             xdoc.Save("XML/Users.xml");
             return answer;
+        }
+
+
+        public bool AddorUpdatePassword(string nick, string pass, string oldpass="")
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+            nick = nick.ToLower();
+            //Query XML File for User Update
+            XDocument xdoc = new XDocument();
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/Users.xml"))
+            {
+                xdoc = XDocument.Load("XML/Users.xml");
+                try
+                {
+                    IEnumerable<XElement> childlist = xdoc.Root.Elements().Where(user => user.Attribute("Nick").Value == nick);
+
+                    if (childlist.Count() > 0)
+                    {
+
+                        foreach (XElement element in childlist)
+                        {
+                            if (element.Attribute("password") != null)
+                            {
+                                if(element.Attribute("password").Value == oldpass)
+                                {
+                                    element.Attribute("password").Value = pass;
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                element.Add(new XAttribute("password", pass));
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    return false;
+                }
+            }
+            xdoc.Save("XML/Users.xml");
+            return true;
+        }
+
+        public bool CheckPassword(string nick, string pass)
+        {
+            XDocument xdoc = new XDocument();
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/Users.xml"))
+            {
+                xdoc = XDocument.Load("XML/Users.xml");
+                try
+                {
+                    string test = xdoc.Root.Elements().Where(user => user.Attribute("Nick").Value == nick).Select(user => user.Attribute("password").Value).First();
+                    Console.WriteLine(test + " " + pass);
+                    if (test == pass)
+                    {
+                        return true;
+                    }
+                }
+                catch(Exception)
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        public bool AddorUpdateSuscription(string nick, string streamname,string pass,bool remove, bool ignorepass = false)
+        {
+            //ignorepass for internal Tasks
+            nick = nick.ToLower();
+            if(CheckPassword(nick,pass) || ignorepass)
+            {
+                //Query XML File for User Update
+                XDocument xdoc = new XDocument();
+                if (!Directory.Exists("XML"))
+                {
+                    Directory.CreateDirectory("XML");
+                }
+                if (File.Exists("XML/Users.xml"))
+                {
+                    xdoc = XDocument.Load("XML/Users.xml");
+                    IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() where el.Attribute("Nick").Value == nick select el;
+                    if (childlist.Count() > 0)
+                    {
+                        foreach (XElement item in childlist)
+                        {
+                            Console.WriteLine(item.Elements("Stream").Where(stream => stream.Attribute("Name").Value == streamname).Count());
+                            if (item.Elements("Stream").Where(stream => stream.Attribute("Name").Value == streamname).Count() > 0)
+                            {
+                                if (remove)
+                                {
+                                    item.Elements("Stream").Where(stream => stream.Attribute("Name").Value == streamname).First().Remove();
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                if (!remove)
+                                {
+                                    item.Add(new XElement("Stream", new XAttribute("Name", streamname)));
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                        xdoc.Save("XML/Users.xml");
+                        return true;
+                    }
+                }
+            }
+            return false; 
+        }
+        public bool CheckSuscription(string nick, string streamname)
+        {
+
+            nick = nick.ToLower();
+                //Query XML File for User Update
+                XDocument xdoc = new XDocument();
+                if (!Directory.Exists("XML"))
+                {
+                    Directory.CreateDirectory("XML");
+                }
+                if (File.Exists("XML/Users.xml"))
+                {
+                    xdoc = XDocument.Load("XML/Users.xml");
+                    int i = xdoc.Root.Elements().Select(User => User.Elements("Stream").Where(Stream => Stream.Attribute("Name").Value == streamname)).Count();
+                    if(i > 0)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+        }
+        public List<string> SuscribedUsers(string streamname)
+        {
+            List<string> result = new List<string>();
+            streamname = streamname.ToLower();
+
+            XDocument xdoc = new XDocument();
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/Users.xml"))
+            {
+                xdoc = XDocument.Load("XML/Users.xml");
+                try
+                {
+                    var Users = xdoc.Root.Elements().Where(User => User.Elements("Stream").Count() >0).Where(User => User.Elements("Stream").Attributes("Name").First().Value == streamname);
+                    Console.WriteLine("users: " + Users.Count());
+                    foreach (var item in Users)
+                    {
+                        result.Add(item.Attribute("Nick").Value);
+                    }
+                }catch(Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            return result;
         }
         #endregion
         public void DateTimeCorrection()
@@ -344,6 +554,13 @@ namespace DeathmicChatbot
                             new XAttribute("provider", "")
                             )));
                 answer = 1;
+            }
+            if(answer == 1)
+            {
+                foreach(string user in AllUser())
+                {
+                    AddorUpdateSuscription(user, channel.ToLower(), "", false, true);
+                }
             }
             xdoc.Save("XML/Streams.xml");
             return answer;

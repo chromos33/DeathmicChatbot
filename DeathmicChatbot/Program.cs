@@ -15,13 +15,16 @@ namespace DeathmicChatbot
         public static BotDeathmic bot = null;
         static void Main(string[] args)
         {
-            if(!File.Exists(Directory.GetCurrentDirectory()+"/botlock") || Settings.Default.Debug)
+            PerformanceCounter cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+            Console.WriteLine(cpu.NextValue());
+            if (!File.Exists(Directory.GetCurrentDirectory()+"/botlock") || Settings.Default.Debug)
             {
                 try
                 {
                     File.Create(Directory.GetCurrentDirectory() + "/botlock");
                     ConnectBot();
                     // bot.Run starts console interface with input for commands not really needed
+
                     //bot.Run();
                 }
                 catch (Exception ex)
@@ -83,6 +86,8 @@ namespace DeathmicChatbot
             }
             while (true)
             {
+                PerformanceCounter cpu = new PerformanceCounter("Processor","% Processor Time","_Total");
+                Console.WriteLine(cpu.NextValue());
                 System.Threading.Thread.Sleep(1000);
                 if(bot != null)
                 {
