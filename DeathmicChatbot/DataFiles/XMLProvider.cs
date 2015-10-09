@@ -122,8 +122,9 @@ namespace DeathmicChatbot
             string[] streams = StreamList().Split(',');
             if (File.Exists("XML/Users.xml"))
             {
-                XDocument xdoc = XDocument.Load("XML/Users.xml");
-                xdoc.Save("XML/Usersbackup.xml");
+                XDocument xdocbackup = XDocument.Load("XML/Users.xml");
+                string filename = "Usersbackup" + DateTime.Now.ToString("yyyyMMdd")+".xml";
+                xdocbackup.Save(filename);
             }
             foreach (string user in AllUser())
             {
@@ -564,11 +565,12 @@ namespace DeathmicChatbot
             //Backup just in case something goes wrong
             if (File.Exists("XML/Users.xml"))
             {
-                xdoc = XDocument.Load("XML/Users.xml");
-                xdoc.Save("XML/Usersbackup.xml");
+                XDocument xdocbackup = XDocument.Load("XML/Users.xml");
+                string filename = "XML/Usersbackup" + DateTime.Now.ToString("yyyyMMdd") + ".xml";
+                xdocbackup.Save(filename);
             }
-                
-            if(answer == 1)
+
+            if (answer == 1)
             {
                 foreach(string user in AllUser())
                 {
