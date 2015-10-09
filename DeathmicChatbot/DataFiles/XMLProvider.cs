@@ -120,11 +120,17 @@ namespace DeathmicChatbot
         public void AddAllStreamsToUser()
         {
             string[] streams = StreamList().Split(',');
+            if (File.Exists("XML/Users.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Users.xml");
+                xdoc.Save("XML/Usersbackup.xml");
+            }
             foreach (string user in AllUser())
             {
                 foreach (string stream in streams)
                 {
                     AddorUpdateSuscription(user, stream.ToLower(), "", false, true);
+                    Thread.Sleep(1000);
                 }
             }
         }
@@ -555,11 +561,19 @@ namespace DeathmicChatbot
                             )));
                 answer = 1;
             }
+            //Backup just in case something goes wrong
+            if (File.Exists("XML/Users.xml"))
+            {
+                xdoc = XDocument.Load("XML/Users.xml");
+                xdoc.Save("XML/Usersbackup.xml");
+            }
+                
             if(answer == 1)
             {
                 foreach(string user in AllUser())
                 {
                     AddorUpdateSuscription(user, channel.ToLower(), "", false, true);
+                    Thread.Sleep(1000);
                 }
             }
             xdoc.Save("XML/Streams.xml");
