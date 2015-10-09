@@ -195,17 +195,27 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnLocalUserNoticeReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
         {
-            if (e.Text == "SubscriptionInit")
+            if (e.Text.Contains("SubscriptionInit"))
             {
-                xmlprovider.AddAllStreamsToUser();
+                string[] split = e.Text.Split(' ');
+                if (split.Count() == 2)
+                {
+                    xmlprovider.AddAllStreamsToUser(split[1]);
+                }
+
             }
         }
 
         protected override void OnLocalUserMessageReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
         {
-            if (e.Text == "SubscriptionInit")
+            if (e.Text.Contains("SubscriptionInit"))
             {
-                xmlprovider.AddAllStreamsToUser();
+                string[] split = e.Text.Split(' ');
+                if (split.Count() == 2)
+                {
+                    xmlprovider.AddAllStreamsToUser(split[1]);
+                }
+
             }
         }
 
@@ -265,9 +275,14 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnChannelNoticeReceived(IrcChannel channel, IrcMessageEventArgs e)
         {
-            if(e.Text == "SubscriptionInit")
+            if(e.Text.Contains("SubscriptionInit"))
             {
-                xmlprovider.AddAllStreamsToUser();
+                string[] split = e.Text.Split(' ');
+                if(split.Count() == 2)
+                {
+                    xmlprovider.AddAllStreamsToUser(split[1]);
+                }
+                
             }
         }
 

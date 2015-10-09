@@ -117,25 +117,35 @@ namespace DeathmicChatbot
             }
             return answer;
         }
-        public void AddAllStreamsToUser()
+        public void AddAllStreamsToUser(String password = "")
         {
-            string[] streams = StreamList().Split(',');
-            if (File.Exists("XML/Users.xml"))
+            string path = Environment.CurrentDirectory + "/password.txt";
+            System.IO.StreamReader file = new System.IO.StreamReader(path);
+            string line = "";
+            try
             {
-                if (!Directory.Exists("XML/Backup"))
-                {
-                    Directory.CreateDirectory("XML/Backup");
-                }
-                XDocument xdocbackup = XDocument.Load("XML/Users.xml");
-                string filename = "XML/Backup/Usersbackup" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".xml";
-                xdocbackup.Save(filename);
+                line = file.ReadLine();
             }
-            foreach (string user in AllUser())
+            catch (Exception) { }
+            if(password == line)
             {
-                foreach (string stream in streams)
+                string[] streams = StreamList().Split(',');
+                if (File.Exists("XML/Users.xml"))
                 {
-                    AddorUpdateSuscription(user, stream.ToLower(), "", false, true);
-                    Thread.Sleep(1000);
+                    if (!Directory.Exists("XML/Backup"))
+                    {
+                        Directory.CreateDirectory("XML/Backup");
+                    }
+                    XDocument xdocbackup = XDocument.Load("XML/Users.xml");
+                    string filename = "XML/Backup/Usersbackup" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".xml";
+                    xdocbackup.Save(filename);
+                }
+                foreach (string user in AllUser())
+                {
+                    foreach (string stream in streams)
+                    {
+                        AddorUpdateSuscription(user, stream.ToLower(), "", false, true);
+                    }
                 }
             }
         }
