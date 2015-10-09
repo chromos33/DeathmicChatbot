@@ -411,11 +411,8 @@ namespace DeathmicChatbot.IRC
                 Console.WriteLine("{0}: Stream stopped: {1}",
                                   DateTime.Now,
                                   args.StreamData.Stream.Channel);
-                thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel), String.Format(
-                                                       "Stream stopped after {1}: _{0}_",
-                                                       args.StreamData.Stream
-                                                           .Channel,
-                                                       duration));
+                string output = "Stream stopped after " + duration + ": " + args.StreamData.Stream.Channel;
+                thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel), output);
             }
         }
         private void OnStreamGlobalNotification(object sender, StreamEventArgs args)
@@ -439,14 +436,8 @@ namespace DeathmicChatbot.IRC
                         game = xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "game");
                     }
                     xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
-                    
-                    thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel), String.Format(
-                                                           "Stream running: _{0}_ ({1}) at {2}/{0}",
-                                                           args.StreamData.Stream
-                                                               .Channel,
-                                                           game,
-                                                           args.StreamData
-                                                               .StreamProvider.GetLink()));
+                    string output = "Stream started: " + args.StreamData.Stream.Channel + "(" + args.StreamData.Stream.Game + ": " + args.StreamData.Stream.Message + ")" + " at " + args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel;
+                    thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel), output);
                 }
             }
         }
@@ -469,15 +460,12 @@ namespace DeathmicChatbot.IRC
                     Console.WriteLine("{0}: Stream started: {1}",
                               DateTime.Now,
                               args.StreamData.Stream.Channel);
-                    thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel), String.Format(
-                                                           "Stream started: _{0}_ ({1}: {2}) at {3}/{0}",
-                                                           args.StreamData.Stream
-                                                               .Channel,
-                                                           args.StreamData.Stream.Game,
-                                                           args.StreamData.Stream
-                                                               .Message,
-                                                           args.StreamData
-                                                               .StreamProvider.GetLink()));
+                    System.Diagnostics.Debug.WriteLine(args.StreamData.Stream.Channel);
+                    System.Diagnostics.Debug.WriteLine(args.StreamData.Stream.Game);
+                    System.Diagnostics.Debug.WriteLine(args.StreamData.Stream.Message);
+                    System.Diagnostics.Debug.WriteLine(args.StreamData.StreamProvider.GetLink());
+                    string output = "Stream started: " + args.StreamData.Stream.Channel +"("+ args.StreamData.Stream.Game +": " + args.StreamData.Stream.Message + ")" +" at "+ args.StreamData.StreamProvider.GetLink()+"/"+ args.StreamData.Stream.Channel;
+                    thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel),output);
                 }
                 
             }
