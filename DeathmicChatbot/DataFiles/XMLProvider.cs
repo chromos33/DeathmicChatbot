@@ -594,7 +594,28 @@ namespace DeathmicChatbot
             }
             return answer;
         }
+        public String stripNonValidXMLCharacters(string textIn)
+        {
+            System.Text.StringBuilder textOut = new System.Text.StringBuilder(); // Used to hold the output.
+            char current; // Used to reference the current character.
 
+
+            if (textIn == null || textIn == string.Empty) return string.Empty; // vacancy test.
+            for (int i = 0; i < textIn.Length; i++)
+            {
+                current = textIn[i];
+
+
+                if ((current == 0x9 || current == 0xA || current == 0xD) ||
+                    ((current >= 0x20) && (current <= 0xD7FF)) ||
+                    ((current >= 0xE000) && (current <= 0xFFFD)) ||
+                    ((current >= 0x10000) && (current <= 0x10FFFF)))
+                {
+                    textOut.Append(current);
+                }
+            }
+            return textOut.ToString();
+        }
         // Twitch Double Game Title Fix
         public bool AddStreamdata(string provider ,TwitchStreamData stream)
         {
@@ -625,6 +646,10 @@ namespace DeathmicChatbot
                             {
                                 game = stream.Stream.Game.ToString();
                             }
+                            game = stripNonValidXMLCharacters(game);
+                            game = game.Replace(",", "");
+                            game = game.Replace(";", "");
+
                             if (element.Attribute("game") == null)
                             {
                                 element.Add(new XAttribute("game", game));
