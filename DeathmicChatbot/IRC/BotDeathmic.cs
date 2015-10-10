@@ -334,6 +334,7 @@ namespace DeathmicChatbot.IRC
             this.ChatCommandProcessors.Add("reconnect",ReconnectDisableRequester);
             this.ChatCommandProcessors.Add("setpass", SetPassword);
             this.ChatCommandProcessors.Add("changesubscription", ChangeSubscription);
+            this.ChatCommandProcessors.Add("resetstreamstate",ResetStreamSate);
 
             
         }
@@ -393,6 +394,10 @@ namespace DeathmicChatbot.IRC
         {
             string message = xmlprovider.RemoveStream(parameters[0]);
             client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), String.Format(message, source.Name, parameters[0]));
+        }
+        private void ResetStreamSate(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            xmlprovider.ResetStreamState();
         }
 
         private void StreamCheck(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)

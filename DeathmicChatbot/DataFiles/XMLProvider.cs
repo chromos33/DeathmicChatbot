@@ -790,6 +790,29 @@ namespace DeathmicChatbot
             }
             return answer;
         }
+        public void ResetStreamState()
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+            //Maybe add provider filtering but have to somewhere add the provider
+            string answer = "";
+
+            if (File.Exists("XML/Streams.xml"))
+            {
+                XDocument xdoc = XDocument.Load("XML/Streams.xml");
+                IEnumerable<XElement> childlist = from streams in xdoc.Root.Elements() select streams;
+
+                if (childlist.Count() > 0)
+                {
+                    foreach (var stream in childlist)
+                    {
+                        stream.Attribute("running").Value = "false";
+                    }
+                    xdoc.Save("XML/Streams.xml");
+                }
+            }
+            return;
+        }
         public string[] OnlineStreamList()
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
