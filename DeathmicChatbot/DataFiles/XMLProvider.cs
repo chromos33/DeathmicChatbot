@@ -397,17 +397,8 @@ namespace DeathmicChatbot
                 }
                 return false;
         }
-        public List<string> SuscribedUsers(string streamname, IEnumerable<IrcChannelUser> users)
+        public List<string> SuscribedUsers(string streamname)
         {
-
-            string usersCSV = "";
-            foreach(IrcChannelUser user in users)
-            {
-                usersCSV += user.User.NickName + ",";
-            }
-            usersCSV = usersCSV.Substring(0, usersCSV.Length - 1);
-            //test case
-            usersCSV += "chromos33";
             List<string> result = new List<string>();
             streamname = streamname.ToLower();
 
@@ -421,7 +412,7 @@ namespace DeathmicChatbot
                 xdoc = XDocument.Load("XML/Users.xml");
                 try
                 {
-                    var Users = xdoc.Root.Elements().Where(User => usersCSV.Contains(User.Attribute("Nick").Value)).Where(User => User.Elements("Stream").Count() >0).Where(User => User.Elements("Stream").Attributes("Name").First().Value == streamname);
+                    var Users = xdoc.Root.Elements().Where(User => User.Elements("Stream").Count() >0).Where(User => User.Elements("Stream").Attributes("Name").First().Value == streamname);
                     Console.WriteLine("users: " + Users.Count());
                     foreach (var item in Users)
                     {
@@ -727,10 +718,6 @@ namespace DeathmicChatbot
 
         public void AddStreamLivedata(string Channel, string URL,string Game)
         {
-            Console.WriteLine("AddStreamLivedata");
-            Console.WriteLine(Channel);
-            Console.WriteLine(URL);
-            Console.WriteLine(Game);
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             if (File.Exists("XML/Streams.xml"))
@@ -741,7 +728,6 @@ namespace DeathmicChatbot
                     IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() where el.Attribute("Channel").Value == Channel.ToLower() select el;
                     foreach (var element in childlist)
                     {
-                        Console.WriteLine("Found Children");
                         if (element.Attribute("game") == null)
                         {
                             element.Add(new XAttribute("game", Game));
@@ -839,6 +825,8 @@ namespace DeathmicChatbot
 
         public void StreamStartUpdate(string channel, bool end = false)
         {
+            Console.WriteLine(channel);
+            Console.WriteLine(end);
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
@@ -851,7 +839,7 @@ namespace DeathmicChatbot
                     IEnumerable<XElement> childlist = from streams in xdoc.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
                     if (childlist.Count() > 0)
                     {
-
+                        Console.Write("test1");
                         foreach (var stream in childlist)
                         {
                             if (stream.Attribute("running").Value == "false")
@@ -882,6 +870,7 @@ namespace DeathmicChatbot
                                 stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))));
                             }
                         }
+                        Console.Write("test2");
                         xdoc.Save("XML/Streams.xml");
                     }
                 }
