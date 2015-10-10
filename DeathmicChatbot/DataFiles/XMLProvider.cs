@@ -142,12 +142,15 @@ namespace DeathmicChatbot
                     string filename = "XML/Backup/Usersbackup" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".xml";
                     xdocbackup.Save(filename);
                 }
-                foreach (string user in AllUser())
+                string suscribestreams = "";
+                foreach (string stream in streams)
                 {
-                    foreach (string stream in streams)
-                    {
-                        AddorUpdateSuscription(user, stream.ToLower(), "", false, true);
-                    }
+                    suscribestreams += stream;
+                }
+                foreach (string user in AllUser())
+                { 
+                    AddorUpdateSuscription(user, suscribestreams.ToLower(), "", false, true);
+                    Thread.Sleep(50);
                 }
             }
         }
@@ -218,6 +221,7 @@ namespace DeathmicChatbot
                             new XAttribute("LastVisit", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                             new XAttribute("VisitCount", "1"),
                             new XAttribute("isloggingOp", "false"),
+                            new XAttribute("Streams", StreamList()),
                             new XElement("Alias", new XAttribute("Value", ""))
                             );
                         xdoc.Element("Users").Add(_element);
@@ -345,29 +349,24 @@ namespace DeathmicChatbot
                     {
                         foreach (XElement item in childlist)
                         {
-                            Console.WriteLine(item.Elements("Stream").Where(stream => stream.Attribute("Name").Value == streamname).Count());
-                            if (item.Elements("Stream").Where(stream => stream.Attribute("Name").Value == streamname).Count() > 0)
-                            {
-                                if (remove)
+                           if(item.Attribute("Streams") == null)
+                           {
+                                item.Add(new XAttribute("Streams", streamname));
+                           }
+                           else
+                           {
+                                if(item.Attribute("Streams").Value.Contains(streamname))
                                 {
-                                    item.Elements("Stream").Where(stream => stream.Attribute("Name").Value == streamname).First().Remove();
+                                    if(remove)
+                                    {
+                                        item.Attribute("Streams").Value = item.Attribute("Streams").Value.Replace(streamname, "");
+                                    }
                                 }
                                 else
                                 {
-                                    return false;
+                                    item.Attribute("Streams").Value += streamname;
                                 }
-                            }
-                            else
-                            {
-                                if (!remove)
-                                {
-                                    item.Add(new XElement("Stream", new XAttribute("Name", streamname)));
-                                }
-                                else
-                                {
-                                    return false;
-                                }
-                            }
+                           }
                         }
                         xdoc.Save("XML/Users.xml");
                         return true;
@@ -389,18 +388,24 @@ namespace DeathmicChatbot
                 if (File.Exists("XML/Users.xml"))
                 {
                     xdoc = XDocument.Load("XML/Users.xml");
-                    int i = xdoc.Root.Elements().Select(User => User.Elements("Stream").Where(Stream => Stream.Attribute("Name").Value == streamname)).Count();
-                    if(i > 0)
+                    int i = xdoc.Root.Elements().Select(User => User.Attribute("Stream").Value.Contains(streamname)).Count();
+                    if (i > 0)
                     {
                         return true;
                     }
                 }
                 return false;
         }
-        public List<string> SuscribedUsers(string streamname)
+        public List<string> SuscribedUsers(string streamname,IEnumerable<IrcChannelUser> users)
         {
             List<string> result = new List<string>();
             streamname = streamname.ToLower();
+            string userlist = "";
+            foreach(IrcChannelUser user in users)
+            {
+                userlist += user.User.NickName;
+            }
+            Console.WriteLine("Users:" + userlist);
 
             XDocument xdoc = new XDocument();
             if (!Directory.Exists("XML"))
@@ -412,7 +417,7 @@ namespace DeathmicChatbot
                 xdoc = XDocument.Load("XML/Users.xml");
                 try
                 {
-                    var Users = xdoc.Root.Elements().Where(User => User.Elements("Stream").Count() >0).Where(User => User.Elements("Stream").Attributes("Name").First().Value == streamname);
+                    var Users = xdoc.Root.Elements().Where(User => userlist.Contains(User.Attribute("Nick").Value)).Where(User => User.Attribute("Streams").Value.Contains(streamname));
                     Console.WriteLine("users: " + Users.Count());
                     foreach (var item in Users)
                     {
@@ -423,7 +428,11 @@ namespace DeathmicChatbot
                     Console.WriteLine(ex);
                 }
             }
-
+            Console.WriteLine(result.Count());
+            foreach(string test in result)
+            {
+                Console.WriteLine(test);
+            }
             return result;
         }
         #endregion
@@ -839,7 +848,6 @@ namespace DeathmicChatbot
                     IEnumerable<XElement> childlist = from streams in xdoc.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
                     if (childlist.Count() > 0)
                     {
-                        Console.Write("test1");
                         foreach (var stream in childlist)
                         {
                             if (stream.Attribute("running").Value == "false")
@@ -870,7 +878,6 @@ namespace DeathmicChatbot
                                 stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))));
                             }
                         }
-                        Console.Write("test2");
                         xdoc.Save("XML/Streams.xml");
                     }
                 }
@@ -892,6 +899,7 @@ namespace DeathmicChatbot
                     }
                 }
             }
+            return;
         }
         public string StreamInfo(string channel, string inforequested)
         {

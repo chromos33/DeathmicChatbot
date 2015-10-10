@@ -21,7 +21,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="Name" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">BobDeathmic</Value>
+      <Value Profile="(Default)">bobdeathmic</Value>
     </Setting>
     <Setting Name="Channel" Type="System.String" Scope="Application">
       <Value Profile="(Default)">#deathmic</Value>
