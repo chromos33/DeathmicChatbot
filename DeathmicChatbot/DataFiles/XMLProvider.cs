@@ -727,6 +727,10 @@ namespace DeathmicChatbot
 
         public void AddStreamLivedata(string Channel, string URL,string Game)
         {
+            Console.WriteLine("AddStreamLivedata");
+            Console.WriteLine(Channel);
+            Console.WriteLine(URL);
+            Console.WriteLine(Game);
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             if (File.Exists("XML/Streams.xml"))
@@ -737,6 +741,7 @@ namespace DeathmicChatbot
                     IEnumerable<XElement> childlist = from el in xdoc.Root.Elements() where el.Attribute("Channel").Value == Channel.ToLower() select el;
                     foreach (var element in childlist)
                     {
+                        Console.WriteLine("Found Children");
                         if (element.Attribute("game") == null)
                         {
                             element.Add(new XAttribute("game", Game));
