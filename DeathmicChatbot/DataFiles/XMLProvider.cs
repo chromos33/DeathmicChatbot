@@ -7,6 +7,8 @@ using DeathmicChatbot.StreamInfo.Twitch;
 using System.Globalization;
 using System.Threading;
 using DeathmicChatbot.DataFiles;
+using IrcDotNet;
+using IrcDotNet.Ctcp;
 
 namespace DeathmicChatbot
 {
@@ -395,8 +397,17 @@ namespace DeathmicChatbot
                 }
                 return false;
         }
-        public List<string> SuscribedUsers(string streamname)
+        public List<string> SuscribedUsers(string streamname, IEnumerable<IrcChannelUser> users)
         {
+
+            string usersCSV = "";
+            foreach(IrcChannelUser user in users)
+            {
+                usersCSV += user.User.NickName + ",";
+            }
+            usersCSV = usersCSV.Substring(0, usersCSV.Length - 1);
+            //test case
+            usersCSV += "chromos33";
             List<string> result = new List<string>();
             streamname = streamname.ToLower();
 
@@ -410,7 +421,7 @@ namespace DeathmicChatbot
                 xdoc = XDocument.Load("XML/Users.xml");
                 try
                 {
-                    var Users = xdoc.Root.Elements().Where(User => User.Elements("Stream").Count() >0).Where(User => User.Elements("Stream").Attributes("Name").First().Value == streamname);
+                    var Users = xdoc.Root.Elements().Where(User => usersCSV.Contains(User.Attribute("Nick").Value)).Where(User => User.Elements("Stream").Count() >0).Where(User => User.Elements("Stream").Attributes("Name").First().Value == streamname);
                     Console.WriteLine("users: " + Users.Count());
                     foreach (var item in Users)
                     {
