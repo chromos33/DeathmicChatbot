@@ -69,6 +69,7 @@ namespace DeathmicChatbot.IRC
         private bool Disconnected = false;
         private static List<IURLHandler> handlers = new List<IURLHandler>() { new LinkParser.YoutubeHandler(), new LinkParser.Imgur(), new LinkParser.WebsiteHandler() };
         private static System.Timers.Timer VoteTimer;
+        public IList<IIrcMessageTarget> targets;
         #endregion
         #region Constructor
         public BotDeathmic()
@@ -202,7 +203,6 @@ namespace DeathmicChatbot.IRC
                 {
                     xmlprovider.AddAllStreamsToUser(split[1]);
                 }
-
             }
         }
 
@@ -215,7 +215,6 @@ namespace DeathmicChatbot.IRC
                 {
                     xmlprovider.AddAllStreamsToUser(split[1]);
                 }
-
             }
         }
 
@@ -400,7 +399,7 @@ namespace DeathmicChatbot.IRC
             {
                 string[] streamprovidersplit = stream.Split(',');
                 //TODO add provider link completion
-                if(xmlprovider.SuscribedUsers(stream).Contains(source.Name))
+                if(xmlprovider.SuscribedUsers(stream, thisclient.LocalUser.GetChannelUsers()).Contains(source.Name))
                 {
                     client.LocalUser.SendMessage(source.Name, streamprovidersplit[0] + " is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[0], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[0], "URL"));
                 }
@@ -427,7 +426,7 @@ namespace DeathmicChatbot.IRC
                                   DateTime.Now,
                                   args.StreamData.Stream.Channel);
                 string output = "Stream stopped after " + duration + ": " + args.StreamData.Stream.Channel;
-                thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel), output);
+                thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.LocalUser.GetChannelUsers()), output);
             }
         }
         private void OnStreamGlobalNotification(object sender, StreamEventArgs args)
@@ -452,7 +451,7 @@ namespace DeathmicChatbot.IRC
                     }
                     xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
                     string output = "Stream started: " + args.StreamData.Stream.Channel + "(" + args.StreamData.Stream.Game + ": " + args.StreamData.Stream.Message + ")" + " at " + args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel;
-                    thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel), output);
+                     thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.LocalUser.GetChannelUsers()), output);
                 }
             }
         }
@@ -480,7 +479,8 @@ namespace DeathmicChatbot.IRC
                     System.Diagnostics.Debug.WriteLine(args.StreamData.Stream.Message);
                     System.Diagnostics.Debug.WriteLine(args.StreamData.StreamProvider.GetLink());
                     string output = "Stream started: " + args.StreamData.Stream.Channel +"("+ args.StreamData.Stream.Game +": " + args.StreamData.Stream.Message + ")" +" at "+ args.StreamData.StreamProvider.GetLink()+"/"+ args.StreamData.Stream.Channel;
-                    thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel),output);
+
+                    thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.LocalUser.GetChannelUsers()), output);
                 }
                 
             }
