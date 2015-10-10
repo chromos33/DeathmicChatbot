@@ -482,10 +482,10 @@ namespace DeathmicChatbot.IRC
 
                     thisclient.LocalUser.SendMessage(xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel), output);
                 }
-                
+                xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel);
+                xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
             }
-            xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel);
-            xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
+            
         }
         #endregion
         #region general stuff
