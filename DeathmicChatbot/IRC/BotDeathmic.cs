@@ -70,6 +70,8 @@ namespace DeathmicChatbot.IRC
         private static List<IURLHandler> handlers = new List<IURLHandler>() { new LinkParser.YoutubeHandler(), new LinkParser.Imgur(), new LinkParser.WebsiteHandler() };
         private static System.Timers.Timer VoteTimer;
         public IList<IIrcMessageTarget> targets;
+        public bool sendmsg_block = false;
+        public bool globalnotiblock = false;
         #endregion
         #region Constructor
         public BotDeathmic()
@@ -395,23 +397,36 @@ namespace DeathmicChatbot.IRC
 
         private void StreamCheck(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
+            while (sendmsg_block)
+            {
+                Thread.Sleep(5000);
+            }
             foreach (var stream in xmlprovider.OnlineStreamList())
             {
                 string[] streamprovidersplit = stream.Split(',');
                 //TODO add provider link completion
-                if(xmlprovider.SuscribedUsers(stream, thisclient.Channels.First().Users).Contains(source.Name))
+                bool userfound = false;
+                foreach(var user in thisclient.Channels.First().Users)
                 {
-                    client.LocalUser.SendMessage(source.Name, streamprovidersplit[0] + " is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[0], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[0], "URL"));
+                    if (user.User.NickName.ToLower() == source.Name.ToLower())
+                    {
+                        userfound = true;
+                    }
+                }
+      
+                if(xmlprovider.SuscribedUsers(stream, thisclient.Channels.First().Users).Contains(source.Name.ToLower()))
+                {
+                    client.LocalUser.SendNotice(source.Name, streamprovidersplit[0] + " is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[0], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[0], "URL"));
                 }
                 else
                 {
-                    client.LocalUser.SendMessage(source.Name, "No Stream is currently running.");
+                    client.LocalUser.SendNotice(source.Name, "No Stream is currently running.");
                 }
                 
             }
             if (xmlprovider.OnlineStreamList().Count() == 0)
             {
-                client.LocalUser.SendMessage(source.Name, "No Stream is currently running.");
+                client.LocalUser.SendNotice(source.Name, "No Stream is currently running.");
             }
         }
 
@@ -427,13 +442,20 @@ namespace DeathmicChatbot.IRC
                                   args.StreamData.Stream.Channel);
                 string output = "Stream stopped after " + duration + ": " + args.StreamData.Stream.Channel;
                 int sentmessages = 0;
-                foreach(string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
+                while (sendmsg_block)
                 {
-                    thisclient.LocalUser.SendMessage(user, output);
+                    Thread.Sleep(5000);
+                }
+                foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
+                {
+                    thisclient.LocalUser.SendNotice(user, output);
                     sentmessages++;
-                    if (sentmessages % 4 == 0)
+                    Thread.Sleep(200);
+                    if (sentmessages > 2)
                     {
+                        sendmsg_block = true;
                         Thread.Sleep(2000);
+                        sendmsg_block = false;
                     }
                 }
                 
@@ -441,37 +463,48 @@ namespace DeathmicChatbot.IRC
         }
         private void OnStreamGlobalNotification(object sender, StreamEventArgs args)
         {
-            
-            if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "true")
+            if(!globalnotiblock)
             {
-                if(xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
+                globalnotiblock = true;
+                if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "true")
                 {
-                    Console.WriteLine("{0}: Stream running: {1}",
-                          DateTime.Now,
-                          args.StreamData.Stream.Channel);
-                    string game = "";
-                    System.Diagnostics.Debug.WriteLine(args.StreamData.StreamProvider.GetType().ToString());
-                    if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
+                    if (xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
                     {
-                        game = args.StreamData.Stream.Message;
-                    }
-                    else
-                    {
-                        game = xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "game");
-                    }
-                    xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
-                    string output = "Stream started: " + args.StreamData.Stream.Channel + "(" + args.StreamData.Stream.Game + ": " + args.StreamData.Stream.Message + ")" + " at " + args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel;
-                    int sentmessages = 0;
-                    foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
-                    {
-                        thisclient.LocalUser.SendMessage(user, output);
-                        sentmessages++;
-                        if (sentmessages % 4 == 0)
+                        Console.WriteLine("{0}: Stream running: {1}",
+                              DateTime.Now,
+                              args.StreamData.Stream.Channel);
+                        string game = "";
+                        System.Diagnostics.Debug.WriteLine(args.StreamData.StreamProvider.GetType().ToString());
+                        if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
                         {
-                            Thread.Sleep(2000);
+                            game = args.StreamData.Stream.Message;
+                        }
+                        else
+                        {
+                            game = xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "game");
+                        }
+                        xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
+                        string output = "Stream started: " + args.StreamData.Stream.Channel + "(" + args.StreamData.Stream.Game + ": " + args.StreamData.Stream.Message + ")" + " at " + args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel;
+                        int sentmessages = 0;
+                        while (sendmsg_block)
+                        {
+                            Thread.Sleep(5000);
+                        }
+                        foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
+                        {
+                            thisclient.LocalUser.SendNotice(user, output);
+                            sentmessages++;
+                            Thread.Sleep(200);
+                            if (sentmessages > 2)
+                            {
+                                sendmsg_block = true;
+                                Thread.Sleep(2000);
+                                sendmsg_block = false;
+                            }
                         }
                     }
                 }
+                globalnotiblock = false;
             }
         }
 
@@ -495,19 +528,22 @@ namespace DeathmicChatbot.IRC
                     Console.WriteLine("{0}: Stream started: {1}",
                               DateTime.Now,
                               args.StreamData.Stream.Channel);
-                    System.Diagnostics.Debug.WriteLine(args.StreamData.Stream.Channel);
-                    System.Diagnostics.Debug.WriteLine(args.StreamData.Stream.Game);
-                    System.Diagnostics.Debug.WriteLine(args.StreamData.Stream.Message);
-                    System.Diagnostics.Debug.WriteLine(args.StreamData.StreamProvider.GetLink());
                     string output = "Stream started: " + args.StreamData.Stream.Channel +"("+ args.StreamData.Stream.Game +": " + args.StreamData.Stream.Message + ")" +" at "+ args.StreamData.StreamProvider.GetLink()+"/"+ args.StreamData.Stream.Channel;
                     int sentmessages = 0;
+                    while(sendmsg_block)
+                    {
+                        Thread.Sleep(5000);
+                    }
                     foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                     {
-                        thisclient.LocalUser.SendMessage(user, output);
+                        thisclient.LocalUser.SendNotice(user, output);
                         sentmessages++;
-                        if (sentmessages % 4 == 0)
+                        Thread.Sleep(200);
+                        if (sentmessages > 2)
                         {
+                            sendmsg_block = true;
                             Thread.Sleep(2000);
+                            sendmsg_block = false;
                         }
                     }
                 }

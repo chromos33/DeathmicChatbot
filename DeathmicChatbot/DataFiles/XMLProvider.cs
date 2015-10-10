@@ -403,9 +403,9 @@ namespace DeathmicChatbot
             string userlist = "";
             foreach(IrcChannelUser user in users)
             {
-                userlist += user.User.NickName;
+                userlist += user.User.NickName.ToLower();
+                Console.WriteLine("User:" + user.User.NickName);
             }
-            Console.WriteLine("Users:" + userlist);
 
             XDocument xdoc = new XDocument();
             if (!Directory.Exists("XML"))
