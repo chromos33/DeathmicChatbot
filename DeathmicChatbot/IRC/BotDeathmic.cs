@@ -1282,6 +1282,7 @@ namespace DeathmicChatbot.IRC
             if (parameters[0] == "help")
             {
                 client.LocalUser.SendMessage(source.Name, "Password Command: '!setpass [New Password] [old Pass]' old Pass is optional on the First time");
+                return;
             }
             if(parameters.Count == 1)
             {
