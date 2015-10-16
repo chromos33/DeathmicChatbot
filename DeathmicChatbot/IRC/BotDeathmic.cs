@@ -70,8 +70,6 @@ namespace DeathmicChatbot.IRC
         private static List<IURLHandler> handlers = new List<IURLHandler>() { new LinkParser.YoutubeHandler(), new LinkParser.Imgur(), new LinkParser.WebsiteHandler() };
         private static System.Timers.Timer VoteTimer;
         public IList<IIrcMessageTarget> targets;
-        public bool sendmsg_block = false;
-        public bool globalnotiblock = false;
         #endregion
         #region Constructor
         public BotDeathmic()
@@ -127,6 +125,10 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnLocalUserJoinedChannel(IrcLocalUser localUser, IrcChannelEventArgs e)
         {
+            
+            thisclient.FloodPreventer = new IrcStandardFloodPreventer(2,4000);
+            Console.WriteLine("FloodPreventer" + thisclient.FloodPreventer);
+            Console.WriteLine(thisclient.FloodPreventer.GetSendDelay());
             if (xmlprovider.runningVotes().Count() > 0)
             {
                 VoteTimer = new System.Timers.Timer(5000);
@@ -335,8 +337,21 @@ namespace DeathmicChatbot.IRC
             this.ChatCommandProcessors.Add("setpass", SetPassword);
             this.ChatCommandProcessors.Add("changesubscription", ChangeSubscription);
             this.ChatCommandProcessors.Add("resetstreamstate",ResetStreamSate);
+            //this.ChatCommandProcessors.Add("testfloodprotection", flood);
 
-            
+
+        }
+        private void flood(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            for(int i = 0;i<3;i++)
+            {
+                client.LocalUser.SendNotice(source.Name, "libtest");
+                client.LocalUser.SendNotice("chromos44", "libtest");
+                client.LocalUser.SendMessage(source.Name, "libtest");
+                client.LocalUser.SendMessage("chromos44", "libtest");
+                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), "libtest");
+                client.LocalUser.SendNotice(Properties.Settings.Default.Channel.ToString(), "libtest");
+            }
         }
         #endregion
         #region generalfunctions
@@ -402,10 +417,6 @@ namespace DeathmicChatbot.IRC
 
         private void StreamCheck(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             foreach (var stream in xmlprovider.OnlineStreamList())
             {
                 string[] streamprovidersplit = stream.Split(',');
@@ -437,10 +448,6 @@ namespace DeathmicChatbot.IRC
 
         private void OnStreamStopped(object sender, StreamEventArgs args)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime") != "" && Convert.ToBoolean(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running")))
             {
@@ -450,70 +457,43 @@ namespace DeathmicChatbot.IRC
                                   DateTime.Now,
                                   args.StreamData.Stream.Channel);
                 string output = "Stream stopped after " + duration + ": " + args.StreamData.Stream.Channel;
-                int sentmessages = 0;
-                while (sendmsg_block)
-                {
-                    Thread.Sleep(5000);
-                }
                 foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                 {
                     thisclient.LocalUser.SendNotice(user, output);
-                    sentmessages++;
-                    sendmsg_block = true;
-                    Thread.Sleep(3000 + Rnd.Next(0,500));;
                 }
-                sendmsg_block = false;
             }
         }
         private void OnStreamGlobalNotification(object sender, StreamEventArgs args)
         {
-            while (sendmsg_block)
+            if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "true")
             {
-                Thread.Sleep(5000);
-            }
-            if (!globalnotiblock)
-            {
-                globalnotiblock = true;
-                if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "true")
+                if (xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
                 {
-                    if (xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
+                    Console.WriteLine("{0}: Stream running: {1}",
+                            DateTime.Now,
+                            args.StreamData.Stream.Channel);
+                    string game = "";
+                    System.Diagnostics.Debug.WriteLine(args.StreamData.StreamProvider.GetType().ToString());
+                    if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
                     {
-                        Console.WriteLine("{0}: Stream running: {1}",
-                              DateTime.Now,
-                              args.StreamData.Stream.Channel);
-                        string game = "";
-                        System.Diagnostics.Debug.WriteLine(args.StreamData.StreamProvider.GetType().ToString());
-                        if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
-                        {
-                            game = args.StreamData.Stream.Message;
-                        }
-                        else
-                        {
-                            game = xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "game");
-                        }
-                        xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
-                        string output = "Stream started: " + args.StreamData.Stream.Channel + "(" + args.StreamData.Stream.Game + ": " + args.StreamData.Stream.Message + ")" + " at " + args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel;
-                        int sentmessages = 0;
-                        foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
-                        {
-                            thisclient.LocalUser.SendNotice(user, output);
-                            sentmessages++;
-                            sendmsg_block = true;
-                            Thread.Sleep(3000 + Rnd.Next(0,500));;
-                        }
-                        sendmsg_block = false;
+                        game = args.StreamData.Stream.Message;
+                    }
+                    else
+                    {
+                        game = xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "game");
+                    }
+                    xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
+                    string output = "Stream started: " + args.StreamData.Stream.Channel + "(" + args.StreamData.Stream.Game + ": " + args.StreamData.Stream.Message + ")" + " at " + args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel;
+                    foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
+                    {
+                        thisclient.LocalUser.SendNotice(user, output);
                     }
                 }
-                globalnotiblock = false;
             }
         }
 
         private void OnStreamStarted(object sender, StreamEventArgs args)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             if (xmlprovider.isinStreamList(args.StreamData.Stream.Channel))
             {
@@ -533,19 +513,11 @@ namespace DeathmicChatbot.IRC
                               args.StreamData.Stream.Channel);
                     string output = "Stream started: " + args.StreamData.Stream.Channel +"("+ args.StreamData.Stream.Game +": " + args.StreamData.Stream.Message + ")" +" at "+ args.StreamData.StreamProvider.GetLink()+"/"+ args.StreamData.Stream.Channel;
                     int sentmessages = 0;
-                    while(sendmsg_block)
-                    {
-                        Thread.Sleep(5000);
-                    }
                     foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                     {
-                        sendmsg_block = true;
                         thisclient.LocalUser.SendNotice(user, output);
                         sentmessages++;
-                        Thread.Sleep(3000 + Rnd.Next(0,500));
-                        
                     }
-                    sendmsg_block = false;
                 }
                 xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
                 xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel);
@@ -556,10 +528,6 @@ namespace DeathmicChatbot.IRC
         #region general stuff
         private void Roll(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             var regex = new Regex(@"(^\d+)[wWdD](\d+$)");
             if (!regex.IsMatch(parameters[0]))
             {
@@ -634,10 +602,6 @@ namespace DeathmicChatbot.IRC
         
         private void SendMessage(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), combineParameters(parameters));
         }
         #endregion
@@ -660,10 +624,6 @@ namespace DeathmicChatbot.IRC
         }
         private void PickRandomUser(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             try
             {
                 List<string> unfilteredTargets = new List<string>();
@@ -917,10 +877,6 @@ namespace DeathmicChatbot.IRC
         }
         private void RemoveUserPicklist(IrcClient client, IIrcMessageSource source, System.Collections.Generic.IList<IIrcMessageTarget> targets, string command, System.Collections.Generic.IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             if (parameters.Count() >0)
             {
                 List<string> checkparams = parameters.ToList();
@@ -960,10 +916,6 @@ namespace DeathmicChatbot.IRC
 
         private void UserPickList(IrcClient client, IIrcMessageSource source, System.Collections.Generic.IList<IIrcMessageTarget> targets, string command, System.Collections.Generic.IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             try
             {
                 string output;
@@ -1026,10 +978,6 @@ namespace DeathmicChatbot.IRC
         }
         private void StartVoting(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             if (parameters.Count ==1)
             {
                 if(parameters[0] == "help")
@@ -1132,10 +1080,6 @@ namespace DeathmicChatbot.IRC
 
         private void EndVoting(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             if (parameters.Count() == 1)
             {
                 if(parameters[0] == "help")
@@ -1171,10 +1115,6 @@ namespace DeathmicChatbot.IRC
         }
         private void Vote(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             if (parameters[0] != null)
             {
                 if (parameters[0] == "help")
@@ -1218,10 +1158,6 @@ namespace DeathmicChatbot.IRC
 
         private void ListVotings(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             List<VoteObject> Votings = xmlprovider.runningVotes();
             if(Votings.Count() > 0)
             {
@@ -1245,10 +1181,6 @@ namespace DeathmicChatbot.IRC
         #region Voting EventListeners
         private void OnVoteTimerEvent(Object source, ElapsedEventArgs e)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             List<int> Votes = xmlprovider.expiredVotes();
             foreach (int vote in Votes)
             {
@@ -1307,10 +1239,6 @@ namespace DeathmicChatbot.IRC
         #endregion
         private void ToggleUserLogging(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             client.LocalUser.SendNotice(source.Name, xmlprovider.ToggleUserLogging(source.Name));
         }
@@ -1346,10 +1274,6 @@ namespace DeathmicChatbot.IRC
         }
         private void ChangeSubscription(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             bool result = false;
             if (parameters[0] == "help")
             {
