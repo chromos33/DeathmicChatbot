@@ -1245,10 +1245,6 @@ namespace DeathmicChatbot.IRC
         
         private void SetPassword(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            while (sendmsg_block)
-            {
-                Thread.Sleep(5000);
-            }
             bool result = false;
             if (parameters[0] == "help")
             {
