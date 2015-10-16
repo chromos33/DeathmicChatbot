@@ -460,10 +460,9 @@ namespace DeathmicChatbot.IRC
                     thisclient.LocalUser.SendNotice(user, output);
                     sentmessages++;
                     sendmsg_block = true;
-                    Thread.Sleep(2000);
-                    sendmsg_block = false;
+                    Thread.Sleep(3000 + Rnd.Next(0,500));;
                 }
-                
+                sendmsg_block = false;
             }
         }
         private void OnStreamGlobalNotification(object sender, StreamEventArgs args)
@@ -500,9 +499,9 @@ namespace DeathmicChatbot.IRC
                             thisclient.LocalUser.SendNotice(user, output);
                             sentmessages++;
                             sendmsg_block = true;
-                            Thread.Sleep(2000);
-                            sendmsg_block = false;
+                            Thread.Sleep(3000 + Rnd.Next(0,500));;
                         }
+                        sendmsg_block = false;
                     }
                 }
                 globalnotiblock = false;
@@ -540,12 +539,13 @@ namespace DeathmicChatbot.IRC
                     }
                     foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                     {
+                        sendmsg_block = true;
                         thisclient.LocalUser.SendNotice(user, output);
                         sentmessages++;
-                        sendmsg_block = true;
-                        Thread.Sleep(2000);
-                        sendmsg_block = false;
+                        Thread.Sleep(3000 + Rnd.Next(0,500));
+                        
                     }
+                    sendmsg_block = false;
                 }
                 xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
                 xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel);
