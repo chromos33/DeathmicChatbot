@@ -165,8 +165,8 @@ namespace DeathmicChatbot.IRC
         {
             Console.WriteLine("Reconnect");
             ReconnectInbound = false;
-            thisclient.Disconnect();
-            
+            Environment.Exit(0);
+
         }
         private void OnReconnectTimer(object sender, System.Timers.ElapsedEventArgs e)
         {
@@ -248,12 +248,15 @@ namespace DeathmicChatbot.IRC
                     foreach (string streamname in xmlprovider.OnlineStreamList())
                     {
                         string _streamname = streamname.Replace(",", "");
-                        thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
+                        if(xmlprovider.CheckSuscription(e.ChannelUser.User.ToString().ToLower(),_streamname))
+                        {
+                            thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
                                                            "Stream running: _{0}_ ({1}) at {2}",
                                                            _streamname,
                                                            xmlprovider.StreamInfo(_streamname, "game"),
                                                            xmlprovider.StreamInfo(_streamname, "URL")
                                                            ));
+                        }
                     }                    
                 }
                 else
@@ -486,6 +489,7 @@ namespace DeathmicChatbot.IRC
                     string output = "Stream started: " + args.StreamData.Stream.Channel + "(" + args.StreamData.Stream.Game + ": " + args.StreamData.Stream.Message + ")" + " at " + args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel;
                     foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                     {
+                        Thread.Sleep(50);
                         thisclient.LocalUser.SendNotice(user, output);
                     }
                 }
@@ -512,11 +516,10 @@ namespace DeathmicChatbot.IRC
                               DateTime.Now,
                               args.StreamData.Stream.Channel);
                     string output = "Stream started: " + args.StreamData.Stream.Channel +"("+ args.StreamData.Stream.Game +": " + args.StreamData.Stream.Message + ")" +" at "+ args.StreamData.StreamProvider.GetLink()+"/"+ args.StreamData.Stream.Channel;
-                    int sentmessages = 0;
                     foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                     {
+                        Thread.Sleep(50);
                         thisclient.LocalUser.SendNotice(user, output);
-                        sentmessages++;
                     }
                 }
                 xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
