@@ -150,11 +150,11 @@ namespace DeathmicChatbot.IRC
 
             if (!debug)
             {
-                reconnectimer = new System.Timers.Timer(60000);
+                reconnectimer = new System.Timers.Timer(120000);
             }
             else
             {
-                reconnectimer = new System.Timers.Timer(120000);
+                reconnectimer = new System.Timers.Timer(240000);
             }
             reconnectimer.Elapsed += OnReconnectTimer;
             reconnectimer.Enabled = true;
