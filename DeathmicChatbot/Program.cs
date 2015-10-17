@@ -17,29 +17,23 @@ namespace DeathmicChatbot
         {
             PerformanceCounter cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
             Console.WriteLine(cpu.NextValue());
-            if (!File.Exists(Directory.GetCurrentDirectory()+"/botlock") || Settings.Default.Debug)
+            try
             {
-                try
-                {
-                    File.Create(Directory.GetCurrentDirectory() + "/botlock");
-                    ConnectBot();
-                    // bot.Run starts console interface with input for commands not really needed
+                File.Create(Directory.GetCurrentDirectory() + "/botlock");
+                ConnectBot();
+                // bot.Run starts console interface with input for commands not really needed
 
-                    //bot.Run();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Fatal error: " + ex.Message);
-                    Environment.ExitCode = 1;
-                }
-                finally
-                {
-                    if (bot != null)
-                        bot.Dispose();
-                }
+                //bot.Run();
             }
-            else
+            catch (Exception ex)
             {
+                Console.WriteLine("Fatal error: " + ex.Message);
+                Environment.ExitCode = 1;
+            }
+            finally
+            {
+                if (bot != null)
+                    bot.Dispose();
                 Environment.Exit(1);
             }
         }

@@ -388,7 +388,7 @@ namespace DeathmicChatbot
                 if (File.Exists("XML/Users.xml"))
                 {
                     xdoc = XDocument.Load("XML/Users.xml");
-                    int i = xdoc.Root.Elements().Select(User => User.Attribute("Stream").Value.Contains(streamname)).Count();
+                    int i = xdoc.Root.Elements().Where(User => User.Attribute("Nick").Value.ToLower() == nick.ToLower()).Where(User => User.Attribute("Streams") != null).Where(User => User.Attribute("Streams").Value.ToLower().Contains(streamname.ToLower())).Count();
                     if (i > 0)
                     {
                         return true;
