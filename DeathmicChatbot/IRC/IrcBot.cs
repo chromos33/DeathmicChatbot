@@ -159,7 +159,7 @@ namespace DeathmicChatbot.IRC
             {
                 client.Connected += (sender2, e2) => connectedEvent.Set();
                 client.Connect(server, false, registrationInfo);
-                if (!connectedEvent.Wait(10000))
+                if (!connectedEvent.Wait(50000))
                 {
                     client.Dispose();
                     Console.WriteLine("Connection to '{0}' timed out.", server);

@@ -150,11 +150,11 @@ namespace DeathmicChatbot.IRC
 
             if (!debug)
             {
-                reconnectimer = new System.Timers.Timer(60000);
+                reconnectimer = new System.Timers.Timer(150000);
             }
             else
             {
-                reconnectimer = new System.Timers.Timer(120000);
+                reconnectimer = new System.Timers.Timer(240000);
             }
             reconnectimer.Elapsed += OnReconnectTimer;
             reconnectimer.Enabled = true;
@@ -212,6 +212,7 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnLocalUserMessageReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
         {
+            ReconnectInbound = false;
             if (e.Text.Contains("SubscriptionInit"))
             {
                 string[] split = e.Text.Split(' ');
@@ -224,6 +225,7 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnChannelUserJoined(IrcChannel channel, IrcChannelUserEventArgs e)
         {
+            ReconnectInbound = false;
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
             #region whisperstatsonjoin
             string[] userdata = xmlprovider.UserInfo(e.ChannelUser.User.ToString()).Split(',');
@@ -277,11 +279,13 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnChannelUserLeft(IrcChannel channel, IrcChannelUserEventArgs e)
         {
+            ReconnectInbound = false;
         }
 
         protected override void OnChannelNoticeReceived(IrcChannel channel, IrcMessageEventArgs e)
         {
-            if(e.Text.Contains("SubscriptionInit"))
+            ReconnectInbound = false;
+            if (e.Text.Contains("SubscriptionInit"))
             {
                 string[] split = e.Text.Split(' ');
                 if(split.Count() == 2)
@@ -294,6 +298,7 @@ namespace DeathmicChatbot.IRC
 
         protected override void OnChannelMessageReceived(IrcChannel channel, IrcMessageEventArgs e)
         {
+            ReconnectInbound = false;
             Console.WriteLine(e.Text);
             try
             {
