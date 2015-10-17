@@ -15,6 +15,7 @@ namespace DeathmicChatbot
         public static BotDeathmic bot = null;
         static void Main(string[] args)
         {
+            Console.WriteLine("Connection is possible: " + CheckForInternetConnection());
             PerformanceCounter cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
             Console.WriteLine(cpu.NextValue());
             try
@@ -27,7 +28,8 @@ namespace DeathmicChatbot
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Fatal error: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Fatal error: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Fatal error: " + ex.ToString());
                 Environment.ExitCode = 1;
             }
             finally
@@ -50,7 +52,7 @@ namespace DeathmicChatbot
                 {
                     while (_client.ServerName == null)
                     {
-
+                        Thread.Sleep(50);
                     }
                     if (_client.ServerName.Contains("quakenet"))
                     {
@@ -65,7 +67,9 @@ namespace DeathmicChatbot
                     }
 
                 }
-                var quakeclient = bot.GetClientFromServerNameMask(quakeservername);
+                IrcClient quakeclient = null;
+                quakeclient = bot.GetClientFromServerNameMask(quakeservername);
+                 
                 System.Diagnostics.Debug.WriteLine(Properties.Settings.Default.Channel + " " + quakeservername);
                 quakeclient.Channels.Join(Properties.Settings.Default.Channel);
             }
