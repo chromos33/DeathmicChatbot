@@ -17,7 +17,6 @@ namespace DeathmicChatbot
         public static BotDeathmic bot = null;
         static void Main(string[] args)
         {
-            SetTimer();
             try
             {
                 File.Create(Directory.GetCurrentDirectory() + "/botlock");
@@ -38,13 +37,6 @@ namespace DeathmicChatbot
                     bot.Dispose();
                 Environment.Exit(1);
             }
-        }
-        private static void SetTimer()
-        {
-            cpuchecktimer = new System.Timers.Timer(1);
-            cpuchecktimer.Elapsed += cpucheck;
-            cpuchecktimer.AutoReset = true;
-            cpuchecktimer.Enabled = true;
         }
         static void ConnectBot()
         {
@@ -128,16 +120,6 @@ namespace DeathmicChatbot
             catch
             {
                 return false;
-            }
-        }
-        private static void cpucheck(Object source, ElapsedEventArgs e)
-        {
-            PerformanceCounter cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-            float cpuusage = cpu.NextValue();
-            
-            if((int) cpuusage != 0)
-            {
-                Console.WriteLine(cpu.NextValue());
             }
         }
     }
