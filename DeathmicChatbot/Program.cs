@@ -7,17 +7,17 @@ using System.Net;
 using System.Threading;
 using System.IO;
 using System.Diagnostics;
+using System.Timers;
 
 namespace DeathmicChatbot
 {
     class Program
     {
+        private static System.Timers.Timer cpuchecktimer;
         public static BotDeathmic bot = null;
         static void Main(string[] args)
         {
-            Console.WriteLine("Connection is possible: " + CheckForInternetConnection());
-            PerformanceCounter cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-            Console.WriteLine(cpu.NextValue());
+            SetTimer();
             try
             {
                 File.Create(Directory.GetCurrentDirectory() + "/botlock");
@@ -38,6 +38,13 @@ namespace DeathmicChatbot
                     bot.Dispose();
                 Environment.Exit(1);
             }
+        }
+        private static void SetTimer()
+        {
+            cpuchecktimer = new System.Timers.Timer(1);
+            cpuchecktimer.Elapsed += cpucheck;
+            cpuchecktimer.AutoReset = true;
+            cpuchecktimer.Enabled = true;
         }
         static void ConnectBot()
         {
@@ -84,8 +91,6 @@ namespace DeathmicChatbot
             }
             while (true)
             {
-                PerformanceCounter cpu = new PerformanceCounter("Processor","% Processor Time","_Total");
-                Console.WriteLine(cpu.NextValue());
                 System.Threading.Thread.Sleep(1000);
                 if(bot != null)
                 {
@@ -100,7 +105,6 @@ namespace DeathmicChatbot
                     if (CheckForInternetConnection())
                     {
                         // Integrate Self kill if Connection possible but nor irc connection because nick etc is already in use etc
-                        Console.WriteLine("Connection possible");
                         System.Threading.Thread.Sleep(1000);
                         ConnectBot();
                         break;
@@ -124,6 +128,16 @@ namespace DeathmicChatbot
             catch
             {
                 return false;
+            }
+        }
+        private static void cpucheck(Object source, ElapsedEventArgs e)
+        {
+            PerformanceCounter cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+            float cpuusage = cpu.NextValue();
+            
+            if((int) cpuusage != 0)
+            {
+                Console.WriteLine(cpu.NextValue());
             }
         }
     }

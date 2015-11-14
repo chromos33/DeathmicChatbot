@@ -58,7 +58,6 @@ namespace DeathmicChatbot.StreamInfo.Twitch
         public void CheckStreams()
         {
             // Get all live streams from server
-            Console.WriteLine("CheckStreams");
             var obj = GetOnlineStreams();
 
             // If querying Twitch for running streams always fails (maybe Twitch

@@ -36,7 +36,6 @@ namespace DeathmicChatbot.LinkParser
             var match = IsYtLink(URL);
             if(match != null)
             {
-                Console.WriteLine("teste");
                 string url = "https://www.googleapis.com/youtube/v3/videos";
                 // video ID
                 url += "?id=";
