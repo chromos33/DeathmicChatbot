@@ -127,8 +127,6 @@ namespace DeathmicChatbot.IRC
         {
             
             thisclient.FloodPreventer = new IrcStandardFloodPreventer(2,4000);
-            Console.WriteLine("FloodPreventer" + thisclient.FloodPreventer);
-            Console.WriteLine(thisclient.FloodPreventer.GetSendDelay());
             if (xmlprovider.runningVotes().Count() > 0)
             {
                 VoteTimer = new System.Timers.Timer(5000);
@@ -163,7 +161,6 @@ namespace DeathmicChatbot.IRC
         public static bool ReconnectInbound = false;
         private void Reconnect()
         {
-            Console.WriteLine("Reconnect");
             ReconnectInbound = false;
             Environment.Exit(0);
 
@@ -299,7 +296,6 @@ namespace DeathmicChatbot.IRC
         protected override void OnChannelMessageReceived(IrcChannel channel, IrcMessageEventArgs e)
         {
             ReconnectInbound = false;
-            Console.WriteLine(e.Text);
             try
             {
                 IEnumerable<string> urls = urlExtractor.extractYoutubeURLs(e.Text);
@@ -461,9 +457,6 @@ namespace DeathmicChatbot.IRC
             {
                 xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel, true);
                 string duration = DateTime.Now.Subtract(Convert.ToDateTime(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime"))).ToString("h':'mm':'ss");
-                Console.WriteLine("{0}: Stream stopped: {1}",
-                                  DateTime.Now,
-                                  args.StreamData.Stream.Channel);
                 string output = "Stream stopped after " + duration + ": " + args.StreamData.Stream.Channel;
                 foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                 {
@@ -477,9 +470,7 @@ namespace DeathmicChatbot.IRC
             {
                 if (xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
                 {
-                    Console.WriteLine("{0}: Stream running: {1}",
-                            DateTime.Now,
-                            args.StreamData.Stream.Channel);
+
                     string game = "";
                     System.Diagnostics.Debug.WriteLine(args.StreamData.StreamProvider.GetType().ToString());
                     if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
@@ -517,9 +508,6 @@ namespace DeathmicChatbot.IRC
                         game = args.StreamData.Stream.Message;
                     }
                     xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
-                    Console.WriteLine("{0}: Stream started: {1}",
-                              DateTime.Now,
-                              args.StreamData.Stream.Channel);
                     string output = "Stream started: " + args.StreamData.Stream.Channel +"("+ args.StreamData.Stream.Game +": " + args.StreamData.Stream.Message + ")" +" at "+ args.StreamData.StreamProvider.GetLink()+"/"+ args.StreamData.Stream.Channel;
                     foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                     {
@@ -610,7 +598,18 @@ namespace DeathmicChatbot.IRC
         
         private void SendMessage(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), combineParameters(parameters));
+            if(Rnd.Next(101) < 33)
+            {
+                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), combineParameters(parameters));
+            }
+            else
+            {
+                BotDeathmicMessageTarget target = new BotDeathmicMessageTarget();
+                target.Name = Properties.Settings.Default.Channel.ToString();
+
+                string textMessage = "slaps " + source.Name + " around for trying to make him say inapropriate stuff.";
+                ctcpClient1.SendAction(target, textMessage);
+            }
         }
         #endregion
         #region RandomUserPick stuff
@@ -729,7 +728,6 @@ namespace DeathmicChatbot.IRC
                                         {
                                             filteredTargets.Remove(user);
                                         }
-                                        Console.WriteLine(filteredTargets.Count());
                                         if (filteredTargets.Count() == 0)
                                         {
                                             client.LocalUser.SendMessage(Properties.Settings.Default.Channel, "No Users left that have not been chosen yet or that are in the ignore filter");
@@ -1284,7 +1282,6 @@ namespace DeathmicChatbot.IRC
                 client.LocalUser.SendMessage(source.Name, "To update Subscripions use following structure '!changesubscription [add/remove] [streamname] [password]");
                 return;
             }
-            Console.WriteLine(parameters.Count());
             if (parameters.Count() == 3)
             {
                 if(parameters[0] == "remove")

@@ -22,7 +22,6 @@ namespace DeathmicChatbot.StreamInfo
 
         private void CheckAllStreamsThreaded()
         {
-            Console.WriteLine("CheckAllStreamsThreaded");
             while (true)
             {
                 try

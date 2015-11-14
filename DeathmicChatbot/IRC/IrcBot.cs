@@ -141,7 +141,6 @@ namespace DeathmicChatbot.IRC
             }
             else
             {
-                Console.WriteLine("Command '{0}' not recognized.", command);
             }
         }
 
@@ -162,7 +161,6 @@ namespace DeathmicChatbot.IRC
                 if (!connectedEvent.Wait(50000))
                 {
                     client.Dispose();
-                    Console.WriteLine("Connection to '{0}' timed out.", server);
                     return;
                 }
             }
