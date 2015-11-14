@@ -598,7 +598,7 @@ namespace DeathmicChatbot.IRC
         
         private void SendMessage(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            if(Rnd.Next(101) < 33)
+            if(Rnd.Next(101) < 60)
             {
                 client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), combineParameters(parameters));
             }
