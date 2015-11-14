@@ -14,11 +14,11 @@ namespace DeathmicChatbot
 {
     class XMLProvider
     {
-        XDocument Users;
-        XDocument Streams;
-        XDocument UserPicks;
-        XDocument Votes;
-        XDocument Counters;
+        protected XDocument Users;
+        protected XDocument Streams;
+        protected XDocument UserPicks;
+        protected XDocument Votes;
+        protected XDocument Counters;
         public XMLProvider()
         {
             if (File.Exists("XML/Users.xml"))
