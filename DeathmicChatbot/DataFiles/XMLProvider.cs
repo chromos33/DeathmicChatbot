@@ -492,14 +492,14 @@ namespace DeathmicChatbot
                 }
                 return false;
         }
-        public List<string> SuscribedUsers(string streamname,IEnumerable<IrcChannelUser> users)
+        public List<string> SuscribedUsers(string streamname,IEnumerable<string> users)
         {
             List<string> result = new List<string>();
             streamname = streamname.ToLower();
             string userlist = "";
-            foreach(IrcChannelUser user in users)
+            foreach(string user in users)
             {
-                userlist += user.User.NickName.ToLower();
+                userlist += user.ToLower();
             }
             if (!Directory.Exists("XML"))
             {
