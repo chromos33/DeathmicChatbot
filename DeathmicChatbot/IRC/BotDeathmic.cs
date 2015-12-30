@@ -402,7 +402,7 @@ namespace DeathmicChatbot.IRC
             this.ChatCommandProcessors.Add("resetstreamstate",ResetStreamSate);
             this.ChatCommandProcessors.Add("togglestreammsgs", ToggleStreamMsgs);
             this.ChatCommandProcessors.Add("liststreams",SuscribableStreams);
-            this.ChatCommandProcessors.Add("teststuff", teststuff);
+            //this.ChatCommandProcessors.Add("teststuff", teststuff);
 
 
         }
