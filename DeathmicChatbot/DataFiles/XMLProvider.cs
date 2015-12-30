@@ -334,6 +334,7 @@ namespace DeathmicChatbot
         public bool ToggleStreamMsgs(string nick)
         {
             bool toggle = false;
+            nick = nick.ToLower();
             if (!Directory.Exists("XML"))
             {
                 Directory.CreateDirectory("XML");
