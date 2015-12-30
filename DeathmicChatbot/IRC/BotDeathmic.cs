@@ -503,8 +503,12 @@ namespace DeathmicChatbot.IRC
                         userfound = true;
                     }
                 }
-      
-                if(xmlprovider.SuscribedUsers(stream, thisclient.Channels.First().Users).Contains(source.Name.ToLower()))
+                List<string> UsersinChannel = new List<string>();
+                foreach (var user in thisclient.Channels.First().Users)
+                {
+                    UsersinChannel.Add(NormalizeNickName(user.User.ToString()));
+                }
+                if (xmlprovider.SuscribedUsers(stream, UsersinChannel).Contains(NormalizeNickName(source.Name.ToLower())))
                 {
                     client.LocalUser.SendNotice(source.Name, streamprovidersplit[0] + " is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[0], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[0], "URL"));
                 }
@@ -530,7 +534,12 @@ namespace DeathmicChatbot.IRC
                 string output = "Stream stopped after " + duration + ": " + args.StreamData.Stream.Channel;
                 List<string> NoticeTargets = new List<string>();
                 List<string> MsgsTargets = new List<string>();
-                foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
+                List<string> UsersinChannel = new List<string>();
+                foreach(var user in thisclient.Channels.First().Users)
+                {
+                    UsersinChannel.Add(NormalizeNickName(user.User.ToString()));
+                }
+                foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, UsersinChannel))
                 {
                     if (!xmlprovider.CheckStreamMsgsState(user.ToLower()))
                     {
@@ -572,7 +581,12 @@ namespace DeathmicChatbot.IRC
                         string output = "Stream is running: " + args.StreamData.Stream.Channel + "(" + args.StreamData.Stream.Game + ": " + args.StreamData.Stream.Message + ")" + " at " + args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel;
                         List<string> NoticeTargets = new List<string>();
                         List<string> MsgsTargets = new List<string>();
-                        foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
+                        List<string> UsersinChannel = new List<string>();
+                        foreach (var user in thisclient.Channels.First().Users)
+                        {
+                            UsersinChannel.Add(NormalizeNickName(user.User.ToString()));
+                        }
+                        foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, UsersinChannel))
                         {
                             if (!xmlprovider.CheckStreamMsgsState(user.ToLower()))
                             {
@@ -619,7 +633,12 @@ namespace DeathmicChatbot.IRC
                     string output = "Stream started: " + args.StreamData.Stream.Channel +"("+ args.StreamData.Stream.Game +": " + args.StreamData.Stream.Message + ")" +" at "+ args.StreamData.StreamProvider.GetLink()+"/"+ args.StreamData.Stream.Channel;
                     List<string> NoticeTargets = new List<string>();
                     List<string> MsgsTargets = new List<string>();
-                    foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
+                    List<string> UsersinChannel = new List<string>();
+                    foreach (var user in thisclient.Channels.First().Users)
+                    {
+                        UsersinChannel.Add(NormalizeNickName(user.User.ToString()));
+                    }
+                    foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, UsersinChannel))
                     {
                         if (!xmlprovider.CheckStreamMsgsState(user.ToLower()))
                         {
@@ -1270,7 +1289,7 @@ namespace DeathmicChatbot.IRC
                     {
                         answers.Add(Int32.Parse(parameters[1]));
                     }
-                    switch(xmlprovider.vote(source.Name, Int32.Parse(parameters[0]), answers))
+                    switch(xmlprovider.vote(NormalizeNickName(source.Name), Int32.Parse(parameters[0]), answers))
                     {
                         case 0: client.LocalUser.SendNotice(source.Name, string.Format("You have already voted on this Vote")); break;
                         case 1: client.LocalUser.SendNotice(source.Name, string.Format("Your Vote has been counted.")); break;
@@ -1384,11 +1403,11 @@ namespace DeathmicChatbot.IRC
             }
             if(parameters.Count == 1)
             {
-                result = xmlprovider.AddorUpdatePassword(source.Name, parameters[0]);
+                result = xmlprovider.AddorUpdatePassword(NormalizeNickName(source.Name), parameters[0]);
             }
             if(parameters.Count == 2)
             {
-                result =xmlprovider.AddorUpdatePassword(source.Name, parameters[0],parameters[1]);
+                result =xmlprovider.AddorUpdatePassword(NormalizeNickName(source.Name), parameters[0],parameters[1]);
             }
             if(result)
             {
@@ -1411,11 +1430,11 @@ namespace DeathmicChatbot.IRC
             {
                 if(parameters[0] == "remove")
                 {
-                    result = xmlprovider.AddorUpdateSuscription(source.Name, parameters[1], parameters[2], true);
+                    result = xmlprovider.AddorUpdateSuscription(NormalizeNickName(source.Name), parameters[1], parameters[2], true);
                 }
                 if(parameters[0] == "add")
                 {
-                    result = xmlprovider.AddorUpdateSuscription(source.Name, parameters[1], parameters[2], false);
+                    result = xmlprovider.AddorUpdateSuscription(NormalizeNickName(source.Name), parameters[1], parameters[2], false);
                 }
             }
             if (result)
