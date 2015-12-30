@@ -336,24 +336,62 @@ namespace DeathmicChatbot.IRC
             this.ChatCommandProcessors.Add("listvotings", ListVotings);
             this.ChatCommandProcessors.Add("toggleuserloggin", ToggleUserLogging);
             this.ChatCommandProcessors.Add("sendmessage", SendMessage);
-            // Don't add this to commandlist only bot should call it (doesn't matter if others call it but...)
             this.ChatCommandProcessors.Add("reconnect",ReconnectDisableRequester);
             this.ChatCommandProcessors.Add("setpass", SetPassword);
             this.ChatCommandProcessors.Add("changesubscription", ChangeSubscription);
             this.ChatCommandProcessors.Add("resetstreamstate",ResetStreamSate);
+            this.ChatCommandProcessors.Add("togglestreammsgs", ToggleStreamMsgs);
+            this.ChatCommandProcessors.Add("liststreams",SuscribableStreams);
             //this.ChatCommandProcessors.Add("testfloodprotection", flood);
 
 
         }
+
+        private void SuscribableStreams(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            client.LocalUser.SendMessage(source.Name, xmlprovider.StreamList());
+        }
+
+        private void ToggleStreamMsgs(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            bool toggle = xmlprovider.ToggleStreamMsgs(source.Name);
+            if(toggle)
+            {
+                client.LocalUser.SendMessage(source.Name,"Messages activated");
+            }
+            else
+            {
+                client.LocalUser.SendMessage(source.Name, "Messages deactivated");
+            }
+            
+        }
+
         private void flood(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
             //client.LocalUser.SendNotice
-            List<string> Users = new List<string>();
+            List<string> NoticeTargets = new List<string>();
+            List<string> MsgsTargets = new List<string>();
             foreach (var user in thisclient.Channels.First().Users)
             {
-                Users.Add(user.User.ToString());
+                if(!xmlprovider.CheckStreamMsgsState(user.User.ToString().ToLower()))
+                {
+                    NoticeTargets.Add(user.User.ToString());
+                }
+                else
+                {
+                    MsgsTargets.Add(user.User.ToString());
+                }
             }
-            client.LocalUser.SendMessage(Users, "msg");
+            if(NoticeTargets.Count > 0)
+            {
+                client.LocalUser.SendNotice(NoticeTargets, "notices");
+            }
+            if (MsgsTargets.Count > 0)
+            {
+                client.LocalUser.SendMessage(MsgsTargets, "msg");
+            }
+            
+            
         }
         #endregion
         #region generalfunctions
@@ -385,9 +423,7 @@ namespace DeathmicChatbot.IRC
             {
                 _streamProviderManager.AddStream(parameters[0]);
             }
-            // TODO continue when streamprovider stuff implemented
             int message = xmlprovider.AddStream(parameters[0]);
-            //_streamProviderManager.AddStream(commandArgs);
             if (message == 1)
             {
                 client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), String.Format("{0} added {1} to the streamlist", source.Name, parameters[0]));
@@ -456,10 +492,26 @@ namespace DeathmicChatbot.IRC
                 xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel, true);
                 string duration = DateTime.Now.Subtract(Convert.ToDateTime(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime"))).ToString("h':'mm':'ss");
                 string output = "Stream stopped after " + duration + ": " + args.StreamData.Stream.Channel;
+                List<string> NoticeTargets = new List<string>();
+                List<string> MsgsTargets = new List<string>();
                 foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                 {
-                    //TODO change this from single messages/notices to single to multitarget
-                    thisclient.LocalUser.SendNotice(user, output);
+                    if (!xmlprovider.CheckStreamMsgsState(user.ToLower()))
+                    {
+                        NoticeTargets.Add(user.ToString());
+                    }
+                    else
+                    {
+                        MsgsTargets.Add(user.ToString());
+                    }
+                }
+                if (NoticeTargets.Count > 0)
+                {
+                    thisclient.LocalUser.SendNotice(NoticeTargets, output);
+                }
+                if (MsgsTargets.Count > 0)
+                {
+                    thisclient.LocalUser.SendMessage(MsgsTargets, output);
                 }
             }
         }
@@ -482,10 +534,26 @@ namespace DeathmicChatbot.IRC
                     }
                     xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
                     string output = "Stream started: " + args.StreamData.Stream.Channel + "(" + args.StreamData.Stream.Game + ": " + args.StreamData.Stream.Message + ")" + " at " + args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel;
+                    List<string> NoticeTargets = new List<string>();
+                    List<string> MsgsTargets = new List<string>();
                     foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                     {
-                        Thread.Sleep(50);
-                        thisclient.LocalUser.SendNotice(user, output);
+                        if (!xmlprovider.CheckStreamMsgsState(user.ToLower()))
+                        {
+                            NoticeTargets.Add(user.ToString());
+                        }
+                        else
+                        {
+                            MsgsTargets.Add(user.ToString());
+                        }
+                    }
+                    if (NoticeTargets.Count > 0)
+                    {
+                        thisclient.LocalUser.SendNotice(NoticeTargets, output);
+                    }
+                    if (MsgsTargets.Count > 0)
+                    {
+                        thisclient.LocalUser.SendMessage(MsgsTargets, output);
                     }
                 }
             }
@@ -508,10 +576,26 @@ namespace DeathmicChatbot.IRC
                     }
                     xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
                     string output = "Stream started: " + args.StreamData.Stream.Channel +"("+ args.StreamData.Stream.Game +": " + args.StreamData.Stream.Message + ")" +" at "+ args.StreamData.StreamProvider.GetLink()+"/"+ args.StreamData.Stream.Channel;
+                    List<string> NoticeTargets = new List<string>();
+                    List<string> MsgsTargets = new List<string>();
                     foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                     {
-                        Thread.Sleep(50);
-                        thisclient.LocalUser.SendNotice(user, output);
+                        if (!xmlprovider.CheckStreamMsgsState(user.ToLower()))
+                        {
+                            NoticeTargets.Add(user.ToString());
+                        }
+                        else
+                        {
+                            MsgsTargets.Add(user.ToString());
+                        }
+                    }
+                    if (NoticeTargets.Count > 0)
+                    {
+                        thisclient.LocalUser.SendNotice(NoticeTargets, output);
+                    }
+                    if (MsgsTargets.Count > 0)
+                    {
+                        thisclient.LocalUser.SendMessage(MsgsTargets, output);
                     }
                 }
                 xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
@@ -1061,12 +1145,11 @@ namespace DeathmicChatbot.IRC
                 if (questionid != 0)
                 {
                     client.LocalUser.SendMessage(Settings.Default.Channel, "The following vote has been started: " + question);
-                    client.LocalUser.SendMessage(Settings.Default.Channel, "to vote use the Command !vote " + questionid + " [answer number],[optional answernumber] ");
                     client.LocalUser.SendMessage(Settings.Default.Channel, "Possible answers are:");
                     int i = 1;
                     foreach (var singleanswer in answers)
                     {
-                        client.LocalUser.SendMessage(Settings.Default.Channel, i+": "+singleanswer.ToString());
+                        client.LocalUser.SendMessage(Settings.Default.Channel,"use '!vote"+ questionid+" "+ i +"' for "+singleanswer.ToString());
                         i++;
                     }
                     client.LocalUser.SendMessage(Settings.Default.Channel, source.Name+ " has started this Vote");

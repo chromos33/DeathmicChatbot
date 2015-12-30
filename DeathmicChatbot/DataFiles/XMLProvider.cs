@@ -331,7 +331,79 @@ namespace DeathmicChatbot
             Users.Save("XML/Users.xml");
             return true;
         }
-
+        public bool ToggleStreamMsgs(string nick)
+        {
+            bool toggle = false;
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/Users.xml"))
+            {
+                IEnumerable<XElement> childlist = Users.Root.Elements().Where(user => user.Attribute("Nick").Value == nick);
+                if (childlist.Count() > 0)
+                {
+                    foreach (XElement element in childlist)
+                    {
+                        if(element.Attribute("streammsgs") != null)
+                        {
+                            if(element.Attribute("streammsgs").Value == "true")
+                            {
+                                element.Attribute("streammsgs").Value = "false";
+                                toggle = false;
+                            }
+                            else
+                            {
+                                element.Attribute("streammsgs").Value = "true";
+                                toggle = true;
+                            }
+                        }
+                        else
+                        {
+                            element.Add(new XAttribute("streammsgs","true"));
+                            toggle = true;
+                        }
+                    }
+                    Users.Save("XML/Users.xml");
+                }
+            }
+            return toggle;
+        }
+        public bool CheckStreamMsgsState(string nick)
+        {
+            bool toggle = false;
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/Users.xml"))
+            {
+                IEnumerable<XElement> childlist = Users.Root.Elements().Where(user => user.Attribute("Nick").Value == nick);
+                if (childlist.Count() > 0)
+                {
+                    foreach (XElement element in childlist)
+                    {
+                        if (element.Attribute("streammsgs") != null)
+                        {
+                            if (element.Attribute("streammsgs").Value == "true")
+                            {
+                                toggle = true;
+                            }
+                            else
+                            {
+                                toggle = false;
+                            }
+                        }
+                        else
+                        {
+                            toggle = false;
+                        }
+                    }
+                    Users.Save("XML/Users.xml");
+                }
+            }
+            return toggle;
+        }
         public bool CheckPassword(string nick, string pass)
         {
             if (!Directory.Exists("XML"))
