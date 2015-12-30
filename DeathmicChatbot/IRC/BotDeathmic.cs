@@ -347,15 +347,13 @@ namespace DeathmicChatbot.IRC
         }
         private void flood(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            for(int i = 0;i<3;i++)
+            //client.LocalUser.SendNotice
+            List<string> Users = new List<string>();
+            foreach (var user in thisclient.Channels.First().Users)
             {
-                client.LocalUser.SendNotice(source.Name, "libtest");
-                client.LocalUser.SendNotice("chromos44", "libtest");
-                client.LocalUser.SendMessage(source.Name, "libtest");
-                client.LocalUser.SendMessage("chromos44", "libtest");
-                client.LocalUser.SendMessage(Properties.Settings.Default.Channel.ToString(), "libtest");
-                client.LocalUser.SendNotice(Properties.Settings.Default.Channel.ToString(), "libtest");
+                Users.Add(user.User.ToString());
             }
+            client.LocalUser.SendMessage(Users, "msg");
         }
         #endregion
         #region generalfunctions
@@ -460,6 +458,7 @@ namespace DeathmicChatbot.IRC
                 string output = "Stream stopped after " + duration + ": " + args.StreamData.Stream.Channel;
                 foreach (string user in xmlprovider.SuscribedUsers(args.StreamData.Stream.Channel, thisclient.Channels.First().Users))
                 {
+                    //TODO change this from single messages/notices to single to multitarget
                     thisclient.LocalUser.SendNotice(user, output);
                 }
             }
@@ -1073,6 +1072,7 @@ namespace DeathmicChatbot.IRC
                     client.LocalUser.SendMessage(Settings.Default.Channel, source.Name+ " has started this Vote");
                     if(VoteTimer.Enabled == false)
                     {
+                        VoteTimer.Start();
                         VoteTimer.Enabled = true;
                     }
                 }
@@ -1200,6 +1200,7 @@ namespace DeathmicChatbot.IRC
             if (xmlprovider.runningVotes().Count() == 0)
             {
                 VoteTimer.Enabled = false;
+                VoteTimer.Stop();
             }
         }
       
