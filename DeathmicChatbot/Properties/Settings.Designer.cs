@@ -94,5 +94,14 @@ namespace DeathmicChatbot.Properties {
                 return ((string)(this["Channel"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("false")]
+        public string SilentMode {
+            get {
+                return ((string)(this["SilentMode"]));
+            }
+        }
     }
 }

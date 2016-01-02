@@ -125,6 +125,7 @@
     <Compile Include="StreamInfo\Twitch\TwitchProvider.cs" />
     <Compile Include="StreamInfo\Twitch\TwitchRootObject.cs" />
     <Compile Include="StreamInfo\Twitch\TwitchStreamData.cs" />
+    <Compile Include="TransferClasses\NormalisedUser.cs" />
     <Compile Include="Useful_Functions.cs" />
   </ItemGroup>
   <ItemGroup>
