@@ -71,6 +71,8 @@ namespace DeathmicChatbot
         #region User Stuff
         public string UserInfo(string nick)
         {
+            //TODO change from string to Tuple<int,DateTime>
+            //https://msdn.microsoft.com/en-us/library/system.tuple%28v=vs.110%29.aspx
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             nick = nick.ToLower();
@@ -563,7 +565,7 @@ namespace DeathmicChatbot
             {
                 try
                 {
-                    var _Users = Users.Root.Elements().Where(User => User.Attribute("Nick").Value == username).Where(User => User.Attribute("Streams").Value.Contains(streamname));
+                    var _Users = Users.Root.Elements().Where(User => User.Attribute("Nick").Value == username).Where(User => User.Attribute("Streams").Value.Contains(streamname.ToLower()));
                     if(_Users.Count() > 0)
                     {
                         suscribed = true;
