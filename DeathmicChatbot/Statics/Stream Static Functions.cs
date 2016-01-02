@@ -42,7 +42,7 @@ namespace DeathmicChatbot.Statics
                 var data = des.Deserialize<HitboxRootObject>(response);
                 foreach (var item in data.livestream)
                 {
-                    if(item.media_user_name == sStream)
+                    if(item.media_user_name.ToLower() == sStream.ToLower())
                     {
                         if(item.media_is_live == "1")
                         {

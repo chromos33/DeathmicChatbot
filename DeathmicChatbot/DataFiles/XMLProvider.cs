@@ -565,7 +565,7 @@ namespace DeathmicChatbot
             {
                 try
                 {
-                    var _Users = Users.Root.Elements().Where(User => User.Attribute("Nick").Value == username).Where(User => User.Attribute("Streams").Value.Contains(streamname));
+                    var _Users = Users.Root.Elements().Where(User => User.Attribute("Nick").Value == username).Where(User => User.Attribute("Streams").Value.Contains(streamname.ToLower()));
                     if(_Users.Count() > 0)
                     {
                         suscribed = true;

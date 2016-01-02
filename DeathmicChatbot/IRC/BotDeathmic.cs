@@ -254,7 +254,7 @@ namespace DeathmicChatbot.IRC
                         foreach (var loggingOp in xmlprovider.LoggingUser())
                             thisclient.LocalUser.SendNotice(loggingOp, output);
                         #endregion
-
+                        
                         foreach (string streamname in xmlprovider.OnlineStreamList())
                         {
                             if (Stream_Static_Functions.isStreamOnline(streamname))
@@ -263,18 +263,17 @@ namespace DeathmicChatbot.IRC
                                 if (xmlprovider.CheckSuscription(normaliseduser.normalised_username().ToLower(), _streamname))
                                 {
                                     thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
-                                                                   "Stream running: _{0}_ ({1}) at {2}",
-                                                                   _streamname,
-                                                                   xmlprovider.StreamInfo(_streamname, "game"),
-                                                                   xmlprovider.StreamInfo(_streamname, "URL")
-                                                                   ));
+                                                                    "Stream running: _{0}_ ({1}) at {2}",
+                                                                    _streamname,
+                                                                    xmlprovider.StreamInfo(_streamname, "game"),
+                                                                    xmlprovider.StreamInfo(_streamname, "URL")
+                                                                    ));
                                 }
                             }
                             else
                             {
                                 xmlprovider.StreamStartUpdate(streamname, true);
                             }
-                            
                         }
                     }
                     else
@@ -387,31 +386,6 @@ namespace DeathmicChatbot.IRC
 
         private void teststuff(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            string NoticeTargets = "";
-            string MsgsTargets = "";
-            List<NormalisedUser> UsersinChannel = new List<NormalisedUser>();
-            foreach (var user in thisclient.Channels.First().Users)
-            {
-                if(user.User.ToString() != "Q" || user.User.ToString() != Settings.Default.Name.ToString())
-                {
-                    UsersinChannel.Add(new NormalisedUser(user.User.ToString()));
-                }
-            }
-            foreach (NormalisedUser user in UsersinChannel)
-            {
-                if (xmlprovider.isSuscribed("deathmic", user.normalised_username()))
-                {
-                    if (!xmlprovider.CheckStreamMsgsState(user.normalised_username()))
-                    {
-                        NoticeTargets += user.orig_username+",";
-                    }
-                    else
-                    {
-                        MsgsTargets += user.orig_username + ",";
-                    }
-                }
-            }
-            client.LocalUser.SendMessage("chromos33",MsgsTargets + " / " + NoticeTargets);
         }
         #endregion
         #region generalfunctions
@@ -477,33 +451,26 @@ namespace DeathmicChatbot.IRC
         {
             foreach (var stream in xmlprovider.OnlineStreamList())
             {
-                if (Stream_Static_Functions.isStreamOnline(stream))
+                string[] streamprovidersplit = stream.Split(',');
+                //TODO add provider link completion
+                bool userfound = false;
+                foreach (var user in thisclient.Channels.First().Users)
                 {
-                    string[] streamprovidersplit = stream.Split(',');
-                    //TODO add provider link completion
-                    bool userfound = false;
-                    foreach (var user in thisclient.Channels.First().Users)
+                    if (user.User.NickName.ToLower() == source.Name.ToLower())
                     {
-                        if (user.User.NickName.ToLower() == source.Name.ToLower())
-                        {
-                            userfound = true;
-                        }
+                        userfound = true;
                     }
-                    List<NormalisedUser> UsersinChannel = new List<NormalisedUser>();
-                    NormalisedUser normuser = new NormalisedUser(source.Name.ToString());
-                    if (xmlprovider.isSuscribed(stream, normuser.normalised_username()))
-                    {
-                        client.LocalUser.SendNotice(source.Name, streamprovidersplit[0] + " is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[0], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[0], "URL"));
-                    }
-                    else
-                    {
-                        client.LocalUser.SendNotice(source.Name, "No Stream is currently running.");
-                    }
-                }     
+                }
+                List<NormalisedUser> UsersinChannel = new List<NormalisedUser>();
+                NormalisedUser normuser = new NormalisedUser(source.Name.ToString());
+                if (xmlprovider.isSuscribed(stream, normuser.normalised_username()))
+                {
+                    client.LocalUser.SendNotice(source.Name, streamprovidersplit[0] + " is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[0], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[0], "URL"));
+                }
                 else
                 {
-                    xmlprovider.StreamStartUpdate(stream, true);
-                }           
+                    client.LocalUser.SendNotice(source.Name, "No Stream is currently running.");
+                }         
             }
             if (xmlprovider.OnlineStreamList().Count() == 0)
             {
@@ -591,14 +558,7 @@ namespace DeathmicChatbot.IRC
                             {
                                 if (xmlprovider.isSuscribed(args.StreamData.Stream.Channel, user.normalised_username()))
                                 {
-                                    if (!xmlprovider.CheckStreamMsgsState(user.normalised_username()))
-                                    {
-                                        NoticeTargets.Add(user.orig_username);
-                                    }
-                                    else
-                                    {
-                                        MsgsTargets.Add(user.orig_username);
-                                    }
+                                    NoticeTargets.Add(user.orig_username);
                                 }
                             }
                             if (NoticeTargets.Count > 0)
@@ -626,8 +586,6 @@ namespace DeathmicChatbot.IRC
                 if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
                 if (xmlprovider.isinStreamList(args.StreamData.Stream.Channel))
                 {
-
-
                     if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "false")
                     {
                         string game = args.StreamData.Stream.Game;
