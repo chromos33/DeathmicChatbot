@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Threading;
 using DeathmicChatbot.DataFiles;
 using IrcDotNet;
+using DeathmicChatbot.TransferClasses;
 using IrcDotNet.Ctcp;
 
 namespace DeathmicChatbot
@@ -520,6 +521,60 @@ namespace DeathmicChatbot
                 }
             }
             return result;
+        }
+        public List<string> SuscribedUsers(string streamname, IEnumerable<NormalisedUser> users)
+        {
+            List<string> result = new List<string>();
+            streamname = streamname.ToLower();
+            string userlist = "";
+            foreach (NormalisedUser user in users)
+            {
+                userlist += user.normalised_username().ToLower();
+            }
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/Users.xml"))
+            {
+                try
+                {
+                    var _Users = Users.Root.Elements().Where(User => userlist.Contains(User.Attribute("Nick").Value)).Where(User => User.Attribute("Streams").Value.Contains(streamname));
+                    foreach (var item in _Users)
+                    {
+                        result.Add(item.Attribute("Nick").Value);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+            return result;
+        }
+        public bool isSuscribed(string streamname,string username)
+        {
+            bool suscribed = false;
+            if (!Directory.Exists("XML"))
+            {
+                Directory.CreateDirectory("XML");
+            }
+            if (File.Exists("XML/Users.xml"))
+            {
+                try
+                {
+                    var _Users = Users.Root.Elements().Where(User => User.Attribute("Nick").Value == username).Where(User => User.Attribute("Streams").Value.Contains(streamname));
+                    if(_Users.Count() > 0)
+                    {
+                        suscribed = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+            return suscribed;
         }
         #endregion
         public void DateTimeCorrection()
