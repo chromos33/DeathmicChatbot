@@ -93,7 +93,7 @@ namespace DeathmicChatbot
                 }
                 else
                 {
-                    return "0," + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    return "1," + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 }
             }
             return answer;
