@@ -257,22 +257,15 @@ namespace DeathmicChatbot.IRC
                         
                         foreach (string streamname in xmlprovider.OnlineStreamList())
                         {
-                            if (Stream_Static_Functions.isStreamOnline(streamname))
+                            string _streamname = streamname.Replace(",", "");
+                            if (xmlprovider.CheckSuscription(normaliseduser.normalised_username().ToLower(), _streamname))
                             {
-                                string _streamname = streamname.Replace(",", "");
-                                if (xmlprovider.CheckSuscription(normaliseduser.normalised_username().ToLower(), _streamname))
-                                {
-                                    thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
-                                                                    "Stream running: _{0}_ ({1}) at {2}",
-                                                                    _streamname,
-                                                                    xmlprovider.StreamInfo(_streamname, "game"),
-                                                                    xmlprovider.StreamInfo(_streamname, "URL")
-                                                                    ));
-                                }
-                            }
-                            else
-                            {
-                                xmlprovider.StreamStartUpdate(streamname, true);
+                                thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
+                                                                "Stream running: _{0}_ ({1}) at {2}",
+                                                                _streamname,
+                                                                xmlprovider.StreamInfo(_streamname, "game"),
+                                                                xmlprovider.StreamInfo(_streamname, "URL")
+                                                                ));
                             }
                         }
                     }
@@ -386,6 +379,16 @@ namespace DeathmicChatbot.IRC
 
         private void teststuff(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
+            string test = "";
+            foreach (var user in thisclient.Channels.First().Users)
+            {
+                if (user.User.ToString() != "Q" || user.User.ToString() != Settings.Default.Name.ToString())
+                {
+                    test += user.User.ToString() + ",";
+                    //UsersinChannel.Add(new NormalisedUser(user.User.ToString()));
+                }
+                Console.WriteLine(test);
+            }
         }
         #endregion
         #region generalfunctions
@@ -531,48 +534,41 @@ namespace DeathmicChatbot.IRC
                 {
                     if (xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
                     {
-                        if (Stream_Static_Functions.isStreamOnline(args.StreamData.Stream.Channel))
+                        string game = "";
+                        if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
                         {
-                            string game = "";
-                            if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
-                            {
-                                game = args.StreamData.Stream.Message;
-                            }
-                            else
-                            {
-                                game = xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "game");
-                            }
-                            xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
-                            string output = "Stream is running: " + args.StreamData.Stream.Channel + "(" + args.StreamData.Stream.Game + ": " + args.StreamData.Stream.Message + ")" + " at " + args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel;
-                            List<string> NoticeTargets = new List<string>();
-                            List<string> MsgsTargets = new List<string>();
-                            List<NormalisedUser> UsersinChannel = new List<NormalisedUser>();
-                            foreach (var user in thisclient.Channels.First().Users)
-                            {
-                                if (user.User.ToString() != "Q" || user.User.ToString() != Settings.Default.Name.ToString())
-                                {
-                                    UsersinChannel.Add(new NormalisedUser(user.User.ToString()));
-                                }
-                            }
-                            foreach (NormalisedUser user in UsersinChannel)
-                            {
-                                if (xmlprovider.isSuscribed(args.StreamData.Stream.Channel, user.normalised_username()))
-                                {
-                                    NoticeTargets.Add(user.orig_username);
-                                }
-                            }
-                            if (NoticeTargets.Count > 0)
-                            {
-                                thisclient.LocalUser.SendNotice(NoticeTargets, output);
-                            }
-                            if (MsgsTargets.Count > 0)
-                            {
-                                thisclient.LocalUser.SendMessage(MsgsTargets, output);
-                            }
+                            game = args.StreamData.Stream.Message;
                         }
                         else
                         {
-                            xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel, true);
+                            game = xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "game");
+                        }
+                        xmlprovider.AddStreamLivedata(args.StreamData.Stream.Channel, args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel, game);
+                        string output = "Stream is running: " + args.StreamData.Stream.Channel + "(" + args.StreamData.Stream.Game + ": " + args.StreamData.Stream.Message + ")" + " at " + args.StreamData.StreamProvider.GetLink() + "/" + args.StreamData.Stream.Channel;
+                        List<string> NoticeTargets = new List<string>();
+                        List<string> MsgsTargets = new List<string>();
+                        List<NormalisedUser> UsersinChannel = new List<NormalisedUser>();
+                        foreach (var user in thisclient.Channels.First().Users)
+                        {
+                            if (user.User.ToString() != "Q" || user.User.ToString() != Settings.Default.Name.ToString())
+                            {
+                                UsersinChannel.Add(new NormalisedUser(user.User.ToString()));
+                            }
+                        }
+                        foreach (NormalisedUser user in UsersinChannel)
+                        {
+                            if (xmlprovider.isSuscribed(args.StreamData.Stream.Channel, user.normalised_username()))
+                            {
+                                NoticeTargets.Add(user.orig_username);
+                            }
+                        }
+                        if (NoticeTargets.Count > 0)
+                        {
+                            thisclient.LocalUser.SendNotice(NoticeTargets, output);
+                        }
+                        if (MsgsTargets.Count > 0)
+                        {
+                            thisclient.LocalUser.SendMessage(MsgsTargets, output);
                         }
                     }
                 }
@@ -628,9 +624,10 @@ namespace DeathmicChatbot.IRC
                         {
                             thisclient.LocalUser.SendMessage(MsgsTargets, output);
                         }
+                        //xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel);
                     }
                     xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
-                    xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel);
+                    
                 }
             }
             
