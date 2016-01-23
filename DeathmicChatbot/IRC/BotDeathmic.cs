@@ -283,6 +283,7 @@ namespace DeathmicChatbot.IRC
                         thisclient.LocalUser.SendNotice(loggingOp, output);
                 }
                 xmlprovider.AddorUpdateUser(normaliseduser.normalised_username());
+                normaliseduser = null;
             }
         }
 

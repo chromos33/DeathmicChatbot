@@ -25,23 +25,23 @@ namespace DeathmicChatbot.TransferClasses
 
             while (nick.EndsWith("_"))
             {
-                nick.Remove(nick.Length - 1);
+                nick = nick.Remove(nick.Length - 1);
             }
             if (nick.EndsWith("afk"))
             {
-                nick.Replace("afk", "");
+                nick = nick.Replace("afk", "");
             }
             if (nick.EndsWith("handy"))
             {
-                nick.Replace("handy", "");
+                nick = nick.Replace("handy", "");
             }
             if (nick.Contains("_"))
             {
-                nick = nick.Split('_')[0];
+                nick = nick = nick.Split('_')[0];
             }
             if (nick.Contains("|"))
             {
-                nick = nick.Split('|')[0];
+                nick = nick = nick.Split('|')[0];
             }
             string lastchar = "f";
             string secondlastchar = "f";
