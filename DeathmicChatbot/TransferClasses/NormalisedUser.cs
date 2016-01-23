@@ -37,11 +37,11 @@ namespace DeathmicChatbot.TransferClasses
             }
             if (nick.Contains("_"))
             {
-                nick = nick = nick.Split('_')[0];
+                nick = nick.Split('_')[0];
             }
             if (nick.Contains("|"))
             {
-                nick = nick = nick.Split('|')[0];
+                nick = nick.Split('|')[0];
             }
             string lastchar = "f";
             string secondlastchar = "f";
