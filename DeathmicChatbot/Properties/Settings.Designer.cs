@@ -52,7 +52,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("b0rk.uk.quakenet.org")]
+        [global::System.Configuration.DefaultSettingValueAttribute("irc.quakenet.org")]
         public string Server {
             get {
                 return ((string)(this["Server"]));
