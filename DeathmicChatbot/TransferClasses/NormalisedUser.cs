@@ -27,6 +27,10 @@ namespace DeathmicChatbot.TransferClasses
             {
                 nick = nick.Remove(nick.Length - 1);
             }
+            while (nick.StartsWith("_"))
+            {
+                nick = nick.Remove(0);
+            }
             if (nick.EndsWith("afk"))
             {
                 nick = nick.Replace("afk", "");
@@ -36,7 +40,7 @@ namespace DeathmicChatbot.TransferClasses
                 nick = nick.Replace("handy", "");
             }
             if (nick.Contains("_"))
-            {
+            {  
                 nick = nick.Split('_')[0];
             }
             if (nick.Contains("|"))
@@ -60,6 +64,10 @@ namespace DeathmicChatbot.TransferClasses
             if (int.TryParse(lastchar, out n) && !int.TryParse(secondlastchar, out m))
             {
                 nick = nick.Substring(0, nick.Length - 1);
+            }
+            if(nick =="")
+            {
+                nick = "error";
             }
             return nick.ToLower();
         }
