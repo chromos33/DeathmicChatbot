@@ -1202,14 +1202,24 @@ namespace DeathmicChatbot
                         }
                         else
                         {
-                            DateTime lastglobalnotice = Convert.ToDateTime(stream.Attribute("lastglobalnotice").Value);
-                            TimeSpan difference = DateTime.Now.Subtract(lastglobalnotice);
-                            if (difference.TotalMinutes >= 60)
+                            if(stream.Attribute("lastglobalnotice").Value == "")
                             {
-                                answer = true;
                                 stream.Attribute("lastglobalnotice").Value = Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                                answer = true;
                                 Streams.Save("XML/Streams.xml");
                             }
+                            else
+                            {
+                                DateTime lastglobalnotice = Convert.ToDateTime(stream.Attribute("lastglobalnotice").Value);
+                                TimeSpan difference = DateTime.Now.Subtract(lastglobalnotice);
+                                if (difference.TotalMinutes >= 60)
+                                {
+                                    answer = true;
+                                    stream.Attribute("lastglobalnotice").Value = Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                                    Streams.Save("XML/Streams.xml");
+                                }
+                            }
+                            
                         }
                     }
                 }
