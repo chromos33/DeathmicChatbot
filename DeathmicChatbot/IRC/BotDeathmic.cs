@@ -625,7 +625,7 @@ namespace DeathmicChatbot.IRC
                         {
                             thisclient.LocalUser.SendMessage(MsgsTargets, output);
                         }
-                        //xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel);
+                        xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel);
                     }
                     xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel);
                     
@@ -1443,11 +1443,11 @@ namespace DeathmicChatbot.IRC
             {
                 if(parameters[0] == "remove")
                 {
-                    result = xmlprovider.AddorUpdateSuscription(NormalizeNickName(source.Name), parameters[1], parameters[2], true);
+                    result = xmlprovider.AddorUpdateSuscription(NormalizeNickName(source.Name), parameters[1].ToLower(), parameters[2], true);
                 }
                 if(parameters[0] == "add")
                 {
-                    result = xmlprovider.AddorUpdateSuscription(NormalizeNickName(source.Name), parameters[1], parameters[2], false);
+                    result = xmlprovider.AddorUpdateSuscription(NormalizeNickName(source.Name), parameters[1].ToLower(), parameters[2], false);
                 }
             }
             if (result)
