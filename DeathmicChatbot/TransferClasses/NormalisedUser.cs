@@ -29,7 +29,7 @@ namespace DeathmicChatbot.TransferClasses
             }
             while (nick.StartsWith("_"))
             {
-                nick = nick.Remove(0);
+                nick = nick.Remove(0, 1);
             }
             if (nick.EndsWith("afk"))
             {
