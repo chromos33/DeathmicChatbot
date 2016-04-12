@@ -64,7 +64,7 @@ namespace DeathmicChatbot
             }
             else
             {
-                Counters = new XDocument();
+                Counters = new XDocument(new XElement("Counters",""));
                 Counters.Save("XML/Counters.xml");
             }
         }
@@ -1460,7 +1460,7 @@ namespace DeathmicChatbot
             }
             if (File.Exists("XML/Counters.xml"))
             {
-                IEnumerable<XElement> childlist = from Counter in Counters.Root.Elements() where Counter.Name == counter select Counter;
+                IEnumerable<XElement> childlist = from Counter in Counters.Root.Elements() where Counter.Attribute("Name").Value == counter select Counter;
                 if (childlist.Count() > 0)
                 {
                     foreach (var _counter in childlist)
@@ -1479,7 +1479,6 @@ namespace DeathmicChatbot
                             {
                                 
                                 count = int.Parse(_counter.Attribute("Value").Value);
-                                Console.WriteLine(_counter.Attribute("Value").Value);
                                 count++;
                                 _counter.Attribute("Value").Value = count.ToString();
                             }
@@ -1489,13 +1488,20 @@ namespace DeathmicChatbot
                 }
                 else
                 {
-                    Counters.Add(new XElement("Counters", new XElement(counter, new XAttribute("Value", "1"))));
+                    try
+                    {
+                        Counters.Element("Counters").Add(new XElement("Counter", new XAttribute("Value", "1"), new XAttribute("Name", counter)));
+                    } catch(Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                    
                     count = 1;
                 }
             }
             else
             {
-                Counters = new XDocument(new XElement("Counters", new XElement(counter, new XAttribute("Value", "1"))));
+                Counters = new XDocument(new XElement("Counters", new XElement("Counter", new XAttribute("Value", "1"),new XAttribute("Name", counter))));
                 count = 1;
             }
             Counters.Save("XML/Counters.xml");
