@@ -17,6 +17,7 @@ namespace DeathmicChatbot
         public static BotDeathmic bot = null;
         static void Main(string[] args)
         {
+            Console.WriteLine(Directory.GetCurrentDirectory());
             try
             {
                 File.Create(Directory.GetCurrentDirectory() + "/botlock");
