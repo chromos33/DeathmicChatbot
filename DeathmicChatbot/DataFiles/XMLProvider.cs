@@ -22,50 +22,50 @@ namespace DeathmicChatbot
         protected XDocument Counters;
         public XMLProvider()
         {
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
-                Users = XDocument.Load("XML/Users.xml");
+                Users = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/Users.xml");
             }
             else
             {
                 Users = new XDocument();
-                Users.Save("XML/Users.xml");
+                Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
             }
-            if (File.Exists("XML/Streams.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
-                Streams = XDocument.Load("XML/Streams.xml");
+                Streams = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
             }
             else
             {
                 Streams = new XDocument();
-                Streams.Save("XML/Streams.xml");
+                Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
             }
-            if (File.Exists("XML/UserPicks.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml"))
             {
-                UserPicks = XDocument.Load("XML/UserPicks.xml");
+                UserPicks = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml");
             }
             else
             {
                 UserPicks = new XDocument();
-                UserPicks.Save("XML/UserPicks.xml");
+                UserPicks.Save(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml");
             }
-            if (File.Exists("XML/Votes.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Votes.xml"))
             {
-                Votes = XDocument.Load("XML/Votes.xml");
+                Votes = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/Votes.xml");
             }
             else
             {
                 Votes = new XDocument();
-                Votes.Save("XML/Votes.xml");
+                Votes.Save(Directory.GetCurrentDirectory()+"/XML/Votes.xml");
             }
-            if (File.Exists("XML/Counters.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Counters.xml"))
             {
-                Counters = XDocument.Load("XML/Counters.xml");
+                Counters = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/Counters.xml");
             }
             else
             {
                 Counters = new XDocument(new XElement("Counters",""));
-                Counters.Save("XML/Counters.xml");
+                Counters.Save(Directory.GetCurrentDirectory()+"/XML/Counters.xml");
             }
         }
         #region User Stuff
@@ -77,7 +77,7 @@ namespace DeathmicChatbot
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             nick = nick.ToLower();
             string answer = "";
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 IEnumerable<XElement> childlist = from users in Users.Root.Elements()
                                                   where (users.Element("Alias").Attribute("Value").Value == nick
@@ -106,7 +106,7 @@ namespace DeathmicChatbot
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             string answer = "";
             nick = nick.ToLower();
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 IEnumerable<XElement> childlist = from users in Users.Root.Elements() where users.Attribute("Nick").Value == nick select users;
                 foreach (var item in childlist)
@@ -122,7 +122,7 @@ namespace DeathmicChatbot
                         answer = "Logging Messages enabled";
                     }
                 }
-                Users.Save("XML/Users.xml");
+                Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
 
             }
             return answer;
@@ -135,7 +135,7 @@ namespace DeathmicChatbot
             string answer = "";
 
 
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 IEnumerable<XElement> childlist = from users in Users.Root.Elements() select users;
                 foreach (var user in childlist)
@@ -160,7 +160,7 @@ namespace DeathmicChatbot
             List<String> answer = new List<string>();
 
 
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 IEnumerable<XElement> childlist = from users in Users.Root.Elements() where users.Attribute("isloggingOp").Value == "true" select users;
                 foreach (var user in childlist)
@@ -183,13 +183,13 @@ namespace DeathmicChatbot
             if(password == line)
             {
                 string[] streams = StreamList().Split(',');
-                if (File.Exists("XML/Users.xml"))
+                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
                 {
-                    if (!Directory.Exists("XML/Backup"))
+                    if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/Backup"))
                     {
-                        Directory.CreateDirectory("XML/Backup");
+                        Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/Backup");
                     }
-                    string filename = "XML/Backup/Usersbackup" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".xml";
+                    string filename = Directory.GetCurrentDirectory()+"/XML/Backup/Usersbackup" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".xml";
                     Users.Save(filename);
                 }
                 string suscribestreams = "";
@@ -211,7 +211,7 @@ namespace DeathmicChatbot
             List<String> answer = new List<string>();
 
 
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 IEnumerable<XElement> childlist = from users in Users.Root.Elements() select users;
                 foreach (var user in childlist)
@@ -229,11 +229,11 @@ namespace DeathmicChatbot
             nick = nick.ToLower();
             string answer = "";
             //Query XML File for User Update
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 try
                 {
@@ -281,7 +281,7 @@ namespace DeathmicChatbot
                     answer = "Add Failure";
                 }
             }
-            Users.Save("XML/Users.xml");
+            Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
             return answer;
         }
 
@@ -292,11 +292,11 @@ namespace DeathmicChatbot
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             nick = nick.ToLower();
             //Query XML File for User Update
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 try
                 {
@@ -331,18 +331,18 @@ namespace DeathmicChatbot
                     return false;
                 }
             }
-            Users.Save("XML/Users.xml");
+            Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
             return true;
         }
         public bool ToggleStreamMsgs(string nick)
         {
             bool toggle = false;
             nick = nick.ToLower();
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 IEnumerable<XElement> childlist = Users.Root.Elements().Where(user => user.Attribute("Nick").Value == nick);
                 if (childlist.Count() > 0)
@@ -368,7 +368,7 @@ namespace DeathmicChatbot
                             toggle = true;
                         }
                     }
-                    Users.Save("XML/Users.xml");
+                    Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
                 }
             }
             return toggle;
@@ -376,11 +376,11 @@ namespace DeathmicChatbot
         public bool CheckStreamMsgsState(string nick)
         {
             bool toggle = false;
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 IEnumerable<XElement> childlist = Users.Root.Elements().Where(user => user.Attribute("Nick").Value == nick);
                 if (childlist.Count() > 0)
@@ -403,18 +403,18 @@ namespace DeathmicChatbot
                             toggle = false;
                         }
                     }
-                    Users.Save("XML/Users.xml");
+                    Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
                 }
             }
             return toggle;
         }
         public bool CheckPassword(string nick, string pass)
         {
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 try
                 {
@@ -439,11 +439,11 @@ namespace DeathmicChatbot
             if(CheckPassword(nick,pass) || ignorepass)
             {
                 //Query XML File for User Update
-                if (!Directory.Exists("XML"))
+                if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
                 {
-                    Directory.CreateDirectory("XML");
+                    Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
                 }
-                if (File.Exists("XML/Users.xml"))
+                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
                 {
                     IEnumerable<XElement> childlist = from el in Users.Root.Elements() where el.Attribute("Nick").Value == nick select el;
                     if (childlist.Count() > 0)
@@ -469,7 +469,7 @@ namespace DeathmicChatbot
                                 }
                            }
                         }
-                        Users.Save("XML/Users.xml");
+                        Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
                         return true;
                     }
                 }
@@ -481,11 +481,11 @@ namespace DeathmicChatbot
 
             nick = nick.ToLower();
                 //Query XML File for User Update
-                if (!Directory.Exists("XML"))
+                if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
                 {
-                    Directory.CreateDirectory("XML");
+                    Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
                 }
-                if (File.Exists("XML/Users.xml"))
+                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
                 {
                     int i = Users.Root.Elements().Where(User => User.Attribute("Nick").Value.ToLower() == nick.ToLower()).Where(User => User.Attribute("Streams") != null).Where(User => User.Attribute("Streams").Value.ToLower().Contains(streamname.ToLower())).Count();
                     if (i > 0)
@@ -504,11 +504,11 @@ namespace DeathmicChatbot
             {
                 userlist += user.ToLower();
             }
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 try
                 {
@@ -533,11 +533,11 @@ namespace DeathmicChatbot
             {
                 userlist += user.normalised_username().ToLower();
             }
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 try
                 {
@@ -557,11 +557,11 @@ namespace DeathmicChatbot
         public bool isSuscribed(string streamname,string username)
         {
             bool suscribed = false;
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 try
                 {
@@ -581,7 +581,7 @@ namespace DeathmicChatbot
         #endregion
         public void DateTimeCorrection()
         {
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 IEnumerable<XElement> childlist = from el in Users.Root.Elements() select el;
                 if (childlist.Count() > 0)
@@ -598,7 +598,7 @@ namespace DeathmicChatbot
                         }
                         
                     }
-                    Users.Save("XML/Users.xml");
+                    Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
                 }
             }
         }
@@ -608,11 +608,11 @@ namespace DeathmicChatbot
         {
             nick = nick.ToLower();
             alias = alias.ToLower();
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 IEnumerable<XElement> childlist = from el in Users.Root.Elements() where el.Attribute("Nick").Value == nick select el;
                 if (childlist.Count() > 0)
@@ -630,7 +630,7 @@ namespace DeathmicChatbot
                         if (aliascontained == false)
                         {
                             item.Add(new XElement("Alias", new XAttribute("Value", alias)));
-                            Users.Save("XML/Users.xml");
+                            Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
                             IEnumerable<XElement> childlist2 = from el in Users.Root.Elements() where el.Attribute("Nick").Value == alias select el;
                             if (childlist2.Count() > 0)
                             {
@@ -644,7 +644,7 @@ namespace DeathmicChatbot
                                         item2.Add(new XAttribute("oldcounter", item2.Attribute("VisitCount").Value));
                                         item2.Attribute("VisitCount").Value = (Int32.Parse(item2.Attribute("VisitCount").Value) + count).ToString();
                                         item2.Add(new XAttribute("hasbeenmerged", 1));
-                                        Users.Save("XML/Users.xml");
+                                        Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
                                     }
 
                                 }
@@ -675,12 +675,12 @@ namespace DeathmicChatbot
 
         public void RemoveUnnecessaryNicks()
         {
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
             int i = 0;
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 try
                 {
@@ -778,7 +778,7 @@ namespace DeathmicChatbot
                     if(change)
                     {
                         Console.Write(i);
-                        Users.Save("XML/Users.xml");
+                        Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
                     }
                 }
                 catch(Exception ex)
@@ -797,11 +797,11 @@ namespace DeathmicChatbot
             channel = channel.ToLower();
             int answer = 0;
             //Query XML File for User Update
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Streams.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
                 IEnumerable<XElement> childlist = from el in Streams.Root.Elements() where el.Attribute("Channel").Value == channel select el;
                 if (childlist.Count() > 0)
@@ -830,13 +830,13 @@ namespace DeathmicChatbot
                 }
             }
             //Backup just in case something goes wrong
-            if (File.Exists("XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
-                if (!Directory.Exists("XML/Backup"))
+                if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/Backup"))
                 {
-                    Directory.CreateDirectory("XML/Backup");
+                    Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/Backup");
                 }
-                string filename = "XML/Backup/Usersbackup" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".xml";
+                string filename = Directory.GetCurrentDirectory()+"/XML/Backup/Usersbackup" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".xml";
                 Users.Save(filename);
             }
 
@@ -848,7 +848,7 @@ namespace DeathmicChatbot
                     Thread.Sleep(1000);
                 }
             }
-            Streams.Save("XML/Streams.xml");
+            Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
             return answer;
         }
 
@@ -858,14 +858,14 @@ namespace DeathmicChatbot
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             string answer = "";
-            if (File.Exists("XML/Streams.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
                 try
                 {
                     Streams.Element("Streams").Elements("Stream").Where(x => x.Attribute("Channel").Value == channel).Remove();
                     answer = "Stream removed";
 
-                    Streams.Save("XML/Streams.xml");
+                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                 }
                 catch (Exception ex)
                 {
@@ -909,7 +909,7 @@ namespace DeathmicChatbot
             bool answer = false;
             try
             {
-                if (File.Exists("XML/Streams.xml"))
+                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
                 {
                     if (provider == "twitch")
                     {
@@ -955,7 +955,7 @@ namespace DeathmicChatbot
                         }
                     }
                     answer = true;
-                    Streams.Save("XML/Streams.xml");
+                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                 }
             }catch(Exception ex)
             {
@@ -968,7 +968,7 @@ namespace DeathmicChatbot
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-            if (File.Exists("XML/Streams.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
                 try
                 {
@@ -978,7 +978,7 @@ namespace DeathmicChatbot
                         if (element.Attribute("game") == null)
                         {
                             element.Add(new XAttribute("game", Game));
-                            Streams.Save("XML/Streams.xml");
+                            Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                         }
                         else
                         {
@@ -987,14 +987,14 @@ namespace DeathmicChatbot
                         if (element.Attribute("URL") == null)
                         {
                             element.Add(new XAttribute("URL", URL));
-                            Streams.Save("XML/Streams.xml");
+                            Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                         }
                         else
                         {
                             element.Attribute("URL").Value = URL;
                         }
                     }
-                    Streams.Save("XML/Streams.xml");
+                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                 }
                 catch (Exception ex)
                 {
@@ -1011,7 +1011,7 @@ namespace DeathmicChatbot
             //Maybe add provider filtering but have to somewhere add the provider
             string answer = "";
 
-            if (File.Exists("XML/Streams.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
                 System.Diagnostics.Debug.WriteLine(provider);
                 IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() select streams;
@@ -1034,7 +1034,7 @@ namespace DeathmicChatbot
             //Maybe add provider filtering but have to somewhere add the provider
             string answer = "";
 
-            if (File.Exists("XML/Streams.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
                 IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() select streams;
 
@@ -1044,7 +1044,7 @@ namespace DeathmicChatbot
                     {
                         stream.Attribute("running").Value = "false";
                     }
-                    Streams.Save("XML/Streams.xml");
+                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                 }
             }
             return;
@@ -1056,7 +1056,7 @@ namespace DeathmicChatbot
             //Maybe add provider filtering but have to somewhere add the provider
             List<string> answer = new List<string>();
 
-            if (File.Exists("XML/Streams.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
                 IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() where streams.Attribute("running").Value == "true" select streams;
 
@@ -1078,7 +1078,7 @@ namespace DeathmicChatbot
             //Maybe add provider filtering but have to somewhere add the provider
             bool answer = false;
 
-            if (File.Exists("XML/Streams.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
                 IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() where streams.Attribute("Channel").Value == stream select streams;
                 if (childlist.Count() > 0)
@@ -1094,7 +1094,7 @@ namespace DeathmicChatbot
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
-            if (File.Exists("XML/Streams.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
                 if (!end)
                 {
@@ -1132,7 +1132,7 @@ namespace DeathmicChatbot
                                 stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))));
                             }
                         }
-                        Streams.Save("XML/Streams.xml");
+                        Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                     }
                 }
                 else
@@ -1149,7 +1149,7 @@ namespace DeathmicChatbot
                                 stream.Attribute("stoptime").Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                             }
                         }
-                        Streams.Save("XML/Streams.xml");
+                        Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                     }
                 }
             }
@@ -1162,7 +1162,7 @@ namespace DeathmicChatbot
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             string answer = "";
-            if (File.Exists("XML/Streams.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
                 IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
                 if (childlist.Count() > 0)
@@ -1187,7 +1187,7 @@ namespace DeathmicChatbot
             bool answer = false;
 
             channel = channel.ToLower();
-            if (File.Exists("XML/Streams.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
                 IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
                 if (childlist.Count() > 0)
@@ -1198,7 +1198,7 @@ namespace DeathmicChatbot
                         {
                             stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))));
                             answer = true;
-                            Streams.Save("XML/Streams.xml");
+                            Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                         }
                         else
                         {
@@ -1206,7 +1206,7 @@ namespace DeathmicChatbot
                             {
                                 stream.Attribute("lastglobalnotice").Value = Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                                 answer = true;
-                                Streams.Save("XML/Streams.xml");
+                                Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                             }
                             else
                             {
@@ -1216,7 +1216,7 @@ namespace DeathmicChatbot
                                 {
                                     answer = true;
                                     stream.Attribute("lastglobalnotice").Value = Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                                    Streams.Save("XML/Streams.xml");
+                                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                                 }
                             }
                             
@@ -1237,11 +1237,11 @@ namespace DeathmicChatbot
             User = User.ToLower();
             bool anser = false;
             //Query XML File for User Update
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/UserPicks.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml"))
             {
                 try
                 {
@@ -1279,7 +1279,7 @@ namespace DeathmicChatbot
                         );
                         Streams.Element("UserPickedLists").Add(_element);
                     }
-                    Streams.Save("XML/UserPicks.xml");
+                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml");
 
                     
                     
@@ -1302,13 +1302,13 @@ namespace DeathmicChatbot
             User = User.ToLower();
             //Query XML File for User Update
             XDocument xdoc = new XDocument();
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/UserPicks.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml"))
             {
-                xdoc = XDocument.Load("XML/UserPicks.xml");
+                xdoc = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml");
                 try
                 {
                     IEnumerable<XElement> childlist = from Reasons in xdoc.Root.Elements() where Reasons.Attribute("Reason").Value == Reason select Reasons;
@@ -1354,11 +1354,11 @@ namespace DeathmicChatbot
             string answer = "";
             Reason = Reason.ToLower();
             //Query XML File for User Update
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/UserPicks.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml"))
             {
                 try
                 {
@@ -1418,11 +1418,11 @@ namespace DeathmicChatbot
             bool answer = false;
             Reason = Reason.ToLower();
             //Query XML File for User Update
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/UserPicks.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml"))
             {
                 try
                 {
@@ -1434,7 +1434,7 @@ namespace DeathmicChatbot
                         {
                             item.Remove();
                             answer = true;
-                            UserPicks.Save("XML/UserPicks.xml");
+                            UserPicks.Save(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml");
                         }
                     }
                 }
@@ -1454,11 +1454,11 @@ namespace DeathmicChatbot
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             int count = 0;
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Counters.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Counters.xml"))
             {
                 IEnumerable<XElement> childlist = from Counter in Counters.Root.Elements() where Counter.Attribute("Name").Value == counter select Counter;
                 if (childlist.Count() > 0)
@@ -1504,7 +1504,7 @@ namespace DeathmicChatbot
                 Counters = new XDocument(new XElement("Counters", new XElement("Counter", new XAttribute("Value", "1"),new XAttribute("Name", counter))));
                 count = 1;
             }
-            Counters.Save("XML/Counters.xml");
+            Counters.Save(Directory.GetCurrentDirectory()+"/XML/Counters.xml");
             if(reset)
             {
                 return "The Counter " + counter + " has been reset and is at " + count;
@@ -1521,11 +1521,11 @@ namespace DeathmicChatbot
         {
             
             int output = 0;
-            if (!Directory.Exists("XML"))
+            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
             {
-                Directory.CreateDirectory("XML");
+                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
             }
-            if (File.Exists("XML/Votes.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Votes.xml"))
             {
                 IEnumerable<XElement> childlist = Votes.Root.Elements();
                 output = childlist.Count() + 1;
@@ -1570,7 +1570,7 @@ namespace DeathmicChatbot
                 Questions.Add(Question);
                 Votes.Add(Questions);
             }
-            Votes.Save("XML/Votes.xml");
+            Votes.Save(Directory.GetCurrentDirectory()+"/XML/Votes.xml");
             return output;
             
         }
@@ -1580,7 +1580,7 @@ namespace DeathmicChatbot
             try
             {
                 bool vote = true;
-                if (File.Exists("XML/Votes.xml"))
+                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Votes.xml"))
                 {
                     IEnumerable<XElement> checklist = Votes.Root.Elements().Where(_question => _question.Attribute("ID").Value == question.ToString()).Elements();
                     foreach(var item in checklist)
@@ -1605,7 +1605,7 @@ namespace DeathmicChatbot
                                 {
                                     child.Add(new XElement("User", new XAttribute("value", user.ToString())));
                                 }
-                                Votes.Save("XML/Votes.xml");
+                                Votes.Save(Directory.GetCurrentDirectory()+"/XML/Votes.xml");
                                 answered = true;
                             }
                         } 
@@ -1635,7 +1635,7 @@ namespace DeathmicChatbot
             List<string> results = new List<string>();
             try
             {
-                if (File.Exists("XML/Votes.xml"))
+                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Votes.xml"))
                 {
                     IEnumerable<XElement> Question = Votes.Root.Elements().Where(_question => _question.Attribute("ID").Value == question.ToString() && _question.Attribute("running").Value == "false");
                     IEnumerable<XElement> childlist = Votes.Root.Elements().Where(_question => _question.Attribute("ID").Value == question.ToString() && _question.Attribute("running").Value == "false").Elements();
@@ -1668,7 +1668,7 @@ namespace DeathmicChatbot
 
             try
             {
-                if (File.Exists("XML/Votes.xml"))
+                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Votes.xml"))
                 {
                     IEnumerable<XElement> childlist = Votes.Root.Elements().Where(_question => _question.Attribute("ID").Value == question.ToString() && _question.Attribute("running").Value == "true");
                     if (childlist.Count() > 0)
@@ -1678,7 +1678,7 @@ namespace DeathmicChatbot
                             child.Attribute("running").Value = "false";
                         }
                         output = 1;
-                        Votes.Save("XML/Votes.xml");
+                        Votes.Save(Directory.GetCurrentDirectory()+"/XML/Votes.xml");
                     }
                 }
             }
@@ -1697,7 +1697,7 @@ namespace DeathmicChatbot
 
             try
             {
-                if (File.Exists("XML/Votes.xml"))
+                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Votes.xml"))
                 {
                     IEnumerable<XElement> Question = Votes.Root.Elements().Where(_question => DateTime.Parse(_question.Attribute("enddate").Value) < DateTime.Now && _question.Attribute("running").Value == "true");
                     if(Question.Count() > 0)
@@ -1724,7 +1724,7 @@ namespace DeathmicChatbot
 
             try
             {
-                if (File.Exists("XML/Votes.xml"))
+                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Votes.xml"))
                 {
                     IEnumerable<XElement> Question = Votes.Root.Elements().Where(_question => _question.Attribute("running").Value == "true");
                     if(Question != null)
