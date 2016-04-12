@@ -27,6 +27,7 @@ namespace DeathmicChatbot
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Fatal error: " + ex.ToString());
                 System.Diagnostics.Debug.WriteLine("Fatal error: " + ex.Message);
                 System.Diagnostics.Debug.WriteLine("Fatal error: " + ex.ToString());
                 Environment.ExitCode = 1;
