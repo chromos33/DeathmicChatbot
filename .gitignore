@@ -49,7 +49,7 @@ BotDeathmic/bin/Debug/DeathmicChatbot.vshost.exe.manifest
 *.pdb
 BotDeathmic/bin/Debug/IrcDotNet.dll
 BotDeathmic/bin/Debug/RestSharp.dll
-BotDeathmic/bin/Debug
+BotDeathmic/bin/Debug/*
 DeathmicChatbot/bin/Debug/botlock
 DeathmicChatbot/bin/Debug/DeathmicChatbot.exe.config
 DeathmicChatbot/bin/Debug/DeathmicChatbot.vshost.exe.config
@@ -81,3 +81,15 @@ DeathmicChatbot/obj/Debug/TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10
 DeathmicChatbot/obj/Debug/TempPE/Properties.Resources.Designer.cs.dll
 DeathmicChatbot/Properties/Settings.settings
 DeathmicChatbot/Properties/Settings.Designer.cs
+/DeathmicChatbot/bin/Debug/XML/Counters.xml
+/DeathmicChatbot/bin/Debug/XML/UserPicks.xml
+/DeathmicChatbot/bin/Debug/XML/Users.xml.bck
+/DeathmicChatbot/bin/Debug/XML/Usersbackup.xml
+/DeathmicChatbot/bin/Debug/XML/Usersbackup20151009.xml
+/DeathmicChatbot/bin/Debug/password.txt
+/DeathmicChatbot/bin/Debug/Usersbackup20151009.xml
+/DeathmicChatbot/bin/Debug/XML.rar
+/DeathmicChatbot/bin/Release/DeathmicChatbot.exe.config
+/DeathmicChatbot/bin/Release/DeathmicChatbot.vshost.exe.config
+/DeathmicChatbot/bin/Release/DeathmicChatbot.vshost.exe.manifest
+/Report20151030-2031.diagsession
