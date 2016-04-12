@@ -24,7 +24,7 @@
       <Value Profile="(Default)">BobDeMic</Value>
     </Setting>
     <Setting Name="Channel" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">#deathmic</Value>
+      <Value Profile="(Default)">#deathmictest</Value>
     </Setting>
     <Setting Name="SilentMode" Type="System.String" Scope="Application">
       <Value Profile="(Default)">false</Value>
