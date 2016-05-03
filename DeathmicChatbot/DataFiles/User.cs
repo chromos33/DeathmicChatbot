@@ -3,17 +3,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Xml.Serialization;
 namespace DeathmicChatbot.DataFiles
 {
-    class User
+    public class User
     {
-        List<Stream> Streams;
-        List<Alias> Aliase;
-        String Name;
-        DateTime LastVisit;
-        int VisitCounter;
+        
+        public String Name;
+        public DateTime LastVisit;
+        public int VisitCounter;
+        public bool bIsLoggingOp;
+        public string password;
+        public List<Stream> Streams = new List<Stream>();
+        public List<Alias> Aliase = new List<Alias>();
+        public User()
+        {
 
+        }
+        public bool checkPassword(string _password)
+        {
+            if(_password == password)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public bool changePassword(string newpass, string oldpass= "")
+        {
+            if(password == oldpass)
+            {
+                password = newpass;
+                return true;
+            }
+            return false;
+            
+        }
 
         public bool isSubscribed(string streamname)
         {

@@ -19,6 +19,7 @@ using System.IO;
 using Newtonsoft.Json;
 using DeathmicChatbot.Statics;
 using DeathmicChatbot.TransferClasses;
+using System.Xml.Linq;
 
 namespace DeathmicChatbot.IRC
 {
@@ -75,6 +76,8 @@ namespace DeathmicChatbot.IRC
         private static List<IURLHandler> handlers = new List<IURLHandler>() { new LinkParser.YoutubeHandler(), new LinkParser.Imgur(), new LinkParser.WebsiteHandler() };
         private static System.Timers.Timer VoteTimer;
         public IList<IIrcMessageTarget> targets;
+
+        public List<User> LUserList = new List<User>();
         #endregion
         #region Constructor
         public BotDeathmic()
@@ -87,14 +90,16 @@ namespace DeathmicChatbot.IRC
             {
                 if (!Properties.Settings.Default.DateTimeFormatCorrected)
                 {
-                    xmlprovider.DateTimeCorrection();
+                    //xmlprovider.DateTimeCorrection();
                 }
             }catch(Exception ex)
             {
                 Console.WriteLine(ex.ToString());
             }
-            
-            
+            UmportUsers();
+
+
+
         }
         
 
@@ -109,6 +114,10 @@ namespace DeathmicChatbot.IRC
                     RealName = Properties.Settings.Default.Name
                 };
             }
+        }
+        public void LoadUsers()
+        {
+            // DO Stuff
         }
         #endregion
         #region IRCConnectionEvents
@@ -1500,6 +1509,45 @@ namespace DeathmicChatbot.IRC
 
         #endregion
         #region umport stuff
+        public void UmportUsers()
+        {
+            if (File.Exists(Directory.GetCurrentDirectory() + "/XML/Users.xml"))
+            {
+                XDocument Users = XDocument.Load(Directory.GetCurrentDirectory() + "/XML/Users.xml");
+                IEnumerable<XElement> childlist = from users in Users.Root.Elements() select users;
+
+                XDocument Streams = XDocument.Load(Directory.GetCurrentDirectory() + "/XML/Streams.xml");
+                IEnumerable<XElement> streamchildren = from streams in Streams.Root.Elements() select streams;
+                foreach (var user in childlist)
+                {
+                    User newuser = new User();
+                    newuser.Name = user.Attribute("Nick").Value;
+                    System.Diagnostics.Debug.WriteLine(user.Attribute("LastVisit").Value);
+                    try
+                    {
+                        newuser.LastVisit = Convert.ToDateTime(user.Attribute("LastVisit").Value);
+                    }catch (Exception)
+                    {
+                        newuser.LastVisit = DateTime.ParseExact(user.Attribute("LastVisit").Value, "dd-MM-yyyy HH:mm:ss",CultureInfo.InvariantCulture);
+                    }
+                    foreach(var stream in streamchildren)
+                    {
+                        newuser.addStream(stream.Attribute("Channel").Value, true);
+                    }
+                    
+                    newuser.bIsLoggingOp = Convert.ToBoolean(user.Attribute("isloggingOp").Value);
+                    newuser.VisitCounter = Int32.Parse(user.Attribute("VisitCount").Value);
+                    LUserList.Add(newuser);
+                }
+                var OrderedUserList = LUserList.OrderByDescending(x => x.LastVisit).ToList();
+                LUserList = OrderedUserList;
+                System.Xml.Serialization.XmlSerializer xmlserializer = new System.Xml.Serialization.XmlSerializer(LUserList.GetType());
+                var path = Directory.GetCurrentDirectory() + "/XML/Usersv2.xml";
+                System.IO.FileStream file = System.IO.File.Create(path);
+                xmlserializer.Serialize(file,LUserList);
+                file.Close();
+            }
+        }
         #endregion
     }
 }

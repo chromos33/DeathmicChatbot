@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace DeathmicChatbot.DataFiles
 {
-    class Stream
+    public class Stream
     {
         public string name;
         public bool subscribed;
@@ -15,6 +16,10 @@ namespace DeathmicChatbot.DataFiles
         {
             name = _name;
             subscribed = _subscribed;
+        }
+        public Stream()
+        {
+
         }
     }
 }

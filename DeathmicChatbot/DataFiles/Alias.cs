@@ -17,5 +17,9 @@ namespace DeathmicChatbot.DataFiles
             VisitCounterBackup = visitCounterBackup;
             LastVisitBackup = lastVisitBackup;
         }
+        public Alias()
+        {
+            
+        }
     }
 }
