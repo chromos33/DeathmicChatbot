@@ -16,9 +16,27 @@ namespace DeathmicChatbot.DataFiles
         public string password;
         public List<Stream> Streams = new List<Stream>();
         public List<Alias> Aliase = new List<Alias>();
+        public bool bMessages;
+        public bool bShouldSubscribe()
+        {
+            if(LastVisit < DateTime.Now.AddYears(-1))
+            {
+                return false;
+            }
+
+            return true;
+        }
         public User()
         {
-
+            if(password == null)
+            {
+                password = "";
+            }
+        }
+        public bool toggleMessages()
+        {
+            bMessages = !bMessages;
+            return bMessages;
         }
         public bool checkPassword(string _password)
         {
@@ -51,6 +69,20 @@ namespace DeathmicChatbot.DataFiles
             }
             return false;
         }
+        public bool subscribeStream(string streamname,string _password,bool subscribe)
+        {
+            if(_password == password)
+            {
+                IEnumerable<Stream> streams = Streams.Where(x => x.name.ToLower() == streamname.ToLower());
+                if (streams.Count() > 0)
+                {
+                    streams.First().subscribed = subscribe;
+                }
+                return true;
+            }
+            return false;
+            
+        }
         public bool addStream(string streamname,bool subscribe = false)
         {
             IEnumerable<Stream> streams = Streams.Where(x => x.name == streamname.ToLower());
@@ -58,31 +90,23 @@ namespace DeathmicChatbot.DataFiles
             {
                 return false;
             }
-            Streams.Add(new Stream(streamname, subscribe));
+            Streams.Add(new Stream(streamname.ToLower(), subscribe));
             return true;
         }
-        public bool updateSubscription(string streamname,bool suscribe = true)
+        public void removeStream(string streamname)
         {
-            IEnumerable<Stream> streams = Streams.Where(x => x.name == streamname.ToLower());
-
-            if(streams.Count()>0)
-            {
-                foreach (Stream stream in streams)
-                {
-                    stream.subscribed = suscribe;
-                }
-            }
-            else
-            {
-                return false;
-            }
-            return true;
+            Streams.RemoveAll(x=>x.name.ToLower() == streamname.ToLower());
         }
-        public Tuple<string,int> visit()
+        public Tuple<DateTime, int> visit()
         {
+            if(LastVisit == null)
+            {
+                LastVisit = DateTime.Now;
+            }
             VisitCounter++;
+            Tuple<DateTime, int> returnvalue = new Tuple<DateTime, int>(LastVisit, VisitCounter);
             LastVisit = DateTime.Now;
-            return new Tuple<string, int>(LastVisit.ToString("yyyy-MM-dd HH:mm:ss"), VisitCounter);
+            return returnvalue;
         }
         public bool HasAlias(string Alias)
         {
@@ -93,7 +117,20 @@ namespace DeathmicChatbot.DataFiles
             }
             return false;
         }
-        public bool AddAlias(string parentname,string childname,List<User> userlist)
+        public bool isUser(string name)
+        {
+            if(Name.ToLower() == name.ToLower())
+            {
+                return true;
+            }
+            IEnumerable<Alias> aliasfound = Aliase.Where(x => x.Name.ToLower() == name.ToLower());
+            if(aliasfound.Count() >0)
+            {
+                return true;
+            }
+            return false;
+        }
+        public bool AddAlias(string childname,List<User> userlist)
         {
             IEnumerable<User> children = userlist.Where(x => x.Name == childname);
             User child = null;
@@ -106,11 +143,11 @@ namespace DeathmicChatbot.DataFiles
                 if(!HasAlias(childname))
                 {
                     Aliase.Add(new Alias(child.Name, child.VisitCounter, child.LastVisit));
+                    userlist.RemoveAll(x => x.Name.ToLower() == childname.ToLower());
                     return true;
                 }
             }
             return false;
-
         }
     }
 }
