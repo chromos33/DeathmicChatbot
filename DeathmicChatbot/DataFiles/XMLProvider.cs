@@ -830,6 +830,7 @@ namespace DeathmicChatbot
                 }
             }
             //Backup just in case something goes wrong
+            /*
             if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
             {
                 if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/Backup"))
@@ -849,6 +850,7 @@ namespace DeathmicChatbot
                 }
             }
             Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
+            */
             return answer;
         }
 
