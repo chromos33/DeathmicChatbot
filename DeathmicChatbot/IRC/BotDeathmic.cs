@@ -268,6 +268,9 @@ namespace DeathmicChatbot.IRC
                     newUser.visit();
                     // TODO: Suscribe to all streams;
                 }
+                #endregion
+                normaliseduser = null;
+                SaveUserList();
                 foreach (string streamname in xmlprovider.OnlineStreamList())
                 {
                     string _streamname = streamname.Replace(",", "");
@@ -281,9 +284,6 @@ namespace DeathmicChatbot.IRC
                                                         ));
                     }
                 }
-                #endregion
-                normaliseduser = null;
-                SaveUserList();
             }
         }
 
