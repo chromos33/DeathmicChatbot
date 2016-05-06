@@ -251,7 +251,7 @@ namespace DeathmicChatbot.IRC
                 }
                 else
                 {
-                    String output = "This is " + normaliseduser.normalised_username() + "'s first Visit.";
+                    String output = "This is " + normaliseduser.normalised_username() + "'s first visit.";
                     foreach (var loggingOp in LUserList.Where(x => x.bIsLoggingOp))
                         thisclient.LocalUser.SendNotice(loggingOp.Name, output);
                     User newUser = new User();
@@ -266,15 +266,17 @@ namespace DeathmicChatbot.IRC
                     newUser.password = "";
                     newUser.bMessages = false;
                     newUser.visit();
+                    LUserList.Add(newUser);
                     // TODO: Suscribe to all streams;
                 }
                 #endregion
-                normaliseduser = null;
                 SaveUserList();
                 foreach (string streamname in xmlprovider.OnlineStreamList())
                 {
                     string _streamname = streamname.Replace(",", "");
-                    if (getUser(normaliseduser.normalised_username().ToLower()).isSubscribed(_streamname))
+                    User user = getUser(normaliseduser.normalised_username().ToLower());
+                    if(user != null)
+                    if (user.isSubscribed(_streamname))
                     {
                         thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
                                                         "Stream running: _{0}_ ({1}) at {2}",
@@ -284,6 +286,7 @@ namespace DeathmicChatbot.IRC
                                                         ));
                     }
                 }
+                normaliseduser = null;
             }
         }
 
@@ -427,7 +430,9 @@ namespace DeathmicChatbot.IRC
                 
                 NormalisedUser normuser = new NormalisedUser(source.Name.ToString());
                 NormalisedUser alias = new NormalisedUser(parameters[0]);
-                if (getUser(normuser.normalised_username()).AddAlias(alias.normalised_username(),LUserList))
+                User user = getUser(normuser.normalised_username().ToLower());
+                if (user != null)
+                if (user.AddAlias(alias.normalised_username(),LUserList))
                 {
                     client.LocalUser.SendNotice(source.Name, "Alias Added");
                 }
@@ -574,7 +579,9 @@ namespace DeathmicChatbot.IRC
                 }
                 List<NormalisedUser> UsersinChannel = new List<NormalisedUser>();
                 NormalisedUser normuser = new NormalisedUser(source.Name.ToString());
-                if (getUser(normuser.normalised_username()).isSubscribed(stream))
+                User userUser = getUser(normuser.normalised_username().ToLower());
+                if (userUser != null)
+                if (userUser.isSubscribed(stream))
                 {
                     client.LocalUser.SendNotice(source.Name, streamprovidersplit[0] + " is currently streaming " + xmlprovider.StreamInfo(streamprovidersplit[0], "game") + " at " + xmlprovider.StreamInfo(streamprovidersplit[0], "URL"));
                 }
@@ -611,9 +618,11 @@ namespace DeathmicChatbot.IRC
                     }
                     foreach (NormalisedUser user in UsersinChannel)
                     {
-                        if (getUser(user.normalised_username()).isSubscribed(args.StreamData.Stream.Channel))
+                        User userUser = getUser(user.normalised_username().ToLower());
+                        if (userUser != null)
+                        if (userUser.isSubscribed(args.StreamData.Stream.Channel))
                         {
-                            if (!getUser(user.normalised_username()).bMessages)
+                            if (!userUser.bMessages)
                             {
                                 NoticeTargets.Add(user.orig_username);
                             }
@@ -665,7 +674,10 @@ namespace DeathmicChatbot.IRC
                         }
                         foreach (NormalisedUser user in UsersinChannel)
                         {
-                            if (getUser(user.normalised_username()).isSubscribed(args.StreamData.Stream.Channel))
+                            
+                            User userUser = getUser(user.normalised_username().ToLower());
+                            if (userUser != null)
+                            if (userUser.isSubscribed(args.StreamData.Stream.Channel))
                             {
                                 NoticeTargets.Add(user.orig_username);
                             }
@@ -712,9 +724,11 @@ namespace DeathmicChatbot.IRC
                         }
                         foreach (NormalisedUser user in UsersinChannel)
                         {
-                            if (getUser(user.normalised_username()).isSubscribed(args.StreamData.Stream.Channel))
+                            User userUser = getUser(user.normalised_username().ToLower());
+                            if (userUser != null)
+                                if (userUser.isSubscribed(args.StreamData.Stream.Channel))
                             {
-                                if (!getUser(user.normalised_username()).bMessages)
+                                if (!userUser.bMessages)
                                 {
                                     NoticeTargets.Add(user.orig_username);
                                 }
@@ -1511,6 +1525,8 @@ namespace DeathmicChatbot.IRC
         {
             NormalisedUser normuser = new NormalisedUser(source.Name.ToString());
 
+            User user = getUser(normuser.normalised_username().ToLower());
+            if (user != null)
             client.LocalUser.SendNotice(source.Name, getUser(normuser.normalised_username()).toggleLoggingOp().ToString());
         }
         
