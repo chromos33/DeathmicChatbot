@@ -97,7 +97,7 @@ namespace DeathmicChatbot.IRC
             {
                 Console.WriteLine(ex.ToString());
             }
-            //UmportUsers();
+            UmportUsers();
             readUsers();
 
 
@@ -271,7 +271,7 @@ namespace DeathmicChatbot.IRC
                 foreach (string streamname in xmlprovider.OnlineStreamList())
                 {
                     string _streamname = streamname.Replace(",", "");
-                    if (xmlprovider.CheckSuscription(normaliseduser.normalised_username().ToLower(), _streamname))
+                    if (getUser(normaliseduser.normalised_username().ToLower()).isSubscribed(_streamname))
                     {
                         thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
                                                         "Stream running: _{0}_ ({1}) at {2}",
@@ -1509,8 +1509,9 @@ namespace DeathmicChatbot.IRC
         #endregion
         private void ToggleUserLogging(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
-            client.LocalUser.SendNotice(source.Name, xmlprovider.ToggleUserLogging(source.Name));
+            NormalisedUser normuser = new NormalisedUser(source.Name.ToString());
+
+            client.LocalUser.SendNotice(source.Name, getUser(normuser.normalised_username()).toggleLoggingOp().ToString());
         }
         
         private void SetPassword(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
@@ -1521,15 +1522,13 @@ namespace DeathmicChatbot.IRC
                 client.LocalUser.SendMessage(source.Name, "Password Command: '!setpass [New Password] [old Pass]' old Pass is optional on the First time");
                 return;
             }
-            if(parameters.Count == 1)
-            {
-                result = xmlprovider.AddorUpdatePassword(NormalizeNickName(source.Name), parameters[0]);
-            }
+            string password = "";
             if(parameters.Count == 2)
             {
-                result =xmlprovider.AddorUpdatePassword(NormalizeNickName(source.Name), parameters[0],parameters[1]);
+                password =parameters[1];
             }
-            if(result)
+            result = getUser(NormalizeNickName(source.Name)).changePassword(parameters[0], password);
+            if (result)
             {
                 client.LocalUser.SendMessage(source.Name, "new Password Confirmed");
             }
@@ -1537,6 +1536,7 @@ namespace DeathmicChatbot.IRC
             {
                 client.LocalUser.SendMessage(source.Name, "Entered current Password is incorrect or not entered, type !SetPassword help for the command");
             }
+            SaveUserList();
         }
         private void ChangeSubscription(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
@@ -1554,16 +1554,7 @@ namespace DeathmicChatbot.IRC
                     password = parameters[2];
                 }
                 if(parameters[0] == "remove")
-                {
-                    try
-                    {
-                        Console.WriteLine(NormalizeNickName(source.Name));
-                        Console.WriteLine(getUser(NormalizeNickName(source.Name)));
-                    } catch(Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                    }
-                    
+                {                    
                     result = getUser(NormalizeNickName(source.Name)).subscribeStream(parameters[1].ToLower(), password, false);
                 }
                 if(parameters[0] == "add")
