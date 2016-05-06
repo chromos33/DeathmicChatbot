@@ -97,7 +97,7 @@ namespace DeathmicChatbot.IRC
             {
                 Console.WriteLine(ex.ToString());
             }
-            UmportUsers();
+            //UmportUsers();
             readUsers();
 
 
