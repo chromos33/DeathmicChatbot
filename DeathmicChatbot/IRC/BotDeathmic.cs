@@ -1652,6 +1652,7 @@ namespace DeathmicChatbot.IRC
                 
                 XmlReader reader = XmlReader.Create(fs);
                 LUserList = (List<User>) xmlserializer.Deserialize(reader);
+                fs.Close();
                 UserListLocked = false;
             }
         }
