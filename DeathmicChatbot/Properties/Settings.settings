@@ -21,10 +21,10 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="Name" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">TestBob</Value>
+      <Value Profile="(Default)">BobDeMic</Value>
     </Setting>
     <Setting Name="Channel" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">#deathmictest</Value>
+      <Value Profile="(Default)">#deathmic</Value>
     </Setting>
     <Setting Name="SilentMode" Type="System.String" Scope="Application">
       <Value Profile="(Default)">false</Value>
