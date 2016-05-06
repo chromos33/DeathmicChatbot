@@ -50,6 +50,7 @@ BotDeathmic/bin/Debug/DeathmicChatbot.vshost.exe.manifest
 BotDeathmic/bin/Debug/IrcDotNet.dll
 BotDeathmic/bin/Debug/RestSharp.dll
 BotDeathmic/bin/Debug/*
+DeathmicChatbot/bin/Debug/*
 DeathmicChatbot/bin/Debug/botlock
 DeathmicChatbot/bin/Debug/DeathmicChatbot.exe.config
 DeathmicChatbot/bin/Debug/DeathmicChatbot.vshost.exe.config
