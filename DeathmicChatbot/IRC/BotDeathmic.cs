@@ -497,9 +497,15 @@ namespace DeathmicChatbot.IRC
             }
             return null;
         }
+        public bool UserListLocked = false;
         public void SaveUserList()
         {
 
+            while(UserListLocked)
+            {
+                Thread.Sleep(1000);
+            }
+            UserListLocked = true;
             var path = Directory.GetCurrentDirectory() + "/XML/Usersv2.xml";
             var backuppath = Directory.GetCurrentDirectory() + "/XML/Usersv2bck.xml";
             File.Copy(path, backuppath,true);
@@ -510,6 +516,7 @@ namespace DeathmicChatbot.IRC
             System.IO.FileStream file = System.IO.File.Create(path);
             xmlserializer.Serialize(file, LUserList);
             file.Close();
+            UserListLocked = false;
         }
         #endregion
         #region Chattcommands
@@ -1633,6 +1640,11 @@ namespace DeathmicChatbot.IRC
         {
             if (File.Exists(Directory.GetCurrentDirectory() + "/XML/Usersv2.xml"))
             {
+                while (UserListLocked)
+                {
+                    Thread.Sleep(1000);
+                }
+                UserListLocked = true;
                 var path = Directory.GetCurrentDirectory() + "/XML/Usersv2.xml";
                 FileStream fs = new FileStream(path, FileMode.Open);
                 System.Xml.Serialization.XmlSerializer xmlserializer = new System.Xml.Serialization.XmlSerializer(LUserList.GetType());
@@ -1640,6 +1652,7 @@ namespace DeathmicChatbot.IRC
                 
                 XmlReader reader = XmlReader.Create(fs);
                 LUserList = (List<User>) xmlserializer.Deserialize(reader);
+                UserListLocked = false;
             }
         }
         public void UmportUsers()
