@@ -255,6 +255,12 @@ namespace DeathmicChatbot.IRC
                     foreach (var loggingOp in LUserList.Where(x => x.bIsLoggingOp))
                         thisclient.LocalUser.SendNotice(loggingOp.Name, output);
                     User newUser = new User();
+                    XDocument Streams = XDocument.Load(Directory.GetCurrentDirectory() + "/XML/Streams.xml");
+                    IEnumerable<XElement> streamchildren = from streams in Streams.Root.Elements() select streams;
+                    foreach (var stream in streamchildren)
+                    {
+                        newUser.addStream(stream.Attribute("Channel").Value, true);
+                    }
                     newUser.Name = normaliseduser.normalised_username();
                     newUser.bIsLoggingOp = false;
                     newUser.password = "";
@@ -348,18 +354,58 @@ namespace DeathmicChatbot.IRC
                 this.ChatCommandProcessors.Add("togglestreammsgs", ToggleStreamMsgs);
                 this.ChatCommandProcessors.Add("liststreams", SuscribableStreams);
                 this.ChatCommandProcessors.Add("addalias", AddAlias);
+                this.ChatCommandProcessors.Add("removealias", RemoveAlias);
                 this.ChatCommandProcessors.Add("checkusername", CheckUserName);
             }
 
 
         }
 
-        private void CheckUserName(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        private void RemoveAlias(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
             if (parameters.Count() > 0)
             {
+                if (parameters[0].ToString() == "help")
+                {
+                    client.LocalUser.SendNotice(source.Name, "!removealias AliasName [Password]");
+                    client.LocalUser.SendNotice(source.Name, "This removes the Alias from your User if possible");
+                    client.LocalUser.SendNotice(source.Name, "Passwort is only essential if set");
+                    return;
+                }
+                string password = "";
+                if (parameters.Count() == 2)
+                {
+                    password = parameters[1];
+                }
+
+                NormalisedUser normuser = new NormalisedUser(source.Name.ToString());
+                NormalisedUser alias = new NormalisedUser(parameters[0]);
+                User user = getUser(normuser.normalised_username()).RemoveAlias(alias.normalised_username());
+                XDocument Streams = XDocument.Load(Directory.GetCurrentDirectory() + "/XML/Streams.xml");
+                IEnumerable<XElement> streamchildren = from streams in Streams.Root.Elements() select streams;
+                foreach (var stream in streamchildren)
+                {
+                    user.addStream(stream.Attribute("Channel").Value, true);
+                }
+                LUserList.Add(user);
+                if (user != null)
+                {
+                    client.LocalUser.SendNotice(source.Name, "Alias Removed");
+                }
+                else
+                {
+                    client.LocalUser.SendNotice(source.Name, "Error");
+                }
 
             }
+            SaveUserList();
+
+        }
+
+        private void CheckUserName(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            NormalisedUser normuser = new NormalisedUser(source.Name.ToString());
+            client.LocalUser.SendNotice(source.Name, normuser.normalised_username());
         }
 
         private void AddAlias(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
@@ -1610,7 +1656,7 @@ namespace DeathmicChatbot.IRC
                     {
                         newuser.LastVisit = DateTime.ParseExact(user.Attribute("LastVisit").Value, "dd-MM-yyyy HH:mm:ss",CultureInfo.InvariantCulture);
                     }
-                    foreach(var stream in streamchildren)
+                    foreach (var stream in streamchildren)
                     {
                         newuser.addStream(stream.Attribute("Channel").Value, true);
                     }

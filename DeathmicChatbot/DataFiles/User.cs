@@ -149,5 +149,23 @@ namespace DeathmicChatbot.DataFiles
             }
             return false;
         }
+        public User RemoveAlias(string aliasname)
+        {
+            IEnumerable<Alias> _Aliase = Aliase.Where(x => x.Name.ToLower() == aliasname.ToLower());
+            if(_Aliase.Count()>0)
+            {
+                User RestoredUser = new User();
+                RestoredUser.LastVisit = _Aliase.FirstOrDefault().LastVisitBackup;
+                RestoredUser.Name = _Aliase.FirstOrDefault().Name;
+                RestoredUser.VisitCounter = _Aliase.FirstOrDefault().VisitCounterBackup;
+                Aliase.RemoveAll(x => x.Name.ToLower() == aliasname.ToLower());
+                return RestoredUser;
+            }
+            else
+            {
+                return null;
+            }
+            
+        }
     }
 }
