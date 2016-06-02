@@ -22,15 +22,6 @@ namespace DeathmicChatbot
         protected XDocument Counters;
         public XMLProvider()
         {
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                Users = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-            }
-            else
-            {
-                Users = new XDocument();
-                Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-            }
             if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
                 Streams = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
