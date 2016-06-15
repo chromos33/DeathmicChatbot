@@ -6,7 +6,7 @@
       <Value Profile="(Default)">log.txt</Value>
     </Setting>
     <Setting Name="StreamcheckIntervalSeconds" Type="System.Int32" Scope="Application">
-      <Value Profile="(Default)">15</Value>
+      <Value Profile="(Default)">60</Value>
     </Setting>
     <Setting Name="pickIgnores" Type="System.String" Scope="Application">
       <Value Profile="(Default)" />
@@ -24,7 +24,7 @@
       <Value Profile="(Default)">BobDeMic</Value>
     </Setting>
     <Setting Name="Channel" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">#deathmic</Value>
+      <Value Profile="(Default)">#Deathmic</Value>
     </Setting>
     <Setting Name="SilentMode" Type="System.String" Scope="Application">
       <Value Profile="(Default)">false</Value>

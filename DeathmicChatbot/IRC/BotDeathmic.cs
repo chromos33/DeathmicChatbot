@@ -219,7 +219,7 @@ namespace DeathmicChatbot.IRC
         protected override void OnLocalUserMessageReceived(IrcLocalUser localUser, IrcMessageEventArgs e)
         {
             ReconnectInbound = false;
-            List<string> NoticeTargets = new List<string>();
+            /*List<string> NoticeTargets = new List<string>();
             List<string> MsgsTargets = new List<string>();
             List<NormalisedUser> UsersinChannel = new List<NormalisedUser>();
             foreach (var user in thisclient.Channels.First().Users)
@@ -268,6 +268,7 @@ namespace DeathmicChatbot.IRC
                 }
             }
             System.Diagnostics.Debug.WriteLine("test");
+            */
         }
 
         protected override void OnChannelUserJoined(IrcChannel channel, IrcChannelUserEventArgs e)
