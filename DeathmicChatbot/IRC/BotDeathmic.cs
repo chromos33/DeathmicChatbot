@@ -296,6 +296,15 @@ namespace DeathmicChatbot.IRC
                                                             xmlprovider.StreamInfo(_streamname, "URL")
                                                             ));
                         }
+                        else
+                        {
+                            thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
+                                                        "Stream running: _{0}_ ({1}) at {2}",
+                                                        _streamname,
+                                                        xmlprovider.StreamInfo(_streamname, "game"),
+                                                        xmlprovider.StreamInfo(_streamname, "URL")
+                                                        ));
+                        }
                     }
                     normaliseduser = null;
                 }
@@ -628,16 +637,16 @@ namespace DeathmicChatbot.IRC
                     List<NormalisedUser> UsersinChannel = new List<NormalisedUser>();
                     foreach (var user in thisclient.Channels.First().Users)
                     {
-                        if (user.User.ToString() != "Q" || user.User.ToString() != Settings.Default.Name.ToString())
+                        if (user.User.NickName != "Q" || user.User.NickName != Settings.Default.Name.ToString())
                         {
                             var updateduser = thisclient.Channels.FirstOrDefault().GetChannelUser(user.User);
                             if (updateduser != null)
                             {
-                                UsersinChannel.Add(new NormalisedUser(updateduser.User.ToString()));
+                                UsersinChannel.Add(new NormalisedUser(updateduser.User.NickName));
                             }
                             else
                             {
-                                UsersinChannel.Add(new NormalisedUser(user.User.ToString()));
+                                UsersinChannel.Add(new NormalisedUser(user.User.NickName));
                             }
                         }
                     }
@@ -662,7 +671,10 @@ namespace DeathmicChatbot.IRC
                         }
                         else
                         {
-                            MsgsTargets.Add(user.orig_username);
+                            if (user.orig_username != "Q")
+                            {
+                                MsgsTargets.Add(user.orig_username);
+                            }
                         }
                         
                     }
@@ -672,7 +684,7 @@ namespace DeathmicChatbot.IRC
                     }
                     if (MsgsTargets.Count > 0)
                     {
-                        thisclient.LocalUser.SendMessage(MsgsTargets, output);
+                        thisclient.LocalUser.SendNotice(MsgsTargets, output);
                     }
                 }
             }
@@ -702,16 +714,16 @@ namespace DeathmicChatbot.IRC
                         
                         foreach (var user in thisclient.Channels.First().Users)
                         {
-                            if (user.User.ToString() != "Q" || user.User.ToString() != Settings.Default.Name.ToString())
+                            if (user.User.NickName != "Q" || user.User.NickName != Settings.Default.Name.ToString())
                             {
                                 var updateduser = thisclient.Channels.FirstOrDefault().GetChannelUser(user.User);
                                 if (updateduser != null)
                                 {
-                                    UsersinChannel.Add(new NormalisedUser(updateduser.User.ToString()));
+                                    UsersinChannel.Add(new NormalisedUser(updateduser.User.NickName));
                                 }
                                 else
                                 {
-                                    UsersinChannel.Add(new NormalisedUser(user.User.ToString()));
+                                    UsersinChannel.Add(new NormalisedUser(user.User.NickName));
                                 }
                             }
                         }
@@ -727,7 +739,10 @@ namespace DeathmicChatbot.IRC
                             }
                             else
                             {
-                                NoticeTargets.Add(user.orig_username);
+                                if (user.orig_username != "Q")
+                                {
+                                    MsgsTargets.Add(user.orig_username);
+                                }
                             } 
                         }
                         if (NoticeTargets.Count > 0)
@@ -736,7 +751,7 @@ namespace DeathmicChatbot.IRC
                         }
                         if (MsgsTargets.Count > 0)
                         {
-                            thisclient.LocalUser.SendMessage(MsgsTargets, output);
+                            thisclient.LocalUser.SendNotice(MsgsTargets, output);
                         }
                     }
                 }
@@ -765,16 +780,17 @@ namespace DeathmicChatbot.IRC
                         List<NormalisedUser> UsersinChannel = new List<NormalisedUser>();
                         foreach (var user in thisclient.Channels.FirstOrDefault().Users)
                         {
-                            if (user.User.ToString() != "Q" || user.User.ToString() != Settings.Default.Name.ToString())
+                            Console.WriteLine("UsersinBob: " + user.User.NickName);
+                            if (user.User.NickName != "Q" || user.User.NickName != Settings.Default.Name.ToString())
                             {
                                 var updateduser = thisclient.Channels.FirstOrDefault().GetChannelUser(user.User);
                                 if(updateduser != null)
                                 {
-                                    UsersinChannel.Add(new NormalisedUser(updateduser.User.ToString()));
+                                    UsersinChannel.Add(new NormalisedUser(updateduser.User.NickName));
                                 }
                                 else
                                 {
-                                    UsersinChannel.Add(new NormalisedUser(user.User.ToString()));
+                                    UsersinChannel.Add(new NormalisedUser(user.User.NickName));
                                 }
                             }
                         }
@@ -785,6 +801,7 @@ namespace DeathmicChatbot.IRC
                             {
                                 if (userUser.isSubscribed(args.StreamData.Stream.Channel))
                                 {
+                                    Console.WriteLine("MsgTarget: " + user.orig_username);
                                     MsgsTargets.Add(user.orig_username);
                                     /* TODO actually save this setting
                                     if (!userUser.bMessages)
@@ -799,7 +816,10 @@ namespace DeathmicChatbot.IRC
                             }
                             else
                             {
-                                MsgsTargets.Add(user.orig_username);
+                                if(user.orig_username != "Q")
+                                {
+                                    MsgsTargets.Add(user.orig_username);
+                                } 
                             }
                         }
                         if (NoticeTargets.Count > 0)
