@@ -637,7 +637,7 @@ namespace DeathmicChatbot.IRC
                     List<NormalisedUser> UsersinChannel = new List<NormalisedUser>();
                     foreach (var user in thisclient.Channels.First().Users)
                     {
-                        if (user.User.NickName != "Q" || user.User.NickName != Settings.Default.Name.ToString())
+                        if (user.User.NickName != "Q" && user.User.NickName != Settings.Default.Name.ToString())
                         {
                             var updateduser = thisclient.Channels.FirstOrDefault().GetChannelUser(user.User);
                             if (updateduser != null)
@@ -714,7 +714,7 @@ namespace DeathmicChatbot.IRC
                         
                         foreach (var user in thisclient.Channels.First().Users)
                         {
-                            if (user.User.NickName != "Q" || user.User.NickName != Settings.Default.Name.ToString())
+                            if (user.User.NickName != "Q" && user.User.NickName != Settings.Default.Name.ToString())
                             {
                                 var updateduser = thisclient.Channels.FirstOrDefault().GetChannelUser(user.User);
                                 if (updateduser != null)
@@ -781,7 +781,7 @@ namespace DeathmicChatbot.IRC
                         foreach (var user in thisclient.Channels.FirstOrDefault().Users)
                         {
                             Console.WriteLine("UsersinBob: " + user.User.NickName);
-                            if (user.User.NickName != "Q" || user.User.NickName != Settings.Default.Name.ToString())
+                            if (user.User.NickName != "Q" && user.User.NickName != Settings.Default.Name.ToString())
                             {
                                 var updateduser = thisclient.Channels.FirstOrDefault().GetChannelUser(user.User);
                                 if(updateduser != null)
