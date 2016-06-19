@@ -482,8 +482,9 @@ namespace DeathmicChatbot.IRC
                 }
                 else
                 {
-                    client.LocalUser.SendMessage(source.Name, "Messages deactivated");
+                    client.LocalUser.SendMessage(source.Name, "Notices activated");
                 }
+                SaveUserList();
             } 
         }
         #endregion
@@ -657,8 +658,7 @@ namespace DeathmicChatbot.IRC
                         {
                             if (userUser.isSubscribed(args.StreamData.Stream.Channel))
                             {
-                                MsgsTargets.Add(user.orig_username);
-                                /* TODO actually save this setting
+                                
                                 if (!userUser.bMessages)
                                 {
                                     NoticeTargets.Add(user.orig_username);
@@ -666,7 +666,7 @@ namespace DeathmicChatbot.IRC
                                 else
                                 {
                                     MsgsTargets.Add(user.orig_username);
-                                }*/
+                                }
                             }
                         }
                         else
@@ -734,7 +734,14 @@ namespace DeathmicChatbot.IRC
                             {
                                 if (userUser.isSubscribed(args.StreamData.Stream.Channel))
                                 {
-                                    NoticeTargets.Add(user.orig_username);
+                                    if (!userUser.bMessages)
+                                    {
+                                        NoticeTargets.Add(user.orig_username);
+                                    }
+                                    else
+                                    {
+                                        MsgsTargets.Add(user.orig_username);
+                                    }
                                 }
                             }
                             else
@@ -801,9 +808,7 @@ namespace DeathmicChatbot.IRC
                             {
                                 if (userUser.isSubscribed(args.StreamData.Stream.Channel))
                                 {
-                                    Console.WriteLine("MsgTarget: " + user.orig_username);
-                                    MsgsTargets.Add(user.orig_username);
-                                    /* TODO actually save this setting
+                                   
                                     if (!userUser.bMessages)
                                     {
                                         NoticeTargets.Add(user.orig_username);
@@ -811,7 +816,7 @@ namespace DeathmicChatbot.IRC
                                     else
                                     {
                                         MsgsTargets.Add(user.orig_username);
-                                    }*/
+                                    }
                                 }
                             }
                             else
