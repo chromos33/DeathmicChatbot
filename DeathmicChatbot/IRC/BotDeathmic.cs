@@ -14,15 +14,10 @@ using DeathmicChatbot.Interfaces;
 using System.Globalization;
 using System.Timers;
 using DeathmicChatbot.DataFiles;
-using System.Net;
 using System.IO;
-using Newtonsoft.Json;
-using DeathmicChatbot.Statics;
 using DeathmicChatbot.TransferClasses;
 using System.Xml.Linq;
 using System.Xml;
-using IrcDotNet.Collections;
-using IrcDotNet.Ctcp;
 
 namespace DeathmicChatbot.IRC
 {
