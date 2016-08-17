@@ -113,6 +113,14 @@ namespace DeathmicChatbot.DataFiles
             LastVisit = DateTime.Now;
             return returnvalue;
         }
+        public void leave()
+        {
+            if (LastVisit == null)
+            {
+                LastVisit = DateTime.Now;
+            }
+            LastVisit = DateTime.Now;
+        }
         public bool HasAlias(string Alias)
         {
             IEnumerable<Alias> aliase = Aliase.Where(x => x.Name == Alias);
