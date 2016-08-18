@@ -1,6 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<question value="what is your name?" enddate="2015-06-06 23:53:03" running="true" ID="1">
-  <answer ID="1" value="bla" />
-  <answer ID="2" value="blub" />
-  <answer ID="3" value="fuu" />
-</question>
+<questions>
+  <question value="streambenachichtigungen via messages oder notices?" enddate="2015-12-30 17:39:55" running="false" ID="2" multiple="false">
+    <answer ID="1" value="messages">
+      <User value="Bookworm303" />
+      <User value="Deathmic" />
+    </answer>
+    <answer ID="2" value="notices">
+      <User value="Niheka" />
+      <User value="Melmoth" />
+      <User value="MegamanM|PS2" />
+      <User value="Cantira" />
+      <User value="DerEde" />
+    </answer>
+  </question>
+</questions>

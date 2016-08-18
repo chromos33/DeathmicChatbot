@@ -291,15 +291,6 @@ namespace DeathmicChatbot.IRC
                                                             xmlprovider.StreamInfo(_streamname, "URL")
                                                             ));
                         }
-                        else
-                        {
-                            thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
-                                                        "Stream running: _{0}_ ({1}) at {2}",
-                                                        _streamname,
-                                                        xmlprovider.StreamInfo(_streamname, "game"),
-                                                        xmlprovider.StreamInfo(_streamname, "URL")
-                                                        ));
-                        }
                     }
                     normaliseduser = null;
                 }
@@ -309,6 +300,13 @@ namespace DeathmicChatbot.IRC
         protected override void OnChannelUserLeft(IrcChannel channel, IrcChannelUserEventArgs e)
         {
             ReconnectInbound = false;
+            NormalisedUser normaliseduser = new NormalisedUser();
+            normaliseduser.orig_username = e.ChannelUser.User.ToString();
+            IEnumerable<User> joineduser = LUserList.Where(x => x.isUser(normaliseduser.normalised_username()));
+            if(joineduser.Count() > 0)
+            {
+                joineduser.First().leave();
+            }
         }
         protected override void OnChannelNoticeReceived(IrcChannel channel, IrcMessageEventArgs e)
         {
@@ -373,9 +371,21 @@ namespace DeathmicChatbot.IRC
                 this.ChatCommandProcessors.Add("addalias", AddAlias);
                 this.ChatCommandProcessors.Add("removealias", RemoveAlias);
                 this.ChatCommandProcessors.Add("checkusername", CheckUserName);
+                this.ChatCommandProcessors.Add("myvisits", MyVisits);
             }
 
 
+        }
+
+        private void MyVisits(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            NormalisedUser normaliseduser = new NormalisedUser();
+            normaliseduser.orig_username = source.Name;
+            IEnumerable<User> joineduser = LUserList.Where(x => x.isUser(normaliseduser.normalised_username()));
+            if (joineduser.Count() > 0)
+            {
+                client.LocalUser.SendMessage(source.Name, joineduser.First().VisitCounter + " visits");
+            }
         }
 
         private void RemoveAlias(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
@@ -679,7 +689,7 @@ namespace DeathmicChatbot.IRC
                     }
                     if (MsgsTargets.Count > 0)
                     {
-                        thisclient.LocalUser.SendNotice(MsgsTargets, output);
+                        thisclient.LocalUser.SendMessage(MsgsTargets, output);
                     }
                 }
             }
@@ -753,7 +763,7 @@ namespace DeathmicChatbot.IRC
                         }
                         if (MsgsTargets.Count > 0)
                         {
-                            thisclient.LocalUser.SendNotice(MsgsTargets, output);
+                            thisclient.LocalUser.SendMessage(MsgsTargets, output);
                         }
                     }
                 }
