@@ -348,6 +348,7 @@ namespace DeathmicChatbot.IRC
             base.InitializeChatCommandProcessors();
             if (Properties.Settings.Default.SilentMode.ToString() != "true")
             {
+                this.ChatCommandProcessors.Add("manual", Manual);
                 this.ChatCommandProcessors.Add("addstream", AddStream);
                 this.ChatCommandProcessors.Add("delstream", DelStream);
                 this.ChatCommandProcessors.Add("streamcheck", StreamCheck);
@@ -375,6 +376,11 @@ namespace DeathmicChatbot.IRC
             }
 
 
+        }
+
+        private void Manual(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
+        {
+            
         }
 
         private void MyVisits(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
