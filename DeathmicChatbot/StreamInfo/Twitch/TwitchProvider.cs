@@ -169,6 +169,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
         private TwitchRootObject GetOnlineStreams()
         {
             var req = new RestRequest("/kraken/streams", Method.GET);
+            req.AddHeader("Client-ID", Properties.Settings.Default.TwitchclientID.ToString());
             req.AddParameter("channel", ArrayToString(_streams));
             var response = _client.Execute(req);
             try

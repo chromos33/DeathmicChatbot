@@ -29,5 +29,8 @@
     <Setting Name="SilentMode" Type="System.String" Scope="Application">
       <Value Profile="(Default)">false</Value>
     </Setting>
+    <Setting Name="TwitchclientID" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">nf9y73bu14d7die5vtzclg2gk7ngrke</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
