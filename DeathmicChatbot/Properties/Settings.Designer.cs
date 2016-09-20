@@ -103,5 +103,14 @@ namespace DeathmicChatbot.Properties {
                 return ((string)(this["SilentMode"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("nf9y73bu14d7die5vtzclg2gk7ngrke")]
+        public string TwitchclientID {
+            get {
+                return ((string)(this["TwitchclientID"]));
+            }
+        }
     }
 }
