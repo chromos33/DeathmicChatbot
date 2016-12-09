@@ -106,7 +106,7 @@ namespace DeathmicChatbot.LinkParser
             var title = GetPageTitle(url).Trim();
             if (!string.IsNullOrWhiteSpace(title))
             {
-                if(title.ToLower() == "Domainpark - Bitte den Rasen nicht betreten. Vielen Dank".ToLower())
+                if(title.ToLower().Contains("Domainpark - Bitte den Rasen nicht betreten".ToLower()))
                 {
                     int roll = random.Next(0, 101);
                     if(roll < 5)
