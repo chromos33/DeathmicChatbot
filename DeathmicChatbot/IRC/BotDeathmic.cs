@@ -284,7 +284,7 @@ namespace DeathmicChatbot.IRC
                         if(user != null)
                         if (user.isSubscribed(_streamname))
                         {
-                            thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
+                                thisclient.LocalUser.SendNotice(e.ChannelUser.User.ToString(), String.Format(
                                                             "Stream running: _{0}_ ({1}) at {2}",
                                                             _streamname,
                                                             xmlprovider.StreamInfo(_streamname, "game"),
@@ -325,12 +325,12 @@ namespace DeathmicChatbot.IRC
                     if (urls.Count() > 0)
                     {
                     }
-
+                    
                     foreach (var url in urls)
                     {
                         foreach (var handler in handlers)
                         {
-                            if (handler.handleURL(url, thisclient))
+                              if (handler.handleURL(url, thisclient, ctcpClient1, e.Source))
                                 break;
                         }
                     }

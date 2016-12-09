@@ -1,4 +1,6 @@
 ﻿using DeathmicChatbot.Interfaces;
+using IrcDotNet;
+using IrcDotNet.Ctcp;
 using System.Text.RegularExpressions;
 
 namespace DeathmicChatbot.LinkParser
@@ -14,7 +16,7 @@ namespace DeathmicChatbot.LinkParser
             website = new WebsiteHandler();
         }
 
-        public bool handleURL(string url, IrcDotNet.IrcClient ctx)
+        public bool handleURL(string url, IrcDotNet.IrcClient ctx, CtcpClient ctpcclient = null, IIrcMessageSource source = null)
         {
             var match = _imgurreg.Match(url);
 
@@ -22,7 +24,7 @@ namespace DeathmicChatbot.LinkParser
             {
                 var id = match.Groups[2].Value;
                 url = "http://imgur.com/gallery/" + id;
-                website.handleURL(url, ctx);
+                website.handleURL(url, ctx, ctpcclient, source);
                 return true;
             }
             return false;
