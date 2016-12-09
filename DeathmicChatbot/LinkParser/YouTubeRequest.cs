@@ -5,6 +5,8 @@ using System.Net;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Text;
+using IrcDotNet.Ctcp;
+using IrcDotNet;
 
 namespace DeathmicChatbot.LinkParser
 {
@@ -30,7 +32,7 @@ namespace DeathmicChatbot.LinkParser
         //Request should look like this 
         //https://www.googleapis.com/youtube/v3/playlists?id=id&key=key&part=snippet
 
-        public bool handleURL(string URL, IrcDotNet.IrcClient ctx)
+        public bool handleURL(string URL, IrcDotNet.IrcClient ctx, CtcpClient client = null, IIrcMessageSource source = null)
         {
             string answer ="";
             var match = IsYtLink(URL);

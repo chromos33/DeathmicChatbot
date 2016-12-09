@@ -6,12 +6,14 @@ using Google.GData.Client;
 using HtmlAgilityPack;
 using DeathmicChatbot.Interfaces;
 using IrcDotNet;
+using IrcDotNet.Ctcp;
+using DeathmicChatbot.IRC;
 
 namespace DeathmicChatbot.LinkParser
 {
     internal class WebsiteHandler : IURLHandler
     {
-
+        Random random = new Random();
         public WebsiteHandler()
         {
         }
@@ -99,11 +101,39 @@ namespace DeathmicChatbot.LinkParser
             return doc;
         }
 
-        public bool handleURL(string url, IrcClient ctx)
+        public bool handleURL(string url, IrcClient ctx, CtcpClient ctpcclient = null, IIrcMessageSource source = null )
         {
             var title = GetPageTitle(url).Trim();
             if (!string.IsNullOrWhiteSpace(title))
-                ctx.LocalUser.SendMessage(Properties.Settings.Default.Channel,title);
+            {
+                if(title.ToLower() == "Domainpark - Bitte den Rasen nicht betreten. Vielen Dank".ToLower())
+                {
+                    int roll = random.Next(0, 101);
+                    if(roll < 5)
+                    {
+                        if(ctpcclient != null)
+                        {
+                            string textMessage = "slaps " + source.Name + " and screamed:";
+                            BotDeathmicMessageTarget target = new BotDeathmicMessageTarget();
+                            target.Name = Properties.Settings.Default.Channel.ToString();
+                            ctpcclient.SendAction(target, textMessage);
+                            ctx.LocalUser.SendMessage(Properties.Settings.Default.Channel, "Runter vom Rasen!");
+                        }
+                    }
+                }
+                else
+                {
+                    if(title.ToLower() == "Imgur: The most awesome images on the Internet".ToLower())
+                    {
+
+                    }
+                    else
+                    {
+                        ctx.LocalUser.SendMessage(Properties.Settings.Default.Channel, title);
+                    }
+                    
+                }
+            }
             return true;
         }
     }
