@@ -8,6 +8,7 @@ using System.Threading;
 using System.IO;
 using System.Diagnostics;
 using System.Timers;
+using DeathmicChatbot.Discord;
 
 namespace DeathmicChatbot
 {
@@ -20,6 +21,7 @@ namespace DeathmicChatbot
             Console.WriteLine(Directory.GetCurrentDirectory());
             try
             {
+                
                 File.Create(Directory.GetCurrentDirectory() + "/botlock");
                 ConnectBot();
                 // bot.Run starts console interface with input for commands not really needed
@@ -42,6 +44,9 @@ namespace DeathmicChatbot
         }
         static void ConnectBot()
         {
+            DiscordBob DiscordBot = new DiscordBob();
+            DiscordBot.Connect();
+            /*
             System.Threading.Thread.Sleep(1000);
             bot = new BotDeathmic();
             bot.Connect(Settings.Default.Server, bot.RegistrationInfo);
@@ -83,6 +88,9 @@ namespace DeathmicChatbot
                     bot.ctcpClient1 = new CtcpClient(_client);
                 }
             }
+            
+            
+
             while (true)
             {
                 System.Threading.Thread.Sleep(1000);
@@ -105,6 +113,11 @@ namespace DeathmicChatbot
                     }
                     System.Threading.Thread.Sleep(1000);
                 }
+                Thread.Sleep(5000);
+            }
+            */
+            while(true)
+            {
                 Thread.Sleep(5000);
             }
         }
