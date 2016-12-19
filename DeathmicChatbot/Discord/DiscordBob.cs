@@ -201,7 +201,10 @@ namespace DeathmicChatbot.Discord
             {
                 string user = e.User.Name;
                 string message = e.Message.RawText;
-                deathmicirc.RelayMessage(message,user);
+                if(e.Channel.Name != "botspam" || e.Channel.Name != "meta")
+                {
+                    deathmicirc.RelayMessage(message, user);
+                }
             }
         }
         private bool CommandFilter(object sender, MessageEventArgs e)
