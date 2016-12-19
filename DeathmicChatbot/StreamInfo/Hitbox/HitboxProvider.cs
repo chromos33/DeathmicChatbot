@@ -279,10 +279,6 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
                 var des = new JsonDeserializer();
                 
                 var data = des.Deserialize<HitboxRootObject>(response);
-                foreach(var item in data.livestream)
-                {
-                     System.Diagnostics.Debug.WriteLine("data:" + item.media_user_name + " is " + item.media_is_live);
-                }
                 if (_lastRequests.ContainsKey(sStream))
                     _lastRequests[sStream] = data;
                 else

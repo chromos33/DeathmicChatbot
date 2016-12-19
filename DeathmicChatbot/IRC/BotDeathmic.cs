@@ -97,8 +97,6 @@ namespace DeathmicChatbot.IRC
             //UmportUsers();
             readUsers();
 
-
-
         }
         
 
@@ -1292,11 +1290,7 @@ namespace DeathmicChatbot.IRC
             {
                 client.LocalUser.SendNotice(source.Name, "You must enter a List to be removed");
             }
-            
-            
-            
         }
-
         private void UserPickList(IrcClient client, IIrcMessageSource source, System.Collections.Generic.IList<IIrcMessageTarget> targets, string command, System.Collections.Generic.IList<string> parameters)
         {
             try
@@ -1460,7 +1454,6 @@ namespace DeathmicChatbot.IRC
                 client.LocalUser.SendNotice(source.Name, string.Format("Please use the help command '!startvote help' for information"));
             }
         }
-
         private void EndVoting(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
             if (parameters.Count() == 1)
@@ -1537,8 +1530,6 @@ namespace DeathmicChatbot.IRC
                 
             }
         }
-
-
         private void ListVotings(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
             List<VoteObject> Votings = xmlprovider.runningVotes();
@@ -1560,6 +1551,7 @@ namespace DeathmicChatbot.IRC
                 thisclient.LocalUser.SendNotice(source.Name, "There are no Votes running");
             }
         }
+
         #endregion
         #region Voting EventListeners
         private void OnVoteTimerEvent(Object source, ElapsedEventArgs e)
