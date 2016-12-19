@@ -97,6 +97,7 @@ namespace DeathmicChatbot.IRC
                     {
                         quakeservername = _client.ServerName;
                         thisclient = _client;
+                        thisclient.FloodPreventer = new IrcStandardFloodPreventer(2, 4000);
                         /*
                         ctcpClient1 = new CtcpClient(_client);
                         ctcpClient1.ClientVersion = clientVersionInfo;
