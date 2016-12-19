@@ -145,11 +145,11 @@ namespace DeathmicChatbot.IRC
             {
                 if (bIsStream)
                 {
-                    discordclient.Servers.First().TextChannels.Where(x => x.Name == "stream").First().SendMessage("RelayMessage from IRC#" + e.Source.Name + ": " + e.Text);
+                    discordclient.Servers.First().TextChannels.Where(x => x.Name == "stream").First().SendMessage("Relay IRC#" + e.Source.Name + ": " + e.Text);
                 }
                 else
                 {
-                    discordclient.Servers.First().TextChannels.Where(x => x.Name == "allgemein").First().SendMessage("RelayMessage from IRC#" + e.Source.Name + ": " + e.Text);
+                    discordclient.Servers.First().TextChannels.Where(x => x.Name == "allgemein").First().SendMessage("Relay IRC#" + e.Source.Name + ": " + e.Text);
                 }
             }
             
@@ -160,7 +160,7 @@ namespace DeathmicChatbot.IRC
             {
                 if(user != "BobDeathmic")
                 {
-                    this.Clients.First().LocalUser.SendMessage(this.Clients.First().Channels.First(), "Relay Message from " + user + ": " + message);
+                    this.Clients.First().LocalUser.SendMessage(this.Clients.First().Channels.First(), "Relay " + user + ": " + message);
                 }
             }
             catch(Exception)

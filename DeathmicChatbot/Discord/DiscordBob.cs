@@ -199,15 +199,8 @@ namespace DeathmicChatbot.Discord
             }
             else
             {
-                List<String> parameters = e.Message.RawText.Split(' ').ToList();
-                string user = parameters[0];
-                string message = "";
-                parameters.RemoveAt(0);
-                foreach(string part in parameters)
-                {
-                    message += part + " ";
-                }
-                message = message.Substring(0, message.Length - 1);
+                string user = e.User.Name;
+                string message = e.Message.RawText;
                 deathmicirc.RelayMessage(message,user);
             }
         }
