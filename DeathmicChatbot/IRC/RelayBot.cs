@@ -28,6 +28,7 @@ namespace DeathmicChatbot.IRC
         private string sServer;
         private bool bTwoWay;
         bool bIsStream;
+        string sChannel;
         public override IrcRegistrationInfo RegistrationInfo
         {
             get
@@ -43,15 +44,20 @@ namespace DeathmicChatbot.IRC
         public RelayBot()
         {
         }
-        public RelayBot(DiscordClient discord,bool twoway = true, string server = null, bool bStream = false)
+        public RelayBot(DiscordClient discord,bool twoway = true, string server = null, bool bStream = false,string channel = null)
         {
             if (server == null)
             {
                 sServer = Settings.Default.Server;
             }
+            else
+            {
+                sServer = server;
+            }
             discordclient = discord;
             bIsStream = bStream;
             bTwoWay = twoway;
+            sChannel = channel;
             //Connect Kram
 
         }
@@ -84,9 +90,13 @@ namespace DeathmicChatbot.IRC
         }
         public void ConnectBot()
         {
-            
+            if(bIsStream)
+            {
+                RegistrationInfo.NickName = "bobdeathmic";
+                RegistrationInfo.Password = "oauth:jfapbrvofxj2q5rkcw4hg32w466zza";
+            }
             Connect(sServer, RegistrationInfo);
-            if (Settings.Default.Server.Contains("quakenet"))
+            if (Settings.Default.Server.Contains("quakenet") && !bIsStream)
             {
                 string quakeservername = null;
                 foreach (var _client in Clients)
@@ -99,7 +109,7 @@ namespace DeathmicChatbot.IRC
                     {
                         quakeservername = _client.ServerName;
                         thisclient = _client;
-                        thisclient.FloodPreventer = new IrcStandardFloodPreventer(2, 4000);
+                        thisclient.FloodPreventer = new IrcStandardFloodPreventer(1, 4000);
                         /*
                         ctcpClient1 = new CtcpClient(_client);
                         ctcpClient1.ClientVersion = clientVersionInfo;
@@ -121,8 +131,17 @@ namespace DeathmicChatbot.IRC
             {
                 foreach (var _client in Clients)
                 {
-                    _client.Channels.Join(Properties.Settings.Default.Channel);
+                    if(sChannel != null)
+                    {
+                        _client.Channels.Join(sChannel);
+                    }
+                    else
+                    {
+                        _client.Channels.Join(Properties.Settings.Default.Channel);
+                    }
+                    
                     thisclient = _client;
+                    thisclient.FloodPreventer = new IrcStandardFloodPreventer(1, 1500);
                     ctcpClient1 = new CtcpClient(_client);
                 }
             }
