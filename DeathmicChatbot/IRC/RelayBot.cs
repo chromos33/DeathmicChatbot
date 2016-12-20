@@ -26,6 +26,7 @@ namespace DeathmicChatbot.IRC
         private static string clientReceivedVersionInfo;
         private static string clientReceivedActionText;
         private string sServer;
+        private bool bTwoWay;
         bool bIsStream;
         public override IrcRegistrationInfo RegistrationInfo
         {
@@ -42,7 +43,7 @@ namespace DeathmicChatbot.IRC
         public RelayBot()
         {
         }
-        public RelayBot(DiscordClient discord, string server = null, bool bStream = false)
+        public RelayBot(DiscordClient discord,bool twoway = true, string server = null, bool bStream = false)
         {
             if (server == null)
             {
@@ -50,8 +51,9 @@ namespace DeathmicChatbot.IRC
             }
             discordclient = discord;
             bIsStream = bStream;
+            bTwoWay = twoway;
             //Connect Kram
-            
+
         }
         public void runBot()
         {
@@ -159,9 +161,12 @@ namespace DeathmicChatbot.IRC
         {
             try
             {
-                if(user != "BobDeathmic")
+                if(bTwoWay)
                 {
-                    this.Clients.First().LocalUser.SendMessage(this.Clients.First().Channels.First(), "Relay " + user + ": " + message);
+                    if (user != "BobDeathmic")
+                    {
+                        this.Clients.First().LocalUser.SendMessage(this.Clients.First().Channels.First(), "Relay " + user + ": " + message);
+                    }
                 }
             }
             catch(Exception)
