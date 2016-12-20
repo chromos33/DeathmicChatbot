@@ -59,7 +59,7 @@ namespace DeathmicChatbot.Discord
             bot = new DiscordClient();
             bot.MessageReceived += Message_Received;
             bot.UserJoined += User_Joined;
-            deathmicirc = new RelayBot(bot);
+            deathmicirc = new RelayBot(bot,false);
             Thread RelayThread = new Thread(deathmicirc.runBot);
             RelayThread.Start();
             while (!RelayThread.IsAlive) ;
