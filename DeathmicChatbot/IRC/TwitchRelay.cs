@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Timers;
+using System.Text.RegularExpressions;
 
 namespace DeathmicChatbot.IRC
 {
@@ -15,11 +17,13 @@ namespace DeathmicChatbot.IRC
         {
 
         }
+        private static System.Timers.Timer TimeoutTimer;
         public string sChannel = "";
         public string sTargetChannel = "";
         public DiscordClient discordclient;
         public bool bTwoWay;
         private IrcDotNet.TwitchIrcClient LocalClient;
+        bool isExit = false;
         public TwitchRelay(DiscordClient discord, string channel, string targetchannel, bool twoway = true)
         {
             
@@ -27,6 +31,22 @@ namespace DeathmicChatbot.IRC
             sTargetChannel = targetchannel;
             discordclient = discord;
             bTwoWay = twoway;
+        }
+        public void StartRelayEnd()
+        {
+            TimeoutTimer = new System.Timers.Timer(/*15*60*/30);
+            TimeoutTimer.Elapsed += OnTimeoutTimerEvent;
+            TimeoutTimer.Start();
+        }
+
+        private void OnTimeoutTimerEvent(object sender, ElapsedEventArgs e)
+        {
+            isExit = true;
+        }
+
+        public void StopRelayEnd()
+        {
+            TimeoutTimer.Stop();
         }
         public void ConnectToTwitch()
         {
@@ -68,7 +88,11 @@ namespace DeathmicChatbot.IRC
         }
         private void HandleEventLoop(IrcDotNet.IrcClient client,string sChannel)
         {
-            bool isExit = false;
+            var channel = discordclient.Servers.First().TextChannels.Where(x => x.Name.ToLower() == sTargetChannel.ToLower());
+            if(channel != null)
+            {
+                channel.First().SendMessage("Twitch Relay Activated");
+            }
             while (!isExit)
             {
                 if (client.Channels.Where(x => x.Name.ToLower().Contains(sChannel.ToLower())).Count() == 0)
@@ -77,6 +101,7 @@ namespace DeathmicChatbot.IRC
                 }
                 Thread.Sleep(5000);
             }
+            discordclient.Servers.First().TextChannels.Where(x => x.Name.ToLower() == sTargetChannel.ToLower()).First().SendMessage("Twitch Relay Terminated");
             client.Disconnect();
         }
         private void IrcClient_Registered(object sender, EventArgs e)
@@ -120,9 +145,23 @@ namespace DeathmicChatbot.IRC
         {
             if(e.Source.Name != LocalClient.LocalUser.NickName)
             {
-                discordclient.Servers.First().TextChannels.Where(x => x.Name.ToLower() == "stream").First().SendMessage("TwitchRelay " + e.Source.Name + ": " + e.Text);
+                string message = e.Text;
+                if (e.Text.Contains('@'))
+                {
+                    Regex r = new Regex(@"@(\w+)");
+                    MatchCollection mc = r.Matches(message);
+                    foreach(Match match in mc)
+                    {
+                        string sMatch = match.Value.Replace("@", "");
+                        var users = discordclient.Servers.First().Users.Where(x => x.Name.ToLower() == sMatch.ToLower() || (x.Nickname != null && x.Nickname != "" && x.Nickname.ToLower() == sMatch.ToLower()));
+                        if(users.Count() > 0)
+                        {
+                            message = message.Replace(match.Value,users.First().Mention);
+                        }
+                    }
+                }
+                discordclient.Servers.First().TextChannels.Where(x => x.Name.ToLower() == sTargetChannel.ToLower()).First().SendMessage("TwitchRelay " + e.Source.Name + ": " + message);
             }
-            //discordclient.Servers.First().TextChannels.Where(x => x.Name == "stream").First().SendMessage("Relay IRC#" + e.Source.Name + ": " + e.Text);
         }
         public void RelayMessage(string message)
         {

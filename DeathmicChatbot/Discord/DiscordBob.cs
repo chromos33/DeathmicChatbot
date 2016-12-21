@@ -61,11 +61,11 @@ namespace DeathmicChatbot.Discord
             bot = new DiscordClient();
             bot.MessageReceived += Message_Received;
             bot.UserJoined += User_Joined;
-            /*deathmicirc = new RelayBot(bot,false);
+            deathmicirc = new RelayBot(bot,false);
             Thread RelayThread = new Thread(deathmicirc.runBot);
             RelayThread.Start();
             while (!RelayThread.IsAlive) ;
-            Thread.Sleep(1);*/
+            Thread.Sleep(1);
 
             readUsers();
             
@@ -389,13 +389,16 @@ namespace DeathmicChatbot.Discord
                     {
                         twoway = true;
                     }
-                    TwitchRelay tmpbot = new TwitchRelay(bot, channel, temp.Item1, twoway);
-                    RelayBots.Add(tmpbot);
-                    Thread RelayThread = new Thread(tmpbot.ConnectToTwitch);
-                    RelayThread.Start();
-                    while (!RelayThread.IsAlive) ;
-                    Thread.Sleep(1);
-                    RelayThreads.Add(RelayThread);
+                    if(temp.Item1 != "")
+                    {
+                        TwitchRelay tmpbot = new TwitchRelay(bot, channel, temp.Item1, twoway);
+                        RelayBots.Add(tmpbot);
+                        Thread RelayThread = new Thread(tmpbot.ConnectToTwitch);
+                        RelayThread.Start();
+                        while (!RelayThread.IsAlive) ;
+                        Thread.Sleep(1);
+                        RelayThreads.Add(RelayThread);
+                    }
                 }
             }catch(Exception)
             {
@@ -1463,6 +1466,10 @@ namespace DeathmicChatbot.Discord
                 if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
                 if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime") != "" && Convert.ToBoolean(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running")))
                 {
+                    if (RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).Count() > 0)
+                    {
+                        RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().StartRelayEnd();
+                    }
                     xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel, true);
                     string duration = DateTime.Now.Subtract(Convert.ToDateTime(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime"))).ToString("h':'mm':'ss");
                     string output = "Stream stopped after " + duration + ": " + args.StreamData.Stream.Channel;
@@ -1583,6 +1590,16 @@ namespace DeathmicChatbot.Discord
                 {
                     if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "false")
                     {
+                        if(RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).Count() > 0)
+                        {
+                            RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().StopRelayEnd();
+                        }
+                        else
+                        {
+                            ConnectToTwitchChat(args.StreamData.Stream.Channel, true);
+                            
+                        }
+                        
                         string game = args.StreamData.Stream.Game;
 
                         if (args.StreamData.Stream.Message != null)
