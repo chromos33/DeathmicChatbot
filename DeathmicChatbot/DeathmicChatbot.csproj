@@ -139,6 +139,7 @@
     <Compile Include="IRC\BotDeathmic.cs" />
     <Compile Include="IRC\IrcBot.cs" />
     <Compile Include="IRC\RelayBot.cs" />
+    <Compile Include="IRC\TwitchRelay.cs" />
     <Compile Include="LinkParser\Imgur.cs" />
     <Compile Include="LinkParser\URLExtractor.cs" />
     <Compile Include="LinkParser\WebSiteHandler.cs" />

@@ -781,6 +781,112 @@ namespace DeathmicChatbot
        
 
         #region stream stuff
+        public int TwitchChatToStream(string channel,string targetchannel, int twoway)
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+            channel = channel.ToLower();
+            int answer = 0;
+            //Query XML File for User Update
+            if (!Directory.Exists(Directory.GetCurrentDirectory() + "/XML/"))
+            {
+                Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/XML/");
+            }
+            if (File.Exists(Directory.GetCurrentDirectory() + "/XML/Streams.xml"))
+            {
+                IEnumerable<XElement> childlist = from el in Streams.Root.Elements() where el.Attribute("Channel").Value == channel select el;
+                if (childlist.Count() > 0)
+                {
+                    try
+                    {
+                        if(childlist.First().Attribute("twitchchat") != null)
+                        {
+                            childlist.First().Attribute("twitchchat").Value = channel;
+                        }
+                        else
+                        {
+                            childlist.First().Add(new XAttribute("twitchchat", channel));
+                            
+                        }
+
+                        if (childlist.First().Attribute("twoway") != null)
+                        {
+                            childlist.First().Attribute("twoway").Value = twoway.ToString();
+                        }
+                        else
+                        {
+                            childlist.First().Add(new XAttribute("twoway", twoway.ToString()));
+                        }
+
+                        if (childlist.First().Attribute("targetchannel") != null)
+                        {
+                            childlist.First().Attribute("targetchannel").Value = targetchannel;
+                        }
+                        else
+                        {
+                            childlist.First().Add(new XAttribute("targetchannel", targetchannel));
+                        }
+                        Streams.Save(Directory.GetCurrentDirectory() + "/XML/Streams.xml");
+                        return 1;
+                    }
+                    catch(Exception)
+                    {
+
+                    }
+                }
+            }
+            return 0;
+        }
+        public Tuple<string,int> GetTwitchChatData(string channel)
+        {
+            Tuple<string, int> result = new Tuple<string,int>("",3);
+
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+            channel = channel.ToLower();
+            //Query XML File for User Update
+            if (!Directory.Exists(Directory.GetCurrentDirectory() + "/XML/"))
+            {
+                Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/XML/");
+            }
+            if (File.Exists(Directory.GetCurrentDirectory() + "/XML/Streams.xml"))
+            {
+                IEnumerable<XElement> childlist = from el in Streams.Root.Elements() where el.Attribute("Channel").Value == channel select el;
+                if (childlist.Count() > 0)
+                {
+                    try
+                    {
+                        int twoway;
+                        string targetchannel;
+                        if (childlist.First().Attribute("twoway") != null)
+                        {
+                            twoway = Int32.Parse(childlist.First().Attribute("twoway").Value);
+                        }
+                        else
+                        {
+                            twoway = 3;
+                        }
+
+                        if (childlist.First().Attribute("targetchannel") != null)
+                        {
+                            targetchannel = childlist.First().Attribute("targetchannel").Value;
+                        }
+                        else
+                        {
+                            targetchannel = "";
+                        }
+                        result = new Tuple<string, int>(targetchannel, twoway);
+
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                }
+            }
+
+            return result;
+        }
         public int AddStream(string channel)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;

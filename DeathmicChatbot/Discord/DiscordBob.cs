@@ -33,6 +33,8 @@ namespace DeathmicChatbot.Discord
         String[] IgnoreTheseUsers = new String[] { "Q", "AUTH", "Global", "py-ctcp", "peer", Properties.Settings.Default.Name.ToString() };
         private static System.Timers.Timer VoteTimer;
         RelayBot deathmicirc;
+        List<TwitchRelay> RelayBots = new List<TwitchRelay>();
+        List<Thread> RelayThreads = new List<Thread>();
         #endregion
         public void Connect()
         {
@@ -94,6 +96,7 @@ namespace DeathmicChatbot.Discord
             ClosedCommandList.Add("!endvoting");
             ClosedCommandList.Add("!vote");
             ClosedCommandList.Add("!listvotings");
+            ClosedCommandList.Add("!changetwitchchat");
 
             OpenCommandList.Add("!help"); 
             OpenCommandList.Add("!roll");
@@ -201,9 +204,40 @@ namespace DeathmicChatbot.Discord
             {
                 string user = e.User.Name;
                 string message = e.Message.RawText;
-                if(e.Channel.Name != "botspam" || e.Channel.Name != "meta")
+                if(e.Channel.Name != "botspam" || e.Channel.Name != "meta" || !e.Channel.Name.Contains(e.User.Name))
                 {
-                    deathmicirc.RelayMessage(message, user);
+                    if(deathmicirc != null)
+                    {
+                        deathmicirc.RelayMessage(message, user);
+                    }
+                    if(e.User.Name != "BobDeathmic")
+                    {
+                        foreach (TwitchRelay relay in RelayBots)
+                        {
+                            if (relay.bTwoWay)
+                            {
+                                try
+                                {
+                                    if (e.Channel.Name == relay.sTargetChannel)
+                                    {
+                                        if (e.User.Nickname != null && e.User.Nickname != "")
+                                        {
+                                            relay.RelayMessage("DiscordRelay " + e.User.Nickname + ":" + message);
+                                        }
+                                        else
+                                        {
+                                            relay.RelayMessage("DiscordRelay " + e.User.Name + ":" + message);
+                                        }
+
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.ToString());
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -298,8 +332,17 @@ namespace DeathmicChatbot.Discord
                     Counter(sender, e, parameters);
                     command = true;
                 }
+                if (messagecontent.ToLower().StartsWith("!changetwitchchat"))
+                {
+                    ChangeTwitchChat(sender, e, parameters);
+                    command = true;
+                }
+                if (messagecontent.ToLower().StartsWith("!forcetwitchchat"))
+                {
+                    ForceTwitchChat(sender, e, parameters);
+                    command = true;
+                }
 
-                
             }
             #endregion
             #region OpenCommands
@@ -333,8 +376,70 @@ namespace DeathmicChatbot.Discord
             #endregion
             return command;
         }
+
+        private void ConnectToTwitchChat(string channel,bool isTwitch)
+        {
+            try
+            {
+                if(isTwitch)
+                {
+                    Tuple<string,int> temp = xmlprovider.GetTwitchChatData(channel);
+                    bool twoway = false;
+                    if(temp.Item2 == 1)
+                    {
+                        twoway = true;
+                    }
+                    if(temp.Item1 != "")
+                    {
+                        TwitchRelay tmpbot = new TwitchRelay(bot, channel, temp.Item1, twoway);
+                        RelayBots.Add(tmpbot);
+                        Thread RelayThread = new Thread(tmpbot.ConnectToTwitch);
+                        RelayThread.Start();
+                        while (!RelayThread.IsAlive) ;
+                        Thread.Sleep(1);
+                        RelayThreads.Add(RelayThread);
+                    }
+                }
+            }catch(Exception)
+            {
+
+            }
+            
+        }
         #region Commands
         #region StreamFunctions
+        //Command that force connects bot to Twitch IRC for testing only
+        private void ForceTwitchChat(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            ConnectToTwitchChat("deathmic", true);
+        }
+        private void ChangeTwitchChat(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            if(parameters[0] == "help")
+            {
+                e.User.SendMessage("Command !changetwitchchat [streamname] [targetchannel(Discord)] [(optional default 1) twoway (0/1)]");
+            }
+            else
+            {
+                int twoway = 1;
+                if(parameters.Count() == 3)
+                {
+                    twoway = Int32.Parse(parameters[2]);
+                }
+                string streamname = parameters[0];
+                string targetchannel = parameters[1];
+                int result = xmlprovider.TwitchChatToStream(streamname,targetchannel,twoway);
+                if(result == 0)
+                {
+                    e.User.SendMessage("Some Error Occured");
+                }
+                else
+                {
+                    e.User.SendMessage("Details changed");
+                }
+            }
+
+        }
         private void AddStream(object sender, MessageEventArgs e,List<string> parameters)
         {
             if (parameters.Count > 0)
@@ -1361,6 +1466,10 @@ namespace DeathmicChatbot.Discord
                 if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
                 if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime") != "" && Convert.ToBoolean(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running")))
                 {
+                    if (RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).Count() > 0)
+                    {
+                        RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().StartRelayEnd();
+                    }
                     xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel, true);
                     string duration = DateTime.Now.Subtract(Convert.ToDateTime(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime"))).ToString("h':'mm':'ss");
                     string output = "Stream stopped after " + duration + ": " + args.StreamData.Stream.Channel;
@@ -1481,6 +1590,16 @@ namespace DeathmicChatbot.Discord
                 {
                     if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "false")
                     {
+                        if(RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).Count() > 0)
+                        {
+                            RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().StopRelayEnd();
+                        }
+                        else
+                        {
+                            ConnectToTwitchChat(args.StreamData.Stream.Channel, true);
+                            
+                        }
+                        
                         string game = args.StreamData.Stream.Game;
 
                         if (args.StreamData.Stream.Message != null)
