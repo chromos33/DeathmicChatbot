@@ -34,7 +34,7 @@ namespace DeathmicChatbot.IRC
         }
         public void StartRelayEnd()
         {
-            TimeoutTimer = new System.Timers.Timer(15*60);
+            TimeoutTimer = new System.Timers.Timer(10*60*1000);
             TimeoutTimer.Elapsed += OnTimeoutTimerEvent;
             TimeoutTimer.Start();
         }
