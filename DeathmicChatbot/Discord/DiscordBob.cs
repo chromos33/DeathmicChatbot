@@ -222,11 +222,11 @@ namespace DeathmicChatbot.Discord
                                     {
                                         if (e.User.Nickname != null && e.User.Nickname != "")
                                         {
-                                            relay.RelayMessage("DiscordRelay " + e.User.Nickname + ":" + message);
+                                            relay.RelayMessage("DiscordRelay " + e.User.Nickname + ": " + message);
                                         }
                                         else
                                         {
-                                            relay.RelayMessage("DiscordRelay " + e.User.Name + ":" + message);
+                                            relay.RelayMessage("DiscordRelay " + e.User.Name + ": " + message);
                                         }
 
                                     }
