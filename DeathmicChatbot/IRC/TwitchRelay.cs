@@ -55,7 +55,7 @@ namespace DeathmicChatbot.IRC
             var password = "oauth:1hequknt8uxqfgz8u5bcg5y8rw1y6o";
             using (var client = new IrcDotNet.TwitchIrcClient())
             {
-                client.FloodPreventer = new IrcStandardFloodPreventer(2, 4000);
+                client.FloodPreventer = new IrcStandardFloodPreventer(2, 2500);
                 client.Disconnected += IrcClient_Disconnected;
                 client.Registered += IrcClient_Registered;
                 using (var registeredEvent = new ManualResetEventSlim(false))

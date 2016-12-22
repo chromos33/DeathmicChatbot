@@ -8,6 +8,7 @@ using Discord;
 using DeathmicChatbot.Properties;
 using System.Threading;
 using IrcDotNet.Ctcp;
+using System.Timers;
 
 namespace DeathmicChatbot.IRC
 {
@@ -29,6 +30,7 @@ namespace DeathmicChatbot.IRC
         private bool bTwoWay;
         bool bIsStream;
         string sChannel;
+        private static System.Timers.Timer discordreminder;
         public override IrcRegistrationInfo RegistrationInfo
         {
             get
@@ -63,6 +65,9 @@ namespace DeathmicChatbot.IRC
         }
         public void runBot()
         {
+            discordreminder = new System.Timers.Timer(60 * 60 * 1000);
+            discordreminder.Elapsed += OnReminderTimerEvent;
+            discordreminder.Start();
             while (true)
             {
                 System.Threading.Thread.Sleep(1000);
@@ -88,6 +93,12 @@ namespace DeathmicChatbot.IRC
                 Thread.Sleep(5000);
             }
         }
+
+        private void OnReminderTimerEvent(object sender, ElapsedEventArgs e)
+        {
+            this.Clients.First().LocalUser.SendMessage(this.Clients.First().Channels.First(), "Errinnerung wir sind auf Discord umgezogen: https://discord.gg/CF4wZ6S");
+        }
+
         public void ConnectBot()
         {
             if(bIsStream)
