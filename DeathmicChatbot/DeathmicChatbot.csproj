@@ -169,6 +169,7 @@
     <Compile Include="StreamInfo\StreamProviderManager.cs" />
     <Compile Include="StreamInfo\StreamStopCounter.cs" />
     <Compile Include="StreamInfo\Twitch\Channel.cs" />
+    <Compile Include="StreamInfo\Twitch\DataClasses.cs" />
     <Compile Include="StreamInfo\Twitch\Links.cs" />
     <Compile Include="StreamInfo\Twitch\Links2.cs" />
     <Compile Include="StreamInfo\Twitch\Links3.cs" />
