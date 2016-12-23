@@ -342,6 +342,11 @@ namespace DeathmicChatbot.Discord
                     ForceTwitchChat(sender, e, parameters);
                     command = true;
                 }
+                if (messagecontent.ToLower().StartsWith("!disconnectwitchchat"))
+                {
+                    DisconnectTwitchChat(sender, e, parameters);
+                    command = true;
+                }
 
             }
             #endregion
@@ -375,6 +380,14 @@ namespace DeathmicChatbot.Discord
             }
             #endregion
             return command;
+        }
+
+        private void DisconnectTwitchChat(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            if (RelayBots.Where(x => x.sChannel.ToLower() == "deathmic").Count() > 0)
+            {
+                RelayBots.Where(x => x.sChannel.ToLower() == "deathmic").First().DisconnectRelay();
+            }
         }
 
         private void ConnectToTwitchChat(string channel,bool isTwitch)
