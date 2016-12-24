@@ -96,7 +96,7 @@ namespace DeathmicChatbot.IRC
 
         private void OnReminderTimerEvent(object sender, ElapsedEventArgs e)
         {
-            this.Clients.First().LocalUser.SendMessage(this.Clients.First().Channels.First(), "Errinnerung wir sind auf Discord umgezogen: https://discord.gg/CF4wZ6S");
+            this.Clients.First().LocalUser.SendMessage(this.Clients.First().Channels.First(), "Arrrr Matrosen ab zur Planke und https://discord.gg/CF4wZ6S entern!");
         }
 
         public void ConnectBot()
