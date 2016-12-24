@@ -1546,6 +1546,10 @@ namespace DeathmicChatbot.Discord
             {
                 if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "true")
                 {
+                    if(args.StreamData.StreamProvider.ToString().Contains("twitch"))
+                    {
+                        ConnectToTwitchChat(args.StreamData.Stream.Channel,true);
+                    }
                     if (xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
                     {
                         string game = "";
