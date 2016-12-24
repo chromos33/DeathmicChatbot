@@ -392,20 +392,21 @@ namespace DeathmicChatbot.Discord
 
         private void ConnectToTwitchChat(string channel,bool isTwitch)
         {
+            //Warning this function simply connects or reconnect make sure to only execute when relay does not exist
             try
             {
                 if(isTwitch)
                 {
-                    Tuple<string,int> temp = xmlprovider.GetTwitchChatData(channel);
+                    Tuple<string, int> temp = xmlprovider.GetTwitchChatData(channel);
                     bool twoway = false;
-                    if(temp.Item2 == 1)
+                    if (temp.Item2 == 1)
                     {
                         twoway = true;
                     }
-                    if(temp.Item1 != "")
+                    if (temp.Item1 != "")
                     {
                         TwitchRelay tmpbot;
-                        if (RelayBots.Where(x=>x.sChannel.ToLower() == channel).Count()>0)
+                        if (RelayBots.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
                         {
                             tmpbot = RelayBots.Where(x => x.sChannel.ToLower() == channel).First();
                             tmpbot.sTargetChannel = temp.Item1;
@@ -415,7 +416,6 @@ namespace DeathmicChatbot.Discord
                         {
                             tmpbot = new TwitchRelay(bot, channel, temp.Item1, twoway);
                         }
-                        
                         RelayBots.Add(tmpbot);
                         Thread RelayThread = new Thread(tmpbot.ConnectToTwitch);
                         RelayThread.Start();
@@ -1553,7 +1553,10 @@ namespace DeathmicChatbot.Discord
                     else
                     {
                         //Twitch
-                        ConnectToTwitchChat(args.StreamData.Stream.Channel, true);
+                        if(RelayBots.Where(x=>x.sChannel.ToLower() == args.StreamData.Stream.Channel).Count()==0)
+                        {
+                            ConnectToTwitchChat(args.StreamData.Stream.Channel, true);
+                        }
                     }
                     
                     if (xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
