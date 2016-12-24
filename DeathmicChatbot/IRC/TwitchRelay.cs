@@ -31,7 +31,7 @@ namespace DeathmicChatbot.IRC
         public DiscordClient discordclient;
         public bool bTwoWay;
         private IrcDotNet.TwitchIrcClient LocalClient;
-        bool isExit = false;
+        public bool isExit = false;
         bool ReconnectInBound = false;
         RestClient _client;
         public TwitchRelay(DiscordClient discord, string channel, string targetchannel, bool twoway = true)
@@ -105,6 +105,7 @@ namespace DeathmicChatbot.IRC
             var sServer = "irc.twitch.tv";
             var username = "bobdeathmic";
             var password = "oauth:1hequknt8uxqfgz8u5bcg5y8rw1y6o";
+            isExit = false;
             using (var client = new IrcDotNet.TwitchIrcClient())
             {
                 client.FloodPreventer = new IrcStandardFloodPreventer(2, 2500);

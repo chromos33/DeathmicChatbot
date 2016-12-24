@@ -404,7 +404,18 @@ namespace DeathmicChatbot.Discord
                     }
                     if(temp.Item1 != "")
                     {
-                        TwitchRelay tmpbot = new TwitchRelay(bot, channel, temp.Item1, twoway);
+                        TwitchRelay tmpbot;
+                        if (RelayBots.Where(x=>x.sChannel.ToLower() == channel).Count()>0)
+                        {
+                            tmpbot = RelayBots.Where(x => x.sChannel.ToLower() == channel).First();
+                            tmpbot.sTargetChannel = temp.Item1;
+                            tmpbot.bTwoWay = twoway;
+                        }
+                        else
+                        {
+                            tmpbot = new TwitchRelay(bot, channel, temp.Item1, twoway);
+                        }
+                        
                         RelayBots.Add(tmpbot);
                         Thread RelayThread = new Thread(tmpbot.ConnectToTwitch);
                         RelayThread.Start();
@@ -1603,7 +1614,7 @@ namespace DeathmicChatbot.Discord
                 {
                     if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "false")
                     {
-                        if(RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).Count() > 0)
+                        if(RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).Count() > 0 && RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().isExit == false)
                         {
                             RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().StopRelayEnd();
                         }
