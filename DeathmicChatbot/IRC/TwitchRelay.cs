@@ -46,7 +46,7 @@ namespace DeathmicChatbot.IRC
         {
             TimeoutTimer = new System.Timers.Timer(10*60*1000);
             TimeoutTimer.Elapsed += OnTimeoutTimerEvent;
-            TimeoutTimer.Start();
+            TimeoutTimer.Start();//
         }
 
         private async void OnDisconnectTimer(object sender, ElapsedEventArgs e)
