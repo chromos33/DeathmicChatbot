@@ -63,7 +63,7 @@ namespace DeathmicChatbot.IRC
                  // Blocking call!
                 int counter = 0;
                 bool reconnect = true;
-                while(counter < 3)
+                while(counter < 5)
                 {
                     HttpResponseMessage response = tmpClient.GetAsync(urlParameters).Result;
                     if (response.IsSuccessStatusCode)
@@ -72,7 +72,7 @@ namespace DeathmicChatbot.IRC
                         DeathmicChatbot.StreamInfo.Twitch.Chatters.Root json = JsonConvert.DeserializeObject<DeathmicChatbot.StreamInfo.Twitch.Chatters.Root>(jsonstring);
                         if (json.chatters.viewers.Where(x => x.ToLower() == "bobdeathmic").Count() > 0)
                         {
-                            counter = 5;
+                            counter = 6;
                             reconnect = false;
                         }
                         else
@@ -80,7 +80,7 @@ namespace DeathmicChatbot.IRC
                             Thread.Sleep(40000);
                         }
                     }
-                    
+                    counter++;
                 }
                 if(reconnect)
                 {
