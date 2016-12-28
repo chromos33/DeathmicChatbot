@@ -90,8 +90,8 @@ namespace DeathmicChatbot.Discord
             ClosedCommandList.Add("!suscribablestreams");
             ClosedCommandList.Add("!toggleuserlogin");
             ClosedCommandList.Add("!setpassword");
-            ClosedCommandList.Add("!changesubscription");
-
+            ClosedCommandList.Add("!changesubscription"); 
+            ClosedCommandList.Add("!reconnecttwitchrelays");
             ClosedCommandList.Add("!startvoting");
             ClosedCommandList.Add("!endvoting");
             ClosedCommandList.Add("!vote");
