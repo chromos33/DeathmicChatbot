@@ -342,6 +342,11 @@ namespace DeathmicChatbot.Discord
                     ForceTwitchChat(sender, e, parameters);
                     command = true;
                 }
+                if (messagecontent.ToLower().StartsWith("!reconnecttwitchrelays"))
+                {
+                    ReconnectTwitchRelays(sender, e, parameters);
+                    command = true;
+                }
                 if (messagecontent.ToLower().StartsWith("!disconnectwitchchat"))
                 {
                     DisconnectTwitchChat(sender, e, parameters);
@@ -380,6 +385,17 @@ namespace DeathmicChatbot.Discord
             }
             #endregion
             return command;
+        }
+
+        private void ReconnectTwitchRelays(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            foreach(TwitchRelay relay in RelayBots)
+            {
+                if(!relay.isExit)
+                {
+                    relay.DisconnectRelay();
+                }
+            }
         }
 
         private void DisconnectTwitchChat(object sender, MessageEventArgs e, List<string> parameters)

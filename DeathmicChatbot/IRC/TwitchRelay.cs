@@ -25,7 +25,6 @@ namespace DeathmicChatbot.IRC
 
         }
         private static System.Timers.Timer TimeoutTimer;
-        protected System.Timers.Timer DisconnectTimer;
         public string sChannel = "";
         public string sTargetChannel = "";
         public DiscordClient discordclient;
@@ -48,47 +47,7 @@ namespace DeathmicChatbot.IRC
             TimeoutTimer.Elapsed += OnTimeoutTimerEvent;
             TimeoutTimer.Start();//
         }
-
-        private async void OnDisconnectTimer(object sender, ElapsedEventArgs e)
-        {
-            if(!isExit)
-            {
-                DisconnectTimer.Stop();
-                string urlParameters = "?Client-ID=" + Properties.Settings.Default.TwitchclientID.ToString();
-                    
-                HttpClient tmpClient = new HttpClient();
-                tmpClient.BaseAddress = new Uri("https://tmi.twitch.tv/group/user/" + sChannel + "/chatters");
-
-                tmpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                 // Blocking call!
-                int counter = 0;
-                bool reconnect = true;
-                while(counter < 5)
-                {
-                    HttpResponseMessage response = tmpClient.GetAsync(urlParameters).Result;
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string jsonstring = await response.Content.ReadAsStringAsync();
-                        DeathmicChatbot.StreamInfo.Twitch.Chatters.Root json = JsonConvert.DeserializeObject<DeathmicChatbot.StreamInfo.Twitch.Chatters.Root>(jsonstring);
-                        if (json.chatters.viewers.Where(x => x.ToLower() == "bobdeathmic").Count() > 0)
-                        {
-                            counter = 6;
-                            reconnect = false;
-                        }
-                        else
-                        {
-                            Thread.Sleep(40000);
-                        }
-                    }
-                    counter++;
-                }
-                if(reconnect)
-                {
-                    LocalClient.Disconnect();
-                }
-                DisconnectTimer.Start();
-            }
-        }
+       
 
         private void OnTimeoutTimerEvent(object sender, ElapsedEventArgs e)
         {
@@ -135,13 +94,6 @@ namespace DeathmicChatbot.IRC
                     }
                 }
                 LocalClient = client;
-                if(DisconnectTimer == null)
-                {
-                    _client = new RestClient("https://api.twitch.tv");
-                    DisconnectTimer = new System.Timers.Timer(2 * 10 * 1000);
-                    DisconnectTimer.Elapsed += OnDisconnectTimer;
-                    DisconnectTimer.Start();
-                }
                 HandleEventLoop(client, sChannel);
             }
         }
@@ -180,7 +132,6 @@ namespace DeathmicChatbot.IRC
             e.Channel.UserJoined -= IrcClient_Channel_UserJoined;
             e.Channel.UserLeft -= IrcClient_Channel_UserLeft;
             e.Channel.MessageReceived -= IrcClient_Channel_MessageReceived;
-            e.Channel.NoticeReceived -= IrcClient_Channel_NoticeReceived;
             
         }
 
@@ -191,21 +142,12 @@ namespace DeathmicChatbot.IRC
             e.Channel.UserJoined += IrcClient_Channel_UserJoined;
             e.Channel.UserLeft += IrcClient_Channel_UserLeft;
             e.Channel.MessageReceived += IrcClient_Channel_MessageReceived;
-            e.Channel.NoticeReceived += IrcClient_Channel_NoticeReceived;
             
         }
-
-        private void IrcClient_Channel_NoticeReceived(object sender, IrcMessageEventArgs e)
-        {
-            
-        }
+        
 
         private void IrcClient_Channel_MessageReceived(object sender, IrcMessageEventArgs e)
         {
-            if (e.Text.Contains("connected"))
-            {
-                ReconnectInBound = false;
-            }
             if (e.Source.Name != LocalClient.LocalUser.NickName)
             {
                 string message = e.Text;
@@ -230,7 +172,15 @@ namespace DeathmicChatbot.IRC
         {
             if(bTwoWay)
             {
-                LocalClient.LocalUser.SendMessage("#"+sChannel, message);
+                if(LocalClient.LocalUser.IsOnline)
+                {
+                    LocalClient.LocalUser.SendMessage("#" + sChannel, message);
+                }
+                else
+                {
+                    DisconnectRelay();
+                }
+                
             }
         }
 
@@ -245,10 +195,12 @@ namespace DeathmicChatbot.IRC
 
         private void IrcClient_LocalUser_MessageReceived(object sender, IrcMessageEventArgs e)
         {
+            Console.WriteLine("test");
         }
 
         private void IrcClient_LocalUser_NoticeReceived(object sender, IrcMessageEventArgs e)
         {
+            Console.WriteLine("test");
         }
 
         private void IrcClient_Disconnected(object sender, EventArgs e)
