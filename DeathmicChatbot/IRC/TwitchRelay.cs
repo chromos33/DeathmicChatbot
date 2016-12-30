@@ -33,6 +33,7 @@ namespace DeathmicChatbot.IRC
         public bool isExit = false;
         bool ReconnectInBound = false;
         RestClient _client;
+        public bool bDisconnected = false;
         public TwitchRelay(DiscordClient discord, string channel, string targetchannel, bool twoway = true)
         {
             
@@ -100,7 +101,8 @@ namespace DeathmicChatbot.IRC
         private void HandleEventLoop(IrcDotNet.IrcClient client,string sChannel)
         {
             var channel = discordclient.Servers.First().TextChannels.Where(x => x.Name.ToLower() == sTargetChannel.ToLower());
-            if(channel != null)
+            bDisconnected = false;
+            if (channel != null)
             {
                 channel.First().SendMessage("Twitch Relay Activated");
             }
@@ -172,15 +174,7 @@ namespace DeathmicChatbot.IRC
         {
             if(bTwoWay)
             {
-                if(LocalClient.LocalUser.IsOnline)
-                {
-                    LocalClient.LocalUser.SendMessage("#" + sChannel, message);
-                }
-                else
-                {
-                    DisconnectRelay();
-                }
-                
+                LocalClient.LocalUser.SendMessage("#" + sChannel, message);
             }
         }
 
@@ -205,11 +199,8 @@ namespace DeathmicChatbot.IRC
 
         private void IrcClient_Disconnected(object sender, EventArgs e)
         {
+            bDisconnected = true;
             var client = (IrcClient)sender;
-            if(!isExit)
-            {
-                ConnectToTwitch();
-            }
         }
 
         private static void IrcClient_Connected(object sender, EventArgs e)
@@ -218,7 +209,7 @@ namespace DeathmicChatbot.IRC
         }
         public void DisconnectRelay()
         {
-            LocalClient.Disconnect();
+            isExit = true;
         }
     }
 }
