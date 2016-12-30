@@ -214,7 +214,7 @@ namespace DeathmicChatbot.Discord
                     {
                         foreach (TwitchRelay relay in RelayBots)
                         {
-                            if (relay.bTwoWay)
+                            if (relay.bTwoWay && !relay.bDisconnected)
                             {
                                 try
                                 {
@@ -1569,7 +1569,7 @@ namespace DeathmicChatbot.Discord
                     else
                     {
                         //Twitch
-                        if(RelayBots.Where(x=>x.sChannel.ToLower() == args.StreamData.Stream.Channel).Count()==0)
+                        if(RelayBots.Where(x=>x.sChannel.ToLower() == args.StreamData.Stream.Channel).Count()==0 || RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel).Count() >0 && RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel).First().bDisconnected)
                         {
                             ConnectToTwitchChat(args.StreamData.Stream.Channel, true);
                         }
@@ -1611,16 +1611,13 @@ namespace DeathmicChatbot.Discord
                             }
                             else
                             {
-                                if (user.orig_username != "Q")
-                                {
-                                    MsgsTargets.Add(user.orig_username);
-                                }
+                                MsgsTargets.Add(user.orig_username);
                             }
 
                         }
                         if (MsgsTargets.Count > 0)
                         {
-                            foreach (var username in NoticeTargets)
+                            foreach (var username in MsgsTargets)
                             {
                                 var client = bot.Servers.First().Users.Where(x => x.Name.ToLower() == username.ToLower()).First();
                                 if (client != null)
