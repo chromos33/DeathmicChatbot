@@ -327,11 +327,6 @@ namespace DeathmicChatbot.Discord
                     ListVotes(sender, e, parameters);
                     command = true;
                 }
-                if (messagecontent.ToLower().StartsWith("!counter"))
-                {
-                    Counter(sender, e, parameters);
-                    command = true;
-                }
                 if (messagecontent.ToLower().StartsWith("!changetwitchchat"))
                 {
                     ChangeTwitchChat(sender, e, parameters);
@@ -381,6 +376,11 @@ namespace DeathmicChatbot.Discord
             if (messagecontent.ToLower().StartsWith("!userpicklist"))
             {
                 UserPickList(sender, e, parameters);
+                command = true;
+            }
+            if (messagecontent.ToLower().StartsWith("!counter"))
+            {
+                Counter(sender, e, parameters);
                 command = true;
             }
             #endregion
