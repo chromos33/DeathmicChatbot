@@ -1573,6 +1573,13 @@ namespace DeathmicChatbot.Discord
                         {
                             ConnectToTwitchChat(args.StreamData.Stream.Channel, true);
                         }
+                        if(RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel).Count() > 0)
+                        {
+                            foreach(TwitchRelay RelayBot in RelayBots)
+                            {
+                                RelayBot.StopRelayEnd();
+                            }
+                        }
                     }
                     
                     if (xmlprovider.GlobalAnnouncementDue(args.StreamData.Stream.Channel))
