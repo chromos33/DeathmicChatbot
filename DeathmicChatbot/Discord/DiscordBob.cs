@@ -793,6 +793,7 @@ namespace DeathmicChatbot.Discord
             }
             else if (parameters.Count() >= 2)
             {
+                int custom = 0;
                 if (parameters.Count() > 2)
                 {
                     e.User.SendMessage( "Warning: Only 2 Parameters needed, ignoring parameters after 2nd.");
@@ -804,6 +805,10 @@ namespace DeathmicChatbot.Discord
                 else if (parameters[1] == "reset")
                 {
                     e.User.SendMessage(xmlprovider.Counter(parameters[0].ToString(), true));
+                }
+                else if (Int32.TryParse(parameters[1],out custom))
+                {
+                    e.User.SendMessage(xmlprovider.Counter(parameters[0].ToString(), false,false,custom));
                 }
                 else
                 {
@@ -1654,7 +1659,6 @@ namespace DeathmicChatbot.Discord
                         else
                         {
                             ConnectToTwitchChat(args.StreamData.Stream.Channel, true);
-                            
                         }
                         
                         string game = args.StreamData.Stream.Game;

@@ -1548,7 +1548,7 @@ namespace DeathmicChatbot
         #endregion
 
         #region Counter stuff
-        public string Counter(string counter,bool reset = false, bool read = false)
+        public string Counter(string counter,bool reset = false, bool read = false,int customincrease = 0)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
@@ -1578,7 +1578,15 @@ namespace DeathmicChatbot
                             {
                                 
                                 count = int.Parse(_counter.Attribute("Value").Value);
-                                count++;
+                                if(customincrease > 0)
+                                {
+                                    count += customincrease;
+                                }
+                                else
+                                {
+                                    count++;
+                                }
+                                
                                 _counter.Attribute("Value").Value = count.ToString();
                             }
                         }
@@ -1589,19 +1597,38 @@ namespace DeathmicChatbot
                 {
                     try
                     {
-                        Counters.Element("Counters").Add(new XElement("Counter", new XAttribute("Value", "1"), new XAttribute("Name", counter)));
+                        if(customincrease>0)
+                        {
+                            Counters.Element("Counters").Add(new XElement("Counter", new XAttribute("Value", customincrease.ToString()), new XAttribute("Name", counter)));
+                            count = customincrease;
+                        }
+                        else
+                        {
+                            Counters.Element("Counters").Add(new XElement("Counter", new XAttribute("Value", "1"), new XAttribute("Name", counter)));
+                            count = 1;
+                        }
+                        
                     } catch(Exception ex)
                     {
                         Console.WriteLine(ex.ToString());
                     }
                     
-                    count = 1;
+                    
                 }
             }
             else
             {
-                Counters = new XDocument(new XElement("Counters", new XElement("Counter", new XAttribute("Value", "1"),new XAttribute("Name", counter))));
-                count = 1;
+                if (customincrease > 0)
+                {
+                    Counters = new XDocument(new XElement("Counters", new XElement("Counter", new XAttribute("Value", customincrease.ToString()), new XAttribute("Name", counter))));
+                    count = customincrease;
+                }
+                else
+                {
+                    Counters = new XDocument(new XElement("Counters", new XElement("Counter", new XAttribute("Value", "1"), new XAttribute("Name", counter))));
+                    count = 1;
+                }
+                
             }
             Counters.Save(Directory.GetCurrentDirectory()+"/XML/Counters.xml");
             if(reset)
