@@ -58,6 +58,7 @@ namespace DeathmicChatbot.IRC
         public void StopRelayEnd()
         {
             TimeoutTimer.Stop();
+            TimeoutTimer.Interval = 10 * 60 * 1000;
         }
         public void ConnectToTwitch()
         {
