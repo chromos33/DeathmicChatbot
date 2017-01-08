@@ -20,7 +20,7 @@ using System.Text.RegularExpressions;
 
 namespace DeathmicChatbot.Discord
 {
-    class DiscordBob
+    class DiscordBob :IDisposable
     {
         private DiscordClient bot;
         #region global variable definition
@@ -413,12 +413,8 @@ namespace DeathmicChatbot.Discord
             {
                 if(isTwitch)
                 {
-                    Tuple<string, int> temp = xmlprovider.GetTwitchChatData(channel);
-                    bool twoway = false;
-                    if (temp.Item2 == 1)
-                    {
-                        twoway = true;
-                    }
+                    Tuple<string, bool> temp = xmlprovider.GetTwitchChatData(channel);
+                    bool twoway = temp.Item2;
                     if (temp.Item1 != "")
                     {
                         TwitchRelay tmpbot;
@@ -505,7 +501,7 @@ namespace DeathmicChatbot.Discord
             }
             else if (message == 0)
             {
-                e.Channel.SendMessage(String.Format("{0} there has been an error please contact an programmer.", e.User.Name, parameters[0]));
+                e.Channel.SendMessage("there has been an error please contact an programmer.");
             }
         }
         private void DelStream(object sender, MessageEventArgs e, List<string> parameters)
@@ -1725,7 +1721,11 @@ namespace DeathmicChatbot.Discord
             }
 
         }
-        
+
+        public void Dispose()
+        {
+        }
+
         #endregion
 
     }

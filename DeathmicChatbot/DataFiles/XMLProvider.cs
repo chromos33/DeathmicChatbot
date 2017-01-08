@@ -10,16 +10,21 @@ using DeathmicChatbot.DataFiles;
 using IrcDotNet;
 using DeathmicChatbot.TransferClasses;
 using IrcDotNet.Ctcp;
+using System.Xml;
 
 namespace DeathmicChatbot
 {
     class XMLProvider
     {
         protected XDocument Users;
+        protected List<DataFiles.User> lUsers;
         protected XDocument Streams;
+        protected List<DataFiles.internalStream> lStreams;
         protected XDocument UserPicks;
+        protected List<DataFiles.UserPickedList> lUserPickLists;
         protected XDocument Votes;
         protected XDocument Counters;
+        char slash = Path.DirectorySeparatorChar;
         public XMLProvider()
         {
             if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
@@ -31,6 +36,11 @@ namespace DeathmicChatbot
                 Streams = new XDocument();
                 Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
             }
+            lStreams = new List<DataFiles.internalStream>();
+            readFile("Streamsv2.xml", "streams");
+
+
+
             if (File.Exists(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml"))
             {
                 UserPicks = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml");
@@ -59,787 +69,119 @@ namespace DeathmicChatbot
                 Counters.Save(Directory.GetCurrentDirectory()+"/XML/Counters.xml");
             }
         }
-        #region User Stuff
-        public string UserInfo(string nick)
+        public void readFile(string sfilename,string sObject)
         {
-            //TODO change from string to Tuple<int,DateTime>
-            //https://msdn.microsoft.com/en-us/library/system.tuple%28v=vs.110%29.aspx
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-            nick = nick.ToLower();
-            string answer = "";
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
+            if (File.Exists(Directory.GetCurrentDirectory() + slash+ "XML"+ slash + sfilename))
             {
-                IEnumerable<XElement> childlist = from users in Users.Root.Elements()
-                                                  where (users.Element("Alias").Attribute("Value").Value == nick
-                                                  || users.Attribute("Nick").Value == nick) && users.Attribute("Nick").Value != "BotDeathmic"
-                                                  select users;
-                if (childlist.Count() > 0)
+                
+                var path = Directory.GetCurrentDirectory() + slash+"XML"+slash + sfilename;
+                FileStream fs = new FileStream(path, FileMode.Open);
+                System.Xml.Serialization.XmlSerializer xmlserializer;
+                XmlReader reader;
+                switch (sObject)
                 {
-                    foreach (var user in childlist)
-                    {
-                        int count = Int32.Parse(user.Attribute("VisitCount").Value);
-                        count++;
-                        answer += count.ToString() + ",";
-                        answer += user.Attribute("LastVisit").Value;
-                    }
+                    case "user":
+                        xmlserializer = new System.Xml.Serialization.XmlSerializer(lUsers.GetType());
+                        reader = XmlReader.Create(fs);
+                        lUsers = (List<DataFiles.User>)xmlserializer.Deserialize(reader);
+                        fs.Close();
+                        break;
+                    case "streams":
+                        try
+                        {
+                            xmlserializer = new System.Xml.Serialization.XmlSerializer(lStreams.GetType());
+                            reader = XmlReader.Create(fs);
+                            lStreams = (List<DataFiles.internalStream>)xmlserializer.Deserialize(reader);
+                            fs.Close();
+                        }
+                        catch(Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                        }
+                        
+                        break;
                 }
-                else
-                {
-                    return "1," + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                }
-            }
-            return answer;
-        }
-        public string ToggleUserLogging(string nick)
-        {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-            string answer = "";
-            nick = nick.ToLower();
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                IEnumerable<XElement> childlist = from users in Users.Root.Elements() where users.Attribute("Nick").Value == nick select users;
-                foreach (var item in childlist)
-                {
-                    if (item.Attribute("isloggingOp").Value == "true")
-                    {
-                        item.Attribute("isloggingOp").Value = "false";
-                        answer = "Logging Messages disabled";
-                    }
-                    else
-                    {
-                        item.Attribute("isloggingOp").Value = "true";
-                        answer = "Logging Messages enabled";
-                    }
-                }
-                Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-
-            }
-            return answer;
-        }
-        // returns All Users Ever Joined/Added and returns them in CSV data as string
-        public string AllUserEverJoinedList()
-        {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-            string answer = "";
-
-
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                IEnumerable<XElement> childlist = from users in Users.Root.Elements() select users;
-                foreach (var user in childlist)
-                {
-                    answer += user.Attribute("Nick").Value + ",";
-                }
-                answer = answer.Substring(answer.Length - 1, answer.Length);
-
             }
             else
             {
-            }
-
-
-            return answer;
-        }
-
-        public List<String> LoggingUser()
-        {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-            List<String> answer = new List<string>();
-
-
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                IEnumerable<XElement> childlist = from users in Users.Root.Elements() where users.Attribute("isloggingOp").Value == "true" select users;
-                foreach (var user in childlist)
+                switch (sObject)
                 {
-                    answer.Add(user.Attribute("Nick").Value);
-                }
-            }
-            return answer;
-        }
-        public void AddAllStreamsToUser(String password = "")
-        {
-            string path = Environment.CurrentDirectory + "/password.txt";
-            System.IO.StreamReader file = new System.IO.StreamReader(path);
-            string line = "";
-            try
-            {
-                line = file.ReadLine();
-            }
-            catch (Exception) { }
-            if(password == line)
-            {
-                string[] streams = StreamList().Split(',');
-                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-                {
-                    if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/Backup"))
-                    {
-                        Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/Backup");
-                    }
-                    string filename = Directory.GetCurrentDirectory()+"/XML/Backup/Usersbackup" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".xml";
-                    Users.Save(filename);
-                }
-                string suscribestreams = "";
-                foreach (string stream in streams)
-                {
-                    suscribestreams += stream;
-                }
-                foreach (string user in AllUser())
-                { 
-                    AddorUpdateSuscription(user, suscribestreams.ToLower(), "", false, true);
-                    Thread.Sleep(50);
-                }
-            }
-        }
-        public List<String> AllUser()
-        {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-            List<String> answer = new List<string>();
-
-
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                IEnumerable<XElement> childlist = from users in Users.Root.Elements() select users;
-                foreach (var user in childlist)
-                {
-                    answer.Add(user.Attribute("Nick").Value);
-                }
-            }
-            return answer;
-        }
-        //Adds User or Upates information like Visit Count and Last Visit
-        public string AddorUpdateUser(string nick, bool leave = false)
-        {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-            nick = nick.ToLower();
-            string answer = "";
-            //Query XML File for User Update
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                try
-                {
-                    IEnumerable<XElement> childlist = Users.Root.Elements().Where(user => user.Attribute("Nick").Value == nick);
-
-                    if (childlist.Count() > 0)
-                    {
-
-                        foreach (XElement element in childlist)
+                    case "user":
+                        break;
+                    case "streams":
+                        lStreams = new List<DataFiles.internalStream>();
+                        if(Streams!= null)
                         {
-
-                            element.Attribute("LastVisit").Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                            if (!leave)
+                            foreach (var stream in Streams.Element("Streams").Elements("Stream"))
                             {
-                                int _visitcount = Int32.Parse(element.Attribute("VisitCount").Value);
-                                _visitcount++;
-                                element.Attribute("VisitCount").Value = _visitcount.ToString();
-                                if (element.Attribute("oldcounter") != null)
+                                string twitchrelay = "";
+                                if(stream.Attribute("twitchchat") != null)
                                 {
-                                    int _oldvisitcount = Int32.Parse(element.Attribute("oldcounter").Value);
-                                    _oldvisitcount++;
-                                    element.Attribute("oldcounter").Value = _oldvisitcount.ToString();
+                                    twitchrelay = stream.Attribute("twitchchat").Value;
                                 }
-                                answer = "User updated";
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var _element = new XElement("User",
-                            new XAttribute("Nick", nick),
-                            new XAttribute("LastVisit", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
-                            new XAttribute("VisitCount", "1"),
-                            new XAttribute("isloggingOp", "false"),
-                            new XAttribute("Streams", StreamList()),
-                            new XElement("Alias", new XAttribute("Value", ""))
-                            );
-                        Users.Element("Users").Add(_element);
-                        answer = "User added";
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    answer = "Add Failure";
-                }
-            }
-            Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-            return answer;
-        }
-
-
-        public bool AddorUpdatePassword(string nick, string pass, string oldpass="")
-        {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-            nick = nick.ToLower();
-            //Query XML File for User Update
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                try
-                {
-                    IEnumerable<XElement> childlist = Users.Root.Elements().Where(user => user.Attribute("Nick").Value == nick);
-
-                    if (childlist.Count() > 0)
-                    {
-
-                        foreach (XElement element in childlist)
-                        {
-                            if (element.Attribute("password") != null)
-                            {
-                                if(element.Attribute("password").Value == oldpass)
+                                bool twoway = false;
+                                if (stream.Attribute("twoway") != null)
                                 {
-                                    element.Attribute("password").Value = pass;
-                                }
-                                else
-                                {
-                                    return false;
-                                }
-                            }
-                            else
-                            {
-                                element.Add(new XAttribute("password", pass));
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    return false;
-                }
-            }
-            Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-            return true;
-        }
-        public bool ToggleStreamMsgs(string nick)
-        {
-            bool toggle = false;
-            nick = nick.ToLower();
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                IEnumerable<XElement> childlist = Users.Root.Elements().Where(user => user.Attribute("Nick").Value == nick);
-                if (childlist.Count() > 0)
-                {
-                    foreach (XElement element in childlist)
-                    {
-                        if(element.Attribute("streammsgs") != null)
-                        {
-                            if(element.Attribute("streammsgs").Value == "true")
-                            {
-                                element.Attribute("streammsgs").Value = "false";
-                                toggle = false;
-                            }
-                            else
-                            {
-                                element.Attribute("streammsgs").Value = "true";
-                                toggle = true;
-                            }
-                        }
-                        else
-                        {
-                            element.Add(new XAttribute("streammsgs","true"));
-                            toggle = true;
-                        }
-                    }
-                    Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-                }
-            }
-            return toggle;
-        }
-        public bool CheckStreamMsgsState(string nick)
-        {
-            bool toggle = false;
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                IEnumerable<XElement> childlist = Users.Root.Elements().Where(user => user.Attribute("Nick").Value == nick);
-                if (childlist.Count() > 0)
-                {
-                    foreach (XElement element in childlist)
-                    {
-                        if (element.Attribute("streammsgs") != null)
-                        {
-                            if (element.Attribute("streammsgs").Value == "true")
-                            {
-                                toggle = true;
-                            }
-                            else
-                            {
-                                toggle = false;
-                            }
-                        }
-                        else
-                        {
-                            toggle = false;
-                        }
-                    }
-                    Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-                }
-            }
-            return toggle;
-        }
-        public bool CheckPassword(string nick, string pass)
-        {
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                try
-                {
-                    string test = Users.Root.Elements().Where(user => user.Attribute("Nick").Value == nick).Select(user => user.Attribute("password").Value).First();
-                    if (test == pass)
-                    {
-                        return true;
-                    }
-                }
-                catch(Exception)
-                {
-                    return false;
-                }
-            }
-            return false;
-        }
-
-        public bool AddorUpdateSuscription(string nick, string streamname,string pass,bool remove, bool ignorepass = false)
-        {
-            //ignorepass for internal Tasks
-            nick = nick.ToLower();
-            if(CheckPassword(nick,pass) || ignorepass)
-            {
-                //Query XML File for User Update
-                if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-                {
-                    Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-                }
-                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-                {
-                    IEnumerable<XElement> childlist = from el in Users.Root.Elements() where el.Attribute("Nick").Value == nick select el;
-                    if (childlist.Count() > 0)
-                    {
-                        foreach (XElement item in childlist)
-                        {
-                           if(item.Attribute("Streams") == null)
-                           {
-                                item.Add(new XAttribute("Streams", streamname));
-                           }
-                           else
-                           {
-                                if(item.Attribute("Streams").Value.Contains(streamname))
-                                {
-                                    if(remove)
+                                    if(stream.Attribute("twoway").Value == "1")
                                     {
-                                        item.Attribute("Streams").Value = item.Attribute("Streams").Value.Replace(streamname, "");
+                                        twoway = true;
                                     }
                                 }
-                                else
+                                string targetchannel = "";
+                                if (stream.Attribute("targetchannel") != null)
                                 {
-                                    item.Attribute("Streams").Value += streamname;
+                                    targetchannel = stream.Attribute("targetchannel").Value;
                                 }
-                           }
+                                DataFiles.internalStream newstream = new DataFiles.internalStream(stream.Attribute("Channel").Value, twitchrelay, twoway, targetchannel);
+                                lStreams.Add(newstream);
+                            }
                         }
-                        Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-                        return true;
-                    }
+                        var path = Directory.GetCurrentDirectory() + slash+"XML"+ slash + sfilename;
+                        System.Xml.Serialization.XmlSerializer xmlserializer = new System.Xml.Serialization.XmlSerializer(lStreams.GetType());
+                        System.IO.FileStream file = System.IO.File.Create(path);
+                        xmlserializer.Serialize(file, lStreams);
+                        file.Close();
+                        break;
                 }
             }
-            return false; 
         }
-        public bool CheckSuscription(string nick, string streamname)
+        public void saveFile(string sObject)
         {
-
-            nick = nick.ToLower();
-                //Query XML File for User Update
-                if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-                {
-                    Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-                }
-                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-                {
-                    int i = Users.Root.Elements().Where(User => User.Attribute("Nick").Value.ToLower() == nick.ToLower()).Where(User => User.Attribute("Streams") != null).Where(User => User.Attribute("Streams").Value.ToLower().Contains(streamname.ToLower())).Count();
-                    if (i > 0)
-                    {
-                        return true;
-                    }
-                }
-                return false;
-        }
-        public List<string> SuscribedUsers(string streamname,IEnumerable<string> users)
-        {
-            List<string> result = new List<string>();
-            streamname = streamname.ToLower();
-            string userlist = "";
-            foreach(string user in users)
+            switch(sObject)
             {
-                userlist += user.ToLower();
-            }
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                try
-                {
-                    var _Users = Users.Root.Elements().Where(User => userlist.Contains(User.Attribute("Nick").Value)).Where(User => User.Attribute("Streams").Value.Contains(streamname));
-                    foreach (var item in _Users)
-                    {
-                        result.Add(item.Attribute("Nick").Value);
-                    }
-                }catch(Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-            return result;
-        }
-        public List<string> SuscribedUsers(string streamname, IEnumerable<NormalisedUser> users)
-        {
-            List<string> result = new List<string>();
-            streamname = streamname.ToLower();
-            string userlist = "";
-            foreach (NormalisedUser user in users)
-            {
-                userlist += user.normalised_username().ToLower();
-            }
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                try
-                {
-                    var _Users = Users.Root.Elements().Where(User => userlist.Contains(User.Attribute("Nick").Value)).Where(User => User.Attribute("Streams").Value.Contains(streamname));
-                    foreach (var item in _Users)
-                    {
-                        result.Add(item.Attribute("Nick").Value);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-            return result;
-        }
-        public bool isSuscribed(string streamname,string username)
-        {
-            bool suscribed = false;
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                try
-                {
-                    var _Users = Users.Root.Elements().Where(User => User.Attribute("Nick").Value == username).Where(User => User.Attribute("Streams").Value.Contains(streamname.ToLower()));
-                    if(_Users.Count() > 0)
-                    {
-                        suscribed = true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-            return suscribed;
-        }
-        #endregion
-        public void DateTimeCorrection()
-        {
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                IEnumerable<XElement> childlist = from el in Users.Root.Elements() select el;
-                if (childlist.Count() > 0)
-                {
-                    foreach (XElement item in childlist)
-                    {
-                        try
-                        {
-                            DateTime OldDateTime = DateTime.ParseExact(item.Attribute("LastVisit").Value, "dd.MM.yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-                            item.Attribute("LastVisit").Value = OldDateTime.ToString("yyyy-MM-dd HH:mm:ss");
-                        }
-                        catch(Exception)
-                        {
-                        }
-                        
-                    }
-                    Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-                }
+                case "streams":
+                    var path = Directory.GetCurrentDirectory() + slash + "XML" + slash + "Streamsv2.xml";
+                    System.Xml.Serialization.XmlSerializer xmlserializer = new System.Xml.Serialization.XmlSerializer(lStreams.GetType());
+                    System.IO.FileStream file = System.IO.File.Create(path);
+                    xmlserializer.Serialize(file, lStreams);
+                    file.Close();
+                    break;
             }
         }
         //returns data of User as CSV data in following order VisitCount, LastVisit
         //Adds Alias to User (?where to use no idea implemented because SQlite structure suggested Usage)
-        public string AddAlias(string nick, string alias)
-        {
-            nick = nick.ToLower();
-            alias = alias.ToLower();
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                IEnumerable<XElement> childlist = from el in Users.Root.Elements() where el.Attribute("Nick").Value == nick select el;
-                if (childlist.Count() > 0)
-                {
-                    foreach (XElement item in childlist)
-                    {
-                        bool aliascontained = false;
-                        foreach (XElement test in item.Elements("Alias"))
-                        {
-                            if (test.Attribute("Value").Value == alias)
-                            {
-                                aliascontained = true;
-                            }
-                        }
-                        if (aliascontained == false)
-                        {
-                            item.Add(new XElement("Alias", new XAttribute("Value", alias)));
-                            Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-                            IEnumerable<XElement> childlist2 = from el in Users.Root.Elements() where el.Attribute("Nick").Value == alias select el;
-                            if (childlist2.Count() > 0)
-                            {
-                                foreach (XElement item2 in childlist2)
-                                {
-                                    if (item2.Attribute("hasbeenmerged") == null)
-                                    {
-                                        int count = Int32.Parse(item.Attribute("VisitCount").Value);
-                                        item.Add(new XAttribute("oldcounter", item.Attribute("VisitCount").Value));
-                                        item.Attribute("VisitCount").Value = (Int32.Parse(item2.Attribute("VisitCount").Value) + Int32.Parse(item.Attribute("VisitCount").Value)).ToString();
-                                        item2.Add(new XAttribute("oldcounter", item2.Attribute("VisitCount").Value));
-                                        item2.Attribute("VisitCount").Value = (Int32.Parse(item2.Attribute("VisitCount").Value) + count).ToString();
-                                        item2.Add(new XAttribute("hasbeenmerged", 1));
-                                        Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-                                    }
-
-                                }
-
-                            }
-                            return "Alias was added to the User";
-                        }
-                        else
-                        {
-                            return "Alias already added";
-                        }
-
-
-                    }
-                }
-                else
-                {
-                    return "No User by this nick found";
-                }
-            }
-            else
-            {
-                //Will probably never happen but just to make sure
-                return "Users.xml does not exist, so no alias can be added, please address this bots administrator";
-            }
-            return "";
-        }
-
-        public void RemoveUnnecessaryNicks()
-        {
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            int i = 0;
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                try
-                {
-                    IEnumerable<XElement> childlist = Users.Root.Elements();
-                    bool change = false;
-                    if(childlist.Count()>0)
-                    {
-                        Console.WriteLine(childlist.Count());
-                        while(i <= childlist.Count())
-                        {
-                            i++;
-                            foreach (XElement user in childlist)
-                            {
-                                string lastchar = "f";
-                                string secondlastchar = "f";
-                                try
-                                {
-                                    lastchar = user.Attribute("Nick").Value.Substring(user.Attribute("Nick").Value.Length - 1, 1);
-                                    secondlastchar = user.Attribute("Nick").Value.Substring(user.Attribute("Nick").Value.Length - 2, 1);
-                                }catch(Exception)
-                                {
-
-                                }
-                                
-                                int n;
-                                int m;
-                                if (int.TryParse(lastchar,out n) && !int.TryParse(secondlastchar,out m))
-                                {
-                                    user.Remove();
-                                    change = true;
-                                }
-                                else
-                                if(user.Attribute("Nick").Value.EndsWith("afk")|| user.Attribute("Nick").Value.EndsWith("handy"))
-                                {
-                                    user.Remove();
-                                    change = true;
-                                }
-                                else
-                                if (user.Attribute("Nick").Value.Contains("andchat"))
-                                {
-                                    user.Remove();
-                                    change = true;
-                                }
-                                else
-                                {
-                                    if (user.Attribute("Nick").Value.EndsWith("_"))
-                                    {
-                                        user.Remove();
-                                        change = true;
-                                    }
-                                    else
-                                    {
-                                        if (user.Attribute("Nick").Value.Contains("|"))
-                                        {
-                                            IEnumerable<XElement> sublist = Users.Root.Elements().Where(_user => _user.Attribute("Nick").Value == user.Attribute("Nick").Value.Split('|')[0]);
-                                            if (sublist.Count() > 0)
-                                            {
-                                                foreach (XElement subuser in sublist)
-                                                {
-                                                    subuser.Attribute("VisitCount").Value = ((Int32.Parse(subuser.Attribute("VisitCount").Value.ToString())) + (Int32.Parse(user.Attribute("VisitCount").Value.ToString()))).ToString();
-                                                    user.Remove();
-                                                    change = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                user.Remove();
-                                                change = true;
-                                            }
-                                        }
-                                        if (user.Attribute("Nick").Value.Contains("_"))
-                                        {
-                                            IEnumerable<XElement> sublist = Users.Root.Elements().Where(_user => _user.Attribute("Nick").Value == user.Attribute("Nick").Value.Split('_')[0]);
-                                            if (sublist.Count() > 0)
-                                            {
-                                                foreach (XElement subuser in sublist)
-                                                {
-                                                    subuser.Attribute("VisitCount").Value = ((Int32.Parse(subuser.Attribute("VisitCount").Value.ToString())) + (Int32.Parse(user.Attribute("VisitCount").Value.ToString()))).ToString();
-                                                    user.Remove();
-                                                    change = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                user.Remove();
-                                                change = true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            childlist = Users.Root.Elements();
-                        }
-                    }
-                    if(change)
-                    {
-                        Console.Write(i);
-                        Users.Save(Directory.GetCurrentDirectory()+"/XML/Users.xml");
-                    }
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-            }
-        }
-       
-
+        
         #region stream stuff
         public int TwitchChatToStream(string channel,string targetchannel, int twoway)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
-            int answer = 0;
             //Query XML File for User Update
-            if (!Directory.Exists(Directory.GetCurrentDirectory() + "/XML/"))
+            if(lStreams.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
             {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory() + "/XML/Streams.xml"))
-            {
-                IEnumerable<XElement> childlist = from el in Streams.Root.Elements() where el.Attribute("Channel").Value == channel select el;
-                if (childlist.Count() > 0)
+                lStreams.Where(x => x.sChannel.ToLower() == channel).First().sTargetrelaychannel = targetchannel;
+                if(twoway == 1)
                 {
-                    try
-                    {
-                        if(childlist.First().Attribute("twitchchat") != null)
-                        {
-                            childlist.First().Attribute("twitchchat").Value = channel;
-                        }
-                        else
-                        {
-                            childlist.First().Add(new XAttribute("twitchchat", channel));
-                            
-                        }
-
-                        if (childlist.First().Attribute("twoway") != null)
-                        {
-                            childlist.First().Attribute("twoway").Value = twoway.ToString();
-                        }
-                        else
-                        {
-                            childlist.First().Add(new XAttribute("twoway", twoway.ToString()));
-                        }
-
-                        if (childlist.First().Attribute("targetchannel") != null)
-                        {
-                            childlist.First().Attribute("targetchannel").Value = targetchannel;
-                        }
-                        else
-                        {
-                            childlist.First().Add(new XAttribute("targetchannel", targetchannel));
-                        }
-                        Streams.Save(Directory.GetCurrentDirectory() + "/XML/Streams.xml");
-                        return 1;
-                    }
-                    catch(Exception)
-                    {
-
-                    }
+                    lStreams.Where(x => x.sChannel.ToLower() == channel).First().bTwoway = true;
                 }
+                saveFile("streams");
+                return 1;
             }
+            
             return 0;
         }
-        public Tuple<string,int> GetTwitchChatData(string channel)
+        public Tuple<string,bool> GetTwitchChatData(string channel)
         {
-            Tuple<string, int> result = new Tuple<string,int>("",3);
+            Tuple<string, bool> result = new Tuple<string,bool>("",false);
 
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
@@ -851,104 +193,29 @@ namespace DeathmicChatbot
             }
             if (File.Exists(Directory.GetCurrentDirectory() + "/XML/Streams.xml"))
             {
-                IEnumerable<XElement> childlist = from el in Streams.Root.Elements() where el.Attribute("Channel").Value == channel select el;
-                if (childlist.Count() > 0)
+                var stream = lStreams.Where(x => x.sChannel.ToLower() == channel);
+                if(stream.Count()>0)
                 {
-                    try
-                    {
-                        int twoway;
-                        string targetchannel;
-                        if (childlist.First().Attribute("twoway") != null)
-                        {
-                            twoway = Int32.Parse(childlist.First().Attribute("twoway").Value);
-                        }
-                        else
-                        {
-                            twoway = 3;
-                        }
-
-                        if (childlist.First().Attribute("targetchannel") != null)
-                        {
-                            targetchannel = childlist.First().Attribute("targetchannel").Value;
-                        }
-                        else
-                        {
-                            targetchannel = "";
-                        }
-                        result = new Tuple<string, int>(targetchannel, twoway);
-
-                    }
-                    catch (Exception)
-                    {
-
-                    }
+                    result = new Tuple<string, bool>(stream.First().sTargetrelaychannel, stream.First().bTwoway);
                 }
             }
-
             return result;
         }
         public int AddStream(string channel)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             int answer = 0;
-            //Query XML File for User Update
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
+            // 2 there 1 not there added
+            if (lStreams.Where(x => x.sChannel.ToLower() == channel.ToLower()).Count() > 0)
             {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
+                return 2;
             }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
+            else
             {
-                IEnumerable<XElement> childlist = from el in Streams.Root.Elements() where el.Attribute("Channel").Value == channel select el;
-                if (childlist.Count() > 0)
-                {
-                    answer = 2;
-                }
-                else
-                {
-                    try
-                    {
-                        var _element = new XElement("Stream",
-                           new XAttribute("Channel", channel.ToLower()),
-                            new XAttribute("starttime", ""),
-                            new XAttribute("stoptime", ""),
-                            new XAttribute("running", "false"),
-                            new XAttribute("provider", "")
-                           );
-                        Streams.Element("Streams").Add(_element);
-                        answer = 1;
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex);
-                    }
-                }
+                lStreams.Add(new DataFiles.internalStream(channel));
+                saveFile("streams");
+                return 1;
             }
-            //Backup just in case something goes wrong
-            /*
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Users.xml"))
-            {
-                if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/Backup"))
-                {
-                    Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/Backup");
-                }
-                string filename = Directory.GetCurrentDirectory()+"/XML/Backup/Usersbackup" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".xml";
-                Users.Save(filename);
-            }
-
-            if (answer == 1)
-            {
-                foreach(string user in AllUser())
-                {
-                    AddorUpdateSuscription(user, channel.ToLower(), "", false, true);
-                    Thread.Sleep(1000);
-                }
-            }
-            Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
-            */
-            return answer;
         }
 
         public string RemoveStream(string channel)
@@ -957,18 +224,16 @@ namespace DeathmicChatbot
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             string answer = "";
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
+            if(lStreams.Where(x => x.sChannel.ToLower()==channel.ToLower()).Count() >0)
             {
                 try
                 {
-                    Streams.Element("Streams").Elements("Stream").Where(x => x.Attribute("Channel").Value == channel).Remove();
+                    lStreams.RemoveAt(lStreams.FindIndex(x => x.sChannel.ToLower() == channel.ToLower()));
                     answer = "Stream removed";
-
-                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
+                    saveFile("streams");
                 }
-                catch (Exception ex)
+                catch(Exception)
                 {
-                    Console.WriteLine(ex.ToString());
                     answer = "Stream remove Failure - Talk to the programmer!";
                 }
             }
@@ -1008,54 +273,32 @@ namespace DeathmicChatbot
             bool answer = false;
             try
             {
-                if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
+
+                if (provider == "twitch")
                 {
-                    if (provider == "twitch")
+                    internalStream iSStream;
+                    var streams = lStreams.Where(x => x.sChannel.ToLower() == stream.Stream.Channel.Name.ToString().ToLower());
+                    if(streams.Count() >0)
                     {
-                        IEnumerable<XElement> childlist = from el in Streams.Root.Elements() where el.Attribute("Channel").Value == stream.Stream.Channel.Name.ToString().ToLower() select el;
-                        foreach (var element in childlist)
+                        iSStream = streams.First();
+                        string game = "";
+                        if (iSStream.sGame != stream.Stream.Channel.Game.ToString() && stream.Stream.Channel.Game.ToString() != "")
                         {
-                            if (element.Attribute("game") == null)
-                            {
-                                element.Add(new XAttribute("game", ""));
-                            }
-                            string game = "";
-                            string currentgame = element.Attribute("game").Value;
-                            if (currentgame != stream.Stream.Channel.Game.ToString() && stream.Stream.Channel.Game.ToString() != "")
-                            {
-                                game = stream.Stream.Channel.Game.ToString();
-                            }
-                            if (currentgame != stream.Stream.Game.ToString() && stream.Stream.Game.ToString() != "")
-                            {
-                                game = stream.Stream.Game.ToString();
-                            }
-                            game = stripNonValidXMLCharacters(game);
-                            game = game.Replace(",", "");
-                            game = game.Replace(";", "");
-
-                            if (element.Attribute("game") == null)
-                            {
-                                element.Add(new XAttribute("game", game));
-                            }
-                            else
-                            {
-                                element.Attribute("game").Value = game;
-                            }
-
-
-                            if (element.Attribute("URL") == null)
-                            {
-                                element.Add(new XAttribute("URL", stream.Stream.Channel.Url));
-                            }
-                            else
-                            {
-                                element.Attribute("URL").Value = stream.Stream.Channel.Url;
-                            }
+                            game = stream.Stream.Channel.Game.ToString();
                         }
+                        if (iSStream.sGame != stream.Stream.Game.ToString() && stream.Stream.Game.ToString() != "")
+                        {
+                            game = stream.Stream.Game.ToString();
+                        }
+                        game = stripNonValidXMLCharacters(game);
+                        game = game.Replace(",", "");
+                        game = game.Replace(";", "");
+                        iSStream.sGame = game;
+                        iSStream.sUrl = stream.Stream.Channel.Url;
+                        saveFile("streams");
                     }
-                    answer = true;
-                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                 }
+                answer = true;
             }catch(Exception ex)
             {
                 Console.WriteLine(ex.ToString());
@@ -1065,73 +308,66 @@ namespace DeathmicChatbot
 
         public void AddStreamLivedata(string Channel, string URL,string Game)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
-            {
                 try
                 {
-                    IEnumerable<XElement> childlist = from el in Streams.Root.Elements() where el.Attribute("Channel").Value == Channel.ToLower() select el;
-                    foreach (var element in childlist)
+                    internalStream iSStream;
+                    var streams = lStreams.Where(x => x.sChannel.ToLower() == Channel.ToLower());
+                    if (streams.Count() > 0)
                     {
-                        if (element.Attribute("game") == null)
-                        {
-                            element.Add(new XAttribute("game", Game));
-                            Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
-                        }
-                        else
-                        {
-                            element.Attribute("game").Value = Game;
-                        }
-                        if (element.Attribute("URL") == null)
-                        {
-                            element.Add(new XAttribute("URL", URL));
-                            Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
-                        }
-                        else
-                        {
-                            element.Attribute("URL").Value = URL;
-                        }
+                        iSStream = streams.First();
+                        iSStream.sGame = Game;
+                        iSStream.sUrl = URL;
+                        saveFile("streams");
                     }
-                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine(ex.ToString());
                 }
-
-            }
         }
         //returns Streamlist as CSV data
-        public string StreamList(string provider = "")
+        public string StreamList(string provider = "",bool csv = false)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             //Maybe add provider filtering but have to somewhere add the provider
             string answer = "";
-
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
+            if(csv)
             {
-                System.Diagnostics.Debug.WriteLine(provider);
-                IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() select streams;
-
-                if (childlist.Count() > 0)
+                foreach (var stream in lStreams)
                 {
-                    foreach (var stream in childlist)
+                    answer += stream.sChannel + ",";
+                }
+                answer = answer.Substring(0, answer.Length - 1);
+            }
+            else
+            {
+                int counter = 0;
+                bool last = true;
+                foreach (var stream in lStreams)
+                {
+                    answer += stream.sChannel + "  |  ";
+                    counter++;
+                    last = false;
+                    if(counter%5==0)
                     {
-                        answer += stream.Attribute("Channel").Value + ",";
+                        last = true;
+                        answer += System.Environment.NewLine;
                     }
-                    answer = answer.Substring(0, answer.Length - 1);
+                }
+                if(!last)
+                {
+                    answer = answer.Substring(0, answer.Length - 5);
                 }
             }
+            
             return answer;
         }
+        // Continue porting to new xml HERE MARKER
         public void ResetStreamState()
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             //Maybe add provider filtering but have to somewhere add the provider
-            string answer = "";
 
             if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
             {
@@ -1417,7 +653,6 @@ namespace DeathmicChatbot
                         foreach (XElement item in childlist)
                         {
                             Console.WriteLine(childlist.Count());
-                            bool contained = false;
                             foreach (XElement item_item in item.Elements("User"))
                             {
                                 Console.WriteLine(item_item.Attribute("Value").Value);
@@ -1435,7 +670,7 @@ namespace DeathmicChatbot
                         return false;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return false;
                 }
@@ -1495,7 +730,7 @@ namespace DeathmicChatbot
                     { 
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                 }
             }
@@ -1537,7 +772,7 @@ namespace DeathmicChatbot
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                 }
             }
