@@ -125,8 +125,10 @@
   <ItemGroup>
     <Compile Include="DataFiles\Alias.cs" />
     <Compile Include="DataFiles\Answer.cs" />
+    <Compile Include="DataFiles\Counter.cs" />
     <Compile Include="DataFiles\Stream.cs" />
     <Compile Include="DataFiles\User.cs" />
+    <Compile Include="DataFiles\UserPicks.cs" />
     <Compile Include="DataFiles\VoteObject.cs" />
     <Compile Include="DataFiles\XMLProvider.cs" />
     <Compile Include="Discord\DiscordBob.cs" />
