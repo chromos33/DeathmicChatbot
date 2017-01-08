@@ -31,8 +31,6 @@ namespace DeathmicChatbot.IRC
         public bool bTwoWay;
         private IrcDotNet.TwitchIrcClient LocalClient;
         public bool isExit = false;
-        bool ReconnectInBound = false;
-        RestClient _client;
         public bool bDisconnected = false;
         public TwitchRelay(DiscordClient discord, string channel, string targetchannel, bool twoway = true)
         {

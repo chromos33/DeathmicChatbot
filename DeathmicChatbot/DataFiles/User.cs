@@ -17,6 +17,19 @@ namespace DeathmicChatbot.DataFiles
         public List<Stream> Streams = new List<Stream>();
         public List<Alias> Aliase = new List<Alias>();
         public bool bMessages;
+        public bool globalhourlyannouncement;
+        public bool isGlobalAnnouncment(string channel)
+        {
+            if(Streams.Where(x=>x.name.ToLower() == channel.ToLower() && x.hourlyannouncement).Count()>0)
+            {
+                return true;
+            }
+            if (globalhourlyannouncement)
+            {
+                return true;
+            }
+            return false;
+        }
         public bool toggleLoggingOp()
         {
             bIsLoggingOp = !bIsLoggingOp;

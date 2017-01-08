@@ -14,7 +14,6 @@ namespace DeathmicChatbot
 {
     class Program
     {
-        private static System.Timers.Timer cpuchecktimer;
         public static BotDeathmic bot = null;
         static void Main(string[] args)
         {

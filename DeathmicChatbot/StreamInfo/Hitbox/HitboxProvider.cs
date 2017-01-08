@@ -12,7 +12,7 @@ using DeathmicChatbot.StreamInfo;
 
 namespace DeathmicChatbot.StreamInfo.Hitbox
 {
-    public class HitboxProvider : IStreamProvider, IDisposable
+    public sealed class HitboxProvider : IStreamProvider, IDisposable
     {
         private const string STREAMDATA_FILE = "streamdata_hitbox.txt";
         private const int TIME_MS_HITBOX_QUERY_THREAD_SLEEP = 1000;
@@ -286,7 +286,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
                 
                 return data;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 
 

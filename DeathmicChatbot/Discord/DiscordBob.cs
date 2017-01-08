@@ -20,7 +20,7 @@ using System.Text.RegularExpressions;
 
 namespace DeathmicChatbot.Discord
 {
-    class DiscordBob
+    class DiscordBob :IDisposable
     {
         private DiscordClient bot;
         #region global variable definition
@@ -87,7 +87,7 @@ namespace DeathmicChatbot.Discord
             ClosedCommandList.Add("!removealias");
             ClosedCommandList.Add("!checkusername");
             ClosedCommandList.Add("!addalias"); 
-            ClosedCommandList.Add("!suscribablestreams");
+            ClosedCommandList.Add("!subscribablestreams");
             ClosedCommandList.Add("!toggleuserlogin");
             ClosedCommandList.Add("!setpassword");
             ClosedCommandList.Add("!changesubscription"); 
@@ -97,6 +97,7 @@ namespace DeathmicChatbot.Discord
             ClosedCommandList.Add("!vote");
             ClosedCommandList.Add("!listvotings");
             ClosedCommandList.Add("!changetwitchchat");
+            ClosedCommandList.Add("!changeglobalannouncement");
 
             OpenCommandList.Add("!help"); 
             OpenCommandList.Add("!roll");
@@ -248,7 +249,7 @@ namespace DeathmicChatbot.Discord
             parameters.RemoveAt(0);
             bool command = false;
             #region ClosedCommands
-            if(e.Channel.ToString() == "botspam" || e.Channel.ToString().ToLower().Contains(e.User.Name))
+            if(e.Channel.ToString() == "botspam" || e.Channel.ToString().ToLower().Contains(e.User.Name.ToLower()))
             {
                 //Insert anything that has to do with management here
                 if (messagecontent.ToLower().StartsWith("!addstream"))
@@ -291,7 +292,7 @@ namespace DeathmicChatbot.Discord
                     AddAlias(sender, e, parameters);
                     command = true;
                 }
-                if (messagecontent.ToLower().StartsWith("!suscribablestreams"))
+                if (messagecontent.ToLower().StartsWith("!subscribablestreams"))
                 {
                     SuscribableStreams(sender, e, parameters);
                     command = true;
@@ -347,7 +348,12 @@ namespace DeathmicChatbot.Discord
                     DisconnectTwitchChat(sender, e, parameters);
                     command = true;
                 }
-
+                if (messagecontent.ToLower().StartsWith("!changeglobalannouncement"))
+                {
+                    ChangeGlobalAnnouncment(sender, e, parameters);
+                    command = true;
+                }
+                
             }
             #endregion
             #region OpenCommands
@@ -413,12 +419,8 @@ namespace DeathmicChatbot.Discord
             {
                 if(isTwitch)
                 {
-                    Tuple<string, int> temp = xmlprovider.GetTwitchChatData(channel);
-                    bool twoway = false;
-                    if (temp.Item2 == 1)
-                    {
-                        twoway = true;
-                    }
+                    Tuple<string, bool> temp = xmlprovider.GetTwitchChatData(channel);
+                    bool twoway = temp.Item2;
                     if (temp.Item1 != "")
                     {
                         TwitchRelay tmpbot;
@@ -449,13 +451,90 @@ namespace DeathmicChatbot.Discord
         #region Commands
         #region StreamFunctions
         //Command that force connects bot to Twitch IRC for testing only
+        private void ChangeGlobalAnnouncment(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            if(parameters.Count() == 0 && parameters.Count() != 2 && parameters.Count() != 3 || parameters[0] == "help" && parameters.Count() > 0)
+            {
+                e.User.SendMessage("Command !changeglobalannouncement [global/stream] [enable/disable/read] [streamname (only with stream as first parameter)]");
+                return;
+            }
+            try
+            {
+                if (parameters[0] == "global" && parameters.Count() == 2)
+                {
+                    if (parameters[1] == "enable")
+                    {
+                        var Users = LUserList.Where(x => x.Name == e.User.Name);
+                        if (Users.Count() > 0)
+                        {
+                            Users.First().globalhourlyannouncement = true;
+                            e.User.SendMessage("global hourly enabled");
+                        }
+                    }
+                    if (parameters[1] == "disable")
+                    {
+                        var Users = LUserList.Where(x => x.Name == e.User.Name);
+                        if (Users.Count() > 0)
+                        {
+                            Users.First().globalhourlyannouncement = false;
+                            e.User.SendMessage("global hourly disabled");
+                        }
+                    }
+                    if (parameters[1] == "read")
+                    {
+                        var Users = LUserList.Where(x => x.Name == e.User.Name);
+                        if (Users.Count() > 0)
+                        {
+                            e.User.SendMessage(Users.First().globalhourlyannouncement.ToString());
+                        }
+                    }
+                    SaveUserList();
+                    return;
+                }
+                if (parameters[0] == "stream" && parameters.Count() == 3)
+                {
+                    if (parameters[1] == "enable")
+                    {
+                        var Users = LUserList.Where(x => x.Name == e.User.Name);
+                        if (Users.Count() > 0)
+                        {
+                            Users.First().Streams.Where(x => x.name.ToLower() == parameters[2]).First().hourlyannouncement = true;
+                            e.User.SendMessage("stream hourly enabled");
+                        }
+                    }
+                    if (parameters[1] == "disable")
+                    {
+                        var Users = LUserList.Where(x => x.Name == e.User.Name);
+                        if (Users.Count() > 0)
+                        {
+                            Users.First().Streams.Where(x => x.name.ToLower() == parameters[2]).First().hourlyannouncement = false;
+                            e.User.SendMessage("stream hourly disabled");
+                        }
+                    }
+                    if (parameters[1] == "read")
+                    {
+                        var Users = LUserList.Where(x => x.Name == e.User.Name);
+                        if (Users.Count() > 0)
+                        {
+                            e.User.SendMessage(Users.First().Streams.Where(x => x.name.ToLower() == parameters[2]).First().hourlyannouncement.ToString());
+                        }
+                    }
+                    SaveUserList();
+                    return;
+                }
+            }
+            catch(Exception)
+            {
+                e.User.SendMessage("Error");
+            }
+        }
         private void ForceTwitchChat(object sender, MessageEventArgs e, List<string> parameters)
         {
             ConnectToTwitchChat("deathmic", true);
         }
         private void ChangeTwitchChat(object sender, MessageEventArgs e, List<string> parameters)
         {
-            if(parameters[0] == "help")
+            if(parameters[0] == "help" || parameters.Count() == 0)
             {
                 e.User.SendMessage("Command !changetwitchchat [streamname] [targetchannel(Discord)] [(optional default 1) twoway (0/1)]");
             }
@@ -505,7 +584,7 @@ namespace DeathmicChatbot.Discord
             }
             else if (message == 0)
             {
-                e.Channel.SendMessage(String.Format("{0} there has been an error please contact an programmer.", e.User.Name, parameters[0]));
+                e.Channel.SendMessage("there has been an error please contact an programmer.");
             }
         }
         private void DelStream(object sender, MessageEventArgs e, List<string> parameters)
@@ -648,7 +727,6 @@ namespace DeathmicChatbot.Discord
                     {
                         e.User.SendMessage("Error");
                     }
-
             }
             SaveUserList();
         }
@@ -659,7 +737,7 @@ namespace DeathmicChatbot.Discord
         private void SetPassword(object sender, MessageEventArgs e, List<string> parameters)
         {
             bool result = false;
-            if (parameters[0] == "help")
+            if (parameters[0] == "help" || parameters.Count() == 0)
             {
                 e.User.SendMessage("Password Command: '!setpass [New Password] [old Pass]' old Pass is optional on the First time");
                 return;
@@ -683,7 +761,7 @@ namespace DeathmicChatbot.Discord
         private void ChangeSubscription(object sender, MessageEventArgs e, List<string> parameters)
         {
             bool result = false;
-            if (parameters[0] == "help")
+            if (parameters[0] == "help" || parameters.Count() == 0)
             {
                 e.User.SendMessage("To update Subscripions use following structure '!changesubscription [add/remove] [streamname] [password]");
                 return;
@@ -777,14 +855,14 @@ namespace DeathmicChatbot.Discord
         }
         private void Counter(object sender, MessageEventArgs e, List<string> parameters)
         {
-            if (parameters.Count() < 1)
-            {
-                e.User.SendMessage("Error: count needs a counter name. '!counter [countername] [command(read/reset)]' [command] is optional.");
-                return;
-            }
-            if (parameters[0] == "help")
+            if (parameters[0] == "help" || parameters.Count() == 0)
             {
                 e.User.SendMessage( "Error: count needs a counter name. '!counter [countername] [command(read/reset)]' [command] is optional.");
+                return;
+            }
+            if(parameters[0] == "list")
+            {
+                e.User.SendMessage(xmlprovider.CounterList());
                 return;
             }
             if (parameters.Count() == 1)
@@ -1208,7 +1286,7 @@ namespace DeathmicChatbot.Discord
             {
             if (parameters[0] != null)
             {
-                if (parameters[0] == "help")
+                if (parameters[0] == "help" || parameters.Count() == 0)
                 {
                     e.User.SendMessage(string.Format("The vote command works as follows: !vote [QuestionID] [AnswerID],[AnswerID]..."));
                     e.User.SendMessage(string.Format("If multiple answers aren't allowed in the vote only the first will be used."));
@@ -1616,7 +1694,8 @@ namespace DeathmicChatbot.Discord
                             DataFiles.User userUser = getUser(user.normalised_username().ToLower());
                             if (userUser != null)
                             {
-                                if (userUser.isSubscribed(args.StreamData.Stream.Channel))
+
+                                if (userUser.isSubscribed(args.StreamData.Stream.Channel) && userUser.isGlobalAnnouncment(args.StreamData.Stream.Channel))
                                 {
                                     MsgsTargets.Add(user.orig_username);
                                 }
@@ -1725,7 +1804,11 @@ namespace DeathmicChatbot.Discord
             }
 
         }
-        
+
+        public void Dispose()
+        {
+        }
+
         #endregion
 
     }

@@ -11,6 +11,7 @@ namespace DeathmicChatbot.DataFiles
     {
         public string name;
         public bool subscribed;
+        public bool hourlyannouncement;
 
         public Stream(string _name,bool _subscribed)
         {
@@ -21,5 +22,35 @@ namespace DeathmicChatbot.DataFiles
         {
 
         }
+    }
+    public class internalStream
+    {
+        public string sChannel;
+        public DateTime dtStarttime;
+        public DateTime dtStoptime;
+        public bool bRunning;
+        public string sProvider;
+        public string sGame;
+        public string sUrl;
+        public DateTime dtLastglobalnotice;
+        public string sTwitchchat;
+        public bool bTwoway;
+        public string sTargetrelaychannel;
+        public internalStream()
+        {
+
+        }
+        public internalStream(string _channel,string _sTwitchchat,bool _bTwoway, string _sTargetrelaychannel)
+        {
+            sChannel = _channel;
+            sTwitchchat = _sTwitchchat;
+            bTwoway = _bTwoway;
+            sTargetrelaychannel = _sTargetrelaychannel;
+        }
+        public internalStream(string _channel)
+        {
+            sChannel = _channel;
+        }
+
     }
 }

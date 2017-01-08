@@ -53,7 +53,7 @@ namespace DeathmicChatbot.Statics
                 return false;
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -74,7 +74,7 @@ namespace DeathmicChatbot.Statics
                 }
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }

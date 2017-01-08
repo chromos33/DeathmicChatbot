@@ -49,8 +49,6 @@ namespace DeathmicChatbot.IRC
         #region global Definitions
         protected bool debug = false;
 
-        private static bool automaticmessages = false;
-
         private static StreamProviderManager _streamProviderManager;
         public string clientVersionInfo = "IRC.NET Community Bot";
         XMLProvider xmlprovider = new XMLProvider();
@@ -67,7 +65,6 @@ namespace DeathmicChatbot.IRC
         private static string clientReceivedTimeInfo;
         private static string clientReceivedVersionInfo;
         private static string clientReceivedActionText;
-        private static bool isVoteRunning = false;
         public System.Timers.Timer reconnectimer;
         private static URLExtractor urlExtractor = new URLExtractor();
         private bool Disconnected = false;

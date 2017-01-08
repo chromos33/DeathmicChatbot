@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Discord.API.Client;
+using System;
 
 
 namespace DeathmicChatbot.Exceptions
