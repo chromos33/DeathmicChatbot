@@ -24,6 +24,7 @@ namespace DeathmicChatbot
         protected List<DataFiles.UserPickedList> lUserPickLists;
         protected XDocument Votes;
         protected XDocument Counters;
+        protected List<DataFiles.Counter> lCounters;
         char slash = Path.DirectorySeparatorChar;
         public XMLProvider()
         {
@@ -50,6 +51,23 @@ namespace DeathmicChatbot
                 UserPicks = new XDocument();
                 UserPicks.Save(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml");
             }
+
+            lUserPickLists = new List<DataFiles.UserPickedList>();
+            readFile("Userpicksv2.xml", "userpicks");
+
+            if (File.Exists(Directory.GetCurrentDirectory() + "/XML/Counters.xml"))
+            {
+                Counters = XDocument.Load(Directory.GetCurrentDirectory() + "/XML/Counters.xml");
+            }
+            else
+            {
+                Counters = new XDocument(new XElement("Counters", ""));
+                Counters.Save(Directory.GetCurrentDirectory() + "/XML/Counters.xml");
+            }
+
+            lCounters = new List<DataFiles.Counter>();
+            readFile("Countersv2.xml", "counters");
+
             if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Votes.xml"))
             {
                 Votes = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/Votes.xml");
@@ -59,15 +77,7 @@ namespace DeathmicChatbot
                 Votes = new XDocument();
                 Votes.Save(Directory.GetCurrentDirectory()+"/XML/Votes.xml");
             }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Counters.xml"))
-            {
-                Counters = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/Counters.xml");
-            }
-            else
-            {
-                Counters = new XDocument(new XElement("Counters",""));
-                Counters.Save(Directory.GetCurrentDirectory()+"/XML/Counters.xml");
-            }
+            
         }
         public void readFile(string sfilename,string sObject)
         {
@@ -98,7 +108,18 @@ namespace DeathmicChatbot
                         {
                             Console.WriteLine(ex.ToString());
                         }
-                        
+                        break;
+                    case "userpicks":
+                            xmlserializer = new System.Xml.Serialization.XmlSerializer(lUserPickLists.GetType());
+                            reader = XmlReader.Create(fs);
+                            lUserPickLists = (List<DataFiles.UserPickedList>)xmlserializer.Deserialize(reader);
+                            fs.Close();
+                        break;
+                    case "counters":
+                        xmlserializer = new System.Xml.Serialization.XmlSerializer(lCounters.GetType());
+                        reader = XmlReader.Create(fs);
+                        lCounters = (List<DataFiles.Counter>)xmlserializer.Deserialize(reader);
+                        fs.Close();
                         break;
                 }
             }
@@ -142,18 +163,59 @@ namespace DeathmicChatbot
                         xmlserializer.Serialize(file, lStreams);
                         file.Close();
                         break;
+                    case "userpicks":
+                        path = Directory.GetCurrentDirectory() + slash + "XML" + slash + "Userpicksv2.xml";
+                        xmlserializer = new System.Xml.Serialization.XmlSerializer(lUserPickLists.GetType());
+                        file = System.IO.File.Create(path);
+                        xmlserializer.Serialize(file, lUserPickLists);
+                        file.Close();
+                        break;
+                    case "counters":
+                        IEnumerable<XElement> childlist = Counters.Root.Elements();
+                        foreach(var child in childlist)
+                        {
+                            DataFiles.Counter newcounter = new DataFiles.Counter();
+                            newcounter.Count = Int32.Parse(child.Attribute("Value").Value);
+                            newcounter.sName = child.Attribute("Name").Value;
+                            lCounters.Add(newcounter);
+                        }
+                        path = Directory.GetCurrentDirectory() + slash + "XML" + slash + sfilename;
+                        xmlserializer = new System.Xml.Serialization.XmlSerializer(lCounters.GetType());
+                        file = System.IO.File.Create(path);
+                        xmlserializer.Serialize(file, lCounters);
+                        file.Close();
+
+                        break;
                 }
             }
         }
         public void saveFile(string sObject)
         {
-            switch(sObject)
+            string path;
+            System.Xml.Serialization.XmlSerializer xmlserializer;
+            System.IO.FileStream file;
+            switch (sObject)
             {
+                
                 case "streams":
-                    var path = Directory.GetCurrentDirectory() + slash + "XML" + slash + "Streamsv2.xml";
-                    System.Xml.Serialization.XmlSerializer xmlserializer = new System.Xml.Serialization.XmlSerializer(lStreams.GetType());
-                    System.IO.FileStream file = System.IO.File.Create(path);
+                    path = Directory.GetCurrentDirectory() + slash + "XML" + slash + "Streamsv2.xml";
+                    xmlserializer = new System.Xml.Serialization.XmlSerializer(lStreams.GetType());
+                    file = System.IO.File.Create(path);
                     xmlserializer.Serialize(file, lStreams);
+                    file.Close();
+                    break;
+                case "userpicks":
+                    path = Directory.GetCurrentDirectory() + slash + "XML" + slash + "Userpicksv2.xml";
+                    xmlserializer = new System.Xml.Serialization.XmlSerializer(lUserPickLists.GetType());
+                    file = System.IO.File.Create(path);
+                    xmlserializer.Serialize(file, lUserPickLists);
+                    file.Close();
+                    break;
+                case "counters":
+                    path = Directory.GetCurrentDirectory() + slash + "XML" + slash + "Countersv2.xml";
+                    xmlserializer = new System.Xml.Serialization.XmlSerializer(lCounters.GetType());
+                    file = System.IO.File.Create(path);
+                    xmlserializer.Serialize(file, lCounters);
                     file.Close();
                     break;
             }
@@ -228,9 +290,17 @@ namespace DeathmicChatbot
             {
                 try
                 {
-                    lStreams.RemoveAt(lStreams.FindIndex(x => x.sChannel.ToLower() == channel.ToLower()));
-                    answer = "Stream removed";
-                    saveFile("streams");
+                    int index = lStreams.FindIndex(x => x.sChannel.ToLower() == channel.ToLower());
+                    if(index != -1)
+                    {
+                        lStreams.RemoveAt(index);
+                        answer = "Stream removed";
+                        saveFile("streams");
+                    }
+                    else
+                    {
+                        answer = "This stream is not in the list.";
+                    }
                 }
                 catch(Exception)
                 {
@@ -365,23 +435,12 @@ namespace DeathmicChatbot
         // Continue porting to new xml HERE MARKER
         public void ResetStreamState()
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             //Maybe add provider filtering but have to somewhere add the provider
-
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
+            foreach(var stream in lStreams)
             {
-                IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() select streams;
-
-                if (childlist.Count() > 0)
-                {
-                    foreach (var stream in childlist)
-                    {
-                        stream.Attribute("running").Value = "false";
-                    }
-                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
-                }
+                stream.bRunning = false;
             }
+            saveFile("streams");
             return;
         }
         public string[] OnlineStreamList()
@@ -390,126 +449,104 @@ namespace DeathmicChatbot
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             //Maybe add provider filtering but have to somewhere add the provider
             List<string> answer = new List<string>();
-
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
+            foreach (var stream in lStreams.Where(x =>x.bRunning == true))
             {
-                IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() where streams.Attribute("running").Value == "true" select streams;
-
-                if (childlist.Count() > 0)
-                {
-                    foreach (var stream in childlist)
-                    {
-                        answer.Add(stream.Attribute("Channel").Value);
-                    }
-                }
+                answer.Add(stream.sChannel);
             }
             return answer.ToArray();
         }
         public bool isinStreamList(string stream)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             stream = stream.ToLower();
-            //Maybe add provider filtering but have to somewhere add the provider
             bool answer = false;
-
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
+            if(lStreams.Where(x => x.sChannel.ToLower() == stream.ToLower()).Count()>0)
             {
-                IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() where streams.Attribute("Channel").Value == stream select streams;
-                if (childlist.Count() > 0)
-                {
-                    answer = true;
-                }
+                answer = true;
             }
             return answer;
         }
 
         public void StreamStartUpdate(string channel, bool end = false)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
+            if (!end)
             {
-                if (!end)
+                var childlist = lStreams.Where(x => x.sChannel.ToLower() == channel.ToLower());
+                if (childlist.Count() > 0)
                 {
-
-                    IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
-                    if (childlist.Count() > 0)
+                    foreach (var stream in childlist)
                     {
-                        foreach (var stream in childlist)
+                        if (stream.bRunning == false)
                         {
-                            if (stream.Attribute("running").Value == "false")
-                            {
 
-                                try
+                            try
+                            {
+                                DateTime start = DateTime.Now;
+                                System.Diagnostics.Debug.WriteLine(start);
+                                DateTime stop = Convert.ToDateTime(stream.dtStoptime);
+                                System.Diagnostics.Debug.WriteLine(stop);
+                                TimeSpan diff = (start - stop).Duration();
+                                System.Diagnostics.Debug.WriteLine(diff.TotalSeconds);
+                                if (diff.TotalSeconds > 600)
                                 {
-                                    DateTime start = DateTime.Now;
-                                    System.Diagnostics.Debug.WriteLine(start);
-                                    DateTime stop = Convert.ToDateTime(stream.Attribute("stoptime").Value);
-                                    System.Diagnostics.Debug.WriteLine(stop);
-                                    TimeSpan diff = (start - stop).Duration();
-                                    System.Diagnostics.Debug.WriteLine(diff.TotalSeconds);
-                                    if (diff.TotalSeconds > 600)
-                                    {
-                                        stream.Attribute("starttime").Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                    }
+                                    stream.dtStarttime = DateTime.Now;
+                                }
                                     
-                                }
-                                catch (FormatException)
-                                {
-                                    stream.Attribute("starttime").Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                }
-                                stream.Attribute("running").Value = "true";
                             }
-                            if(stream.Attribute("lastglobalnotice") == null)
+                            catch (FormatException)
                             {
-                                stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))));
+                                stream.dtStarttime = DateTime.Now;
                             }
+                            stream.bRunning = true;
                         }
-                        Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
-                    }
-                }
-                else
-                {
-                    IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
-                    if (childlist.Count() > 0)
-                    {
-
-                        foreach (var stream in childlist)
+                        if(stream.dtLastglobalnotice == null)
                         {
-                            if (stream.Attribute("running").Value == "true")
-                            {
-                                stream.Attribute("running").Value = "false";
-                                stream.Attribute("stoptime").Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                            }
+                            stream.dtLastglobalnotice = DateTime.Now;
                         }
-                        Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
                     }
+                    saveFile("streams");
+                }
+            }
+            else
+            {
+                var childlist = lStreams.Where(x => x.sChannel.ToLower() == channel);
+                if (childlist.Count() > 0)
+                {
+
+                    foreach (var stream in childlist)
+                    {
+                        if (stream.bRunning == true)
+                        {
+                            stream.bRunning = false;
+                            stream.dtStoptime = DateTime.Now;
+                        }
+                    }
+                    saveFile("streams");
                 }
             }
             return;
         }
         public string StreamInfo(string channel, string inforequested)
         {
-
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             string answer = "";
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
+            if (lStreams.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
             {
-                IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
-                if (childlist.Count() > 0)
+                var stream = lStreams.Where(x => x.sChannel.ToLower() == channel).First();
+                switch (inforequested)
                 {
-                    foreach (var stream in childlist)
-                    {
-                        if(stream.Attribute(inforequested) != null)
-                        {
-                            answer = stream.Attribute(inforequested).Value;
-                        }
-                        
-                    }
+                    case "game":
+                        answer = stream.sGame;
+                        break;
+                    case "URL":
+                        answer = stream.sUrl;
+                        break;
+                    case "running":
+                        answer = stream.bRunning.ToString();
+                        break;
+                    case "starttime":
+                        answer = stream.dtStarttime.ToString("h':'mm':'ss");
+                        break;
                 }
             }
             return answer;
@@ -517,45 +554,30 @@ namespace DeathmicChatbot
 
         public bool GlobalAnnouncementDue(string channel)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             bool answer = false;
 
             channel = channel.ToLower();
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))
+            var childlist = lStreams.Where(x => x.sChannel.ToLower() == channel);
+            if (childlist.Count() > 0)
             {
-                IEnumerable<XElement> childlist = from streams in Streams.Root.Elements() where streams.Attribute("Channel").Value == channel select streams;
-                if (childlist.Count() > 0)
+                foreach (var stream in childlist)
                 {
-                    foreach (var stream in childlist)
+                    if (stream.dtLastglobalnotice == null)
                     {
-                        if (stream.Attribute("lastglobalnotice") == null)
+                        stream.dtLastglobalnotice = DateTime.Now;
+                        answer = true;
+                        saveFile("streams");
+                    }
+                    else
+                    {
+                        TimeSpan difference = DateTime.Now.Subtract(stream.dtLastglobalnotice);
+                        if (difference.TotalMinutes >= 60)
                         {
-                            stream.Add(new XAttribute("lastglobalnotice", Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))));
                             answer = true;
-                            Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
+                            stream.dtLastglobalnotice = DateTime.Now;
+                            Streams.Save(Directory.GetCurrentDirectory() + "/XML/Streams.xml");
                         }
-                        else
-                        {
-                            if(stream.Attribute("lastglobalnotice").Value == "")
-                            {
-                                stream.Attribute("lastglobalnotice").Value = Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                                answer = true;
-                                Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
-                            }
-                            else
-                            {
-                                DateTime lastglobalnotice = Convert.ToDateTime(stream.Attribute("lastglobalnotice").Value);
-                                TimeSpan difference = DateTime.Now.Subtract(lastglobalnotice);
-                                if (difference.TotalMinutes >= 60)
-                                {
-                                    answer = true;
-                                    stream.Attribute("lastglobalnotice").Value = Convert.ToString(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/Streams.xml");
-                                }
-                            }
-                            
-                        }
+
                     }
                 }
             }
@@ -566,175 +588,91 @@ namespace DeathmicChatbot
         #region PickUserStuff etc
         public bool CreateUserPick(string Reason,string User)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             Reason = Reason.ToLower();
             User = User.ToLower();
-            bool anser = false;
-            //Query XML File for User Update
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
+            bool answer = false;
+            try
             {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml"))
-            {
-                try
+                var childlist = lUserPickLists.Where(x => x.Reason.ToLower() == Reason);
+                if(childlist.Count() > 0)
                 {
-                    IEnumerable<XElement> childlist = from Reasons in Streams.Root.Elements() where Reasons.Attribute("Reason").Value == Reason select Reasons;
-                    if(childlist.Count() > 0)
-                    {
                         
-                        foreach (XElement item in childlist)
+                    foreach (var item in childlist)
+                    {
+                        bool contained = false;
+                        if(item.User.Where(x => x.UserName.ToLower() == User).Count()>0)
                         {
-                            bool contained = false;
-                            foreach(XElement item_item in item.Elements("User"))
-                            {
-                                if(item_item.Attribute("Value").Value == User)
-                                {
-                                    contained = true;
-                                }
-                            }
-                            if (contained == false)
-                            {
-                                item.Add(new XElement("User", new XAttribute("Value", User)));
-                                anser = true;
-                            }
-                            else
-                            {
-                                anser = false;
-                            }
+                            answer = false;
                         }
-                        
-                    }
-                    else
-                    {
-                        var _element = new XElement("UserPickedList", 
-                                new XAttribute("Reason", Reason),
-                                new XElement("User", new XAttribute("Value", User))
-                        );
-                        Streams.Element("UserPickedLists").Add(_element);
-                    }
-                    Streams.Save(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml");
-
-                    
-                    
+                        else
+                        {
+                            item.User.Add(new DataFiles.UserPick(User));
+                            answer = true;
+                        }
+                    } 
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine(ex.ToString());
-                    anser = false;
+                    lUserPickLists.Add(new DataFiles.UserPickedList(Reason, new DataFiles.UserPick(User)));
+                    answer = true;
                 }
+                saveFile("userpicks");
             }
-            return anser;
-            
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                answer = false;
+            }
+            return answer = false;
+
         }
         public bool CheckforUserinPick(string Reason,string User)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             Reason = Reason.ToLower();
             User = User.ToLower();
-            //Query XML File for User Update
-            XDocument xdoc = new XDocument();
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
+            var pick = lUserPickLists.Where(x => x.Reason.ToLower() == Reason);
+            if(pick.Count() >0)
             {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml"))
-            {
-                xdoc = XDocument.Load(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml");
-                try
+                if(pick.First().User.Where(x=>x.UserName.ToLower()==User).Count()>0)
                 {
-                    IEnumerable<XElement> childlist = from Reasons in xdoc.Root.Elements() where Reasons.Attribute("Reason").Value == Reason select Reasons;
-                    if (childlist.Count() > 0)
-                    {
-
-                        foreach (XElement item in childlist)
-                        {
-                            Console.WriteLine(childlist.Count());
-                            foreach (XElement item_item in item.Elements("User"))
-                            {
-                                Console.WriteLine(item_item.Attribute("Value").Value);
-                                if (item_item.Attribute("Value").Value == User)
-                                {
-                                    return true;
-                                }
-                            }
-                        }
-                        return false;
-
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                catch (Exception)
-                {
-                    return false;
+                    return true;
                 }
             }
-            else
-            {
-                return false;
-            }
-
+            return false;
         }
         public string ReasonUserList(string Reason ="")
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             string answer = "";
             Reason = Reason.ToLower();
             //Query XML File for User Update
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
+            try
             {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml"))
-            {
-                try
+                IEnumerable<DataFiles.UserPickedList> childlist;
+                if(Reason != "")
                 {
-                    IEnumerable<XElement> childlist;
-                    if(Reason != "")
-                    {
-                        childlist = from Reasons in UserPicks.Root.Elements() where Reasons.Attribute("Reason").Value == Reason select Reasons;
-                    }
-                    else
-                    {
-                        childlist = from Reasons in UserPicks.Root.Elements() select Reasons;
-                    }
+                    childlist = lUserPickLists.Where(x=>x.Reason.ToLower() == Reason);
+                }
+                else
+                {
+                    childlist = lUserPickLists;
+                }
                     
-                    if (childlist.Count() > 0)
+                if (childlist.Count() > 0)
+                {
+                    foreach(var child in childlist)
                     {
-
-                        foreach (XElement item in childlist)
+                        foreach(var user in child.User)
                         {
-                            if(Reason != "")
-                            {
-                                foreach (XElement item_item in item.Elements("User"))
-                                {
-                                    answer += item_item.Attribute("Value").Value +",";
-                                }
-                            }
-                            else
-                            {
-                                answer += item.Attribute("Reason").Value + ",";
-                            }
-                            
+                            answer += user.UserName + ",";
                         }
-
-                    }
-                    else
-                    { 
                     }
                 }
-                catch (Exception)
-                {
+                else
+                { 
                 }
             }
-            else
+            catch (Exception)
             {
             }
             if(answer == "")
@@ -747,36 +685,21 @@ namespace DeathmicChatbot
         }
         public bool DeletePickData(string Reason)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             bool answer = false;
             Reason = Reason.ToLower();
-            //Query XML File for User Update
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
+            try
             {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml"))
-            {
-                try
+                int index = lUserPickLists.FindIndex(x => x.Reason.ToLower() == Reason);
+                if(index != -1)
                 {
-                    IEnumerable<XElement> childlist = from Reasons in UserPicks.Root.Elements() where Reasons.Attribute("Reason").Value == Reason select Reasons;
-
-                    if (childlist.Count() > 0)
-                    {
-                        foreach (XElement item in childlist)
-                        {
-                            item.Remove();
-                            answer = true;
-                            UserPicks.Save(Directory.GetCurrentDirectory()+"/XML/UserPicks.xml");
-                        }
-                    }
-                }
-                catch (Exception)
-                {
+                    lUserPickLists.RemoveAt(index);
+                    saveFile("userpicks");
                 }
             }
-
+            catch (Exception)
+            {
+            }
+            
             return answer;
         }
 
@@ -785,88 +708,67 @@ namespace DeathmicChatbot
         #region Counter stuff
         public string Counter(string counter,bool reset = false, bool read = false,int customincrease = 0)
         {
-            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             int count = 0;
-            if (!Directory.Exists(Directory.GetCurrentDirectory()+"/XML/"))
+            
+            IEnumerable<DataFiles.Counter> childlist = lCounters.Where(x => x.sName.ToLower() == counter.ToLower());
+            if (childlist.Count() > 0)
             {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory()+"/XML/");
-            }
-            if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Counters.xml"))
-            {
-                IEnumerable<XElement> childlist = from Counter in Counters.Root.Elements() where Counter.Attribute("Name").Value == counter select Counter;
-                if (childlist.Count() > 0)
+                foreach (var _counter in childlist)
                 {
-                    foreach (var _counter in childlist)
+                    if(read)
                     {
-                        if(read)
+                        count = _counter.Count;
+                    }
+                    else
+                    {
+                        if (reset)
                         {
-                            count = int.Parse(_counter.Attribute("Value").Value);
+                            _counter.Count = 0;
                         }
                         else
                         {
-                            if (reset)
+                                
+                            count = _counter.Count;
+                            if(customincrease > 0)
                             {
-                                _counter.Attribute("Value").Value = "0";
+                                count += customincrease;
                             }
                             else
                             {
-                                
-                                count = int.Parse(_counter.Attribute("Value").Value);
-                                if(customincrease > 0)
-                                {
-                                    count += customincrease;
-                                }
-                                else
-                                {
-                                    count++;
-                                }
-                                
-                                _counter.Attribute("Value").Value = count.ToString();
+                                count++;
                             }
+                            _counter.Count = count;
                         }
-                        
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        if(customincrease>0)
-                        {
-                            Counters.Element("Counters").Add(new XElement("Counter", new XAttribute("Value", customincrease.ToString()), new XAttribute("Name", counter)));
-                            count = customincrease;
-                        }
-                        else
-                        {
-                            Counters.Element("Counters").Add(new XElement("Counter", new XAttribute("Value", "1"), new XAttribute("Name", counter)));
-                            count = 1;
-                        }
-                        
-                    } catch(Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                    }
-                    
-                    
+                    }   
                 }
             }
             else
             {
-                if (customincrease > 0)
+                try
                 {
-                    Counters = new XDocument(new XElement("Counters", new XElement("Counter", new XAttribute("Value", customincrease.ToString()), new XAttribute("Name", counter))));
-                    count = customincrease;
-                }
-                else
+                    if(customincrease>0)
+                    {
+                        DataFiles.Counter newcounter = new DataFiles.Counter();
+                        newcounter.sName = counter;
+                        newcounter.Count = customincrease;
+                        count = customincrease;
+                    }
+                    else
+                    {
+                        DataFiles.Counter newcounter = new DataFiles.Counter();
+                        newcounter.sName = counter;
+                        newcounter.Count = 1;
+                        count = 1;
+                    }
+                        
+                } catch(Exception ex)
                 {
-                    Counters = new XDocument(new XElement("Counters", new XElement("Counter", new XAttribute("Value", "1"), new XAttribute("Name", counter))));
-                    count = 1;
-                }
-                
+                    Console.WriteLine(ex.ToString());
+                } 
             }
-            Counters.Save(Directory.GetCurrentDirectory()+"/XML/Counters.xml");
-            if(reset)
+
+            saveFile("counters");
+            if (reset)
             {
                 return "The Counter " + counter + " has been reset and is at " + count;
             }

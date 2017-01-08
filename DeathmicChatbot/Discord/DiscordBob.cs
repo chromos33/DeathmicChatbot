@@ -248,7 +248,7 @@ namespace DeathmicChatbot.Discord
             parameters.RemoveAt(0);
             bool command = false;
             #region ClosedCommands
-            if(e.Channel.ToString() == "botspam" || e.Channel.ToString().ToLower().Contains(e.User.Name))
+            if(e.Channel.ToString() == "botspam" || e.Channel.ToString().ToLower().Contains(e.User.Name.ToLower()))
             {
                 //Insert anything that has to do with management here
                 if (messagecontent.ToLower().StartsWith("!addstream"))
@@ -644,7 +644,6 @@ namespace DeathmicChatbot.Discord
                     {
                         e.User.SendMessage("Error");
                     }
-
             }
             SaveUserList();
         }

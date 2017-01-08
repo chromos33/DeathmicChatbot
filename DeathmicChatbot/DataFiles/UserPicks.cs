@@ -9,8 +9,12 @@ namespace DeathmicChatbot.DataFiles
     class UserPickedList
     {
         public string Reason;
-        public List<UserPick> User;
+        public List<UserPick> User = new List<UserPick>();
         public UserPickedList()
+        {
+
+        }
+        public UserPickedList(string _reason,UserPick newuser)
         {
 
         }
@@ -21,6 +25,10 @@ namespace DeathmicChatbot.DataFiles
         public UserPick()
         {
 
+        }
+        public UserPick(string name)
+        {
+            UserName = name;
         }
     }
 }
