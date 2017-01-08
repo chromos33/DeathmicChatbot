@@ -469,7 +469,7 @@ namespace DeathmicChatbot.Discord
                 {
                     if (parameters[1] == "enable")
                     {
-                        var Users = LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower());
+                        var Users = LUserList.Where(x => x.Name.Equals(e.User.Name, StringComparison.InvariantCultureIgnoreCase));
                         if (Users.Count() > 0)
                         {
                             Users.First().globalhourlyannouncement = true;
@@ -478,7 +478,7 @@ namespace DeathmicChatbot.Discord
                     }
                     if (parameters[1] == "disable")
                     {
-                        var Users = LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower());
+                        var Users = LUserList.Where(x => x.Name.Equals(e.User.Name, StringComparison.InvariantCultureIgnoreCase));
                         if (Users.Count() > 0)
                         {
                             Users.First().globalhourlyannouncement = false;
@@ -487,7 +487,7 @@ namespace DeathmicChatbot.Discord
                     }
                     if (parameters[1] == "read")
                     {
-                        var Users = LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower());
+                        var Users = LUserList.Where(x => x.Name.Equals(e.User.Name, StringComparison.InvariantCultureIgnoreCase));
                         if (Users.Count() > 0)
                         {
                             e.User.SendMessage(Users.First().globalhourlyannouncement.ToString());
@@ -500,7 +500,7 @@ namespace DeathmicChatbot.Discord
                 {
                     if (parameters[1] == "enable")
                     {
-                        var Users = LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower());
+                        var Users = LUserList.Where(x => x.Name.Equals(e.User.Name,StringComparison.InvariantCultureIgnoreCase));
                         if (Users.Count() > 0)
                         {
                             Users.First().Streams.Where(x => x.name.ToLower() == parameters[2]).First().hourlyannouncement = true;
@@ -509,7 +509,7 @@ namespace DeathmicChatbot.Discord
                     }
                     if (parameters[1] == "disable")
                     {
-                        var Users = LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower());
+                        var Users = LUserList.Where(x => x.Name.Equals(e.User.Name, StringComparison.InvariantCultureIgnoreCase));
                         if (Users.Count() > 0)
                         {
                             Users.First().Streams.Where(x => x.name.ToLower() == parameters[2]).First().hourlyannouncement = false;
@@ -518,7 +518,7 @@ namespace DeathmicChatbot.Discord
                     }
                     if (parameters[1] == "read")
                     {
-                        var Users = LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower());
+                        var Users = LUserList.Where(x => x.Name.Equals(e.User.Name, StringComparison.InvariantCultureIgnoreCase));
                         if (Users.Count() > 0)
                         {
                             e.User.SendMessage(Users.First().Streams.Where(x => x.name.ToLower() == parameters[2]).First().hourlyannouncement.ToString());
