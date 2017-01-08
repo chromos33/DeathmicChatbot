@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DeathmicChatbot.DataFiles
 {
-    class UserPickedList
+    public class UserPickedList
     {
         public string Reason;
         public List<UserPick> User = new List<UserPick>();
@@ -19,7 +19,7 @@ namespace DeathmicChatbot.DataFiles
 
         }
     }
-    class UserPick
+    public class UserPick
     {
         public string UserName;
         public UserPick()

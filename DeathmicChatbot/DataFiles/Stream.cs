@@ -11,6 +11,7 @@ namespace DeathmicChatbot.DataFiles
     {
         public string name;
         public bool subscribed;
+        public bool hourlyannouncement;
 
         public Stream(string _name,bool _subscribed)
         {

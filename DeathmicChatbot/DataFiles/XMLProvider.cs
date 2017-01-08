@@ -775,7 +775,15 @@ namespace DeathmicChatbot
 
             return "The Counter " + counter + " is at " + count;
         }
-            
+        public string CounterList()
+        {
+            string result = "";
+            foreach(DataFiles.Counter counter in lCounters)
+            {
+                result += counter.sName + System.Environment.NewLine;
+            }
+            return result;
+        }
         #endregion
 
 
