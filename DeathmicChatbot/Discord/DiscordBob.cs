@@ -98,6 +98,7 @@ namespace DeathmicChatbot.Discord
             ClosedCommandList.Add("!listvotings");
             ClosedCommandList.Add("!changetwitchchat");
             ClosedCommandList.Add("!changeglobalannouncement");
+            ClosedCommandList.Add("!addmyuser");
 
             OpenCommandList.Add("!help"); 
             OpenCommandList.Add("!roll");
@@ -353,7 +354,11 @@ namespace DeathmicChatbot.Discord
                     ChangeGlobalAnnouncment(sender, e, parameters);
                     command = true;
                 }
-                
+                if (messagecontent.ToLower().StartsWith("!addmyuser"))
+                {
+                    AddMyUser(sender, e, parameters);
+                    command = true;
+                }
             }
             #endregion
             #region OpenCommands
@@ -629,6 +634,21 @@ namespace DeathmicChatbot.Discord
 
         #endregion
         #region UserFunctions
+        private void AddMyUser(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            if(LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower()).Count()>0)
+            {
+                e.User.SendMessage("User already exists");
+            }
+            else
+            {
+                DataFiles.User newuser = new DataFiles.User();
+                newuser.Name = e.User.Name.ToLower();
+                LUserList.Add(newuser);
+                SaveUserList();
+                e.User.SendMessage("User added");
+            }
+        }
         private void MyVisits(object sender, MessageEventArgs e, List<string> parameters)
         {
             NormalisedUser normaliseduser = new NormalisedUser();
