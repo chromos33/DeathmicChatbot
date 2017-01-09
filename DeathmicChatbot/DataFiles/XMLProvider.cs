@@ -562,6 +562,10 @@ namespace DeathmicChatbot
             {
 
             }
+            if(answer == null)
+            {
+                answer = "";
+            }
             return answer.ToLower();
         }
 
