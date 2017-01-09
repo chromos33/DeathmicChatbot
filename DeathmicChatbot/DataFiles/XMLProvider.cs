@@ -531,29 +531,36 @@ namespace DeathmicChatbot
         }
         public string StreamInfo(string channel, string inforequested)
         {
-            channel = channel.ToLower();
             string answer = "";
-            if (lStreams.Count() > 0)
+            try
             {
-                if (lStreams.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
+                channel = channel.ToLower();
+                if (lStreams.Count() > 0)
                 {
-                    var stream = lStreams.Where(x => x.sChannel.ToLower() == channel).First();
-                    switch (inforequested)
+                    if (lStreams.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
                     {
-                        case "game":
-                            answer = stream.sGame;
-                            break;
-                        case "URL":
-                            answer = stream.sUrl;
-                            break;
-                        case "running":
-                            answer = stream.bRunning.ToString();
-                            break;
-                        case "starttime":
-                            answer = stream.dtStarttime.ToString("h':'mm':'ss");
-                            break;
+                        var stream = lStreams.Where(x => x.sChannel.ToLower() == channel).First();
+                        switch (inforequested)
+                        {
+                            case "game":
+                                answer = stream.sGame;
+                                break;
+                            case "URL":
+                                answer = stream.sUrl;
+                                break;
+                            case "running":
+                                answer = stream.bRunning.ToString();
+                                break;
+                            case "starttime":
+                                answer = stream.dtStarttime.ToString("h':'mm':'ss");
+                                break;
+                        }
                     }
                 }
+            }
+            catch(Exception)
+            {
+
             }
             return answer.ToLower();
         }
