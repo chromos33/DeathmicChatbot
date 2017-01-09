@@ -306,7 +306,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
             
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
 
-            string[] streamlist = xmlprovider.StreamList("hitbox").Split(',');
+            string[] streamlist = xmlprovider.StreamList("hitbox",true).Split(',');
 
             foreach (string item in streamlist)
             {

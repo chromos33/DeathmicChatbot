@@ -128,7 +128,7 @@ namespace DeathmicChatbot.StreamInfo.Twitch
 
             if (xmlprovider == null) { xmlprovider = new XMLProvider(); }
 
-            string[] streamlist = xmlprovider.StreamList("twitch").Split(',');
+            string[] streamlist = xmlprovider.StreamList("twitch",true).Split(',');
             foreach (string item in streamlist)
             {
                 if (!_streams.Contains(item))
