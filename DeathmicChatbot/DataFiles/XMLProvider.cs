@@ -286,30 +286,33 @@ namespace DeathmicChatbot
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             channel = channel.ToLower();
             string answer = "";
-            if(lStreams.Where(x => x.sChannel.ToLower()==channel.ToLower()).Count() >0)
+            if(lStreams.Count() > 0)
             {
-                try
+                if (lStreams.Where(x => x.sChannel.ToLower() == channel.ToLower()).Count() > 0)
                 {
-                    int index = lStreams.FindIndex(x => x.sChannel.ToLower() == channel.ToLower());
-                    if(index != -1)
+                    try
                     {
-                        lStreams.RemoveAt(index);
-                        answer = "Stream removed";
-                        saveFile("streams");
+                        int index = lStreams.FindIndex(x => x.sChannel.ToLower() == channel.ToLower());
+                        if (index != -1)
+                        {
+                            lStreams.RemoveAt(index);
+                            answer = "Stream removed";
+                            saveFile("streams");
+                        }
+                        else
+                        {
+                            answer = "This stream is not in the list.";
+                        }
                     }
-                    else
+                    catch (Exception)
                     {
-                        answer = "This stream is not in the list.";
+                        answer = "Stream remove Failure - Talk to the programmer!";
                     }
                 }
-                catch(Exception)
+                else
                 {
-                    answer = "Stream remove Failure - Talk to the programmer!";
+                    answer = "This stream is not in the list.";
                 }
-            }
-            else
-            {
-                answer = "This stream is not in the list.";
             }
             return answer;
         }
@@ -530,23 +533,26 @@ namespace DeathmicChatbot
         {
             channel = channel.ToLower();
             string answer = "";
-            if (lStreams.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
+            if (lStreams.Count() > 0)
             {
-                var stream = lStreams.Where(x => x.sChannel.ToLower() == channel).First();
-                switch (inforequested)
+                if (lStreams.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
                 {
-                    case "game":
-                        answer = stream.sGame;
-                        break;
-                    case "URL":
-                        answer = stream.sUrl;
-                        break;
-                    case "running":
-                        answer = stream.bRunning.ToString();
-                        break;
-                    case "starttime":
-                        answer = stream.dtStarttime.ToString("h':'mm':'ss");
-                        break;
+                    var stream = lStreams.Where(x => x.sChannel.ToLower() == channel).First();
+                    switch (inforequested)
+                    {
+                        case "game":
+                            answer = stream.sGame;
+                            break;
+                        case "URL":
+                            answer = stream.sUrl;
+                            break;
+                        case "running":
+                            answer = stream.bRunning.ToString();
+                            break;
+                        case "starttime":
+                            answer = stream.dtStarttime.ToString("h':'mm':'ss");
+                            break;
+                    }
                 }
             }
             return answer.ToLower();
