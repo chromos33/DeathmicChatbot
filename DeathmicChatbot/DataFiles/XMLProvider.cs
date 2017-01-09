@@ -549,7 +549,7 @@ namespace DeathmicChatbot
                         break;
                 }
             }
-            return answer;
+            return answer.ToLower();
         }
 
         public bool GlobalAnnouncementDue(string channel)
