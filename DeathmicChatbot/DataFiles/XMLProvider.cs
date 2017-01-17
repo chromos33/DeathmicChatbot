@@ -26,6 +26,10 @@ namespace DeathmicChatbot
         protected XDocument Counters;
         protected List<DataFiles.Counter> lCounters;
         char slash = Path.DirectorySeparatorChar;
+        public List<DataFiles.internalStream> getStreams()
+        {
+            return lStreams;
+        }
         public XMLProvider()
         {
             if (File.Exists(Directory.GetCurrentDirectory()+"/XML/Streams.xml"))

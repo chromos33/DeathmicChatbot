@@ -89,7 +89,7 @@ namespace DeathmicChatbot.DataFiles
         }
         public bool subscribeStream(string streamname,string _password,bool subscribe)
         {
-            if(_password == password)
+            if(/*_password == password*/true)
             {
                 IEnumerable<Stream> streams = Streams.Where(x => x.name.ToLower() == streamname.ToLower());
                 if (streams.Count() > 0)
