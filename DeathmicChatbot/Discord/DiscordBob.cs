@@ -1798,7 +1798,7 @@ namespace DeathmicChatbot.Discord
                             DataFiles.User userUser = getUser(user.normalised_username().ToLower());
                             if (userUser != null)
                             {
-                                if (userUser.isSubscribed(args.StreamData.Stream.Channel) || true)
+                                if (userUser.isSubscribed(args.StreamData.Stream.Channel))
                                 {
                                     MsgsTargets.Add(user.orig_username);
                                 }
