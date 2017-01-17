@@ -89,7 +89,7 @@ namespace DeathmicChatbot.Discord
             ClosedCommandList.Add("!addalias"); 
             ClosedCommandList.Add("!subscribablestreams");
             ClosedCommandList.Add("!toggleuserlogin");
-            ClosedCommandList.Add("!setpassword");
+            //ClosedCommandList.Add("!setpassword");
             ClosedCommandList.Add("!changesubscription"); 
             ClosedCommandList.Add("!reconnecttwitchrelays");
             ClosedCommandList.Add("!startvoting");
@@ -298,11 +298,11 @@ namespace DeathmicChatbot.Discord
                     SuscribableStreams(sender, e, parameters);
                     command = true;
                 }
-                if (messagecontent.ToLower().StartsWith("!setpassword"))
+                /*if (messagecontent.ToLower().StartsWith("!setpassword"))
                 {
                     SetPassword(sender, e, parameters);
                     command = true;
-                }
+                }*/
                 if (messagecontent.ToLower().StartsWith("!changesubscription"))
                 {
                     ChangeSubscription(sender, e, parameters);
@@ -638,6 +638,22 @@ namespace DeathmicChatbot.Discord
         {
             if(LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower()).Count()>0)
             {
+                if(LUserList.Where(x => x.Streams.Count()==0).Count() != 0)
+                {
+                    List<DataFiles.Stream> streamlist = new List<DataFiles.Stream>();
+                    foreach(string _stream in xmlprovider.StreamList("", true).Split(','))
+                    {
+                        DataFiles.Stream newstream = new DataFiles.Stream();
+                        newstream.hourlyannouncement = false;
+                        newstream.name = _stream;
+                        newstream.subscribed = true;
+                        streamlist.Add(newstream);
+                    }
+                    LUserList.Where(x => x.Streams.Count() == 0).First().Streams = streamlist;
+                    e.User.SendMessage("User already exists but had no streams attached");
+                    SaveUserList();
+                    return;
+                }
                 e.User.SendMessage("User already exists");
             }
             else
@@ -680,7 +696,7 @@ namespace DeathmicChatbot.Discord
             {
                 if (parameters[0].ToString() == "help")
                 {
-                    e.User.SendMessage("!removealias AliasName [Password]");
+                    e.User.SendMessage("!removealias AliasName");
                     e.User.SendMessage("This removes the Alias from your User if possible");
                     e.User.SendMessage("Passwort is only essential if set");
                     return;
@@ -694,11 +710,10 @@ namespace DeathmicChatbot.Discord
                 NormalisedUser normuser = new NormalisedUser(e.User.Name.ToString());
                 NormalisedUser alias = new NormalisedUser(parameters[0]);
                 DataFiles.User user = getUser(normuser.normalised_username()).RemoveAlias(alias.normalised_username());
-                XDocument Streams = XDocument.Load(Directory.GetCurrentDirectory() + "/XML/Streams.xml");
-                IEnumerable<XElement> streamchildren = from streams in Streams.Root.Elements() select streams;
-                foreach (var stream in streamchildren)
+                List<DataFiles.internalStream> Streams = xmlprovider.getStreams();
+                foreach (var stream in Streams)
                 {
-                    user.addStream(stream.Attribute("Channel").Value, true);
+                    user.addStream(stream.sChannel, true);
                 }
                 LUserList.Add(user);
                 if (user != null)
@@ -724,7 +739,7 @@ namespace DeathmicChatbot.Discord
             {
                 if (parameters[0].ToString() == "help")
                 {
-                    e.User.SendMessage("!addalias AliasName [Password]");
+                    e.User.SendMessage("!addalias AliasName");
                     e.User.SendMessage("This adds the Alias to your User if possible");
                     e.User.SendMessage("Passwort is only essential if set");
                     return;
@@ -783,7 +798,7 @@ namespace DeathmicChatbot.Discord
             bool result = false;
             if (parameters[0] == "help" || parameters.Count() == 0)
             {
-                e.User.SendMessage("To update Subscripions use following structure '!changesubscription [add/remove] [streamname] [password]");
+                e.User.SendMessage("To update Subscripions use following structure '!changesubscription [add/remove] [streamname]");
                 return;
             }
             if (parameters.Count() == 3 || parameters.Count() == 2)
