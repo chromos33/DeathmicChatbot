@@ -30,6 +30,15 @@ namespace DeathmicChatbot.DataFiles
             }
             return false;
         }
+        public bool hasStream(string name)
+        {
+            IEnumerable<Stream> stream = Streams.Where(x => x.name == name.ToLower());
+            if (stream.Count() > 0)
+            {
+                return true;
+            }
+            return false;
+        }
         public bool toggleLoggingOp()
         {
             bIsLoggingOp = !bIsLoggingOp;
