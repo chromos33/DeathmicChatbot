@@ -127,7 +127,26 @@ namespace DeathmicChatbot.Discord
                 LUserList = (List<DataFiles.User>)xmlserializer.Deserialize(reader);
                 fs.Close();
                 UserListLocked = false;
+                updateUsers();
             }
+        }
+        public void updateUsers()
+        {
+            string streams = xmlprovider.StreamList("",true);
+            List<string> Streams = streams.Split(',').ToList();
+            foreach(string stream in Streams)
+            {
+                DataFiles.Stream addstream = new DataFiles.Stream();
+                addstream.hourlyannouncement = false;
+                addstream.name = stream;
+                addstream.subscribed = true;
+                var users = LUserList.Where(x => x.hasStream(stream) == false);
+                foreach(DataFiles.User user in users)
+                {
+                    user.Streams.Add(addstream);
+                }
+            }
+            SaveUserList();
         }
         private void User_Joined(object sender, UserEventArgs e)
         {
