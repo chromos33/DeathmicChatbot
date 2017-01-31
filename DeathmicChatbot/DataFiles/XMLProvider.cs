@@ -394,11 +394,13 @@ namespace DeathmicChatbot
                         iSStream = streams.First();
                         iSStream.sGame = Game;
                         iSStream.sUrl = URL;
+                        iSStream.bRunning = true;
                         saveFile("streams");
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                Console.WriteLine(ex.ToString());
                 }
         }
         //returns Streamlist as CSV data
