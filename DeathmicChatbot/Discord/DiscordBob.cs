@@ -61,11 +61,11 @@ namespace DeathmicChatbot.Discord
             bot = new DiscordClient();
             bot.MessageReceived += Message_Received;
             bot.UserJoined += User_Joined;
-            deathmicirc = new RelayBot(bot,false);
-            Thread RelayThread = new Thread(deathmicirc.runBot);
-            RelayThread.Start();
-            while (!RelayThread.IsAlive) ;
-            Thread.Sleep(1);
+            //deathmicirc = new RelayBot(bot,false);
+            //Thread RelayThread = new Thread(deathmicirc.runBot);
+            //RelayThread.Start();
+            //while (!RelayThread.IsAlive) ;
+            //Thread.Sleep(1);
 
             readUsers();
             
@@ -1840,8 +1840,11 @@ namespace DeathmicChatbot.Discord
                                 {
                                     try
                                     {
-                                        Console.WriteLine(client.Name);
-                                        client.SendMessage(output);
+                                        if(client.Status.Value != "offline" || client.Status.Value != "Offline")
+                                        {
+                                            Console.WriteLine(client.Name);
+                                            client.SendMessage(output);
+                                        }
                                     }catch(Exception ex)
                                     {
                                         Console.WriteLine(ex.ToString());
