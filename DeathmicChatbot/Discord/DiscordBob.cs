@@ -1785,13 +1785,20 @@ namespace DeathmicChatbot.Discord
                 {
                     if (xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "running") == "false")
                     {
-                        if(RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).Count() > 0 && RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().isExit == false)
+                        if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
                         {
-                            RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().StopRelayEnd();
+
                         }
                         else
                         {
-                            ConnectToTwitchChat(args.StreamData.Stream.Channel, true);
+                            if (RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).Count() > 0 && RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().isExit == false)
+                            {
+                                RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().StopRelayEnd();
+                            }
+                            else
+                            {
+                                ConnectToTwitchChat(args.StreamData.Stream.Channel, true);
+                            }
                         }
                         
                         string game = args.StreamData.Stream.Game;
