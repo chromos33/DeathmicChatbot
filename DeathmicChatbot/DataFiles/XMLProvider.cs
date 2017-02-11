@@ -775,6 +775,7 @@ namespace DeathmicChatbot
                         newcounter.sName = counter;
                         newcounter.Count = customincrease;
                         count = customincrease;
+                        lCounters.Add(newcounter);
                     }
                     else
                     {
@@ -782,8 +783,11 @@ namespace DeathmicChatbot
                         newcounter.sName = counter;
                         newcounter.Count = 1;
                         count = 1;
+                        lCounters.Add(newcounter);
                     }
-                        
+                    
+
+
                 } catch(Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
