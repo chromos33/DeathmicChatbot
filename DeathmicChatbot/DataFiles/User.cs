@@ -112,12 +112,15 @@ namespace DeathmicChatbot.DataFiles
         }
         public bool addStream(string streamname,bool subscribe = false)
         {
-            IEnumerable<Stream> streams = Streams.Where(x => x.name == streamname.ToLower());
-            if(streams.Count() > 0)
+            if(!hasStream(streamname))
             {
-                return false;
+                IEnumerable<Stream> streams = Streams.Where(x => x.name == streamname.ToLower());
+                if (streams.Count() > 0)
+                {
+                    return false;
+                }
+                Streams.Add(new Stream(streamname.ToLower(), subscribe));
             }
-            Streams.Add(new Stream(streamname.ToLower(), subscribe));
             return true;
         }
         public void removeStream(string streamname)

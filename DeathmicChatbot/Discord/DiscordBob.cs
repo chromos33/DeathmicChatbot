@@ -613,12 +613,6 @@ namespace DeathmicChatbot.Discord
         }
         private void DelStream(object sender, MessageEventArgs e, List<string> parameters)
         {
-            foreach (DataFiles.User user in LUserList)
-            {
-                user.removeStream(parameters[0]);
-            }
-            SaveUserList();
-
             string message = xmlprovider.RemoveStream(parameters[0]);
             e.User.SendMessage(message);
         }
