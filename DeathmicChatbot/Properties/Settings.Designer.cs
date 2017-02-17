@@ -34,7 +34,7 @@ namespace DeathmicChatbot.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("15")]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
         public int StreamcheckIntervalSeconds {
             get {
                 return ((int)(this["StreamcheckIntervalSeconds"]));
