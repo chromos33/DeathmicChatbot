@@ -392,6 +392,11 @@ namespace DeathmicChatbot.Discord
                 ShowCommandList(sender, e, parameters);
                 command = true;
             }
+            if (messagecontent.Contains("(╯°□°）╯︵ ┻━┻"))
+            {
+                    SaveTable(sender, e, parameters);
+                    command = true;
+            }
             if (messagecontent.ToLower().StartsWith("!roll"))
             {
                 Roll(sender, e, parameters);
@@ -484,6 +489,10 @@ namespace DeathmicChatbot.Discord
         {
             e.Channel.Users.Where(x => x.Name.ToLower() == "chromos33").First().SendMessage("Stream started: deathmic(Eliots Quest: Pew Pew) at http://www.twitch.tv/deathmic");
             e.Channel.Users.Where(x => x.Name.ToLower() == "niheka").First().SendMessage("Stream started: deathmic(Eliots Quest: Pew Pew) at http://www.twitch.tv/deathmic");
+        }
+        private void SaveTable(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            e.Channel.SendMessage("┬─┬﻿ ノ( ゜-゜ノ)");
         }
         private void ChangeGlobalAnnouncment(object sender, MessageEventArgs e, List<string> parameters)
         {
