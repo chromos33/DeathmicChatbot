@@ -277,7 +277,7 @@ namespace DeathmicChatbot.Discord
                     Troll(sender, e, parameters);
                     command = true;
                 }
-                if (messagecontent.StartsWith("(╯°□°）╯︵ ┻━┻"))
+                if (messagecontent.Contains("(╯°□°）╯︵ ┻━┻"))
                 {
                     SaveTable(sender, e, parameters);
                     command = true;
