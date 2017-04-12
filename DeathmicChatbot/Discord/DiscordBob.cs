@@ -387,6 +387,11 @@ namespace DeathmicChatbot.Discord
                 ShowCommandList(sender, e, parameters);
                 command = true;
             }
+            if (messagecontent.Contains("(╯°□°）╯︵ ┻━┻"))
+            {
+                    SaveTable(sender, e, parameters);
+                    command = true;
+            }
             if (messagecontent.ToLower().StartsWith("!roll"))
             {
                 Roll(sender, e, parameters);
