@@ -107,25 +107,21 @@ namespace DeathmicChatbot.DataFiles
                 }
                 return true;
             }
-            return false;
+            //return false;
             
         }
         public bool addStream(string streamname,bool subscribe = false)
         {
             if(!hasStream(streamname))
             {
-                IEnumerable<Stream> streams = Streams.Where(x => x.name == streamname.ToLower());
-                if (streams.Count() > 0)
-                {
-                    return false;
-                }
                 Streams.Add(new Stream(streamname.ToLower(), subscribe));
+                return true;
             }
-            return true;
+            return false;
         }
         public void removeStream(string streamname)
         {
-            Streams.RemoveAll(x=>x.name.ToLower() == streamname.ToLower());
+            //Streams.RemoveAll(x=>x.name.ToLower() == streamname.ToLower());
         }
         public Tuple<DateTime, int> visit()
         {

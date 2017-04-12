@@ -172,11 +172,17 @@ namespace DeathmicChatbot.IRC
                 discordclient.Servers.First().TextChannels.Where(x => x.Name.ToLower() == sTargetChannel.ToLower()).First().SendMessage("TwitchRelay " + e.Source.Name + ": " + message);
             }
         }
+        private string norepeat = "";
         public void RelayMessage(string message)
         {
             if(bTwoWay)
             {
-                LocalClient.LocalUser.SendMessage("#" + sChannel, message);
+                if(message != norepeat)
+                {
+                    LocalClient.LocalUser.SendMessage("#" + sChannel, message);
+                    norepeat = message;
+                }
+                
             }
         }
 

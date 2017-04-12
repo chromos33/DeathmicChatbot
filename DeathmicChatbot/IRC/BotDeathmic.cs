@@ -582,10 +582,6 @@ namespace DeathmicChatbot.IRC
         }
         private void DelStream(IrcClient client, IIrcMessageSource source, IList<IIrcMessageTarget> targets, string command, IList<string> parameters)
         {
-            foreach (User user in LUserList)
-            {
-                user.removeStream(parameters[0]);
-            }
             SaveUserList();
 
             string message = xmlprovider.RemoveStream(parameters[0]);

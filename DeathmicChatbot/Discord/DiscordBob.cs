@@ -272,6 +272,11 @@ namespace DeathmicChatbot.Discord
             if(e.Channel.ToString() == "botspam" || e.Channel.ToString().ToLower().Contains(e.User.Name.ToLower()))
             {
                 //Insert anything that has to do with management here
+                if (messagecontent.ToLower().StartsWith("!troll") && e.User.Name == "chromos33")
+                {
+                    Troll(sender, e, parameters);
+                    command = true;
+                }
                 if (messagecontent.ToLower().StartsWith("!addstream"))
                 {
                     AddStream(sender, e, parameters);
@@ -475,6 +480,11 @@ namespace DeathmicChatbot.Discord
         #region Commands
         #region StreamFunctions
         //Command that force connects bot to Twitch IRC for testing only
+        private void Troll(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            e.Channel.Users.Where(x => x.Name.ToLower() == "chromos33").First().SendMessage("Stream started: deathmic(Eliots Quest: Pew Pew) at http://www.twitch.tv/deathmic");
+            e.Channel.Users.Where(x => x.Name.ToLower() == "niheka").First().SendMessage("Stream started: deathmic(Eliots Quest: Pew Pew) at http://www.twitch.tv/deathmic");
+        }
         private void ChangeGlobalAnnouncment(object sender, MessageEventArgs e, List<string> parameters)
         {
             if(parameters.Count() == 0 && parameters.Count() != 2 && parameters.Count() != 3 || parameters[0] == "help" && parameters.Count() > 0)
@@ -554,7 +564,7 @@ namespace DeathmicChatbot.Discord
         }
         private void ForceTwitchChat(object sender, MessageEventArgs e, List<string> parameters)
         {
-            ConnectToTwitchChat("deathmic", true);
+            
         }
         private void ChangeTwitchChat(object sender, MessageEventArgs e, List<string> parameters)
         {
