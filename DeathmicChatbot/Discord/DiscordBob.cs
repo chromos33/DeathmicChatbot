@@ -277,11 +277,6 @@ namespace DeathmicChatbot.Discord
                     Troll(sender, e, parameters);
                     command = true;
                 }
-                if (messagecontent.StartsWith("(╯°□°）╯︵ ┻━┻"))
-                {
-                    SaveTable(sender, e, parameters);
-                    command = true;
-                }
                 if (messagecontent.ToLower().StartsWith("!addstream"))
                 {
                     AddStream(sender, e, parameters);
@@ -396,6 +391,11 @@ namespace DeathmicChatbot.Discord
             {
                 ShowCommandList(sender, e, parameters);
                 command = true;
+            }
+            if (messagecontent.Contains("(╯°□°）╯︵ ┻━┻"))
+            {
+                    SaveTable(sender, e, parameters);
+                    command = true;
             }
             if (messagecontent.ToLower().StartsWith("!roll"))
             {
