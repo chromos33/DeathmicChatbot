@@ -241,6 +241,8 @@ namespace DeathmicChatbot.Discord
                                 {
                                     if (e.Channel.Name == relay.sTargetChannel)
                                     {
+                                        message = e.Message.Resolve(message);
+                                        
                                         if (e.User.Nickname != null && e.User.Nickname != "")
                                         {
                                             relay.RelayMessage("DiscordRelay " + e.User.Nickname + ": " + message);
