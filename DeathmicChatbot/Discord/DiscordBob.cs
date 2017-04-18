@@ -423,7 +423,10 @@ namespace DeathmicChatbot.Discord
             #endregion
             return command;
         }
-
+        private void SaveTable(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            e.Channel.SendMessage("┬─┬﻿ ノ( ゜-゜ノ)");
+        }
         private void ReconnectTwitchRelays(object sender, MessageEventArgs e, List<string> parameters)
         {
             foreach(TwitchRelay relay in RelayBots)
