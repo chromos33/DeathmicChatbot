@@ -127,6 +127,7 @@
     <Compile Include="DataFiles\Answer.cs" />
     <Compile Include="DataFiles\Counter.cs" />
     <Compile Include="DataFiles\Stream.cs" />
+    <Compile Include="DataFiles\TriggerReply.cs" />
     <Compile Include="DataFiles\User.cs" />
     <Compile Include="DataFiles\UserPicks.cs" />
     <Compile Include="DataFiles\VoteObject.cs" />
