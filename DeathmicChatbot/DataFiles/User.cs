@@ -18,6 +18,7 @@ namespace DeathmicChatbot.DataFiles
         public List<Alias> Aliase = new List<Alias>();
         public bool bMessages;
         public bool globalhourlyannouncement;
+        private bool bIsAdmin;
         public bool isGlobalAnnouncment(string channel)
         {
             if(Streams.Where(x=>x.name.ToLower() == channel.ToLower() && x.hourlyannouncement).Count()>0)
@@ -29,6 +30,19 @@ namespace DeathmicChatbot.DataFiles
                 return true;
             }
             return false;
+        }
+        public bool hasAdminPermissions()
+        {
+            if(Name.ToLower() == "chromos33")
+            {
+                return true;
+            }
+            return bIsAdmin;
+        }
+        public bool ToggleAdmin()
+        {
+            bIsAdmin = !bIsAdmin;
+            return bIsAdmin;
         }
         public bool hasStream(string name)
         {

@@ -29,6 +29,9 @@ namespace DeathmicChatbot.Discord
         private static StreamProviderManager _streamProviderManager;
         private List<string> ClosedCommandList = new List<string>();
         private List<string> OpenCommandList = new List<string>();
+        private List<string> AdminCommandList = new List<string>();
+
+        private List<TriggerReply> LTriggerReplies = new List<TriggerReply>();
         private static readonly Random Rnd = new Random();
         String[] IgnoreTheseUsers = new String[] { "Q", "AUTH", "Global", "py-ctcp", "peer", Properties.Settings.Default.Name.ToString() };
         private static System.Timers.Timer VoteTimer;
@@ -68,7 +71,7 @@ namespace DeathmicChatbot.Discord
             //Thread.Sleep(1);
 
             readUsers();
-            
+            ReadTriggerReplies();
             bot.ExecuteAndWait(async () =>
             {
                 await bot.Connect("MjYwMTE2OTExOTczNDY2MTEy.CzhvyA.kpEIti2hVnjNIUccob0ERB4QFTw", TokenType.Bot);
@@ -106,7 +109,12 @@ namespace DeathmicChatbot.Discord
             OpenCommandList.Add("!removeuserpicklist");
             OpenCommandList.Add("!userpicklist");
             OpenCommandList.Add("!counter");
+            OpenCommandList.Add("!listreplytriggers");
 
+            AdminCommandList.Add("!toggleadmin");
+            AdminCommandList.Add("!addtriggerreply");
+            AdminCommandList.Add("!rebootbob");
+            AdminCommandList.Add("!byfirebepurged");
         }
 
         public void readUsers()
@@ -129,6 +137,28 @@ namespace DeathmicChatbot.Discord
                 UserListLocked = false;
                 updateUsers();
             }
+        }
+        public void ReadTriggerReplies()
+        {
+            if (File.Exists(Directory.GetCurrentDirectory() + "/XML/TriggerReplies.xml"))
+            {
+                var path = Directory.GetCurrentDirectory() + "/XML/TriggerReplies.xml";
+                FileStream fs = new FileStream(path, FileMode.Open);
+                System.Xml.Serialization.XmlSerializer xmlserializer = new System.Xml.Serialization.XmlSerializer(LTriggerReplies.GetType());
+
+
+                XmlReader reader = XmlReader.Create(fs);
+                LTriggerReplies = (List<DataFiles.TriggerReply>)xmlserializer.Deserialize(reader);
+                fs.Close();
+            }
+        }
+        public void SaveTriggerReplies()
+        {
+            var path = Directory.GetCurrentDirectory() + "/XML/TriggerReplies.xml";
+            System.Xml.Serialization.XmlSerializer xmlserializer = new System.Xml.Serialization.XmlSerializer(LTriggerReplies.GetType());
+            System.IO.FileStream file = System.IO.File.Create(path);
+            xmlserializer.Serialize(file, LTriggerReplies);
+            file.Close();
         }
         public void updateUsers()
         {
@@ -223,6 +253,16 @@ namespace DeathmicChatbot.Discord
             }
             else
             {
+                if(e.User.Name.ToLower() != "bobdeathmic")
+                {
+                    foreach (TriggerReply trigger in LTriggerReplies)
+                    {
+                        if (e.Message.RawText.Contains(trigger.sTrigger))
+                        {
+                            e.Channel.SendMessage(trigger.sReply);
+                        }
+                    }
+                }
                 string user = e.User.Name;
                 string message = e.Message.RawText;
                 if(e.Channel.Name != "botspam" || e.Channel.Name != "meta" || !e.Channel.Name.Contains(e.User.Name))
@@ -420,9 +460,230 @@ namespace DeathmicChatbot.Discord
                 Counter(sender, e, parameters);
                 command = true;
             }
+            if (messagecontent.ToLower().StartsWith("!listreplytriggers"))
+            {
+                ListReplyTriggers(sender, e, parameters);
+                command = true;
+            }
+
+            #endregion
+            #region AdminCommands
+            var User = LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower());
+            if (User.Count() > 0)
+            {
+                if (User.First().hasAdminPermissions())
+                {
+                    if (messagecontent.ToLower().StartsWith("!toggleadmin"))
+                    {
+                        ToggleAdmin(sender, e, parameters);
+                        command = true;
+                    }
+                    if (messagecontent.Contains("!addtriggerreply"))
+                    {
+                        AddOrUpdateTriggerReply(sender, e, parameters);
+                        command = true;
+                    }
+                    if (messagecontent.ToLower().StartsWith("!byfirebepurged"))
+                    {
+                        RemoveTriggerReply(sender, e, parameters);
+                        command = true;
+                    }
+                    if (messagecontent.ToLower().StartsWith("!rebootbob"))
+                    {
+                        Reboot(sender, e, parameters);
+                        command = true;
+                    }
+                }
+            }
             #endregion
             return command;
         }
+
+        private void ListReplyTriggers(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            
+            if(LTriggerReplies.Count() >0)
+            {
+                foreach (TriggerReply trigger in LTriggerReplies)
+                {
+                    e.User.SendMessage("Trigger " + trigger.sTrigger + " replies with " + trigger.sReply);
+                }
+            }
+            else
+            {
+                e.User.SendMessage("I only see dead people");
+            }
+        }
+
+
+        #region Admin Functions
+        private void Reboot(object sender, MessageEventArgs e, List<string> parameters)
+        {
+
+            Environment.Exit(0);
+        }
+
+        private void AddOrUpdateTriggerReply(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            try
+            {
+                if (parameters.Count() > 0)
+                {
+                    if (parameters[0].ToString() == "help")
+                    {
+                        e.User.SendMessage("!addtriggerreply [Trigger] [Response]");
+                    }
+                    else
+                    {
+                        if (parameters.Count() >= 2)
+                        {
+                            var User = LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower());
+                            if (User.Count() > 0)
+                            {
+                                if (User.First().hasAdminPermissions())
+                                {
+                                    var TriggerReply = LTriggerReplies.Where(x => x.sTrigger == parameters[0]);
+                                    if (TriggerReply.Count() > 0)
+                                    {
+                                        int i = 1;
+                                        string fullreply = "";
+                                        while (parameters[i] != null)
+                                        {
+                                            if (i == 1)
+                                            {
+                                                fullreply += parameters[1];
+                                            }
+                                            else
+                                            {
+                                                fullreply += " " + parameters[i];
+                                            }
+                                            i++;
+                                        }
+                                        TriggerReply.First().sReply = fullreply;
+                                        e.User.SendMessage("Trigger updated");
+                                    }
+                                    else
+                                    {
+                                        int i = 1;
+                                        string fullreply = "";
+                                        while (parameters.ElementAtOrDefault(i) != null)
+                                        {
+                                            if (i == 1)
+                                            {
+                                                fullreply += parameters[1];
+                                            }
+                                            else
+                                            {
+                                                fullreply += " " + parameters[i];
+                                            }
+                                            i++;
+                                        }
+                                        TriggerReply init = new TriggerReply(parameters[0], fullreply);
+                                        LTriggerReplies.Add(init);
+                                        e.User.SendMessage("Trigger added");
+                                    }
+                                    SaveTriggerReplies();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            e.User.SendMessage("!addtriggerreply [Trigger] [Response]");
+                        }
+                    }
+                }
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            
+        }
+        private void RemoveTriggerReply(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            if (parameters.Count() > 0)
+            {
+                if (parameters[0].ToString() == "help")
+                {
+                    e.User.SendMessage("!byfirebepurged [Trigger]");
+                }
+                else
+                {
+                    if (parameters.Count() == 1)
+                    {
+                        var User = LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower());
+                        if (User.Count() > 0)
+                        {
+                            if (User.First().hasAdminPermissions())
+                            {
+                                var TriggerReply = LTriggerReplies.Where(x => x.sTrigger == parameters[0]);
+                                if (TriggerReply.Count() > 0)
+                                {
+                                    int index = LTriggerReplies.IndexOf(TriggerReply.First());
+                                    LTriggerReplies.RemoveAt(index);
+                                    SaveTriggerReplies();
+                                    e.User.SendMessage("Trigger purged");
+                                }
+                                else
+                                {
+                                    e.User.SendMessage("404 Trigger not found");
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        e.User.SendMessage("!byfirebepurged [Trigger]");
+                    }
+                }
+            }
+        }
+
+        private void ToggleAdmin(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            if (parameters.Count() > 0)
+            {
+                if (parameters[0].ToString() == "help")
+                {
+                    e.User.SendMessage("!toggleadmin [Username]");
+                }
+                else
+                {
+                    if(LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower()).Count()>0)
+                    {
+                        if (LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower()).First().hasAdminPermissions())
+                        {
+                            var user = LUserList.Where(x => x.Name.ToLower() == parameters[0].ToLower());
+                            if(user.Count() > 0)
+                            {
+                                bool result = user.First().ToggleAdmin();
+                                if(result)
+                                {
+                                    e.User.SendMessage(user.First().Name + " has been granted Admin Permissions");
+                                    var newadmin = e.Channel.Users.Where(x => x.Name.ToLower() == user.First().Name.ToLower());
+                                    if(newadmin.Count() > 0)
+                                    {
+                                        newadmin.First().SendMessage(e.User.Name + " has granted you Admin Permissions use !help to get updated Commands");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                e.User.SendMessage("404 User not Found");
+                            }
+                        }
+                        else
+                        {
+                            e.User.SendMessage("403 Forbidden");
+                        }
+                    }
+                    else
+                    {
+                        e.User.SendMessage("403 Forbidden");
+                    }
+                }
+            }
+        }
+        #endregion
         private void SaveTable(object sender, MessageEventArgs e, List<string> parameters)
         {
             e.Channel.SendMessage("┬─┬﻿ ノ( ゜-゜ノ)");
@@ -700,18 +961,30 @@ namespace DeathmicChatbot.Discord
         }
         private void ShowCommandList(object sender, MessageEventArgs e, List<string> parameters)
         {
-            string output = "botspam/private Commands: ";
+            string List = "";
+            List += "**botspam/private Commands:** " +Environment.NewLine;
             foreach(string command in ClosedCommandList)
             {
-                output += command + ", ";
+                List += command + Environment.NewLine;
             }
-            output = output.Substring(0, output.Length - 2);
-            output += "; public Commands:";
+            List += "**public Commands:**" + Environment.NewLine;
             foreach(string command in OpenCommandList)
             {
-                output += command + ", ";
+                List += command + Environment.NewLine;
             }
-            e.User.SendMessage(output);
+            var user = LUserList.Where(x => x.Name.ToLower() == e.User.Name.ToLower());
+            if(user.Count() > 0)
+            {
+                if(user.First().hasAdminPermissions())
+                {
+                    List += "**admin Commands:**" + Environment.NewLine;
+                    foreach (string command in AdminCommandList)
+                    {
+                        List += command + Environment.NewLine;
+                    }
+                }
+            }
+            e.User.SendMessage(List);
         }
         private void RemoveAlias(object sender, MessageEventArgs e, List<string> parameters)
         {
