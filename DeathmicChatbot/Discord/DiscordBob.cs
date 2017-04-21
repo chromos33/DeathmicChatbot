@@ -76,7 +76,6 @@ namespace DeathmicChatbot.Discord
             {
                 await bot.Connect("MjYwMTE2OTExOTczNDY2MTEy.CzhvyA.kpEIti2hVnjNIUccob0ERB4QFTw", TokenType.Bot);
             });
-            
         }
 
         private void CommandListInit()
@@ -659,7 +658,7 @@ namespace DeathmicChatbot.Discord
                                 if(result)
                                 {
                                     e.User.SendMessage(user.First().Name + " has been granted Admin Permissions");
-                                    var newadmin = e.Channel.Users.Where(x => x.Name.ToLower() == user.First().Name.ToLower());
+                                    var newadmin = bot.Servers.First().Users.Where(x => x.Name.ToLower() == parameters[0].ToLower());
                                     if(newadmin.Count() > 0)
                                     {
                                         newadmin.First().SendMessage(e.User.Name + " has granted you Admin Permissions use !help to get updated Commands");
@@ -668,7 +667,7 @@ namespace DeathmicChatbot.Discord
                                 else
                                 {
                                     e.User.SendMessage(user.First().Name + " Admin Permissions have been revoked");
-                                    var newadmin = e.Channel.Users.Where(x => x.Name.ToLower() == user.First().Name.ToLower());
+                                    var newadmin = bot.Servers.First().Users.Where(x => x.Name.ToLower() == parameters[0].ToLower());
                                     if (newadmin.Count() > 0)
                                     {
                                         newadmin.First().SendMessage(e.User.Name + " has revoked your Admin Permissions");
