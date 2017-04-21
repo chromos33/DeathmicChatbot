@@ -665,6 +665,16 @@ namespace DeathmicChatbot.Discord
                                         newadmin.First().SendMessage(e.User.Name + " has granted you Admin Permissions use !help to get updated Commands");
                                     }
                                 }
+                                else
+                                {
+                                    e.User.SendMessage(user.First().Name + " Admin Permissions have been revoked");
+                                    var newadmin = e.Channel.Users.Where(x => x.Name.ToLower() == user.First().Name.ToLower());
+                                    if (newadmin.Count() > 0)
+                                    {
+                                        newadmin.First().SendMessage(e.User.Name + " has revoked your Admin Permissions");
+                                    }
+                                }
+                                SaveUserList();
                             }
                             else
                             {
