@@ -103,12 +103,9 @@
       <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SuperSocket.ClientEngine, Version=0.8.0.6, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SuperSocket.ClientEngine.Core.0.8.0.6\lib\net45\SuperSocket.ClientEngine.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.WebRequest" />
@@ -117,6 +114,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="websocket-sharp, Version=1.0.2.59611, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSocketSharp.1.0.3-rc11\lib\websocket-sharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="WebSocket4Net, Version=0.14.1.0, Culture=neutral, PublicKeyToken=eb4e154b696bf72a, processorArchitecture=MSIL">
       <HintPath>..\packages\WebSocket4Net.0.14.1\lib\net45\WebSocket4Net.dll</HintPath>
       <Private>True</Private>
@@ -140,9 +141,12 @@
     <Compile Include="Interfaces\IURLHandler.cs" />
     <Compile Include="IRC\BasicIrcBot.cs" />
     <Compile Include="IRC\BotDeathmic.cs" />
+    <Compile Include="IRC\HitboxRelay.cs" />
     <Compile Include="IRC\IrcBot.cs" />
     <Compile Include="IRC\RelayBot.cs" />
     <Compile Include="IRC\TwitchRelay.cs" />
+    <Compile Include="JSON Classes\HitboxAuth.cs" />
+    <Compile Include="JSON Classes\HitBoxMessage.cs" />
     <Compile Include="LinkParser\Imgur.cs" />
     <Compile Include="LinkParser\URLExtractor.cs" />
     <Compile Include="LinkParser\WebSiteHandler.cs" />

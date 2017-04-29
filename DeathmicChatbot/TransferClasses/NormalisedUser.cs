@@ -15,13 +15,10 @@ namespace DeathmicChatbot.TransferClasses
         public NormalisedUser()
         {
         }
-        public string orig_username
-        {
-            get; set;
-        }
+        public string orig_username= "";
         public string normalised_username()
         {
-            string nick = this.orig_username;
+            string nick = orig_username;
 
             while (nick.EndsWith("_"))
             {
