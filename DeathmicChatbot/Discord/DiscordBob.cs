@@ -37,6 +37,7 @@ namespace DeathmicChatbot.Discord
         private static System.Timers.Timer VoteTimer;
         RelayBot deathmicirc;
         List<TwitchRelay> RelayBots = new List<TwitchRelay>();
+        List<HitboxRelay> HitBoxRelays = new List<HitboxRelay>();
         List<Thread> RelayThreads = new List<Thread>();
         #endregion
         public void Connect()
@@ -98,7 +99,7 @@ namespace DeathmicChatbot.Discord
             ClosedCommandList.Add("!endvoting");
             ClosedCommandList.Add("!vote");
             ClosedCommandList.Add("!listvotings");
-            ClosedCommandList.Add("!changetwitchchat");
+            ClosedCommandList.Add("!managestreamrelay");
             ClosedCommandList.Add("!changeglobalannouncement");
             ClosedCommandList.Add("!addmyuser");
 
@@ -299,6 +300,33 @@ namespace DeathmicChatbot.Discord
                                 }
                             }
                         }
+                        foreach(HitboxRelay relay in HitBoxRelays)
+                        {
+                            if (relay.bTwoWay && !relay.bDisconnected)
+                            {
+                                try
+                                {
+                                    if (e.Channel.Name == relay.sTargetChannel)
+                                    {
+                                        message = e.Message.Resolve(message);
+
+                                        if (e.User.Nickname != null && e.User.Nickname != "")
+                                        {
+                                            relay.RelayMessage("DiscordRelay " + e.User.Nickname + ": " + message);
+                                        }
+                                        else
+                                        {
+                                            relay.RelayMessage("DiscordRelay " + e.User.Name + ": " + message);
+                                        }
+
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.ToString());
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -389,7 +417,7 @@ namespace DeathmicChatbot.Discord
                     ListVotes(sender, e, parameters);
                     command = true;
                 }
-                if (messagecontent.ToLower().StartsWith("!changetwitchchat"))
+                if (messagecontent.ToLower().StartsWith("!managestreamrelay"))
                 {
                     ChangeTwitchChat(sender, e, parameters);
                     command = true;
@@ -497,7 +525,7 @@ namespace DeathmicChatbot.Discord
             #endregion
             return command;
         }
-
+        
         private void ListReplyTriggers(object sender, MessageEventArgs e, List<string> parameters)
         {
             
@@ -751,6 +779,58 @@ namespace DeathmicChatbot.Discord
 
             }
             
+        }
+        private void TestHitboxRelay(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            //Warning this function simply connects or reconnect make sure to only execute when relay does not exist
+            try
+            {
+
+                HitboxRelay tmpbot = new HitboxRelay(bot, true,"#chromos33");
+                Thread RelayThread = new Thread(tmpbot.runBot);
+                RelayThread.Start();
+                while (!RelayThread.IsAlive) ;
+                Thread.Sleep(1);
+                RelayThreads.Add(RelayThread);
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+        private void ConnectToHitBoxChat(string channel)
+        {
+            //Warning this function simply connects or reconnect make sure to only execute when relay does not exist
+            try
+            {
+                Tuple<string, bool> temp = xmlprovider.GetTwitchChatData(channel);
+                bool twoway = temp.Item2;
+                if (temp.Item1 != "")
+                {
+                    HitboxRelay tmpbot;
+                    if (RelayBots.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
+                    {
+                        tmpbot = HitBoxRelays.Where(x => x.sChannel.ToLower() == channel).First();
+                        tmpbot.sTargetChannel = temp.Item1;
+                        tmpbot.bTwoWay = twoway;
+                    }
+                    else
+                    {
+                        tmpbot = new HitboxRelay(bot, twoway, channel,temp.Item1);
+                    }
+                    HitBoxRelays.Add(tmpbot);
+                    Thread RelayThread = new Thread(tmpbot.runBot);
+                    RelayThread.Start();
+                    while (!RelayThread.IsAlive) ;
+                    Thread.Sleep(1);
+                    RelayThreads.Add(RelayThread);
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+
         }
         #region Commands
         #region StreamFunctions
@@ -1987,7 +2067,17 @@ namespace DeathmicChatbot.Discord
                 {
                     if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
                     {
-                       
+                        if (HitBoxRelays.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel).Count() == 0)
+                        {
+                            ConnectToHitBoxChat(args.StreamData.Stream.Channel);
+                        }
+                        if (HitBoxRelays.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel).Count() > 0)
+                        {
+                            foreach (HitboxRelay RelayBot in HitBoxRelays)
+                            {
+                                RelayBot.StopRelayEnd();
+                            }
+                        }
                     }
                     else
                     {
@@ -2073,7 +2163,14 @@ namespace DeathmicChatbot.Discord
                     {
                         if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
                         {
-
+                            if (HitBoxRelays.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).Count() > 0 && RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().isExit == false)
+                            {
+                                HitBoxRelays.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().StopRelayEnd();
+                            }
+                            else
+                            {
+                                ConnectToHitBoxChat(args.StreamData.Stream.Channel);
+                            }
                         }
                         else
                         {
@@ -2083,7 +2180,7 @@ namespace DeathmicChatbot.Discord
                             }
                             else
                             {
-                                ConnectToTwitchChat(args.StreamData.Stream.Channel, true);
+                                ConnectToTwitchChat(args.StreamData.Stream.Channel,true);
                             }
                         }
                         
