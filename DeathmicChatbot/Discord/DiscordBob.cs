@@ -920,7 +920,7 @@ namespace DeathmicChatbot.Discord
         {
             if(parameters[0] == "help" || parameters.Count() == 0)
             {
-                e.User.SendMessage("Command !changetwitchchat [streamname] [targetchannel(Discord)] [(optional default 1) twoway (0/1)]");
+                e.User.SendMessage("Command !managestreamrelay [streamname] [targetchannel(Discord)] [(optional default 1) twoway (0/1)]");
             }
             else
             {
