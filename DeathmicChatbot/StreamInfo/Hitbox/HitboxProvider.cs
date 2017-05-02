@@ -15,7 +15,7 @@ namespace DeathmicChatbot.StreamInfo.Hitbox
     public sealed class HitboxProvider : IStreamProvider, IDisposable
     {
         private const string STREAMDATA_FILE = "streamdata_hitbox.txt";
-        private const int TIME_MS_HITBOX_QUERY_THREAD_SLEEP = 1000;
+        private const int TIME_MS_HITBOX_QUERY_THREAD_SLEEP = 5000;
         private XMLProvider xmlprovider;
 
         private readonly Dictionary<string, HitboxRootObject> _lastRequests =

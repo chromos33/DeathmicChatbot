@@ -35,7 +35,7 @@ namespace DeathmicChatbot.IRC
         }
         public HitboxRelay(DiscordClient discord, bool _bTwoWay = true, string channel = null,string _sTargetChannel = "botspam")
         {
-            timer = new System.Timers.Timer(1500);
+            timer = new System.Timers.Timer(1000);
             timer.Elapsed +=  new ElapsedEventHandler(SendMessageEvent);
             discordclient = discord;
             sChannel = channel;
