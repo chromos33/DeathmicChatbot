@@ -78,7 +78,6 @@ namespace DeathmicChatbot.Discord
                 await bot.Connect("MjYwMTE2OTExOTczNDY2MTEy.CzhvyA.kpEIti2hVnjNIUccob0ERB4QFTw", TokenType.Bot);
             });
         }
-
         private void CommandListInit()
         {
             //Closed just means can only be used in botspam
@@ -520,12 +519,37 @@ namespace DeathmicChatbot.Discord
                         Reboot(sender, e, parameters);
                         command = true;
                     }
+                    if (messagecontent.ToLower().StartsWith("!testhitbox"))
+                    {
+                        TestHitboxRelay(sender, e, parameters);
+                        command = true;
+                    }
                 }
             }
             #endregion
             return command;
         }
-        
+        private void TestHitboxRelay(object sender, MessageEventArgs e, List<string> parameters)
+        {
+            //Warning this function simply connects or reconnect make sure to only execute when relay does not exist
+            try
+            {
+
+                HitboxRelay tmpbot;
+                tmpbot = new HitboxRelay(bot, true, "unholyp", "botspam");
+                HitBoxRelays.Add(tmpbot);
+                Thread RelayThread = new Thread(tmpbot.runBot);
+                RelayThread.Start();
+                while (!RelayThread.IsAlive) ;
+                Thread.Sleep(1);
+                RelayThreads.Add(RelayThread);
+            }
+            catch (Exception)
+            {
+
+            }
+
+        }
         private void ListReplyTriggers(object sender, MessageEventArgs e, List<string> parameters)
         {
             
@@ -780,24 +804,6 @@ namespace DeathmicChatbot.Discord
             }
             
         }
-        private void TestHitboxRelay(object sender, MessageEventArgs e, List<string> parameters)
-        {
-            //Warning this function simply connects or reconnect make sure to only execute when relay does not exist
-            try
-            {
-
-                HitboxRelay tmpbot = new HitboxRelay(bot, true,"#chromos33");
-                Thread RelayThread = new Thread(tmpbot.runBot);
-                RelayThread.Start();
-                while (!RelayThread.IsAlive) ;
-                Thread.Sleep(1);
-                RelayThreads.Add(RelayThread);
-            }
-            catch (Exception)
-            {
-
-            }
-        }
         private void ConnectToHitBoxChat(string channel)
         {
             //Warning this function simply connects or reconnect make sure to only execute when relay does not exist
@@ -808,7 +814,7 @@ namespace DeathmicChatbot.Discord
                 if (temp.Item1 != "")
                 {
                     HitboxRelay tmpbot;
-                    if (RelayBots.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
+                    if (HitBoxRelays.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
                     {
                         tmpbot = HitBoxRelays.Where(x => x.sChannel.ToLower() == channel).First();
                         tmpbot.sTargetChannel = temp.Item1;
@@ -816,7 +822,7 @@ namespace DeathmicChatbot.Discord
                     }
                     else
                     {
-                        tmpbot = new HitboxRelay(bot, twoway, channel,temp.Item1);
+                        tmpbot = new HitboxRelay(bot, twoway, channel.ToLower(),temp.Item1);
                     }
                     HitBoxRelays.Add(tmpbot);
                     Thread RelayThread = new Thread(tmpbot.runBot);
@@ -2067,7 +2073,7 @@ namespace DeathmicChatbot.Discord
                 {
                     if (args.StreamData.StreamProvider.GetType().ToString() == "DeathmicChatbot.StreamInfo.Hitbox.HitboxProvider")
                     {
-                        if (HitBoxRelays.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel).Count() == 0)
+                        if (HitBoxRelays.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).Count() == 0)
                         {
                             ConnectToHitBoxChat(args.StreamData.Stream.Channel);
                         }
