@@ -2019,6 +2019,10 @@ namespace DeathmicChatbot.Discord
                     {
                         RelayBots.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().StartRelayEnd();
                     }
+                    if (HitBoxRelays.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).Count() > 0)
+                    {
+                        HitBoxRelays.Where(x => x.sChannel.ToLower() == args.StreamData.Stream.Channel.ToLower()).First().StartRelayEnd();
+                    }
                     xmlprovider.StreamStartUpdate(args.StreamData.Stream.Channel, true);
                     string duration = DateTime.Now.Subtract(Convert.ToDateTime(xmlprovider.StreamInfo(args.StreamData.Stream.Channel, "starttime"))).ToString("h':'mm':'ss");
                     string output = "Stream stopped after " + duration + ": " + args.StreamData.Stream.Channel;
