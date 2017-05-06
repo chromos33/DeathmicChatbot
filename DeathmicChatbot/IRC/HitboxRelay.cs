@@ -30,6 +30,7 @@ namespace DeathmicChatbot.IRC
         public bool bDisconnected;
         private static System.Timers.Timer TimeoutTimer;
         System.Timers.Timer timer;
+        System.Timers.Timer isAliveTimer;
         public HitboxRelay()
         {
         }
@@ -37,12 +38,15 @@ namespace DeathmicChatbot.IRC
         {
             timer = new System.Timers.Timer(1000);
             timer.Elapsed +=  new ElapsedEventHandler(SendMessageEvent);
+            isAliveTimer = new System.Timers.Timer(5000);
+            isAliveTimer.Elapsed += new ElapsedEventHandler(isNotAlive);
             discordclient = discord;
             sChannel = channel;
             sTargetChannel = _sTargetChannel;
             bTwoWay = _bTwoWay;
 
         }
+        
 
         public void StartRelayEnd()
         {
@@ -71,6 +75,7 @@ namespace DeathmicChatbot.IRC
             {
                 SendMessage(QueuedMessage.ElementAt(0));
                 QueuedMessage.RemoveAt(0);
+                isAliveTimer.Start();
             }
             
         }
@@ -81,17 +86,25 @@ namespace DeathmicChatbot.IRC
         List<string> QueuedMessage = new List<string>();
         public void runBot()
         {
+            Connect();
+        }
+        private void isNotAlive(object sender, ElapsedEventArgs e)
+        {
+            ReconnectToChannel();
+        }
+        private void Connect()
+        {
             var client = new RestClient("https://api.hitbox.tv");
             var request = new RestRequest("/chat/servers", Method.GET);
             IRestResponse response = client.Execute(request);
             JArray servers = JArray.Parse(response.Content);
             List<string> Servers = new List<string>();
-            foreach(var _server in servers)
+            foreach (var _server in servers)
             {
                 //JObject serveraddress = JObject.Parse(server.ToString());
                 Servers.Add(_server.SelectToken("server_ip").ToString());
             }
-            request = new RestRequest("/auth/login",Method.POST);
+            request = new RestRequest("/auth/login", Method.POST);
             request.AddParameter("login", "BobDeathmic", ParameterType.GetOrPost);
             request.AddParameter("pass", "Pgii9m87bfHCwtnuis8k", ParameterType.GetOrPost);
             request.AddParameter("app", "BobDeathmic", ParameterType.GetOrPost);
@@ -106,11 +119,11 @@ namespace DeathmicChatbot.IRC
             AuthToken = Auth.authToken;
 
             string server = Servers[RNG.Next(0, Servers.Count)];
-            client = new RestClient("http://"+ server);
+            client = new RestClient("http://" + server);
             request = new RestRequest("/socket.io/1");
             response = client.Execute(request);
             string WebSocketID = response.Content.Split(':')[0];
-            string WebSocketLink = "ws://" + server+"/socket.io/1/websocket/"+WebSocketID;
+            string WebSocketLink = "ws://" + server + "/socket.io/1/websocket/" + WebSocketID;
             HitBox = new WebSocket(WebSocketLink);
             HitBox.OnMessage += OnMessage;
             HitBox.Connect();
@@ -138,6 +151,11 @@ namespace DeathmicChatbot.IRC
                         {
                             discordclient.Servers.First().TextChannels.Where(x => x.Name.ToLower() == sTargetChannel.ToLower()).First().SendMessage("HitboxRelay " + message.args.First().@params.name + ": " + MessageParser(message.args.First().@params.text));
                         }
+                    }
+                    else
+                    {
+                        isAliveTimer.Stop();
+                        isAliveTimer = new System.Timers.Timer(5000);
                     }
                 }catch(Exception)
                 {
@@ -197,6 +215,26 @@ namespace DeathmicChatbot.IRC
             });
             Login += json;
             HitBox.Send(Login);
+        }
+        public void ReconnectToChannel()
+        {
+            string Logout = "5:::";
+            JObject json = JObject.FromObject(new
+            {
+                name = "message",
+                args = new
+                {
+                    method = "partChannel",
+                    @params = new
+                    {
+                        name = "BobDeathmic"
+                    }
+                }
+            });
+            Logout += json;
+            HitBox.Send(Logout);
+            HitBox.Close();
+            Connect();
         }
         public void ConnectToChannel()
         {
