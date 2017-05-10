@@ -65,11 +65,6 @@ namespace DeathmicChatbot.Discord
             bot = new DiscordClient();
             bot.MessageReceived += Message_Received;
             bot.UserJoined += User_Joined;
-            //deathmicirc = new RelayBot(bot,false);
-            //Thread RelayThread = new Thread(deathmicirc.runBot);
-            //RelayThread.Start();
-            //while (!RelayThread.IsAlive) ;
-            //Thread.Sleep(1);
 
             readUsers();
             ReadTriggerReplies();
@@ -777,7 +772,7 @@ namespace DeathmicChatbot.Discord
                 {
                     Tuple<string, bool> temp = xmlprovider.GetTwitchChatData(channel);
                     bool twoway = temp.Item2;
-                    if (temp.Item1 != "")
+                    if (temp.Item1 != "" && temp.Item1 != null)
                     {
                         TwitchRelay tmpbot;
                         if (RelayBots.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
@@ -811,7 +806,7 @@ namespace DeathmicChatbot.Discord
             {
                 Tuple<string, bool> temp = xmlprovider.GetTwitchChatData(channel);
                 bool twoway = temp.Item2;
-                if (temp.Item1 != "")
+                if (temp.Item1 != "" && temp.Item1 != null)
                 {
                     HitboxRelay tmpbot;
                     if (HitBoxRelays.Where(x => x.sChannel.ToLower() == channel).Count() > 0)
@@ -2154,7 +2149,7 @@ namespace DeathmicChatbot.Discord
                                 if (client != null)
                                 {
                                     client.SendMessage(output);
-                                }
+                               } 
                             }
                         }
                     }
