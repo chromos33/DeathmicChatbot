@@ -1,2 +1,2 @@
-SUPERCEDED BY 2.0 Branch
-SWITCH OVER
+Supercedes Bob2.0
+Switched to .NET Core
