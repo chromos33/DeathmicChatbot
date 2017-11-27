@@ -43,14 +43,8 @@ namespace BobCore
 #pragma warning restore RECS0154 // Parameter is never used
             => new Program().MainAsync().GetAwaiter().GetResult();
 
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task MainAsync()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        private void DataLoading()
         {
-
-            rnd = new Random();
-            //SETUP
             Security = Administrative.XMLFileHandler.readFile("SecurityTokens", "DataClasses.SecurityVault");
             StreamList = Administrative.XMLFileHandler.readFile("Streams", "DataClasses.internalStream");
             UserList = Administrative.XMLFileHandler.readFile("Users", "DataClasses.User");
@@ -65,7 +59,9 @@ namespace BobCore
                 Administrative.XMLFileHandler.writeFile(GiveAwayList, "GiveAwayList");
 
             }
-            // Initialize Commands
+        }
+        private void CommandSetup()
+        {
             Commands = new List<dynamic>();
             var results = from type in Assembly.GetAssembly(typeof(Commands.IFCommand)).GetTypes()
                           where typeof(Commands.IFCommand).IsAssignableFrom(type)
@@ -109,7 +105,9 @@ namespace BobCore
                     }
                 }
             }
-            // Initialize StreamCheckers only when not in dev disable for testing
+        }
+        private void StreamCheckerSetup()
+        {
             StreamCheckers = new List<dynamic>();
             var streamcheckerclasses = from type in Assembly.GetAssembly(typeof(StreamFunctions.StreamChecker)).GetTypes()
                                        where typeof(StreamFunctions.StreamChecker).IsAssignableFrom(type)
@@ -131,6 +129,9 @@ namespace BobCore
                 dStreamChecker.AddSecurityVaultData(Security.FirstOrDefault());
                 dStreamChecker.Start(StreamList);
             }
+        }
+        private async Task DiscordConnection()
+        {
             var discordConfig = new DiscordSocketConfig { MessageCacheSize = 100 };
             client = new DiscordSocketClient(discordConfig);
             Console.WriteLine("Bot is trying to login");
@@ -140,19 +141,41 @@ namespace BobCore
             Console.WriteLine("Bot is trying is starting");
             client.MessageReceived += MessageReceived;
             client.Ready += ClientConnectd;
-
+            return;
             //await client.LoginAsync(TokenType.Bot, Properties.Settings.Default.DiscordToken);
             // Initialize StreamRelays
+        }
+        private void StreamRelaySetup()
+        {
             foreach (var stream in StreamList)
             {
                 stream.initStreamRelay(client);
             }
+        }
+        private void GiveAwaySetup()
+        {
             GiveAwayList.CollectionChanged += GiveAwayChanged;
             System.Timers.Timer timer = new System.Timers.Timer(5000);
             timer.Elapsed += UpdateFiles;
             timer.AutoReset = true;
             timer.Enabled = true;
             timer.Start();
+        }
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task MainAsync()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        {
+
+            rnd = new Random();
+            DataLoading();
+            CommandSetup();
+            StreamCheckerSetup();
+            await DiscordConnection();
+            // Initialize StreamCheckers only when not in dev disable for testing
+            StreamRelaySetup();
+            GiveAwaySetup();
+
+
             await Task.Delay(-1);
         }
 
@@ -160,6 +183,50 @@ namespace BobCore
         {
             Console.WriteLine("Bot is connected!");
             return Task.FromResult(true);
+        }
+        private void SendTooLongMessagesToAuthor(SocketMessage arg,string result)
+        {
+            List<string> splitresult = result.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
+            string message = "";
+            foreach (var subresult in splitresult)
+            {
+                if (message.Length + subresult.Length > 2000)
+                {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    arg.Author.SendMessageAsync(message);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    message = "";
+                }
+                message += subresult + Environment.NewLine;
+            }
+            if (message.Length > 0)
+            {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                arg.Author.SendMessageAsync(message);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            }
+        }
+        private void SendTooLongMessagesToChannel(SocketMessage arg,string result)
+        {
+            List<string> splitresult = result.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
+            string message = "";
+            foreach (var subresult in splitresult)
+            {
+                if (message.Length + subresult.Length > 2000)
+                {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    arg.Channel.SendMessageAsync(message);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    message = "";
+                }
+                message += subresult + Environment.NewLine;
+            }
+            if (message.Length > 0)
+            {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                arg.Channel.SendMessageAsync(message);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            }
         }
 
         private Task MessageReceived(SocketMessage arg)
@@ -170,6 +237,7 @@ namespace BobCore
                 foreach (var command in Commands)
                 {
                     string result = command.CheckCommandAndExecuteIfApplicable(arg.Content, arg.Author.Username, arg.Channel.Name);
+                    //If empty was no command
                     if (result != "")
                     {
                         if (!isDev)
@@ -178,25 +246,7 @@ namespace BobCore
                             {
                                 if (result.Length >= 2000)
                                 {
-                                    List<string> splitresult = result.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
-                                    string message = "";
-                                    foreach (var subresult in splitresult)
-                                    {
-                                        if (message.Length + subresult.Length > 2000)
-                                        {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                            arg.Author.SendMessageAsync(message);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                            message = "";
-                                        }
-                                        message += subresult + Environment.NewLine;
-                                    }
-                                    if (message.Length > 0)
-                                    {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                        arg.Author.SendMessageAsync(message);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                    }
+                                    SendTooLongMessagesToAuthor(arg, result);
                                 }
                                 else
                                 {
@@ -204,31 +254,12 @@ namespace BobCore
                                     arg.Author.SendMessageAsync(result);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                                 }
-
                             }
                             else
                             {
                                 if (result.Length >= 2000)
                                 {
-                                    List<string> splitresult = result.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
-                                    string message = "";
-                                    foreach (var subresult in splitresult)
-                                    {
-                                        if (message.Length + subresult.Length > 2000)
-                                        {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                            arg.Channel.SendMessageAsync(message);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                            message = "";
-                                        }
-                                        message += subresult + Environment.NewLine;
-                                    }
-                                    if (message.Length > 0)
-                                    {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                        arg.Channel.SendMessageAsync(message);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                    }
+                                    SendTooLongMessagesToChannel(arg, result);
                                 }
                                 else
                                 {
@@ -237,7 +268,6 @@ namespace BobCore
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                                 }
                             }
-
                         }
                         else
                         {
@@ -248,24 +278,33 @@ namespace BobCore
                 }
                 if (!bCommand)
                 {
-                    //Look if there is a stream with an active relay and relay message
-                    var ActiveRelayStreams = StreamList.Where(x => x.ActiveRelay());
-                    foreach (var stream in ActiveRelayStreams)
-                    {
-                        stream.RelayMessage(arg.Author.Username + ":" + arg.Content, arg.Channel.Name);
-                    }
+                    RelayMessage(arg);
                 }
-                //Joke
-                if (arg.Content.Contains("!rebootbob"))
-                {
-                    while (FilesToUpdate.Count() != 0)
-                    {
-                        Thread.Sleep(1000);
-                    }
-                    Environment.Exit(0);
-                }
+                KillToReboot(arg);
             }
             return Task.FromResult(true);
+        }
+        private void KillToReboot(SocketMessage arg)
+        {
+            if (arg.Content.Contains("!rebootbob"))
+            {
+                //Wait for alle files to be written before closing
+                while (FilesToUpdate.Count() != 0)
+                {
+                    Thread.Sleep(1000);
+                }
+                Environment.Exit(0);
+            }
+        }
+        private void RelayMessage(SocketMessage arg)
+        {
+            //Look if there is a stream with an active relay and relay message
+            var ActiveRelayStreams = StreamList.Where(x => x.ActiveRelay());
+            string message = arg.Content.Replace("\n", " ");
+            foreach (var stream in ActiveRelayStreams)
+            {
+                stream.RelayMessage(arg.Author.Username + ":" + message, arg.Channel.Name);
+            }
         }
 
         private void UpdateFiles(object sender, ElapsedEventArgs e)
@@ -285,122 +324,6 @@ namespace BobCore
                 FilesToUpdate.Add("GiveAwayList");
             }
         }
-        /*
-        private async void MessageReceived(object sender, MessageEventArgs e)
-        {
-            if (!e.User.IsBot)
-            {
-                bool bCommand = false;
-                foreach (var command in Commands)
-                {
-                    string result = command.CheckCommandAndExecuteIfApplicable(e.Message.Text, e.User.Name, e.Channel.Name);
-                    if (result != "")
-                    {
-                        if (!Properties.Settings.Default.InDev)
-                        {
-                            if (command.@private)
-                            {
-                                if (result.Length >= 2000)
-                                {
-                                    List<string> splitresult = result.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
-                                    string message = "";
-                                    foreach (var subresult in splitresult)
-                                    {
-                                        if (message.Length + subresult.Length > 2000)
-                                        {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                            e.User.SendMessage(message);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                            message = "";
-                                        }
-                                        message += subresult + Environment.NewLine;
-                                    }
-                                    if (message.Length > 0)
-                                    {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                        e.User.SendMessage(message);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                    }
-                                }
-                                else
-                                {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                    e.User.SendMessage(result);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                }
-                                
-                            }
-                            else
-                            {
-                                if(result.Length >= 2000)
-                                {
-                                    List<string> splitresult = result.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList();
-                                    string message = "";
-                                    foreach(var subresult in splitresult)
-                                    {
-                                        if(message.Length + subresult.Length > 2000)
-                                        {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                            e.Channel.SendMessage(message);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                            message = "";
-                                        }
-                                        message += subresult + Environment.NewLine;
-                                    }
-                                    if(message.Length > 0)
-                                    {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                        e.Channel.SendMessage(message);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                    }
-                                }
-                                else
-                                {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                    e.Channel.SendMessage(result);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                                }
-                            }
-
-                        }
-                        else
-                        {
-                            Console.WriteLine(result);
-                        }
-                        bCommand = true;
-                    }
-                }
-                if (!bCommand)
-                {
-                    //Look if there is a stream with an active relay and relay message
-                    var ActiveRelayStreams = StreamList.Where(x => x.ActiveRelay());
-                    foreach (var stream in ActiveRelayStreams)
-                    {
-                        stream.RelayMessage(e.User.Name + ":" + e.Message.Text, e.Channel.Name);
-                    }
-                }
-                //Joke
-                if (rnd.Next(1, 5000) == 1)
-                {
-                    string joke = ":eye:     :eye:" + Environment.NewLine;
-                    joke += ".     :nose:" + Environment.NewLine;
-                    joke += ".     :lips:";
-                    Message message = await e.Channel.SendMessage(joke);
-                    Thread.Sleep(50);
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    message.Delete();
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                }
-                if(e.Message.Text.Contains("!rebootbob"))
-                {
-                    while(FilesToUpdate.Count() != 0)
-                    {
-                        Thread.Sleep(1000);
-                    }
-                    Environment.Exit(0);
-                }
-            }
-        }*/
 
         private void StreamOfflineEvent(object sender, StreamEventArgs e)
         {
