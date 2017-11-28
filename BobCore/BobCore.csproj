@@ -10,7 +10,7 @@
     <PackageReference Include="IrcDotNet" Version="0.6.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
-    <PackageReference Include="RestSharp" Version="105.2.3" />
+    <PackageReference Include="RestSharp" Version="106.1.0" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="http://json.schemastore.org/bootstraprc" /></VisualStudio></ProjectExtensions>
