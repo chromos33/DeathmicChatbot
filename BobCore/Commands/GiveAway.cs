@@ -494,6 +494,7 @@ namespace BobCore.Commands
         {
             try
             {
+
                 if (message.ToLower().Contains(sTrigger))
                 {
                     var giveaway = lPresent.Where(x => x.current);
