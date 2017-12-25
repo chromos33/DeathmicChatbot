@@ -637,7 +637,7 @@ namespace BobCore.Commands
                         }
                         catch (NullReferenceException)
                         {
-
+                            Console.WriteLine("test");
                         }
                     }
                     foreach (var present in lPresent.Where(x => (x.sKey != null && x.sKey != "") && x.sGiftee != "").GroupBy(x => x.sGiftee).ToList())
@@ -654,7 +654,7 @@ namespace BobCore.Commands
                         }
                         catch (NullReferenceException)
                         {
-
+                            Console.WriteLine("test");
                         }
                     }
 
@@ -714,6 +714,7 @@ namespace BobCore.Commands
                             presentmessage += item.sTitle + " an " + item.sGiftee + Environment.NewLine;
                         }
                         // presentmessage = "Du hast" + present.sTitle + " von " + present.sGifter + " erhalten. " + present.sKey;
+                        //Console.WriteLine(presentmessage);
                         Client.Guilds.Where(x => x.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(x => x.Username.ToLower() == present.Key.ToLower()).FirstOrDefault().SendMessageAsync(presentmessage);
                     }
                     catch (NullReferenceException)
@@ -731,6 +732,7 @@ namespace BobCore.Commands
                             presentmessage += item.sTitle + " von " + item.sGifter + " : " + item.sKey + Environment.NewLine;
                         }
                         // presentmessage = "Du hast" + present.sTitle + " von " + present.sGifter + " erhalten. " + present.sKey;
+                        //Console.WriteLine(presentmessage);
                         Client.Guilds.Where(x => x.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(x => x.Username.ToLower() == present.Key.ToLower()).FirstOrDefault().SendMessageAsync(presentmessage);
                     }
                     catch (NullReferenceException)

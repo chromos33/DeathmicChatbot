@@ -168,9 +168,9 @@ namespace BobCore
 
             rnd = new Random();
             DataLoading();
-            CommandSetup();
             StreamCheckerSetup();
             await DiscordConnection();
+            CommandSetup();
             // Initialize StreamCheckers only when not in dev disable for testing
             StreamRelaySetup();
             GiveAwaySetup();
@@ -360,7 +360,7 @@ namespace BobCore
                             {
                                 if (!isDev)
                                 {
-                                    user.SendMessageAsync(stream.StreamStartedMessage());
+                                    user.SendMessageAsync(stream.StreamRunningMessage());
                                 }
                                 else
                                 {

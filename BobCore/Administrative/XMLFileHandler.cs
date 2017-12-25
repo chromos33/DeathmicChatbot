@@ -11,7 +11,7 @@ namespace BobCore.Administrative
     {
         public static bool fileexists(string filename)
         {
-            var path = Directory.GetCurrentDirectory() + "/XML/";
+            var path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/XML/";
             if (filename.Contains(".xml"))
             {
                 path += filename;
