@@ -704,7 +704,7 @@ namespace BobCore.Commands
             if (message.ToLower().Contains(sTrigger))
             {
                 //Send Instructions for people to give their gifts to persons
-                foreach (var present in lPresent.Where(x => (x.sKey == null || x.sKey == "") && x.sGiftee != "" && (x.sGifter == username.ToLower())).GroupBy(x => x.sGifter).ToList())
+                foreach (var present in lPresent.Where(x => (x.sKey == null || x.sKey == "") && x.sGiftee != "" && (x.sGifter.ToLower() == username.ToLower())).GroupBy(x => x.sGifter).ToList())
                 {
                     try
                     {
@@ -722,7 +722,7 @@ namespace BobCore.Commands
 
                     }
                 }
-                foreach (var present in lPresent.Where(x => x.sGiftee == username).GroupBy(x => x.sGiftee).ToList())
+                foreach (var present in lPresent.Where(x => x.sGiftee.ToLower() == username.ToLower()).GroupBy(x => x.sGiftee).ToList())
                 {
                     try
                     {
