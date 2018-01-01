@@ -274,7 +274,7 @@ namespace BobCore.Commands
                     {
                         return "!managestreamrelay [streamname] [targetchannel(Discord)] [(optional default 1) twoway (0/1)]";
                     }
-                    if (@params.Count() == 2)
+                    if (@params.Count() >= 2)
                     {
                         int twoway = 1;
                         if (@params.Count() == 3)

@@ -104,7 +104,7 @@ namespace BobCore.StreamFunctions.Relay
             bDisconnected = false;
             if (channel != null)
             {
-                channel.SendMessageAsync("Twitch Relay Activated");
+                channel.SendMessageAsync("Twitch Relay Activated ("+ sChannel + ")");
             }
             else
             {
@@ -120,7 +120,7 @@ namespace BobCore.StreamFunctions.Relay
             }
             if (channel != null)
             {
-                channel.SendMessageAsync("Twitch Relay Terminated");
+                channel.SendMessageAsync("Twitch Relay Terminated (" + sChannel + ")");
             }
             client.Disconnect();
             bDisconnected = true;
@@ -203,12 +203,10 @@ namespace BobCore.StreamFunctions.Relay
 
         private void IrcClient_LocalUser_MessageReceived(object sender, IrcMessageEventArgs e)
         {
-            Console.WriteLine("test");
         }
 
         private void IrcClient_LocalUser_NoticeReceived(object sender, IrcMessageEventArgs e)
         {
-            Console.WriteLine("test");
         }
 
         private void IrcClient_Disconnected(object sender, EventArgs e)
