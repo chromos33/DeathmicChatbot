@@ -338,14 +338,8 @@ namespace BobCore
             {
                 if (client.ConnectionState == ConnectionState.Connected)
                 {
-                    Console.WriteLine("Amount of Users as visible to bot:");
-                    Console.WriteLine(client.Guilds.Where(x => x.Name.ToLower() == "deathmic").FirstOrDefault().Users.Count());
-                    Console.WriteLine(Environment.NewLine);
-                    Console.WriteLine("Users notified:");
-                    Console.WriteLine(Environment.NewLine);
                     foreach (var user in client.Guilds.Where(x => x.Name.ToLower() == "deathmic").FirstOrDefault().Users)
                     {
-                        Console.WriteLine(user.Username+Environment.NewLine);
                         if (args.state == 1)
                         {
                             if (UserList.Where(x => x.isUser(user.Username.ToLower())).FirstOrDefault() != null && UserList.Where(x => x.isUser(user.Username.ToLower())).FirstOrDefault().isSubscribed(stream.sChannel))
