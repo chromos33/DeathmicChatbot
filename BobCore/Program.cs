@@ -190,7 +190,7 @@ namespace BobCore
         {
             if (!File.Exists(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/NLog.config"))
             {
-                File.Copy("NLog.config", Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\NLog.config");
+                File.Copy("NLog.config", Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/NLog.config");
             }
             var servicesProvider = BuildDi();
             logger = servicesProvider.GetRequiredService<DebugLogger>();
