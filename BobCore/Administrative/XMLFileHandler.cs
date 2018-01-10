@@ -9,17 +9,22 @@ namespace BobCore.Administrative
 {
     static class XMLFileHandler
     {
-        public static bool fileexists(string filename)
+        public static bool fileexists(string filename,bool isxml = true)
         {
-            var path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/XML/";
-            if (filename.Contains(".xml"))
+            var path = filename;
+            if(isxml)
             {
-                path += filename;
+                path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/XML/";
+                if (filename.Contains(".xml"))
+                {
+                    path += filename;
+                }
+                else
+                {
+                    path += filename + ".xml";
+                }
             }
-            else
-            {
-                path += filename + ".xml";
-            }
+            
             if (File.Exists(path))
             {
                 return true;

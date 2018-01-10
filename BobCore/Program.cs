@@ -17,12 +17,17 @@ using System.Collections.Specialized;
 using BobCore.Administrative;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
+using NLog;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 
 namespace BobCore
 {
     class Program
     {
         private bool isDev = false;
+        DebugLogger logger;
         #region Globals
         List<dynamic> Commands;
         List<dynamic> StreamCheckers;
@@ -59,7 +64,6 @@ namespace BobCore
                 Administrative.XMLFileHandler.writeFile(GiveAwayList, "GiveAwayList");
 
             }
-            Console.WriteLine(UserList.Count());
         }
         private void CommandSetup()
         {
@@ -134,6 +138,8 @@ namespace BobCore
         private async Task DiscordConnection()
         {
             var discordConfig = new DiscordSocketConfig { MessageCacheSize = 100 };
+            discordConfig.AlwaysDownloadUsers = true;
+            discordConfig.LargeThreshold = 250;
             client = new DiscordSocketClient(discordConfig);
             Console.WriteLine("Bot is trying to login");
             await client.LoginAsync(TokenType.Bot, Security.FirstOrDefault().DiscordToken);
@@ -167,6 +173,7 @@ namespace BobCore
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
 
+            InitLogger();
             rnd = new Random();
             DataLoading();
             StreamCheckerSetup();
@@ -179,7 +186,15 @@ namespace BobCore
 
             await Task.Delay(-1);
         }
-
+        public void InitLogger()
+        {
+            if (!Administrative.XMLFileHandler.fileexists(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/NLog.config", false))
+            {
+                File.Copy("NLog.config", Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/NLog.config");
+            }
+            var servicesProvider = BuildDi();
+            logger = servicesProvider.GetRequiredService<DebugLogger>();
+        }
         private Task ClientConnectd()
         {
             Console.WriteLine("Bot is connected!");
@@ -283,6 +298,13 @@ namespace BobCore
                 }
                 KillToReboot(arg);
             }
+            else
+            {
+                if(arg.Content.Length < 200)
+                {
+                    logger.DoNotice("I received my own message: in Channel" + arg.Channel + " with message :'" + arg.Content);
+                }
+            }
             return Task.FromResult(true);
         }
         private void KillToReboot(SocketMessage arg)
@@ -346,6 +368,7 @@ namespace BobCore
                             {
                                 if (!isDev)
                                 {
+                                    logger.DoNotice("The User " + user.Username + " was notified of Stream " + stream.sChannel + " at " + DateTime.Now.ToString());
                                     user.SendMessageAsync(stream.StreamStartedMessage());
                                 }
                                 else
@@ -391,6 +414,27 @@ namespace BobCore
             {
                 return false;
             }
+        }
+        private static IServiceProvider BuildDi()
+        {
+            var services = new ServiceCollection();
+
+            //Runner is the custom class
+            services.AddTransient<DebugLogger>();
+
+            services.AddSingleton<ILoggerFactory, LoggerFactory>();
+            services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+            services.AddLogging((builder) => builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace));
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+
+            //configure NLog
+            loggerFactory.AddNLog(new NLogProviderOptions { CaptureMessageTemplates = true, CaptureMessageProperties = true });
+            loggerFactory.ConfigureNLog("NLog.config");
+
+            return serviceProvider;
         }
     }
 }
