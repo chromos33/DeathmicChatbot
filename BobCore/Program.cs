@@ -364,6 +364,7 @@ namespace BobCore
                     {
                         if (args.state == 1)
                         {
+                            
                             if (UserList.Where(x => x.isUser(user.Username.ToLower())).FirstOrDefault() != null && UserList.Where(x => x.isUser(user.Username.ToLower())).FirstOrDefault().isSubscribed(stream.sChannel))
                             {
                                 if (!isDev)
@@ -374,6 +375,14 @@ namespace BobCore
                                 else
                                 {
                                     Console.WriteLine(stream.StreamStartedMessage());
+                                }
+                            }
+                            else
+                            {
+                                if(UserList.Where(x => x.isUser(user.Username.ToLower())).FirstOrDefault() == null)
+                                {
+                                    user.SendMessageAsync(stream.StreamStartedMessage());
+                                    user.SendMessageAsync("Bitte mir '!addmyuser' zurückschreiben das ich dich in die Liste eintrage");
                                 }
                             }
                         }
