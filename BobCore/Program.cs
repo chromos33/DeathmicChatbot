@@ -148,10 +148,13 @@ namespace BobCore
             Console.WriteLine("Bot is trying is starting");
             client.MessageReceived += MessageReceived;
             client.Ready += ClientConnectd;
+
             return;
             //await client.LoginAsync(TokenType.Bot, Properties.Settings.Default.DiscordToken);
             // Initialize StreamRelays
         }
+        
+
         private void StreamRelaySetup()
         {
             foreach (var stream in StreamList)
