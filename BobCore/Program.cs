@@ -360,8 +360,14 @@ namespace BobCore
             {
                 if (client.ConnectionState == ConnectionState.Connected)
                 {
+                    int i = 0;
                     foreach (var user in client.Guilds.Where(x => x.Name.ToLower() == "deathmic").FirstOrDefault().Users)
                     {
+                        i++;
+                        if(i%15 == 0)
+                        {
+                            Thread.Sleep(2000);
+                        }
                         if (args.state == 1)
                         {
                             
@@ -371,6 +377,7 @@ namespace BobCore
                                 {
                                     logger.DoNotice("The User " + user.Username + " was notified of Stream " + stream.sChannel + " at " + DateTime.Now.ToString());
                                     user.SendMessageAsync(stream.StreamStartedMessage());
+                                    Thread.Sleep(200);
                                 }
                                 else
                                 {
@@ -381,9 +388,11 @@ namespace BobCore
                             {
                                 if(UserList.Where(x => x.isUser(user.Username.ToLower())).FirstOrDefault() == null)
                                 {
+                                    
                                     user.SendMessageAsync(stream.StreamStartedMessage());
                                     logger.DoNotice("The User " + user.Username + " was notified of Stream " + stream.sChannel + " at " + DateTime.Now.ToString());
                                     user.SendMessageAsync("Bitte mir '!addmyuser' zurückschreiben das ich dich in die Liste eintrage");
+                                    Thread.Sleep(200);
                                 }
                             }
                         }
