@@ -2,19 +2,22 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using HtmlAgilityPack;
 
 namespace BobCore.DataClasses
 {
-    public class Present : INotifyPropertyChanged
+    public class GiveAwayItem : INotifyPropertyChanged
     {
         public int ID;
         public string sTitle;
         public string sKey;
-        // Gifter is the Person that added this Present to the pool
+        public int iSteamID;
+        // Gifter is the Person that added this GiveAwayItem to the pool
         public string sGifter;
-        // Giftee is the Person receiving this Present
+        // Giftee is the Person receiving this GiveAwayItem
         public string sGiftee;
         public string Link;
         public bool current;
@@ -42,14 +45,14 @@ namespace BobCore.DataClasses
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
         }
-        public Present()
+        public GiveAwayItem()
         {
             if (sGiftee == null)
             {
                 sGiftee = "";
             }
         }
-        public Present(string _sTitle, string _sGifter, string _sKey = "")
+        public GiveAwayItem(string _sTitle, string _sGifter, string _sKey = "")
         {
             sTitle = _sTitle;
             sGifter = _sGifter;
@@ -60,6 +63,32 @@ namespace BobCore.DataClasses
         public void SetGiftee(string nick)
         {
             sGiftee = nick;
+        }
+        public void FillDataFromSteam()
+        {
+            ServicePointManager.DefaultConnectionLimit = 20;
+            ServicePointManager.Expect100Continue = false;
+            ServicePointManager.UseNagleAlgorithm = false;
+            string url = "http://store.steampowered.com/app/" + iSteamID;
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+            req.Proxy = null;
+            HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+            if (resp.StatusCode == HttpStatusCode.OK)
+            {
+                string data = "";
+                using (var reader = new System.IO.StreamReader(resp.GetResponseStream()))
+                {
+                    data = reader.ReadToEnd();
+                }
+                var doc = new HtmlDocument();
+                doc.LoadHtml(data);
+                var nodes = doc.DocumentNode.Descendants("div").Where(x => x.Attributes["class"] != null && x.Attributes["class"].Value.Contains("apphub_AppName")).FirstOrDefault();
+                if(nodes != null)
+                {
+                    Link = url;
+                    sTitle = nodes.InnerHtml;
+                }
+            }
         }
     }
 }

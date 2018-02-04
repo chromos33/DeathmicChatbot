@@ -34,7 +34,7 @@ namespace BobCore
         List<DataClasses.internalStream> StreamList;
         List<DataClasses.User> UserList;
         List<DataClasses.Counter> CounterList;
-        TrulyObservableCollection<DataClasses.Present> GiveAwayList;
+        TrulyObservableCollection<DataClasses.GiveAway> GiveAwayList;
         DiscordSocketClient client;
         // Discord Lib 0.9 //DiscordClient client;
         List<string> FilesToUpdate = new List<string>();
@@ -54,14 +54,14 @@ namespace BobCore
             StreamList = Administrative.XMLFileHandler.readFile("Streams", "DataClasses.internalStream");
             UserList = Administrative.XMLFileHandler.readFile("Users", "DataClasses.User");
             CounterList = Administrative.XMLFileHandler.readFile("Counters", "DataClasses.Counter");
-            if (Administrative.XMLFileHandler.fileexists("GiveAwayList"))
+            if (Administrative.XMLFileHandler.fileexists("GiveAway"))
             {
-                GiveAwayList = new TrulyObservableCollection<DataClasses.Present>(Administrative.XMLFileHandler.readFile("GiveAwayList", "DataClasses.Present"));
+                GiveAwayList = new TrulyObservableCollection<DataClasses.GiveAway>(Administrative.XMLFileHandler.readFile("GiveAway", "DataClasses.GiveAway"));
             }
             else
             {
-                GiveAwayList = new TrulyObservableCollection<DataClasses.Present>();
-                Administrative.XMLFileHandler.writeFile(GiveAwayList, "GiveAwayList");
+                GiveAwayList = new TrulyObservableCollection<DataClasses.GiveAway>();
+                Administrative.XMLFileHandler.writeFile(GiveAwayList, "GiveAway");
 
             }
         }
@@ -100,8 +100,8 @@ namespace BobCore
                         case "Counter":
                             command.addRequiredList(CounterList, "DataClasses.Counter");
                             break;
-                        case "Present":
-                            command.addRequiredList(GiveAwayList, "DataClasses.Present");
+                        case "GiveAway":
+                            command.addRequiredList(GiveAwayList, "DataClasses.GiveAway");
                             break;
                         case "Client":
                             command.addRequiredList(client, "Client");
@@ -305,7 +305,7 @@ namespace BobCore
             {
                 if(arg.Content.Length < 200)
                 {
-                    logger.DoNotice("I received my own message: in Channel" + arg.Channel + " with message :'" + arg.Content);
+                    //logger.DoNotice("I received my own message: in Channel" + arg.Channel + " with message :'" + arg.Content);
                 }
             }
             return Task.FromResult(true);
@@ -341,6 +341,12 @@ namespace BobCore
                 FilesToUpdate.Remove("GiveAwayList");
                 Console.WriteLine("GiveAwayListUpdated");
             }
+            if (FilesToUpdate.Contains("GiveAway"))
+            {
+                BobCore.Administrative.XMLFileHandler.writeFile(GiveAwayList, "GiveAway");
+                FilesToUpdate.Remove("GiveAway");
+                Console.WriteLine("GiveAwayListUpdated");
+            }
         }
 
         private void GiveAwayChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -348,6 +354,10 @@ namespace BobCore
             if (!FilesToUpdate.Contains("GiveAwayList"))
             {
                 FilesToUpdate.Add("GiveAwayList");
+            }
+            if (!FilesToUpdate.Contains("GiveAway"))
+            {
+                FilesToUpdate.Add("GiveAway");
             }
         }
 
@@ -378,7 +388,7 @@ namespace BobCore
                             {
                                 if (!isDev)
                                 {
-                                    logger.DoNotice("The User " + user.Username + " was notified of Stream " + stream.sChannel + " at " + DateTime.Now.ToString());
+                                    //logger.DoNotice("The User " + user.Username + " was notified of Stream " + stream.sChannel + " at " + DateTime.Now.ToString());
                                     user.SendMessageAsync(stream.StreamStartedMessage());
                                     Thread.Sleep(200);
                                 }
@@ -393,7 +403,7 @@ namespace BobCore
                                 {
                                     
                                     user.SendMessageAsync(stream.StreamStartedMessage());
-                                    logger.DoNotice("The User " + user.Username + " was notified of Stream " + stream.sChannel + " at " + DateTime.Now.ToString());
+                                    //logger.DoNotice("The User " + user.Username + " was notified of Stream " + stream.sChannel + " at " + DateTime.Now.ToString());
                                     user.SendMessageAsync("Bitte mir '!addmyuser' zurückschreiben das ich dich in die Liste eintrage");
                                     Thread.Sleep(200);
                                 }

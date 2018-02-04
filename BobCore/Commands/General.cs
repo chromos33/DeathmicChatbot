@@ -90,9 +90,10 @@ namespace BobCore.Commands
             }
         }
     }
+    /*
     class RemoveOldUsers : IFCommand
     {
-        private static string[] Requirements = { "User", "Present", "Client" };
+        private static string[] Requirements = { "User", "GiveAwayItem", "Client" };
         public string description { get { return "User die nicht im auf dem Discord Server sidn werden gelöscht"; } }
         public List<string> UserRestriction = new List<string> { "chromos33", "deathmic" };
         public string category { get { return "General"; } }
@@ -146,5 +147,5 @@ namespace BobCore.Commands
                 Client = _DataList;
             }
         }
-    }
+    }*/
 }

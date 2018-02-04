@@ -53,6 +53,35 @@ namespace BobCore
 
             return @params;
         }
+        public static List<List<string>> MultiMessageParameters(string message,string trigger)
+        {
+            List<List<string>> Result = new List<List<string>>();
+            string sMessage = message.ToLower();
+            if (sMessage.Split('!').Count() > 1)
+            {
+                if (sMessage.Split('!')[0].Length > 0)
+                {
+                    sMessage = sMessage.Replace(sMessage.Split('!')[0], "");
+                }
+            }
+            sMessage = sMessage.Replace(trigger.ToLower(), "");
+
+            string[] test = sMessage.Split(",");
+            bool first = true;
+            foreach(string item in test)
+            {
+                List<string> unfiltered = Useful_Functions.MessageParameters(item, trigger);
+                if(first)
+                {
+                    first = false;
+                    unfiltered.RemoveAt(0);
+                }
+                Result.Add(unfiltered);
+            }
+
+            return Result;
+
+        }
         public static bool IsFileReady(String sFilename)
         {
             // If the file can be opened for exclusive access it means that the file
