@@ -377,7 +377,7 @@ namespace BobCore.Commands
                         var stream = StreamList.Where(x => x.sChannel.ToLower() == @params[0].ToLower()).FirstOrDefault();
                         if (stream != null)
                         {
-                            if(Regex.Match(@params[1], "Stream_\\d").Success)
+                            if(Regex.Match(@params[1].ToLower(), @"stream_\d+").Success)
                             {
                                 return "Generische Stream Channel können nicht personalisiert werden!";
                             }
