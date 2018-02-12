@@ -103,6 +103,7 @@ namespace BobCore
         {
             return obj.GetType().GetField(propertyName) != null;
         }
+        public static bool isDebug { get { return false; } }
 
     }
 }

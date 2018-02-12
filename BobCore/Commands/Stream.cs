@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BobCore.DataClasses;
+using System.Text.RegularExpressions;
 
 namespace BobCore.Commands
 {
@@ -248,10 +249,10 @@ namespace BobCore.Commands
             }
         }
     }
-    class ManageStreamRelay : IFCommand
+    class ActivateStreamRelay : IFCommand
     {
-        private string Trigger = "!managestreamrelay";
-        private string[] Requirements = { "User", "Stream" };
+        private string Trigger = "!activatestreamrelay";
+        private string[] Requirements = { "Stream" };
         public string description { get { return "Aktiviert bei einem Stream die Relay Funktion"; } }
         public string category { get { return "Stream"; } }
         public bool @private { get { return false; } }
@@ -261,7 +262,6 @@ namespace BobCore.Commands
         }
         public string sTrigger { get { return Trigger; } }
         List<DataClasses.internalStream> StreamList;
-        List<DataClasses.User> UserList;
 
         public string CheckCommandAndExecuteIfApplicable(string message, string username, string channel)
         {
@@ -272,24 +272,16 @@ namespace BobCore.Commands
                 {
                     if (@params[0].Contains("help"))
                     {
-                        return "!managestreamrelay [streamname] [targetchannel(Discord)] [(optional default 1) twoway (0/1)]";
+                        return Trigger+" [streamname]";
                     }
-                    if (@params.Count() >= 2)
+                    if (@params.Count() >= 1)
                     {
-                        int twoway = 1;
-                        if (@params.Count() == 3)
-                        {
-                            twoway = Int32.Parse(@params[2]);
-                        }
-                        string streamname = @params[0];
-                        string targetchannel = @params[1];
                         var stream = StreamList.Where(x => x.sChannel.ToLower() == @params[0].ToLower()).FirstOrDefault();
                         if (stream != null)
                         {
-                            stream.sTargetrelaychannel = @params[1];
-                            stream.bTwoway = twoway != 0;
+                            stream.bRelayActive = true;
                             Administrative.XMLFileHandler.writeFile(StreamList, "Streams");
-                            return "Stream relay added";
+                            return "Relay Function Active";
                         }
                         return "Stream existiert noch nicht";
                     }
@@ -300,10 +292,112 @@ namespace BobCore.Commands
 
         public void addRequiredList(dynamic _DataList, string type)
         {
-            if (type == "DataClasses.User")
+            if (type == "DataClasses.Stream")
             {
-                UserList = _DataList;
+                StreamList = _DataList;
             }
+        }
+    }
+    class DeactivateStreamRelay : IFCommand
+    {
+        private string Trigger = "!deactivatestreamrelay";
+        private string[] Requirements = { "Stream" };
+        public string description { get { return "Deaktiviert bei einem Stream die Relay Funktion"; } }
+        public string category { get { return "Stream"; } }
+        public bool @private { get { return false; } }
+        public string[] SARequirements
+        {
+            get { return Requirements; }
+        }
+        public string sTrigger { get { return Trigger; } }
+        List<DataClasses.internalStream> StreamList;
+
+        public string CheckCommandAndExecuteIfApplicable(string message, string username, string channel)
+        {
+            if (message.ToLower().Contains(sTrigger))
+            {
+                List<string> @params = Useful_Functions.MessageParameters(message, sTrigger);
+                if (@params.Count() > 0)
+                {
+                    if (@params[0].Contains("help"))
+                    {
+                        return Trigger + " [streamname]";
+                    }
+                    if (@params.Count() >= 1)
+                    {
+                        var stream = StreamList.Where(x => x.sChannel.ToLower() == @params[0].ToLower()).FirstOrDefault();
+                        if (stream != null)
+                        {
+                            stream.bRelayActive = false;
+                            Administrative.XMLFileHandler.writeFile(StreamList, "Streams");
+                            return "Relay Function Inactive";
+                        }
+                        return "Stream existiert noch nicht";
+                    }
+                }
+            }
+            return "";
+        }
+
+        public void addRequiredList(dynamic _DataList, string type)
+        {
+            if (type == "DataClasses.Stream")
+            {
+                StreamList = _DataList;
+            }
+        }
+    }
+    class PrivateStreamRelayChannel : IFCommand
+    {
+        private string Trigger = "!privatestreamrelaychannel";
+        private string[] Requirements = { "Stream" };
+        public string description { get { return "Setzt den StandardChannel des Relays (Personalized)"; } }
+        public string category { get { return "Stream"; } }
+        public bool @private { get { return false; } }
+        public string[] SARequirements
+        {
+            get { return Requirements; }
+        }
+        public string sTrigger { get { return Trigger; } }
+        List<DataClasses.internalStream> StreamList;
+
+        public string CheckCommandAndExecuteIfApplicable(string message, string username, string channel)
+        {
+            if (message.ToLower().Contains(sTrigger))
+            {
+                List<string> @params = Useful_Functions.MessageParameters(message, sTrigger);
+                if (@params.Count() > 0)
+                {
+                    if (@params[0].Contains("help"))
+                    {
+                        return Trigger + " [streamname] [DiscordChannel]";
+                    }
+                    if (@params.Count() >= 2)
+                    {
+                        var stream = StreamList.Where(x => x.sChannel.ToLower() == @params[0].ToLower()).FirstOrDefault();
+                        if (stream != null)
+                        {
+                            if(Regex.Match(@params[1], "Stream_\\d").Success)
+                            {
+                                return "Generische Stream Channel können nicht personalisiert werden!";
+                            }
+                            else
+                            {
+                                stream.sTargetrelaychannel = @params[1];
+                                Administrative.XMLFileHandler.writeFile(StreamList, "Streams");
+                                return "Personalised Relay registered";
+                            }
+                            
+                        }
+                        return "Stream existiert noch nicht";
+                    }
+                }
+            }
+            return "";
+        }
+
+        public void addRequiredList(dynamic _DataList, string type)
+        {
             if (type == "DataClasses.Stream")
             {
                 StreamList = _DataList;
@@ -365,6 +459,52 @@ namespace BobCore.Commands
             {
                 UserList = _DataList;
             }
+            if (type == "DataClasses.Stream")
+            {
+                StreamList = _DataList;
+            }
+        }
+    }
+    class ResetRelays : IFCommand
+    {
+        private string Trigger = "!resetrelays";
+        private static string[] Requirements = { "Stream" };
+        public string description { get { return "Resets Stream Relays for new system [RESTRICTED]"; } }
+        public List<string> UserRestriction = new List<string> { "chromos33" };
+        public string category { get { return "Stream"; } }
+        public bool @private { get { return false; } }
+        List<DataClasses.internalStream> StreamList;
+        public string[] SARequirements
+        {
+            get { return Requirements; }
+        }
+        public string sTrigger { get { return Trigger; } }
+        public List<DataClasses.User> lUser;
+        public string CheckCommandAndExecuteIfApplicable(string message, string username, string channel)
+        {
+            if (message.ToLower().Contains(sTrigger))
+            {
+                if (UserRestriction.Contains(username.ToLower()))
+                {
+                   foreach(internalStream stream in StreamList)
+                   {
+                        stream.bRelayActive = false;
+                        stream.sTargetrelaychannel = "";
+                        Administrative.XMLFileHandler.writeFile(StreamList, "Streams");
+                        
+                   }
+                    return "Relays Resetted";
+                }
+                else
+                {
+                    return "Forbidden";
+                }
+
+            }
+            return "";
+        }
+        public void addRequiredList(dynamic _DataList, string type)
+        {
             if (type == "DataClasses.Stream")
             {
                 StreamList = _DataList;

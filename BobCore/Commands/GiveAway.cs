@@ -222,7 +222,6 @@ namespace BobCore.Commands
             get { return Requirements; }
         }
         public string sTrigger { get { return Trigger; } }
-        public List<DataClasses.User> lUser;
         public TrulyObservableCollection<DataClasses.GiveAway> lGiveAway;
         public string CheckCommandAndExecuteIfApplicable(string message, string username, string channel)
         {

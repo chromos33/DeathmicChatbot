@@ -26,7 +26,6 @@ namespace BobCore
 {
     class Program
     {
-        private bool isDev = false;
         DebugLogger logger;
         #region Globals
         List<dynamic> Commands;
@@ -81,11 +80,8 @@ namespace BobCore
                     Commands.Add(newCommand);
                 }
             }
-            //somehow have to do this because newCommand.init does not exist ????
-            //inits Commands with Data Needed by some of them ( a bit of redundancy not all commands require data but structure requires it)
             foreach (var command in Commands)
             {
-                //Rewrite and add Requirements to command
                 string[] reqs = command.SARequirements;
                 foreach (string req in reqs)
                 {
@@ -159,7 +155,14 @@ namespace BobCore
         {
             foreach (var stream in StreamList)
             {
-                stream.initStreamRelay(client);
+                stream.initStreamRelay(client, StreamList);
+            }
+        }
+        private void TestForceStopRelays()
+        {
+            foreach (var stream in StreamList)
+            {
+                stream.stopStreamRelay();
             }
         }
         private void GiveAwaySetup()
@@ -259,7 +262,7 @@ namespace BobCore
                     //If empty was no command
                     if (result != "")
                     {
-                        if (!isDev)
+                        if (!Useful_Functions.isDebug)
                         {
                             if (command.@private)
                             {
@@ -321,6 +324,10 @@ namespace BobCore
                 }
                 Environment.Exit(0);
             }
+            if(arg.Content.Contains("!killrelay"))
+            {
+                TestForceStopRelays();
+            }
         }
         private void RelayMessage(SocketMessage arg)
         {
@@ -329,7 +336,11 @@ namespace BobCore
             string message = arg.Content.Replace("\n", " ");
             foreach (var stream in ActiveRelayStreams)
             {
-                stream.RelayMessage(arg.Author.Username + ":" + message, arg.Channel.Name);
+                if(!Useful_Functions.isDebug)
+                {
+                    stream.RelayMessage(arg.Author.Username + ":" + message, arg.Channel.Name);
+                }
+               
             }
         }
 
@@ -386,7 +397,7 @@ namespace BobCore
                             
                             if (UserList.Where(x => x.isUser(user.Username.ToLower())).FirstOrDefault() != null && UserList.Where(x => x.isUser(user.Username.ToLower())).FirstOrDefault().isSubscribed(stream.sChannel))
                             {
-                                if (!isDev)
+                                if (!Useful_Functions.isDebug)
                                 {
                                     //logger.DoNotice("The User " + user.Username + " was notified of Stream " + stream.sChannel + " at " + DateTime.Now.ToString());
                                     user.SendMessageAsync(stream.StreamStartedMessage());
@@ -413,7 +424,7 @@ namespace BobCore
                         {
                             if (UserList.Where(x => x.isUser(user.Username.ToLower())).FirstOrDefault() != null && UserList.Where(x => x.isUser(user.Username.ToLower())).FirstOrDefault().isGlobalAnnouncment(stream.sChannel))
                             {
-                                if (!isDev)
+                                if (!Useful_Functions.isDebug)
                                 {
                                     user.SendMessageAsync(stream.StreamRunningMessage());
                                 }

@@ -27,17 +27,15 @@ namespace BobCore.StreamFunctions.Relay
         public string sChannel = "";
         public string sTargetChannel = "";
         public DiscordSocketClient discordclient;
-        public bool bTwoWay;
         private IrcDotNet.TwitchIrcClient LocalClient;
         public bool isExit = false;
         public bool bDisconnected = false;
-        public TwitchRelay(DiscordSocketClient discord, string channel, string targetchannel, bool twoway = true)
+        public TwitchRelay(DiscordSocketClient discord, string channel, string targetchannel)
         {
 
             sChannel = channel;
             sTargetChannel = targetchannel;
             discordclient = discord;
-            bTwoWay = twoway;
         }
         public void StartRelayEnd()
         {
@@ -104,7 +102,14 @@ namespace BobCore.StreamFunctions.Relay
             bDisconnected = false;
             if (channel != null)
             {
-                channel.SendMessageAsync("Twitch Relay Activated ("+ sChannel + ")");
+                if(!Useful_Functions.isDebug)
+                {
+                    channel.SendMessageAsync("Twitch Relay Activated (" + sChannel + ")");
+                }
+                else
+                {
+                    Console.WriteLine("Twitch Relay Activated (" + sChannel + ")");
+                }
             }
             else
             {
@@ -120,7 +125,15 @@ namespace BobCore.StreamFunctions.Relay
             }
             if (channel != null)
             {
-                channel.SendMessageAsync("Twitch Relay Terminated (" + sChannel + ")");
+                if (!Useful_Functions.isDebug)
+                {
+                    channel.SendMessageAsync("Twitch Relay Terminated (" + sChannel + ")");
+                }
+                else
+                {
+                    Console.WriteLine("Twitch Relay Terminated (" + sChannel + ")");
+                }
+                
             }
             client.Disconnect();
             bDisconnected = true;
@@ -181,14 +194,14 @@ namespace BobCore.StreamFunctions.Relay
         private string norepeat = "";
         public void RelayMessage(string message)
         {
-            if (bTwoWay)
+            if (message != norepeat)
             {
-                if (message != norepeat)
+                if(!Useful_Functions.isDebug)
                 {
                     LocalClient.LocalUser.SendMessage("#" + sChannel, message);
-                    norepeat = message;
                 }
-
+                    
+                norepeat = message;
             }
         }
 
@@ -220,10 +233,6 @@ namespace BobCore.StreamFunctions.Relay
 #pragma warning restore RECS0154 // Parameter is never used
         {
             var client = (IrcClient)sender;
-        }
-        public void DisconnectRelay()
-        {
-            isExit = true;
         }
     }
 }
