@@ -187,7 +187,7 @@ namespace BobCore.DataClasses
         {
             try
             {
-                if (sTempTargetrelaychannel != null)
+                if (sTempTargetrelaychannel != "")
                 {
                     if (channel.ToLower() == sTempTargetrelaychannel.ToLower())
                     {
