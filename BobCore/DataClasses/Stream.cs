@@ -41,7 +41,7 @@ namespace BobCore.DataClasses
         public string sTargetrelaychannel;
         private DiscordSocketClient client;
         private TwitchRelay Relay;
-        private string sTempTargetrelaychannel;
+        private string sTempTargetrelaychannel = "";
         Thread RelayThread;
         List<DataClasses.internalStream> StreamList;
         public string getUrl(string provider)
@@ -57,6 +57,10 @@ namespace BobCore.DataClasses
         }
         public string StreamStartedMessage()
         {
+            if(Relay != null)
+            {
+                return String.Format("{0} hat angefangen {1} auf {2} zu streamen. Der Relay läuft im Channel {3}",sChannel,sGame,sUrl,Relay.sTargetChannel);
+            }
             return sChannel + " has started streaming " + sGame + " on" + sUrl;
         }
         public string StreamRunningMessage()
@@ -120,7 +124,7 @@ namespace BobCore.DataClasses
                         {
                             if (stream.Relay != null && !stream.Relay.bDisconnected)
                             {
-                                occupiedchannels.Add(stream.sTempTargetrelaychannel);
+                                    occupiedchannels.Add(stream.Relay.sTargetChannel);
                             }
                         }
                         List<string> availablechannels = new List<string>();
@@ -135,7 +139,6 @@ namespace BobCore.DataClasses
                                         availablechannels.Add(channel.Name);
                                     }
                                 }
-                                
                             }catch(Exception ex)
                             {
                                 Console.WriteLine(ex.ToString());

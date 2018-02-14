@@ -347,6 +347,7 @@ namespace BobCore.Commands
             }
         }
     }
+    //TODO Add Method for Removing Private Stream Relay Channel again
     class PrivateStreamRelayChannel : IFCommand
     {
         private string Trigger = "!privatestreamrelaychannel";
