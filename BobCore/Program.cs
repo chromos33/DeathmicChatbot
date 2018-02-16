@@ -338,7 +338,7 @@ namespace BobCore
             {
                 if(!Useful_Functions.isDebug)
                 {
-                    stream.RelayMessage(arg.Author.Username + ":" + message, arg.Channel.Name);
+                    stream.RelayMessage(arg.Author.Username + ": " + message, arg.Channel.Name);
                 }
                
             }
