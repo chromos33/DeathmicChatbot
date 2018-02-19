@@ -197,7 +197,7 @@ namespace BobCore.DataClasses
                         }
                         else
                         {
-                            Console.WriteLine(message);
+                            Relay.RelayMessage(message);
                         }
                         
                     }
@@ -212,7 +212,7 @@ namespace BobCore.DataClasses
                         }
                         else
                         {
-                            Console.WriteLine(message);
+                            Relay.RelayMessage(message);
                         }
                     }
                 }
@@ -307,6 +307,5 @@ namespace BobCore.DataClasses
             }
             return false;
         }
-
     }
 }
