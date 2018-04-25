@@ -54,7 +54,7 @@ namespace BobCore.StreamFunctions
                         {
                             var internalStream = _lsStreams.Where(x => x.sUserID == streamData.user_id).FirstOrDefault();
                             GetStreamUserIDFromTwitch();  
-                            // Method takes Requests StreamName from Twitch via UserID to then write UserID into stream;
+                            // Method requests StreamName from Twitch via UserID to then write UserID into stream;
                             void GetStreamUserIDFromTwitch()
                             {
                                 if (internalStream == null)

@@ -46,13 +46,11 @@ namespace BobCore.DataClasses
         List<DataClasses.internalStream> StreamList;
         public string getUrl(string provider)
         {
-
             switch (provider)
             {
                 case "twitch":
                     return "https://go.twitch.tv/" + sChannel;
             }
-
             return "";
         }
         public string StreamStartedMessage()
@@ -197,7 +195,7 @@ namespace BobCore.DataClasses
                         }
                         else
                         {
-                            Relay.RelayMessage(message);
+                            Console.WriteLine(message);
                         }
                         
                     }
@@ -212,7 +210,7 @@ namespace BobCore.DataClasses
                         }
                         else
                         {
-                            Relay.RelayMessage(message);
+                            Console.WriteLine(message);
                         }
                     }
                 }

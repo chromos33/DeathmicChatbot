@@ -144,12 +144,17 @@ namespace BobCore
             Console.WriteLine("Bot is trying is starting");
             client.MessageReceived += MessageReceived;
             client.Ready += ClientConnectd;
+            client.Disconnected += ClientDisconnected;
 
             return;
             //await client.LoginAsync(TokenType.Bot, Properties.Settings.Default.DiscordToken);
             // Initialize StreamRelays
         }
-        
+
+        private async Task ClientDisconnected(Exception arg)
+        {
+            await DiscordConnection();
+        }
 
         private void StreamRelaySetup()
         {
@@ -340,7 +345,6 @@ namespace BobCore
                 {
                     stream.RelayMessage(arg.Author.Username + ": " + message, arg.Channel.Name);
                 }
-               
             }
         }
 
