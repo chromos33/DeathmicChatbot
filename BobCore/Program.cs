@@ -153,7 +153,11 @@ namespace BobCore
 
         private async Task ClientDisconnected(Exception arg)
         {
-            await DiscordConnection();
+            while (FilesToUpdate.Count() != 0)
+            {
+                Thread.Sleep(1000);
+            }
+            Environment.Exit(0);
         }
 
         private void StreamRelaySetup()
