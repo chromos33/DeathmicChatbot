@@ -8,7 +8,7 @@ namespace BobCore.StreamFunctions
 {
     interface StreamChecker
     {
-        void CheckOnlineStreams();
+        Task CheckOnlineStreams();
         void Start();
         void Start(List<DataClasses.internalStream> Streams);
         event EventHandler<StreamEventArgs> StreamOnline;

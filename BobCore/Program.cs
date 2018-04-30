@@ -409,11 +409,11 @@ namespace BobCore
                                 {
                                     //logger.DoNotice("The User " + user.Username + " was notified of Stream " + stream.sChannel + " at " + DateTime.Now.ToString());
                                     user.SendMessageAsync(stream.StreamStartedMessage());
-                                    Thread.Sleep(200);
+                                    Thread.Sleep(50);
                                 }
                                 else
                                 {
-                                    Console.WriteLine(stream.StreamStartedMessage());
+                                    //Console.WriteLine(stream.StreamStartedMessage());
                                 }
                             }
                             else
@@ -424,7 +424,7 @@ namespace BobCore
                                     user.SendMessageAsync(stream.StreamStartedMessage());
                                     //logger.DoNotice("The User " + user.Username + " was notified of Stream " + stream.sChannel + " at " + DateTime.Now.ToString());
                                     user.SendMessageAsync("Bitte mir '!addmyuser' zurückschreiben das ich dich in die Liste eintrage");
-                                    Thread.Sleep(200);
+                                    Thread.Sleep(50);
                                 }
                             }
                         }

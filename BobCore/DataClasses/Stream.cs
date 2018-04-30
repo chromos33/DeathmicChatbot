@@ -254,7 +254,6 @@ namespace BobCore.DataClasses
         public void StreamStarting()
         {
             bRunning = true;
-            dtStarttime = DateTime.Now;
             dtLastglobalnotice = dtStarttime;
             dtStoptime = DateTime.MinValue;
             if (bRelayActive)

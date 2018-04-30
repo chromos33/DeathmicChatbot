@@ -4,19 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 using BobCore.StreamFunctions.JSON;
+using TwitchLib.Api;
+using System.Threading.Tasks;
 
 namespace BobCore.StreamFunctions
 {
     class TwitchChecker : StreamChecker
     {
-        private readonly RestClient _client;
         private List<DataClasses.internalStream> _lsStreams;
         private Timer _timer;
         private bool inprogress = false;
         private DataClasses.SecurityVault vault;
+        private static TwitchAPI api;
         public TwitchChecker()
         {
-            _client = new RestClient("https://api.twitch.tv");
+            
         }
 
         public event EventHandler<StreamEventArgs> StreamOnline;
@@ -25,9 +27,18 @@ namespace BobCore.StreamFunctions
         public void AddSecurityVaultData(DataClasses.SecurityVault _vault)
         {
             vault = _vault;
+            InitializeAPI();
+           
         }
 
-        public void CheckOnlineStreams()
+        public void InitializeAPI()
+        {
+            api = new TwitchAPI();
+            api.Settings.ClientId = vault.TwitchToken;
+            api.Settings.AccessToken = vault.TwitchToken;
+        }
+        
+        public async Task CheckOnlineStreams()
         {
             try
             {
@@ -35,18 +46,86 @@ namespace BobCore.StreamFunctions
                 {
                     inprogress = true;
 
-                    var req = new RestRequest("helix/streams", Method.GET);
-                    req.AddHeader("Client-ID", vault.TwitchToken);
-
                     List<string> serializedstream = new List<string>();
                     foreach (DataClasses.internalStream stream in _lsStreams)
                     {
-                        //serializedstream.Add(stream.sChannel);
-                        req.AddParameter("user_login", stream.sChannel);
+                        serializedstream.Add(stream.sChannel);
+                        if(stream.sUserID != null && stream.sUserID != "")
+                        {
+                            if(await api.Streams.v5.BroadcasterOnlineAsync(stream.sUserID))
+                            {
+                                Console.WriteLine(stream.sChannel + " is online");
+                                StreamEventArgs args = new StreamEventArgs();
+                                if (!stream.bRunning)
+                                {
+                                    var streamdata = api.Streams.v5.GetStreamByUserAsync(stream.sUserID);
+                                    string game = streamdata.Result.Stream.Game;
+                                    string channel = streamdata.Result.Stream.Channel.Name;
+                                    DateTime startdate = streamdata.Result.Stream.CreatedAt;
+                                    
+                                    FillStreamArgs();
+                                    void FillStreamArgs()
+                                    {
+                                        args.game = game;
+                                        stream.sGame = game;
+                                        stream.sUrl = stream.getUrl("twitch");
+                                        args.link = stream.getUrl("twitch");
+                                        args.channel = stream.sChannel;
+                                        stream.dtStarttime = streamdata.Result.Stream.CreatedAt;
+                                    }
+                                }
+                                else
+                                {
+                                    args.game = stream.sGame;
+                                    args.link = stream.sUrl;
+                                    args.channel = stream.sChannel;
+                                }
+                                StartStreamOrCheckRelay();
+                                void StartStreamOrCheckRelay()
+                                {
+                                    if (!stream.bRunning)
+                                    {
+                                        args.state = 1;
+                                        stream.StreamStarting();
+                                    }
+                                    else
+                                    {
+                                        args.state = 2;
+                                        stream.StreamRelayCheck();
+                                    }
+                                }
+                                if (stream.bShouldNotify())
+                                {
+                                    StreamOnline(this, args);
+                                }
+                            }
+                            else
+                            {
+                                EndRunningStream(stream);
+                                void EndRunningStream(DataClasses.internalStream _stream)
+                                {
+                                    if(_stream.bRunning)
+                                    {
+                                        StreamEventArgs args = new StreamEventArgs();
+                                        args.channel = _stream.sChannel;
+                                        args.game = "";
+                                        args.state = 3;
+                                        args.stream = "";
+                                        args.link = "";
+                                        if (_stream.StopOrTwitchError())
+                                        {
+                                            StreamOffline(this, args);
+                                        }
+                                        Administrative.XMLFileHandler.writeFile(_lsStreams, "Streams");
+                                    }
+                                }
+                            }
+                            
+                        }
                     }
-                    var response = _client.Execute(req);
-                    StreamFunctions.JSON.TwitchStreamData TwitchStreamData = Newtonsoft.Json.JsonConvert.DeserializeObject<StreamFunctions.JSON.TwitchStreamData>(response.Content);
+                        
                     #region api 5
+                        /*
                     List<string> onlinestreams = new List<string>();
                     if (TwitchStreamData.data != null && TwitchStreamData.data.Count() > 0)
                     {
@@ -131,9 +210,9 @@ namespace BobCore.StreamFunctions
                         }
                         Administrative.XMLFileHandler.writeFile(_lsStreams, "Streams");
                     }
-                    
-                    #endregion
-                    inprogress = false;
+                    */
+                        #endregion
+                        inprogress = false;
 
 
                 }
