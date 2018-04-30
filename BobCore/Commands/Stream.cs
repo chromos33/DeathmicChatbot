@@ -12,10 +12,11 @@ namespace BobCore.Commands
     {
         private string Trigger = "!addstream";
         public string sTrigger { get { return Trigger; } }
-        private string[] Requirements = { "User", "Stream" };
+        private string[] Requirements = { "User", "Stream", "SecurityVault" };
         public string description { get { return "Fügt Stream der Liste hinzu"; } }
         public string category { get { return "Stream"; } }
         public bool @private { get { return false; } }
+        private List<DataClasses.SecurityVault> vault;
         public string[] SARequirements
         {
             get { return Requirements; }
@@ -41,10 +42,20 @@ namespace BobCore.Commands
                             internalStream newStream = new internalStream();
                             newStream.sChannel = @params[0];
                             newStream.bRunning = false;
+                            TwitchLib.Api.TwitchAPI api = new TwitchLib.Api.TwitchAPI();
+                            api.Settings.ClientId = vault.First().TwitchToken;
+                            api.Settings.AccessToken = vault.First().TwitchToken;
+                            var twitchuser = api.Users.v5.GetUserByNameAsync(@params[0].ToLower());
+                            if(twitchuser.Result.Matches.FirstOrDefault() == null)
+                            {
+                                return "Could not find Stream on Twitch. Try again later.";
+                            }
+                            newStream.sUserID = twitchuser.Result.Matches.FirstOrDefault().Id;
                             StreamList.Add(newStream);
                             Administrative.XMLFileHandler.writeFile(StreamList, "Streams");
                             var FilteredList = UserList.Where(x => !x.hasStream(@params[0]));
                             bool added = false;
+
                             foreach (var user in FilteredList)
                             {
                                 added = true;
@@ -75,6 +86,10 @@ namespace BobCore.Commands
             if (type == "DataClasses.Stream")
             {
                 StreamList = _DataList;
+            }
+            if(type == "DataClasses.SecurityVault")
+            {
+                vault = _DataList;
             }
         }
     }

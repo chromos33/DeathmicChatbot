@@ -102,6 +102,9 @@ namespace BobCore
                         case "Client":
                             command.addRequiredList(client, "Client");
                             break;
+                        case "SecurityVault":
+                            command.addRequiredList(Security, "DataClasses.SecurityVault");
+                            break;
                         default: break;
                     }
                 }
