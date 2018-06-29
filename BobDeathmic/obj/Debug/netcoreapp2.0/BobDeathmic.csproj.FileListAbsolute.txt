@@ -1,0 +1,7 @@
+D:\Github\DeathmicChatbot\BobDeathmic\bin\Debug\netcoreapp2.0\BobDeathmic.deps.json
+D:\Github\DeathmicChatbot\BobDeathmic\bin\Debug\netcoreapp2.0\BobDeathmic.runtimeconfig.json
+D:\Github\DeathmicChatbot\BobDeathmic\bin\Debug\netcoreapp2.0\BobDeathmic.runtimeconfig.dev.json
+D:\Github\DeathmicChatbot\BobDeathmic\bin\Debug\netcoreapp2.0\BobDeathmic.dll
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.0\BobDeathmic.csproj.CoreCompileInputs.cache
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.0\BobDeathmic.AssemblyInfoInputs.cache
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.0\BobDeathmic.AssemblyInfo.cs
