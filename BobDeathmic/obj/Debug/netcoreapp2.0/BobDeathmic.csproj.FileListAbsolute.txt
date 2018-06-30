@@ -5,3 +5,7 @@ D:\Github\DeathmicChatbot\BobDeathmic\bin\Debug\netcoreapp2.0\BobDeathmic.dll
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.0\BobDeathmic.csproj.CoreCompileInputs.cache
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.0\BobDeathmic.AssemblyInfoInputs.cache
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.0\BobDeathmic.AssemblyInfo.cs
+D:\Github\DeathmicChatbot\BobDeathmic\bin\Debug\netcoreapp2.0\BobDeathmic.pdb
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.0\BobDeathmic.csprojAssemblyReference.cache
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.0\BobDeathmic.dll
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.0\BobDeathmic.pdb
