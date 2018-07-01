@@ -1,35 +1,107 @@
-﻿body {
-    padding-top: 50px;
-    padding-bottom: 20px;
+﻿.mobile_nav_opener
+{
+    height:20px;
+    width:30px;
+    position:absolute;
+    top:50%;
+    left:0;
+    transform:translateY(-50%);
+    cursor:pointer;
 }
 
-/* Wrapping element */
-/* Set some basic padding to keep content from hitting the edges */
-.body-content {
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
-/* Carousel */
-.carousel-caption p {
-    font-size: 20px;
-    line-height: 1.4;
-}
-
-/* Make .svg files in the carousel display properly in older browsers */
-.carousel-inner .item img[src$=".svg"] {
-    width: 100%;
-}
-
-/* QR code generator */
-#qrCode {
-    margin: 15px;
-}
-
-/* Hide/rearrange for smaller screens */
-@media screen and (max-width: 767px) {
-    /* Hide captions */
-    .carousel-caption {
-        display: none;
+    .mobile_nav_opener span
+    {
+        width:100%;
+        height:4px;
+        background:white;
+        display:block;
+        position:absolute;
     }
-}
+
+    .mobile_nav_opener span:nth-child(1) 
+    {
+        top:0;
+    }
+
+    .mobile_nav_opener span:nth-child(2) 
+    {
+        top: 8px;
+    
+    }
+
+    .mobile_nav_opener span:nth-child(3) 
+    {
+        top: 16px;
+    }
+    .bg_black
+    {
+        background-color:black;
+    }
+    .bg_black *
+    {
+        color:white !important;
+    }
+    .relative
+    {
+        position:relative;
+    }
+    h1
+    {
+        font-size:20px;
+        line-height:20px;
+    }
+    .navigationcontainer {
+        padding: 20px 10px;
+        min-height: 100vh;
+        height:100%;
+    }
+    .menuitem
+    {
+    
+        border-bottom:1px solid grey;
+        text-align:center;
+        transition:all 0.5s linear;
+    }
+    .menuitem > a,
+    .menuitem > .submenuopener {
+        cursor: pointer;
+        padding: 10px;
+        display: block;
+        border-bottom: 1px solid grey;
+    }
+    .menuitem > a:last-child,
+    .menuitem > .submenuopener:last-child {
+        border-bottom: 0px solid white !important;
+    }
+    .menuitem a:hover,
+    .menuitem .submenuopener:hover {
+        background: white;
+        color: black !important;
+    }
+    .open .submenuopener {
+        border-bottom: 5px solid white;
+    }
+    .menuitem.open
+    {
+        border-bottom:3px solid white;
+    }
+    .menuitem * {
+        color: white !important;
+        transition: all 0.5s linear;
+    }
+    .submenu
+    {
+        height:0;
+        overflow:hidden;
+        transition: height 0.5s ease;
+    }
+    .navi_footer
+    {
+        position:absolute;
+        bottom:0;
+
+    }
+    .navigationcontainer
+    {
+        padding-bottom:40px;
+    }

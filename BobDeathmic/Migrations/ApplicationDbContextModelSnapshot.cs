@@ -68,6 +68,72 @@ namespace BobDeathmic.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("BobDeathmic.Models.Stream", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("DiscordRelayChannel");
+
+                    b.Property<string>("Game");
+
+                    b.Property<int>("RelayState");
+
+                    b.Property<DateTime>("Started");
+
+                    b.Property<DateTime>("Stopped");
+
+                    b.Property<string>("StreamName");
+
+                    b.Property<int>("StreamState");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("StreamModels");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.StreamProvider", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name");
+
+                    b.Property<int?>("StreamID");
+
+                    b.Property<string>("Url");
+
+                    b.Property<string>("UserID");
+
+                    b.Property<string>("UserName");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("StreamID");
+
+                    b.ToTable("StreamProviders");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.StreamSubscription", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("StreamID");
+
+                    b.Property<int>("Subscribed");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("StreamID");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("StreamSubscription");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -173,6 +239,24 @@ namespace BobDeathmic.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.StreamProvider", b =>
+                {
+                    b.HasOne("BobDeathmic.Models.Stream", "Stream")
+                        .WithMany("StreamProvider")
+                        .HasForeignKey("StreamID");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.StreamSubscription", b =>
+                {
+                    b.HasOne("BobDeathmic.Models.Stream", "Stream")
+                        .WithMany()
+                        .HasForeignKey("StreamID");
+
+                    b.HasOne("BobDeathmic.Models.ChatUserModel", "User")
+                        .WithMany("StreamSubscriptions")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -10,5 +10,7 @@ namespace BobDeathmic.Models
     public class ChatUserModel : IdentityUser
     {
         public string ChatUserName { get; set; }
+        public List<StreamSubscription> StreamSubscriptions { get; set; }
+
     }
 }

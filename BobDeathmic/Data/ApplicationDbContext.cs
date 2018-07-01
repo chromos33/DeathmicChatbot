@@ -21,7 +21,12 @@ namespace BobDeathmic.Data
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
+            builder.Entity<Stream>()
+                .HasMany(p => p.StreamProvider)
+                .WithOne(s => s.Stream);
         }
         public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
+        public DbSet<Models.Stream> StreamModels { get; set; }
+        public DbSet<StreamProvider> StreamProviders { get; set; }
     }
 }
