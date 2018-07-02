@@ -1,0 +1,27 @@
+﻿@model BobDeathmic.Models.User.AddSubscriptionViewModel
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<h2>Subscription hinzufügen</h2>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <form asp-controller="User" asp-action="AddSubscription" method="post" class="form-vertical">
+                <label asp-for="StreamNameForSubscription" class="control-label"></label>
+                <select asp-for="StreamNameForSubscription" class="form-control">
+                    @foreach (var stream in ViewData["SubscribeableStream"] as List<BobDeathmic.Models.Stream>)
+                    {
+                        <option>@stream.StreamName</option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-default">Subscription hinzufügen</button>
+            </form>
+            
+        </div>
+        
+
+    </div>
+</div>
+

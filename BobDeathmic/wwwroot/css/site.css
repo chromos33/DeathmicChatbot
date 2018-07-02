@@ -105,3 +105,10 @@
     {
         padding-bottom:40px;
     }
+    button
+    {
+        padding:5px;
+        background:black;
+        color:white;
+        border-radius:3px;
+    }

@@ -11,20 +11,20 @@ namespace BobDeathmic.Legacy
         public int VisitCounter;
         public bool bIsLoggingOp;
         public string password;
-        public List<LegacyStream> Streams { get; set; }
-        public List<LegacyAlias> Aliase { get; set; }
+        public List<Stream> Streams { get; set; }
+        public List<Alias> Aliase { get; set; }
         public bool bMessages { get; set; }
         public bool globalhourlyannouncement { get; set; }
         public bool bIsAdmin { get; set; }
     }
 
-    public class LegacyStream
+    public class Stream
     {
         public string name;
         public bool subscribed;
         public bool hourlyannouncement;
     }
-    public class LegacyAlias
+    public class Alias
     {
         public string Name;
         public int VisitCounterBackup;

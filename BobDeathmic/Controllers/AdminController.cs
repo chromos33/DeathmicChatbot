@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -153,7 +154,7 @@ namespace BobDeathmic.Controllers
                     newUser.ChatUserName = item.Name;
                     password += item.Name.Substring(random.Next(0, item.Name.Length-1));
                     newUser.StreamSubscriptions = new List<Models.StreamSubscription>();
-                    foreach(Legacy.LegacyStream iStream in item.Streams)
+                    foreach(Legacy.Stream iStream in item.Streams)
                     {
                         password += iStream.name.Substring(random.Next(0, iStream.name.Length - 1));
                         Models.StreamSubscription newSubscription = new Models.StreamSubscription();
@@ -173,13 +174,24 @@ namespace BobDeathmic.Controllers
                         newSubscription.User = newUser;
                         newUser.StreamSubscriptions.Add(newSubscription);
                     }
-                    SHA256 mySHA256 = SHA256Managed.Create();
                     password += random.Next();
-                    //string hashedpw = mySHA256.ComputeHash(System.Text.Encoding.Unicode.GetBytes(password)).ToString();
-                    string hashedpw = "kermit22";
-                    var result = await UserManager.CreateAsync(newUser, hashedpw);
+                    byte[] salt = new byte[128 / 8];
+                    using (var rng = RandomNumberGenerator.Create())
+                    {
+                        rng.GetBytes(salt);
+                    }
+                    string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                        password: password,
+                        salt: salt,
+                        prf: KeyDerivationPrf.HMACSHA1,
+                        iterationCount: 10000,
+                        numBytesRequested: 256 / 8));
+
+
+                    newUser.InitialPassword = hashed;
+                    var result = await UserManager.CreateAsync(newUser, hashed);
                     //TODO remove filter
-                    if(item.Name.ToLower() == "chromos33" && false)
+                    if(item.Name.ToLower() == "chromos33")
                     {
                         await CreateOrAddUserRoles("Dev", "chromos33");
                     }
@@ -192,9 +204,8 @@ namespace BobDeathmic.Controllers
 
             // process uploaded files
             // Don't rely on or trust the FileName property without validation.
-
-            ViewData["UserListe"] = _context.ChatUserModels.ToList();
-            return View("UserList");
+            
+            return View("Import");
         }
         private async Task CreateOrAddUserRoles(string role, string name)
         {
