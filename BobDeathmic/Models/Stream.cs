@@ -17,5 +17,6 @@ namespace BobDeathmic.Models
         public StreamState StreamState { get; set; }
         public string DiscordRelayChannel { get; set; }
         public List<StreamProvider> StreamProvider { get; set; }
+        public List<StreamSubscription> StreamSubscriptions { get; set; }
     }
 }

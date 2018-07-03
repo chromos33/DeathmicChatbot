@@ -23,7 +23,16 @@
                 @Html.DisplayNameFor(model => model.Started)
             </th>
             <th>
-                Status
+                @Html.DisplayNameFor(model => model.Stopped)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RelayState)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StreamState)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DiscordRelayChannel)
             </th>
             <th></th>
         </tr>
@@ -41,7 +50,16 @@
                 @Html.DisplayFor(modelItem => item.Started)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Stopped)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RelayState)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.StreamState)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DiscordRelayChannel)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |

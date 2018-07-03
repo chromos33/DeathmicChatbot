@@ -8,6 +8,7 @@ using BobDeathmic.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BobDeathmic.Controllers
 {
@@ -29,23 +30,27 @@ namespace BobDeathmic.Controllers
         [HttpGet]
         public async Task<IActionResult> Subscriptions()
         {
-            ChatUserModel user = await _userManager.GetUserAsync(this.User);
+            ChatUserModel usermodel = await _userManager.GetUserAsync(this.User);
+            List<StreamSubscription> streamsubs = _context.StreamSubscriptions.Include(ss => ss.User).Include(ss => ss.Stream).Where(ss => ss.User == usermodel).ToList();
             List<Stream> FilteredStreams = new List<Stream>();
             foreach (var stream in _context.StreamModels)
             {
                 bool add = true;
-                if(user.StreamSubscriptions == null)
-                {
-                    user.StreamSubscriptions = new List<StreamSubscription>();
-                    await _context.SaveChangesAsync();
-                }
-                if(user.StreamSubscriptions.Where(ss => ss.Stream.StreamName == stream.StreamName).Count() > 0)
+                
+                if(streamsubs != null && streamsubs.Where(ss => ss.Stream.StreamName == stream.StreamName).Count() > 0)
                 {
                     add = false;
                 }
-                FilteredStreams.Add(stream);
+                if(add)
+                {
+                    FilteredStreams.Add(stream);
+                }
             }
-            ViewData["SubscribeableStream"] = FilteredStreams;
+            if(FilteredStreams.Count() > 0)
+            {
+                ViewData["SubscribeableStream"] = FilteredStreams;
+            }
+            ViewData["Subscriptions"] = streamsubs;
             return View();
         }
         [HttpPost]
@@ -56,11 +61,52 @@ namespace BobDeathmic.Controllers
             {
                 return View(model);
             }
-            //TODO: Subscription
+            var stream = _context.StreamModels.Where(s => s.StreamName.ToLower() == model.StreamNameForSubscription.ToLower()).FirstOrDefault();
+            ChatUserModel user = await _userManager.GetUserAsync(this.User);
+            if (stream != null)
+            {
+                if(user.StreamSubscriptions == null)
+                {
+                    user.StreamSubscriptions = new List<StreamSubscription>();
+                }
+                StreamSubscription newsub = new StreamSubscription();
+                newsub.Stream = stream;
+                newsub.User = user;
+                newsub.Subscribed = Models.Enum.SubscriptionState.Subscribed;
+                _context.StreamSubscriptions.Add(newsub);
+                
+                user.StreamSubscriptions.Add(newsub);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Subscriptions));
 
-            //Placeholder
-            return View("Subscriptions");
-
+        }
+        public async Task<IActionResult> ChangeSubscription(int? id)
+        {
+            
+            if(id == null)
+            {
+                return NotFound();
+            }
+            
+            StreamSubscription sub = _context.StreamSubscriptions.Where(ss => ss.ID == id).FirstOrDefault();
+            
+            DateTime start = DateTime.Now;
+            if (sub != null)
+            {
+                switch(sub.Subscribed)
+                {
+                    case Models.Enum.SubscriptionState.Subscribed:
+                        sub.Subscribed = Models.Enum.SubscriptionState.Unsubscribed;
+                        break;
+                    case Models.Enum.SubscriptionState.Unsubscribed:
+                        sub.Subscribed = Models.Enum.SubscriptionState.Subscribed;
+                        break;
+                }
+                await _context.SaveChangesAsync();
+            }
+            double duration = DateTime.Now.Subtract(start).TotalMilliseconds;
+            return RedirectToAction(nameof(Subscriptions));
         }
         [HttpGet]
         public IActionResult ChangePassword()

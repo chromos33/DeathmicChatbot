@@ -112,3 +112,22 @@
         color:white;
         border-radius:3px;
     }
+    .font_green
+    {
+        color:green;
+    }
+    .font_red
+    {
+        color:red;
+    }
+    table
+    {
+        width:100%;
+    }
+.fa-power-off.font_green:hover
+{
+    color:red;
+}
+.fa-power-off.font_red:hover {
+    color: green;
+}

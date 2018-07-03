@@ -139,6 +139,7 @@ namespace BobDeathmic.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            
             var stream = await _context.StreamModels.FindAsync(id);
             _context.StreamModels.Remove(stream);
             await _context.SaveChangesAsync();

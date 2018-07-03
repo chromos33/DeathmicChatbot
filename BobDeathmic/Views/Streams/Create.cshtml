@@ -19,6 +19,31 @@
                 <span asp-validation-for="StreamName" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="Game" class="control-label"></label>
+                <input asp-for="Game" class="form-control" />
+                <span asp-validation-for="Game" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Started" class="control-label"></label>
+                <input asp-for="Started" class="form-control" />
+                <span asp-validation-for="Started" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Stopped" class="control-label"></label>
+                <input asp-for="Stopped" class="form-control" />
+                <span asp-validation-for="Stopped" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RelayState" class="control-label"></label>
+                <select asp-for="RelayState" class="form-control"></select>
+                <span asp-validation-for="RelayState" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StreamState" class="control-label"></label>
+                <select asp-for="StreamState" class="form-control"></select>
+                <span asp-validation-for="StreamState" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="DiscordRelayChannel" class="control-label"></label>
                 <input asp-for="DiscordRelayChannel" class="form-control" />
                 <span asp-validation-for="DiscordRelayChannel" class="text-danger"></span>

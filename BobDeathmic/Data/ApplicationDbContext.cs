@@ -23,10 +23,16 @@ namespace BobDeathmic.Data
             // Add your customizations after calling base.OnModelCreating(builder);
             builder.Entity<Stream>()
                 .HasMany(p => p.StreamProvider)
-                .WithOne(s => s.Stream);
+                .WithOne(s => s.Stream)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<Stream>()
+                .HasMany(s => s.StreamSubscriptions)
+                .WithOne(ss => ss.Stream)
+                .OnDelete(DeleteBehavior.Cascade);
         }
         public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
         public DbSet<Models.Stream> StreamModels { get; set; }
         public DbSet<StreamProvider> StreamProviders { get; set; }
+        public DbSet<StreamSubscription> StreamSubscriptions { get; set; }
     }
 }

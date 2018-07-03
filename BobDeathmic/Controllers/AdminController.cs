@@ -164,7 +164,7 @@ namespace BobDeathmic.Controllers
                         }
                         else
                         {
-                            newSubscription.Subscribed = Models.Enum.SubscriptionState.Unsubscribted;
+                            newSubscription.Subscribed = Models.Enum.SubscriptionState.Unsubscribed;
                         }
                         Models.Stream connectionstream = _context.StreamModels.Where(stream => stream.StreamName.ToLower() == iStream.name.ToLower()).FirstOrDefault();
                         if(connectionstream != null)

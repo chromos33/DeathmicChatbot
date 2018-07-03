@@ -3,25 +3,68 @@
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
 
-<h2>Subscription hinzufügen</h2>
 
+@if (ViewData["SubscribeableStream"] != null)
+{
+    <h2>Subscription hinzufügen</h2>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <form asp-controller="User" asp-action="AddSubscription" method="post" class="form-vertical">
+                    <label asp-for="StreamNameForSubscription" class="control-label"></label>
+                    <select asp-for="StreamNameForSubscription" class="form-control">
+                        @foreach (var stream in ViewData["SubscribeableStream"] as List<BobDeathmic.Models.Stream>)
+                        {
+                            <option>@stream.StreamName</option>
+                        }
+                    </select>
+                    <button type="submit" class="btn btn-default">Subscription hinzufügen</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+}
+<h2>Subscription List</h2>
 <div class="row">
     <div class="col-md-12">
-        <div class="form-group">
-            <form asp-controller="User" asp-action="AddSubscription" method="post" class="form-vertical">
-                <label asp-for="StreamNameForSubscription" class="control-label"></label>
-                <select asp-for="StreamNameForSubscription" class="form-control">
-                    @foreach (var stream in ViewData["SubscribeableStream"] as List<BobDeathmic.Models.Stream>)
+        <table>
+            <thead>
+                <tr>
+                    <th>
+                        StreamName
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewData["Subscriptions"] != null)
+                {
+                    @foreach (StreamSubscription sub in ViewData["Subscriptions"] as IEnumerable<StreamSubscription>)
                     {
-                        <option>@stream.StreamName</option>
-                    }
-                </select>
-                <button type="submit" class="btn btn-default">Subscription hinzufügen</button>
-            </form>
-            
-        </div>
-        
+                        <tr>
+                            <td>@sub.Stream.StreamName</td>
+                            <td>
+                                <a asp-controller="User" asp-action="ChangeSubscription" asp-route-id="@sub.ID">
 
+                                    @if (@sub.Subscribed == BobDeathmic.Models.Enum.SubscriptionState.Subscribed)
+                                    {
+                                        <i class="fa fa-power-off font_green"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-power-off font_red"></i>
+                                    }
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 

@@ -8,6 +8,6 @@ namespace BobDeathmic.Models.Enum
     public enum SubscriptionState
     {
         Subscribed = 1,
-        Unsubscribted = 0
+        Unsubscribed = 0
     }
 }
