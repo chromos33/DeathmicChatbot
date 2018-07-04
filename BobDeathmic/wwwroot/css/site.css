@@ -124,9 +124,12 @@
     {
         width:100%;
     }
-.fa-power-off.font_green:hover
+.subscriptionswitch
 {
-    color:red;
+    cursor:pointer;
+}
+.fa-power-off.font_green:hover {
+    color: red;
 }
 .fa-power-off.font_red:hover {
     color: green;

@@ -48,7 +48,7 @@
                         <tr>
                             <td>@sub.Stream.StreamName</td>
                             <td>
-                                <a asp-controller="User" asp-action="ChangeSubscription" asp-route-id="@sub.ID">
+                                <a class="subscriptionswitch" data-id="@sub.ID">
 
                                     @if (@sub.Subscribed == BobDeathmic.Models.Enum.SubscriptionState.Subscribed)
                                     {
@@ -65,6 +65,31 @@
                 }
             </tbody>
         </table>
+        @section Scripts {
+
+        <script>
+            jQuery(document).ready(function(){
+                jQuery(".subscriptionswitch").click(function () {
+                    var cur = jQuery(this);
+                $.ajax({
+                    url: '@Url.Action("ChangeSubscription","User")',
+                    type: 'POST',
+                    data: {Id: jQuery(this).attr("data-id")},
+                    dataType: 'html',
+                    success: function (data) {
+                        if (data == "true") {
+                            jQuery(cur).find("i").removeClass("font_red").addClass("font_green");
+                        }
+                        else {
+                            jQuery(cur).find("i").removeClass("font_green").addClass("font_red");
+                        }
+                    }
+                })
+            });
+            })
+        </script>
+        }
+        
     </div>
 </div>
 

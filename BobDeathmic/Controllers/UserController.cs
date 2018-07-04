@@ -81,32 +81,37 @@ namespace BobDeathmic.Controllers
             return RedirectToAction(nameof(Subscriptions));
 
         }
-        public async Task<IActionResult> ChangeSubscription(int? id)
+        public async Task<bool?> ChangeSubscription(int? id)
         {
             
             if(id == null)
             {
-                return NotFound();
+                return null;
+                //return NotFound();
             }
             
             StreamSubscription sub = _context.StreamSubscriptions.Where(ss => ss.ID == id).FirstOrDefault();
             
             DateTime start = DateTime.Now;
+            bool @return = false;
             if (sub != null)
             {
                 switch(sub.Subscribed)
                 {
                     case Models.Enum.SubscriptionState.Subscribed:
                         sub.Subscribed = Models.Enum.SubscriptionState.Unsubscribed;
+                        @return = false;
                         break;
                     case Models.Enum.SubscriptionState.Unsubscribed:
                         sub.Subscribed = Models.Enum.SubscriptionState.Subscribed;
+                        @return = true;
                         break;
                 }
                 await _context.SaveChangesAsync();
             }
             double duration = DateTime.Now.Subtract(start).TotalMilliseconds;
-            return RedirectToAction(nameof(Subscriptions));
+            return @return;
+            //return RedirectToAction(nameof(Subscriptions));
         }
         [HttpGet]
         public IActionResult ChangePassword()

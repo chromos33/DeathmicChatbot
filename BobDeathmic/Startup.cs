@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using BobDeathmic.Data;
 using BobDeathmic.Models;
 using BobDeathmic.Services;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace BobDeathmic
 {
@@ -28,7 +29,10 @@ namespace BobDeathmic
         {
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite("Data Source=BobCore.db"));
+                options.UseMySql(Configuration.GetConnectionString("DefaultConnection"),mysqlOptions => {
+                    mysqlOptions.ServerVersion(new Version(10, 3, 8), ServerType.MariaDb);
+                })
+                );
 
             services.AddIdentity<ChatUserModel, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
