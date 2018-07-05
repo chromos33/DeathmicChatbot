@@ -34,5 +34,6 @@ namespace BobDeathmic.Data
         public DbSet<Models.Stream> StreamModels { get; set; }
         public DbSet<StreamProvider> StreamProviders { get; set; }
         public DbSet<StreamSubscription> StreamSubscriptions { get; set; }
+        public DbSet<SecurityToken> SecurityTokens { get; set; }
     }
 }

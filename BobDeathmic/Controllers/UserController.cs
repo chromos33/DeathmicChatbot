@@ -81,35 +81,34 @@ namespace BobDeathmic.Controllers
             return RedirectToAction(nameof(Subscriptions));
 
         }
-        public async Task<bool?> ChangeSubscription(int? id)
+        public async Task<string> ChangeSubscription(int? id)
         {
             
             if(id == null)
             {
-                return null;
+                return "error";
                 //return NotFound();
             }
             
             StreamSubscription sub = _context.StreamSubscriptions.Where(ss => ss.ID == id).FirstOrDefault();
             
             DateTime start = DateTime.Now;
-            bool @return = false;
+            string @return = "error";
             if (sub != null)
             {
                 switch(sub.Subscribed)
                 {
                     case Models.Enum.SubscriptionState.Subscribed:
                         sub.Subscribed = Models.Enum.SubscriptionState.Unsubscribed;
-                        @return = false;
+                        @return = "false";
                         break;
                     case Models.Enum.SubscriptionState.Unsubscribed:
                         sub.Subscribed = Models.Enum.SubscriptionState.Subscribed;
-                        @return = true;
+                        @return = "true";
                         break;
                 }
                 await _context.SaveChangesAsync();
             }
-            double duration = DateTime.Now.Subtract(start).TotalMilliseconds;
             return @return;
             //return RedirectToAction(nameof(Subscriptions));
         }

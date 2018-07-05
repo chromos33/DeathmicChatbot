@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -232,6 +233,39 @@ namespace BobDeathmic.Controllers
                 Console.WriteLine(role);
             }
             
+        }
+
+        [Authorize(Roles = "Dev")]
+        public IActionResult SecurityTokens()
+        {
+            return View();
+        }
+        [HttpPost]
+        [Authorize(Roles = "Dev")]
+        public async Task<IActionResult> AddSecurityToken([Bind("ClientID,service")] Models.SecurityToken token)
+        {
+            switch(token.service)
+            {
+                case "twitch":
+                    string baseurl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+                    if(_context.SecurityTokens.Where(st => st.service == token.service).Count() == 0)
+                    {
+                        _context.SecurityTokens.Add(token);
+                        await _context.SaveChangesAsync();
+                    }
+                    return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseurl}/admin/TwitchReturnUrlAction&scope=viewing_activity_read+openid&state=c3ab8aa609ea11e793ae92361f002671");
+                case "discord":
+                    break;
+            }
+            return View();
+        }
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> TwitchReturnUrlAction(string code)
+        {
+            _context.SecurityTokens.Where(st => st.service == "twitch").FirstOrDefault().token = code;
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(SecurityTokens));
         }
     }
 }
