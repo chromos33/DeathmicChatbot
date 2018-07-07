@@ -91,20 +91,10 @@ namespace BobDeathmic.Controllers
                     newStream.DiscordRelayChannel = item.sTargetrelaychannel;
                     newStream.StreamState = Models.Enum.StreamState.NotRunning;
                     newStream.Game = item.sGame;
-                    Models.StreamProvider newProvider = new Models.StreamProvider();
-                    newProvider.Name = "Twitch";
-                    newProvider.UserID = item.sUserID;
-                    newProvider.UserName = item.sChannel;
-                    newProvider.Stream = newStream;
-                    if(newStream.StreamProvider == null)
-                    {
-                        newStream.StreamProvider = new List<Models.StreamProvider>();
-                    }
-                    newStream.StreamProvider.Add(newProvider);
-
-
-
-                    _context.StreamProviders.Add(newProvider);
+                    newStream.UserID = item.sUserID;
+                    newStream.Type = Models.Enum.StreamProviderTypes.Twitch;
+                    newStream.Url = "www.twitch.tv/" + item.sChannel;
+                    newStream.StreamName = item.sChannel;
                     _context.StreamModels.Add(newStream);
                 }
                 _context.SaveChanges();

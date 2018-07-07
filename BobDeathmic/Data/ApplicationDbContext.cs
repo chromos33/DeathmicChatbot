@@ -22,18 +22,15 @@ namespace BobDeathmic.Data
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
             builder.Entity<Stream>()
-                .HasMany(p => p.StreamProvider)
-                .WithOne(s => s.Stream)
-                .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<Stream>()
                 .HasMany(s => s.StreamSubscriptions)
                 .WithOne(ss => ss.Stream)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<Stream>().HasOne(s => s.Owner).WithMany(u => u.OwnedStreams);
         }
         public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
         public DbSet<Models.Stream> StreamModels { get; set; }
-        public DbSet<StreamProvider> StreamProviders { get; set; }
         public DbSet<StreamSubscription> StreamSubscriptions { get; set; }
         public DbSet<SecurityToken> SecurityTokens { get; set; }
+        public DbSet<Models.Discord.RelayChannels> RelayChanels { get; set; }
     }
 }

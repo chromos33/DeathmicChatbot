@@ -1,0 +1,40 @@
+﻿@model IEnumerable<BobDeathmic.Models.Stream>
+
+@{
+    ViewData["Title"] = "Status";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/table.css" />
+<link rel="stylesheet" href="~/css/Stream/Status.css" />
+
+<div class="breadcrumbs">
+    <span>Streams > Status</span>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Stream</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td><a href="@Html.DisplayFor(modelItem => item.Url)">@Html.DisplayFor(modelItem => item.StreamName)</a></td>
+                @if (item.StreamState == BobDeathmic.Models.Enum.StreamState.Running)
+                {
+                    <td><i class="fas fa-check-circle font_green"></i></td>
+
+                }
+                else
+                {
+                    <td><i class="fas fa-times-circle font_red"></i></td>
+
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+

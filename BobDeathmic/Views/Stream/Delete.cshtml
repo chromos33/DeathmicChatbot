@@ -1,0 +1,21 @@
+﻿@model BobDeathmic.Models.Stream
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/Buttons.css" />
+<div class="breadcrumbs">
+    <span>Streams > Verwaltung > Löschen</span>
+</div>
+<div class="pa-35">
+    <h3 class="mb-20">Bist du dir sicher das du den Stream @Html.DisplayFor(model => model.StreamName) auf @Html.DisplayFor(model => model.Type) löschen willst?</h3>
+
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ID" />
+        <input style="float:left;" type="submit" value="Löschen" class="btn btn-default" />
+        <a class="btn" style="float:right;" asp-action="Index">Zurück</a>
+    </form>
+</div>

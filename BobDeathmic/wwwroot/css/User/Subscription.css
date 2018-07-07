@@ -1,0 +1,19 @@
+﻿.fa-power-off.font_green:hover {
+    color: red;
+}
+
+.fa-power-off.font_red:hover {
+    color: green;
+}
+.subscriptionswitch {
+    cursor: pointer;
+}
+select
+{
+    float:left;
+    margin-right:20px;
+}
+button
+{
+    float:left;
+}

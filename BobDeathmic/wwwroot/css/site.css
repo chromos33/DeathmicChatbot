@@ -1,136 +1,24 @@
-﻿.mobile_nav_opener
-{
-    height:20px;
-    width:30px;
-    position:absolute;
-    top:50%;
-    left:0;
-    transform:translateY(-50%);
-    cursor:pointer;
+﻿body {
+    background: #485358;
+   
 }
-
-    .mobile_nav_opener span
-    {
-        width:100%;
-        height:4px;
-        background:white;
-        display:block;
-        position:absolute;
-    }
-
-    .mobile_nav_opener span:nth-child(1) 
-    {
-        top:0;
-    }
-
-    .mobile_nav_opener span:nth-child(2) 
-    {
-        top: 8px;
     
-    }
-
-    .mobile_nav_opener span:nth-child(3) 
-    {
-        top: 16px;
-    }
-    .bg_black
-    {
-        background-color:black;
-    }
-    .bg_black *
-    {
-        color:white !important;
-    }
-    .relative
-    {
-        position:relative;
-    }
-    h1
-    {
-        font-size:20px;
-        line-height:20px;
-    }
-    .navigationcontainer {
-        padding: 20px 10px;
-        min-height: 100vh;
-        height:100%;
-    }
-    .menuitem
-    {
-    
-        border-bottom:1px solid grey;
-        text-align:center;
-        transition:all 0.5s linear;
-    }
-    .menuitem > a,
-    .menuitem > .submenuopener {
-        cursor: pointer;
-        padding: 10px;
-        display: block;
-        border-bottom: 1px solid grey;
-    }
-    .menuitem > a:last-child,
-    .menuitem > .submenuopener:last-child {
-        border-bottom: 0px solid white !important;
-    }
-    .menuitem a:hover,
-    .menuitem .submenuopener:hover {
-        background: white;
-        color: black !important;
-    }
-    .open .submenuopener {
-        border-bottom: 5px solid white;
-    }
-    .menuitem.open
-    {
-        border-bottom:3px solid white;
-    }
-    .menuitem * {
-        color: white !important;
-        transition: all 0.5s linear;
-    }
-    .submenu
-    {
-        height:0;
-        overflow:hidden;
-        transition: height 0.5s ease;
-    }
-    .navi_footer
-    {
-        position:absolute;
-        bottom:0;
-
-    }
-    .navigationcontainer
-    {
-        padding-bottom:40px;
-    }
-    button
-    {
-        padding:5px;
-        background:black;
-        color:white;
-        border-radius:3px;
-    }
-    .font_green
-    {
-        color:green;
-    }
-    .font_red
-    {
-        color:red;
-    }
-    table
-    {
-        width:100%;
-    }
-.subscriptionswitch
+button
 {
-    cursor:pointer;
+    padding:5px;
+    background:black;
+    color:white;
+    border-radius:3px;
 }
-.fa-power-off.font_green:hover {
-    color: red;
+
+.bg_dark
+{
+    background:#272c2e;
 }
-.fa-power-off.font_red:hover {
-    color: green;
+.breadcrumbs {
+    padding-top: 12px;
+    padding-left: 6px;
+    padding-bottom: 5px;
+    padding-right: 6px;
+    border-bottom: 2px solid #272c2e;
 }

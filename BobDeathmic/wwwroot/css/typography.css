@@ -1,0 +1,14 @@
+﻿h1 {
+    font-size: 20px;
+    line-height: 20px;
+}
+body * {
+    color: #BAC6D1;
+}
+.font_green {
+    color: #60cc60;
+}
+
+.font_red {
+    color: #cc0000;
+}

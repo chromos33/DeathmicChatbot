@@ -1,0 +1,23 @@
+﻿th,
+td,
+tr {
+    border: none !important;
+}
+table {
+    width: 100%;
+}
+tr:nth-child(even) {
+    background: #272c2e;
+}
+th,
+td
+{
+    padding:10px;
+}
+thead {
+    background: #272c2e;
+}
+th:not(:last-child),
+td:not(:last-child) {
+    border-right: 1px solid #272c2e !important;
+}
