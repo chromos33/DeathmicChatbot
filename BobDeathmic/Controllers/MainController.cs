@@ -35,18 +35,15 @@ namespace BobDeathmic.Controllers
         }
         private readonly UserManager<ChatUserModel> _userManager;
         private readonly SignInManager<ChatUserModel> _signInManager;
-        private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
 
         public MainController(
             UserManager<ChatUserModel> userManager,
             SignInManager<ChatUserModel> signInManager,
-            IEmailSender emailSender,
             ILogger<MainController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _emailSender = emailSender;
             _logger = logger;
         }
 

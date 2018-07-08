@@ -32,5 +32,13 @@ namespace BobDeathmic.Models
 
             return EnumTypes;
         }
+        public string StreamStartedMessage()
+        {
+            string message = "";
+
+            message = $"{StreamName} hat angefangen {Game} auf {Url} zu streamen";
+
+            return message;
+        }
     }
 }

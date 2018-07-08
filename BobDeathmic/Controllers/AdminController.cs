@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
+using BobDeathmic.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
@@ -228,6 +229,7 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "Dev")]
         public IActionResult SecurityTokens()
         {
+            ViewData["TokenTypes"] = new List<TokenType> { TokenType.Twitch,TokenType.Discord,TokenType.Mixer };
             return View();
         }
         [HttpPost]
@@ -236,7 +238,7 @@ namespace BobDeathmic.Controllers
         {
             switch(token.service)
             {
-                case "twitch":
+                case TokenType.Twitch:
                     string baseurl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
                     if(_context.SecurityTokens.Where(st => st.service == token.service).Count() == 0)
                     {
@@ -244,7 +246,7 @@ namespace BobDeathmic.Controllers
                         await _context.SaveChangesAsync();
                     }
                     return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseurl}/admin/TwitchReturnUrlAction&scope=viewing_activity_read+openid&state=c3ab8aa609ea11e793ae92361f002671");
-                case "discord":
+                case TokenType.Discord:
                     break;
             }
             return View();
@@ -253,7 +255,8 @@ namespace BobDeathmic.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> TwitchReturnUrlAction(string code)
         {
-            _context.SecurityTokens.Where(st => st.service == "twitch").FirstOrDefault().token = code;
+            var test = _context.SecurityTokens.Where(st => st.service == BobDeathmic.Models.Enum.TokenType.Twitch).FirstOrDefault();
+            test.token = code;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(SecurityTokens));
         }

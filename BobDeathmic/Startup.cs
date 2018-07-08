@@ -12,6 +12,7 @@ using BobDeathmic.Data;
 using BobDeathmic.Models;
 using BobDeathmic.Services;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using BobDeathmic.Eventbus;
 
 namespace BobDeathmic
 {
@@ -27,7 +28,6 @@ namespace BobDeathmic
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection"),mysqlOptions => {
                     mysqlOptions.ServerVersion(new Version(10, 3, 8), ServerType.MariaDb);
@@ -56,14 +56,15 @@ namespace BobDeathmic
             });
 
             // Add application services.
-            services.AddTransient<IEmailSender, EmailSender>();
-            //services.AddTransient<Data.ApplicationDbContext>();
-
+            services.AddSingleton<IEventBus, EventBusLocal>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchChecker>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.EventBusTester>();
             services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider services)
+        
+        public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env, IServiceProvider services)
         {
             if (env.IsDevelopment())
             {
