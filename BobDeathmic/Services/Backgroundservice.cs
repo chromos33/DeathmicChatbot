@@ -20,9 +20,11 @@ namespace BobDeathmic.Services
                                                        new CancellationTokenSource();
 
         protected abstract Task ExecuteAsync(CancellationToken stoppingToken);
+        public bool Active;
 
         public virtual Task StartAsync(CancellationToken cancellationToken)
         {
+            Active = true;
             // Store the task we're executing
             _executingTask = ExecuteAsync(_stoppingCts.Token);
 
@@ -34,6 +36,7 @@ namespace BobDeathmic.Services
             }
 
             // Otherwise it's running
+            Active = false;
             return Task.CompletedTask;
         }
 

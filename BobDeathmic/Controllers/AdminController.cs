@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
+using BobDeathmic.Models;
 using BobDeathmic.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
@@ -247,9 +248,19 @@ namespace BobDeathmic.Controllers
                     }
                     return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseurl}/admin/TwitchReturnUrlAction&scope=viewing_activity_read+openid&state=c3ab8aa609ea11e793ae92361f002671");
                 case TokenType.Discord:
+                    if(_context.SecurityTokens.Where(st => st.service == token.service).Count() == 0)
+                    {
+                        _context.SecurityTokens.Add(token);
+                    }
+                    else
+                    {
+                       var oldtoken = _context.SecurityTokens.Where(st => st.service == token.service).FirstOrDefault();
+                       oldtoken.token = token.ClientID;
+                    }
+                    await _context.SaveChangesAsync();
                     break;
             }
-            return View();
+            return RedirectToAction(nameof(SecurityTokens));
         }
         [HttpGet]
         [AllowAnonymous]

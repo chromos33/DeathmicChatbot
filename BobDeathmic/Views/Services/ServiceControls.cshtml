@@ -1,0 +1,75 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<link rel="stylesheet" href="~/css/Buttons.css" />
+
+<div class="breadcrumbs">
+    <span>Admin > Services</span>
+</div>
+
+
+<div class="pa-35">
+    <h4>Service Controls</h4>
+    <div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Discord</td>
+                    <td><a class="button startdiscord">Start</a></td>
+                    <td><a class="button stopdiscord">Stop</a></td>
+                    <td><a class="button restartdiscord">Restart</a></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+@section Scripts {
+
+    <script>
+        jQuery(document).ready(function(){
+            jQuery(".startdiscord").click(function () {
+                var cur = jQuery(this);
+                $.ajax({
+                    url: '@Url.Action("StartDiscord","Services")',
+                    type: 'POST',
+                    dataType: 'html',
+                    success: function (data) {
+                        alert(data);
+                    }
+                })
+                });
+            jQuery(".stopdiscord").click(function () {
+                var cur = jQuery(this);
+                $.ajax({
+                    url: '@Url.Action("StopDiscord","Services")',
+                    dataType: 'html',
+                    success: function (data) {
+                        alert(data);
+                    }
+                })
+                });
+            jQuery(".restartdiscord").click(function () {
+                var cur = jQuery(this);
+                $.ajax({
+                    url: '@Url.Action("RestartDiscord", "Services")',
+                    type: 'POST',
+                    dataType: 'html',
+                    success: function (data) {
+                        alert(data);
+                    }
+                })
+            });
+        })
+    </script>
+}
