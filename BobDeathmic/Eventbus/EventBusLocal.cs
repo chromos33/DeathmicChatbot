@@ -9,15 +9,29 @@ namespace BobDeathmic.Eventbus
     public class EventBusLocal : IEventBus
     {
         public event EventHandler<StreamEventArgs> StreamChanged;
+        public event EventHandler<DiscordMessageArgs> DiscordMessageReceived;
+        public event EventHandler<TwitchMessageArgs> TwitchMessageReceived;
 
-        public void TriggerEvent(string @event,dynamic EventData)
+        public void TriggerEvent(EventType @event,dynamic EventData)
         {
             switch(@event)
             {
-                case "StreamChanged":
+                case EventType.StreamChanged:
                     StreamChanged(this, EventData);
+                    break;
+                case EventType.DiscordMessageReceived:
+                    DiscordMessageReceived(this, EventData);
+                    break;
+                case EventType.TwitchMessageReceived:
+                    DiscordMessageReceived(this, EventData);
                     break;
             }
         }
+    }
+    public enum EventType
+    {
+        StreamChanged = 1,
+        DiscordMessageReceived = 2,
+        TwitchMessageReceived = 3
     }
 }

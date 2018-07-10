@@ -12,5 +12,7 @@ namespace BobDeathmic.Models
         public string ClientID { get; set; }
         public string token { get; set; }
         public TokenType service { get; set; }
+        public string code { get; set; }
+        public string secret { get; set; }
     }
 }

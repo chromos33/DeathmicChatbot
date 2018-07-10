@@ -30,22 +30,6 @@ namespace BobDeathmic.Services
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
             api = new TwitchAPI();
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                Models.SecurityToken data = _context.SecurityTokens.Where(securitykey => securitykey.service == TokenType.Twitch).FirstOrDefault();
-                if (data != null)
-                {
-                    api.Settings.ClientId = data.ClientID;
-                    api.Settings.AccessToken = data.token;
-                }
-                else
-                {
-                    //Maybe change this to a Console Output then again ...
-                    throw new Exception("No Twitch API Key found");
-                }
-            }
-            
         }
 
         public override Task StopAsync(CancellationToken cancellationToken)
@@ -55,6 +39,29 @@ namespace BobDeathmic.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                Models.SecurityToken data = null;
+                while (data == null)
+                {
+                    data = _context.SecurityTokens.Where(securitykey => securitykey.service == TokenType.Twitch).FirstOrDefault();
+                    if (data == null)
+                    {
+                        //Just to prevent if from sleeping when it has data
+                        Thread.Sleep(10000);
+                    }
+
+                }
+                if (data != null)
+                {
+                    api.Settings.ClientId = data.ClientID;
+                    api.Settings.AccessToken = data.token;
+                }
+                else
+                {
+                }
+            }
             _timer = new System.Timers.Timer(10000);
             _timer.Elapsed += (sender, args) => CheckOnlineStreams();
             _timer.Start();
@@ -129,7 +136,7 @@ namespace BobDeathmic.Services
                                         }
                                         return true;
                                     }
-                                    _eventBus.TriggerEvent("StreamChanged", args);
+                                    _eventBus.TriggerEvent(EventType.StreamChanged, args);
 
                                 }
                                 else
@@ -144,7 +151,7 @@ namespace BobDeathmic.Services
                                         _stream.StreamState = StreamState.NotRunning;
                                         _context.StreamModels.Update(_stream);
                                         await _context.SaveChangesAsync();
-                                        _eventBus.TriggerEvent("StreamChanged", args);
+                                        _eventBus.TriggerEvent(EventType.StreamChanged, args);
                                     }
                                 }
                             }

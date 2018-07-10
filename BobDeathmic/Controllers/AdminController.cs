@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace BobDeathmic.Controllers
 {
@@ -235,7 +236,7 @@ namespace BobDeathmic.Controllers
         }
         [HttpPost]
         [Authorize(Roles = "Dev")]
-        public async Task<IActionResult> AddSecurityToken([Bind("ClientID,service")] Models.SecurityToken token)
+        public async Task<IActionResult> AddSecurityToken([Bind("ClientID,secret,service")] Models.SecurityToken token)
         {
             switch(token.service)
             {
@@ -246,7 +247,7 @@ namespace BobDeathmic.Controllers
                         _context.SecurityTokens.Add(token);
                         await _context.SaveChangesAsync();
                     }
-                    return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseurl}/admin/TwitchReturnUrlAction&scope=viewing_activity_read+openid&state=c3ab8aa609ea11e793ae92361f002671");
+                    return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseurl}/admin/TwitchReturnUrlAction&scope=chat_login viewing_activity_read openid&state=c3ab8aa609ea11e793ae92361f002671");
                 case TokenType.Discord:
                     if(_context.SecurityTokens.Where(st => st.service == token.service).Count() == 0)
                     {
@@ -264,10 +265,16 @@ namespace BobDeathmic.Controllers
         }
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> TwitchReturnUrlAction(string code)
+        public async Task<IActionResult> TwitchReturnUrlAction(string code, string scope, string state)
         {
             var test = _context.SecurityTokens.Where(st => st.service == BobDeathmic.Models.Enum.TokenType.Twitch).FirstOrDefault();
-            test.token = code;
+            test.code = code;
+            var client = new HttpClient();
+            string url = $"https://id.twitch.tv/oauth2/token?client_id={test.ClientID}&client_secret={test.secret}&code={code}&grant_type=authorization_code&redirect_uri=https://localhost:44347/admin/TwitchReturnUrlAction";
+            var response = await client.PostAsync(url, new StringContent("", System.Text.Encoding.UTF8,"text/plain"));
+            var responsestring = await response.Content.ReadAsStringAsync();
+            JSONObjects.TwitchAuthToken authtoken = JsonConvert.DeserializeObject<JSONObjects.TwitchAuthToken>(responsestring);
+            test.token = authtoken.access_token;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(SecurityTokens));
         }

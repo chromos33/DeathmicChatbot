@@ -5,4 +5,5 @@
 /BobCore/bin/Debug/netcoreapp2.0/XML
 /BobCore/bin/Debug/netcoreapp2.0
 /BobCore/obj
+/BobCore/bin
 /.vs/BobCore/v15/Server/sqlite3

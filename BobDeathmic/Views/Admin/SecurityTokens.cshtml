@@ -13,6 +13,11 @@
             <span asp-validation-for="ClientID" class="text-danger"></span>
         </div>
         <div class="form-group">
+            <label asp-for="secret" class="control-label"></label>
+            <input asp-for="secret" class="form-control" />
+            <span asp-validation-for="secret" class="text-danger"></span>
+        </div>
+        <div class="form-group">
             <label asp-for="service" class="control-label"></label>
             <select asp-for="service" class="form-control">
                 @foreach (var tokentyp in ViewData["TokenTypes"] as List<TokenType>)

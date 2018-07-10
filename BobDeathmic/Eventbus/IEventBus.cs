@@ -9,6 +9,8 @@ namespace BobDeathmic.Eventbus
     public interface IEventBus
     {
         event EventHandler<StreamEventArgs> StreamChanged;
-        void TriggerEvent(string @event, dynamic EventData);
+        event EventHandler<DiscordMessageArgs> DiscordMessageReceived;
+        event EventHandler<TwitchMessageArgs> TwitchMessageReceived;
+        void TriggerEvent(EventType @event, dynamic EventData);
     }
 }

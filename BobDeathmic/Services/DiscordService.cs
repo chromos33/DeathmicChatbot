@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using BobDeathmic.Args;
 
 namespace BobDeathmic.Services
 {
@@ -26,6 +27,13 @@ namespace BobDeathmic.Services
         {
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
+            _eventBus.TwitchMessageReceived += TwitchMessageReceived;
+        }
+
+        private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
+        {
+            Console.WriteLine("Message Received");
+            //throw new NotImplementedException();
         }
 
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -96,6 +104,21 @@ namespace BobDeathmic.Services
         private async Task MessageReceived(SocketMessage arg)
         {
             Console.WriteLine(arg.Content);
+            if(arg.Author.Username != "BobDeathmic")
+            {
+                if (false)//Commands later on
+                {
+
+                }
+                else
+                {
+                    if(arg.Channel.Name.StartsWith("Stream_"))
+                    {
+                        Args.DiscordMessageArgs args = new Args.DiscordMessageArgs();
+                        _eventBus.TriggerEvent(EventType.DiscordMessageReceived, args);
+                    }
+                }
+            }
         }
     }
 }
