@@ -270,7 +270,7 @@ namespace BobDeathmic.Controllers
             var savedtoken = _context.SecurityTokens.Where(st => st.service == BobDeathmic.Models.Enum.TokenType.Twitch).FirstOrDefault();
             savedtoken.code = code;
             var client = new HttpClient();
-            string url = $"https://id.twitch.tv/oauth2/token?client_id={test.ClientID}&client_secret={test.secret}&code={code}&grant_type=authorization_code&redirect_uri=https://localhost:44347/admin/TwitchReturnUrlAction";
+            string url = $"https://id.twitch.tv/oauth2/token?client_id={savedtoken.ClientID}&client_secret={test.secret}&code={code}&grant_type=authorization_code&redirect_uri=https://localhost:44347/admin/TwitchReturnUrlAction";
             var response = await client.PostAsync(url, new StringContent("", System.Text.Encoding.UTF8,"text/plain"));
             var responsestring = await response.Content.ReadAsStringAsync();
             JSONObjects.TwitchAuthToken authtoken = JsonConvert.DeserializeObject<JSONObjects.TwitchAuthToken>(responsestring);
