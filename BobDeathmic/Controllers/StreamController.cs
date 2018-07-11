@@ -42,7 +42,7 @@ namespace BobDeathmic.Controllers
                 return NotFound();
             }
             ViewData["StreamTypes"] = stream.EnumStreamTypes();
-            var relaychannels = await _context.RelayChanels.ToListAsync();
+            var relaychannels = await _context.RelayChannels.ToListAsync();
             ViewData["RelayChannels"] = relaychannels;
             ViewData["SelectedRelayChannel"] = stream.DiscordRelayChannel;
             return View(stream);

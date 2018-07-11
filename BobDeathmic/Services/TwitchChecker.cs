@@ -83,6 +83,7 @@ namespace BobDeathmic.Services
                         foreach (Models.Stream _stream in _context.StreamModels.ToList())
                         {
                             StreamEventArgs args = new StreamEventArgs();
+                            args.StreamType = StreamProviderTypes.Twitch;
                             args.relayactive = _stream.RelayState;
                             if (_stream.UserID != null && _stream.UserID != "")
                             {

@@ -11,5 +11,6 @@
         public string channel;
         public string Notification;
         public Models.Enum.RelayState relayactive;
+        public Models.Enum.StreamProviderTypes StreamType;
     }
 }

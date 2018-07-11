@@ -10,5 +10,6 @@ namespace BobDeathmic.Args
         public string Message { get; set; }
         public string Source { get; set; }
         public string Target { get; set; }
+        public Models.Enum.StreamProviderTypes StreamType { get; set; }
     }
 }

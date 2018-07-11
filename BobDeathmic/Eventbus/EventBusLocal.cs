@@ -23,7 +23,7 @@ namespace BobDeathmic.Eventbus
                     DiscordMessageReceived(this, EventData);
                     break;
                 case EventType.TwitchMessageReceived:
-                    DiscordMessageReceived(this, EventData);
+                    TwitchMessageReceived(this, EventData);
                     break;
             }
         }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using BobDeathmic.Args;
+using System.Text.RegularExpressions;
 
 namespace BobDeathmic.Services
 {
@@ -32,8 +33,7 @@ namespace BobDeathmic.Services
 
         private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
         {
-            Console.WriteLine("Message Received");
-            //throw new NotImplementedException();
+            client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.TextChannels.Where(c => c.Name.ToLower() == e.Target.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
         }
 
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -83,22 +83,69 @@ namespace BobDeathmic.Services
                 client.Ready += ClientConnected;
                 client.Disconnected += ClientDisconnected;
                 client.UserJoined += ClientJoined;
+                client.ChannelCreated += ChannelChanged;
+                client.ChannelDestroyed += ChannelChanged;
+                
             }
+        }
+
+        private async Task ChannelChanged(SocketChannel arg)
+        {
+            UpdateRelayChannels();
         }
 
         private async Task ClientJoined(SocketGuildUser arg)
         {
-
+            
+        }
+        private async Task UpdateRelayChannels()
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                List<string> discordChannels = new List<string>();
+                foreach(var channel in client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Channels)
+                {
+                    if(Regex.Match(channel.Name.ToLower(), @"stream_").Success)
+                    {
+                        discordChannels.Add(channel.Name);
+                    }
+                }
+                List<string> savedChannels = new List<string>();
+                foreach (var channel in _context.RelayChannels)
+                {
+                    savedChannels.Add(channel.Name);
+                }
+                List<string> channelsToBeAdded = discordChannels.Except(savedChannels).ToList();
+                List<string> channelsToBeRemoved = savedChannels.Except(discordChannels).ToList();
+                if(channelsToBeAdded.Count() > 0)
+                {
+                    foreach(var channel in channelsToBeAdded)
+                    {
+                        _context.RelayChannels.Add(new Models.Discord.RelayChannels { Name = channel });
+                    }
+                }
+                if(channelsToBeRemoved.Count() > 0)
+                {
+                    foreach (var channel in channelsToBeRemoved)
+                    {
+                        _context.RelayChannels.Remove(_context.RelayChannels.Where(rc => rc.Name == channel).FirstOrDefault());
+                    }
+                }
+                if(channelsToBeAdded.Count() > 0 || channelsToBeRemoved.Count() > 0)
+                {
+                    await _context.SaveChangesAsync();
+                }
+            }
         }
 
         private async Task ClientDisconnected(Exception arg)
         {
-            Console.WriteLine("test");
         }
 
         private async Task ClientConnected()
         {
-            Console.WriteLine("test");
+            UpdateRelayChannels();
         }
 
         private async Task MessageReceived(SocketMessage arg)
@@ -112,9 +159,21 @@ namespace BobDeathmic.Services
                 }
                 else
                 {
-                    if(arg.Channel.Name.StartsWith("Stream_"))
+                    if(arg.Channel.Name.StartsWith("stream_"))
                     {
                         Args.DiscordMessageArgs args = new Args.DiscordMessageArgs();
+                        args.Source = arg.Channel.Name;
+                        args.Message = arg.Author.Username+": "+arg.Content;
+                        using (var scope = _scopeFactory.CreateScope())
+                        {
+                            var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                            var stream = _context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == arg.Channel.Name.ToLower()).FirstOrDefault();
+                            if(stream != null)
+                            {
+                                args.Target = stream.StreamName;
+                                args.StreamType = stream.Type;
+                            }
+                        }
                         _eventBus.TriggerEvent(EventType.DiscordMessageReceived, args);
                     }
                 }
