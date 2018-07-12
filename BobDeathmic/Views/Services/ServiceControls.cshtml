@@ -5,12 +5,11 @@
 <link rel="stylesheet" href="~/css/Buttons.css" />
 
 <div class="breadcrumbs">
-    <span>Admin > Services</span>
+    <span>Dienste</span>
 </div>
 
 
 <div class="pa-35">
-    <h4>Service Controls</h4>
     <div>
         <table class="table">
             <thead>
@@ -22,40 +21,59 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Discord</td>
-                    <td><a class="button startdiscord">Start</a></td>
-                    <td><a class="button stopdiscord">Stop</a></td>
-                    <td><a class="button restartdiscord">Restart</a></td>
-                </tr>
+                @if (User.IsInRole("Admin") || User.IsInRole("Dev"))
+                {
+                    <tr>
+                        <td>Discord</td>
+                        <td><a class="button startdiscord">Start</a></td>
+                        <td><a class="button stopdiscord">Stop</a></td>
+                        <td><a class="button restartdiscord">Restart</a></td>
+                    </tr>
+                }
+                @if (User.IsInRole("User") || User.IsInRole("Admin") || User.IsInRole("Dev"))
+                {
+                    <tr>
+                        <td>TwitchRelay</td>
+                        <td></td>
+                        <td>
+                            @if (User.IsInRole("Admin") || User.IsInRole("Dev"))
+                            {
+                                <a class="button stoptwitchrelay">Stop</a>
+                            }
+                        </td>
+                        <td><a class="button restarttwitchrelay">Restart</a></td>
+                    </tr>
+
+                }
             </tbody>
         </table>
 
     </div>
 
 </div>
-@section Scripts {
 
-    <script>
+@section Scripts {
+    @if (User.IsInRole("Admin") || User.IsInRole("Dev"))
+    {
+        <script>
+
         jQuery(document).ready(function(){
             jQuery(".startdiscord").click(function () {
                 var cur = jQuery(this);
                 $.ajax({
-                    url: '@Url.Action("StartDiscord","Services")',
+                    url: '@Url.Action("StartDiscord", "Services")',
                     type: 'POST',
                     dataType: 'html',
                     success: function (data) {
-                        alert(data);
                     }
                 })
                 });
             jQuery(".stopdiscord").click(function () {
                 var cur = jQuery(this);
                 $.ajax({
-                    url: '@Url.Action("StopDiscord","Services")',
+                    url: '@Url.Action("StopDiscord", "Services")',
                     dataType: 'html',
                     success: function (data) {
-                        alert(data);
                     }
                 })
                 });
@@ -66,10 +84,39 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (data) {
-                        alert(data);
+                    }
+                })
+            });
+            jQuery(".stoptwitchrelay").click(function () {
+                var cur = jQuery(this);
+                $.ajax({
+                    url: '@Url.Action("StopTwitchRelay", "Services")',
+                    type: 'POST',
+                    dataType: 'html',
+                    success: function (data) {
                     }
                 })
             });
         })
-    </script>
-}
+        </script>
+    }
+        @if (User.IsInRole("User") || User.IsInRole("Admin") || User.IsInRole("Dev"))
+        {
+            <script>
+
+        jQuery(document).ready(function(){
+            jQuery(".restarttwitchrelay").click(function () {
+                alert("test");
+                var cur = jQuery(this);
+                $.ajax({
+                    url: '@Url.Action("RestartTwitchRelay", "Services")',
+                    type: 'POST',
+                    dataType: 'html',
+                    success: function (data) {
+                    }
+                })
+            });
+        })
+            </script>
+        }
+    }

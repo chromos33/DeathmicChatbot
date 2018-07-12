@@ -26,12 +26,18 @@ namespace BobDeathmic.Services
         private Dictionary<string, List<string>> MessageQueues;
         private readonly IServiceScopeFactory _scopeFactory;
         private System.Timers.Timer _MessageTimer;
+        public async override Task StopAsync(CancellationToken cancellationToken)
+        {
+            await base.StopAsync(cancellationToken);
+            client.Disconnect();
+            _eventBus.StreamChanged -= StreamChanged;
+            _eventBus.DiscordMessageReceived -= DiscordMessageReceived;
+            Dispose();
+        }
         public TwitchRelayCenter(IServiceScopeFactory scopeFactory, IEventBus eventBus)
         {
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
-            _eventBus.StreamChanged += StreamChanged;
-            _eventBus.DiscordMessageReceived += DiscordMessageReceived;
             _MessageTimer = new System.Timers.Timer(500);
             _MessageTimer.Elapsed += (sender, args) => SendMessages();
             _MessageTimer.Start();
@@ -62,12 +68,13 @@ namespace BobDeathmic.Services
             {
                 await Task.Delay(5000, stoppingToken);
             }
+            return;
         }
 
         private bool StreamChangedInProgress = false;
         private async void StreamChanged(object sender, StreamEventArgs e)
         {
-            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
+            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch && e.relayactive != Models.Enum.RelayState.NotActivated)
             {
                 while (!client.IsConnected)
                 {
@@ -125,6 +132,8 @@ namespace BobDeathmic.Services
         }
         public void Init()
         {
+            _eventBus.StreamChanged += StreamChanged;
+            _eventBus.DiscordMessageReceived += DiscordMessageReceived;
             client = new TwitchClient();
             using (var scope = _scopeFactory.CreateScope())
             {

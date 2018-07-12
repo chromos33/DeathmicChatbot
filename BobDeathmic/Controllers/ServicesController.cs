@@ -65,5 +65,35 @@ namespace BobDeathmic.Controllers
             }
             return "Restart";
         }
+        [Authorize(Roles = "Dev,Admin")]
+        public async Task<string> StopTwitchRelay()
+        {
+            try
+            {
+                var test = _microservices.Where(ms => ms.GetType() == typeof(TwitchRelayCenter)).FirstOrDefault();
+                await test?.StopAsync(new System.Threading.CancellationToken(true));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("test");
+            }
+            return "Stopped";
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<string> RestartTwitchRelay()
+        {
+            try
+            {
+                await _microservices.Where(ms => ms.GetType() == typeof(TwitchRelayCenter)).FirstOrDefault()?.StopAsync(new System.Threading.CancellationToken(true));
+                GC.Collect();
+                await _microservices.Where(ms => ms.GetType() == typeof(TwitchRelayCenter)).FirstOrDefault()?.StartAsync(new System.Threading.CancellationToken(false));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("test");
+            }
+            return "Restart";
+        }
+        
     }
 }

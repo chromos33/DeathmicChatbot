@@ -55,6 +55,9 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="menuitem">
+                            <a asp-area="" asp-controller="Services" asp-action="ServiceControls">Dienste</a>
+                        </div>
                         @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
                         {
                             <div class="menuitem">
@@ -72,13 +75,6 @@
                                                 <a asp-area="" asp-controller="Admin" asp-action="SecurityTokens">Tokens</a>
                                             </div>
                                         }
-
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Services" asp-action="ServiceControls">Services</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a href="#">Platzhalter</a>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
