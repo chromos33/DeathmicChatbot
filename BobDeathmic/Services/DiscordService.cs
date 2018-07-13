@@ -10,6 +10,12 @@ using Discord;
 using Discord.WebSocket;
 using BobDeathmic.Args;
 using System.Text.RegularExpressions;
+using BobDeathmic.Services.Helper;
+using Microsoft.AspNetCore.Identity;
+using BobDeathmic.Models;
+using Microsoft.Extensions.Configuration;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace BobDeathmic.Services
 {
@@ -22,7 +28,8 @@ namespace BobDeathmic.Services
         private readonly IServiceScopeFactory _scopeFactory;
         private IEventBus _eventBus;
         DiscordSocketClient client;
-
+        List<IfCommand> CommandList;
+        private Random random;
 
         public DiscordService(IServiceScopeFactory scopeFactory, IEventBus eventBus)
         {
@@ -35,10 +42,15 @@ namespace BobDeathmic.Services
         {
             client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.TextChannels.Where(c => c.Name.ToLower() == e.Target.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
         }
-
+        private void InitCommands()
+        {
+            CommandList = CommandBuilder.BuildCommands("discord");
+        }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / DateTime.Now.Hour);
             await ConnectToDiscord();
+            InitCommands();
             while (!stoppingToken.IsCancellationRequested)
             {
                 await Task.Delay(5000, stoppingToken);
@@ -147,17 +159,39 @@ namespace BobDeathmic.Services
         {
             UpdateRelayChannels();
         }
-
         private async Task MessageReceived(SocketMessage arg)
         {
             Console.WriteLine(arg.Content);
             if(arg.Author.Username != "BobDeathmic")
             {
-                if (false)//Commands later on
+                string commandresult = "";
+                if (CommandList != null)
                 {
-
+                    //Manual WebPageLinkCommand because otherwise would need to redundantly rework Command Structure
+                    if(arg.Content.StartsWith("!WebInterfaceLink"))
+                    {
+                        GetUserLogin(arg);
+                    }
+                    else
+                    {
+                        foreach (IfCommand command in CommandList)
+                        {
+                            Dictionary<String, String> inputargs = new Dictionary<string, string>();
+                            inputargs["message"] = arg.Content;
+                            inputargs["username"] = arg.Author.Username;
+                            inputargs["source"] = "discord";
+                            inputargs["channel"] = arg.Channel.Name;
+                            commandresult = await command.ExecuteCommandIfAplicable(inputargs);
+                            if (commandresult != "")
+                            {
+                                arg.Channel.SendMessageAsync(commandresult);
+                            }
+                        }
+                    }
+                    
                 }
-                else
+                
+                if (commandresult == "")//Commands later on
                 {
                     if(arg.Channel.Name.StartsWith("stream_"))
                     {
@@ -179,5 +213,112 @@ namespace BobDeathmic.Services
                 }
             }
         }
+        #region AccountStuff
+        private async Task GetUserLogin(SocketMessage arg)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+
+                var usermanager = scope.ServiceProvider.GetRequiredService<UserManager<ChatUserModel>>();
+                string cleanedname = Regex.Replace(arg.Author.Username.Replace(" ", "").Replace("/", "").Replace("\\", ""), @"[\[\]\\\^\$\.\|\?\*\+\(\)\{\}%,;><!@#&\-\+]", "");
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var user = _context.ChatUserModels.Where(cm => cm.UserName.ToLower() == cleanedname.ToLower()).FirstOrDefault();
+                string password = "";
+                var Configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                if (user == null)
+                {
+                    password = await GenerateUser(arg,cleanedname);
+                }
+                else
+                {
+                    if(usermanager.CheckPasswordAsync(user, user.InitialPassword).Result)
+                    {
+                        password = user.InitialPassword;
+                    }
+                }
+                string Message = "Adresse:";
+                Message += Configuration.GetValue<string>("WebAdress");
+                if(password != "")
+                {
+                    Message += Environment.NewLine + "UserName; " + cleanedname;
+                    Message += Environment.NewLine + "Initiales Passwort: " + password;
+                }
+                arg.Author.SendMessageAsync(Message);
+                //IConfiguration
+                
+            }
+        }
+        private async Task<string> GenerateUser(SocketMessage arg,string cleanedname)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                Models.ChatUserModel newUser = new Models.ChatUserModel();
+                string password = "";
+                newUser.UserName = cleanedname;
+                newUser.ChatUserName = arg.Author.Username;
+                password += arg.Author.Username.Substring(random.Next(0, arg.Author.Username.Length - 1));
+                newUser.StreamSubscriptions = new List<Models.StreamSubscription>();
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                foreach (var Stream in _context.StreamModels)
+                {
+                    password += Stream.StreamName.Substring(random.Next(0, Stream.StreamName.Length - 1));
+                    Models.StreamSubscription newSubscription = new Models.StreamSubscription();
+                    newSubscription.Subscribed = Models.Enum.SubscriptionState.Subscribed;
+                    newSubscription.Stream = Stream;
+                    newSubscription.User = newUser;
+                    newUser.StreamSubscriptions.Add(newSubscription);
+                }
+                password += random.Next();
+                byte[] salt = new byte[128 / 8];
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(salt);
+                }
+                string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: "test",
+                    salt: salt,
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 10000,
+                    numBytesRequested: 256 / 8));
+
+
+                newUser.InitialPassword = hashed;
+                var usermanager = scope.ServiceProvider.GetRequiredService<UserManager<ChatUserModel>>();
+                var result = await usermanager.CreateAsync(newUser, hashed);
+                await CreateOrAddUserRoles("User", newUser.UserName);
+                return hashed;
+            }
+        }
+        private async Task CreateOrAddUserRoles(string role, string name)
+        {
+            try
+            {
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var RoleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                    var UserManager = scope.ServiceProvider.GetRequiredService<UserManager<Models.ChatUserModel>>();
+
+                    IdentityResult roleResult;
+                    //Adding Admin Role
+                    var roleCheck = await RoleManager.RoleExistsAsync(role);
+                    if (!roleCheck)
+                    {
+                        //create the roles and seed them to the database
+                        roleResult = await RoleManager.CreateAsync(new IdentityRole(role));
+                    }
+                    //Assign Admin role to the main User here we have given our newly registered 
+                    //login id for Admin management
+                    Models.ChatUserModel user = await UserManager.FindByNameAsync(name);
+                    await UserManager.AddToRoleAsync(user, role);
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine(name);
+                Console.WriteLine(role);
+            }
+
+        }
+        #endregion
     }
 }

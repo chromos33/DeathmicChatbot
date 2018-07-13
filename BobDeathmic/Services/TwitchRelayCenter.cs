@@ -2,6 +2,7 @@
 using BobDeathmic.Data;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
+using BobDeathmic.Services.Helper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace BobDeathmic.Services
         private Dictionary<string, List<string>> MessageQueues;
         private readonly IServiceScopeFactory _scopeFactory;
         private System.Timers.Timer _MessageTimer;
+        private List<IfCommand> CommandList;
         public async override Task StopAsync(CancellationToken cancellationToken)
         {
             await base.StopAsync(cancellationToken);
@@ -175,7 +177,7 @@ namespace BobDeathmic.Services
 
         private void onConnected(object sender, OnConnectedArgs e)
         {
-            
+            CommandList = CommandBuilder.BuildCommands("twitch");
         }
 
         private void onJoinedChannel(object sender, OnJoinedChannelArgs e)
@@ -200,25 +202,47 @@ namespace BobDeathmic.Services
             
         }
 
-        private void onMessageReceived(object sender, OnMessageReceivedArgs e)
+        private async void onMessageReceived(object sender, OnMessageReceivedArgs e)
         {
-            //Trigger Event to Send "Relay Started" to discord or somesuch
-            string target = "";
-            using (var scope = _scopeFactory.CreateScope())
+            if(!e.ChatMessage.IsMe)
             {
-                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.ChatMessage.Channel.ToLower()).FirstOrDefault();
-                if (stream != null)
+                bool isCommand = false;
+                if(CommandList != null)
                 {
-                    target = stream.DiscordRelayChannel;
+                    foreach (IfCommand command in CommandList)
+                    {
+                        Dictionary<String, String> inputargs = new Dictionary<string, string>();
+                        inputargs["message"] = e.ChatMessage.Message;
+                        inputargs["username"] = e.ChatMessage.Username;
+                        inputargs["source"] = "twitch";
+                        inputargs["channel"] = e.ChatMessage.Channel;
+                        string CommandResult = await command.ExecuteCommandIfAplicable(inputargs);
+                        if (CommandResult != "")
+                        {
+                            var twitchchannel = client.JoinedChannels.Where(channel => channel.Channel == e.ChatMessage.Channel).FirstOrDefault();
+                            client.SendMessage(twitchchannel, CommandResult);
+                        }
+                    }
+                }
+                //Trigger Event to Send "Relay Started" to discord or somesuch
+                if(!isCommand)
+                {
+                    string target = "";
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.ChatMessage.Channel.ToLower()).FirstOrDefault();
+                        if (stream != null)
+                        {
+                            target = stream.DiscordRelayChannel;
+                        }
+                    }
+                    if (target != "")
+                    {
+                        _eventBus.TriggerEvent(EventType.TwitchMessageReceived, new TwitchMessageArgs { Source = e.ChatMessage.Channel, Message = e.ChatMessage.Username + ": " + e.ChatMessage.Message, Target = target });
+                    }
                 }
             }
-            if (target != "")
-            {
-                _eventBus.TriggerEvent(EventType.TwitchMessageReceived, new TwitchMessageArgs { Source = e.ChatMessage.Channel, Message = e.ChatMessage.Username+": "+e.ChatMessage.Message, Target = target });
-            }
         }
-
-        
     }
 }
