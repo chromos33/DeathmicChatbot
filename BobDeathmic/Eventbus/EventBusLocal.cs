@@ -11,6 +11,7 @@ namespace BobDeathmic.Eventbus
         public event EventHandler<StreamEventArgs> StreamChanged;
         public event EventHandler<DiscordMessageArgs> DiscordMessageReceived;
         public event EventHandler<TwitchMessageArgs> TwitchMessageReceived;
+        public event EventHandler<PasswordRequestArgs> PasswordRequestReceived;
 
         public void TriggerEvent(EventType @event,dynamic EventData)
         {
@@ -25,6 +26,9 @@ namespace BobDeathmic.Eventbus
                 case EventType.TwitchMessageReceived:
                     TwitchMessageReceived(this, EventData);
                     break;
+                case EventType.PasswordRequestReceived:
+                    PasswordRequestReceived(this, EventData);
+                    break;
             }
         }
     }
@@ -32,6 +36,7 @@ namespace BobDeathmic.Eventbus
     {
         StreamChanged = 1,
         DiscordMessageReceived = 2,
-        TwitchMessageReceived = 3
+        TwitchMessageReceived = 3,
+        PasswordRequestReceived = 4,
     }
 }

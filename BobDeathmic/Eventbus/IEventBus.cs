@@ -11,6 +11,7 @@ namespace BobDeathmic.Eventbus
         event EventHandler<StreamEventArgs> StreamChanged;
         event EventHandler<DiscordMessageArgs> DiscordMessageReceived;
         event EventHandler<TwitchMessageArgs> TwitchMessageReceived;
+        event EventHandler<PasswordRequestArgs> PasswordRequestReceived;
         void TriggerEvent(EventType @event, dynamic EventData);
     }
 }

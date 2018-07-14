@@ -13,6 +13,11 @@ using Microsoft.AspNetCore.Identity;
 using BobDeathmic.Models.AccountViewModels;
 using Microsoft.Extensions.Logging;
 using BobDeathmic.Services;
+using static BobDeathmic.Controllers.UserController;
+using BobDeathmic.Eventbus;
+using BobDeathmic.Data;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace BobDeathmic.Controllers
 {
@@ -36,15 +41,21 @@ namespace BobDeathmic.Controllers
         private readonly UserManager<ChatUserModel> _userManager;
         private readonly SignInManager<ChatUserModel> _signInManager;
         private readonly ILogger _logger;
+        private readonly IEventBus _eventBus;
+        private readonly ApplicationDbContext _dbcontext;
 
         public MainController(
             UserManager<ChatUserModel> userManager,
             SignInManager<ChatUserModel> signInManager,
-            ILogger<MainController> logger)
+            ILogger<MainController> logger,
+            IEventBus eventBus,
+            ApplicationDbContext dbcontext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _eventBus = eventBus;
+            _dbcontext = dbcontext;
         }
 
         [TempData]
@@ -110,6 +121,72 @@ namespace BobDeathmic.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RequestPasswort(Models.User.RequestPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            var user = _dbcontext.ChatUserModels.Where(cu => cu.ChatUserName.ToLower() == model.UserName.ToLower() || cu.UserName.ToLower() == model.UserName.ToLower()).FirstOrDefault();
+
+            if(user != null)
+            {
+                Random random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / DateTime.Now.Hour);
+                int passes = random.Next(1,8);
+                string password = "";
+                for(int passcounter = 0; passcounter < passes; passcounter++)
+                {
+                    string LoremIpsum = Helper.StaticHelper.GetLoremIpsum().Replace(" ", "").Replace(",", "").Replace(".", "");
+                    password += LoremIpsum.Substring(0,random.Next(0, LoremIpsum.Length));
+                    password += random.Next(5000);
+                }
+                int start = random.Next(password.Length);
+                int end = random.Next(random.Next(password.Length - start - 1));
+                password = password.Substring(start, end);
+                if(password.Length < 8)
+                {
+                    password += random.Next(5000);
+                }
+                byte[] salt = new byte[128 / 8];
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(salt);
+                }
+
+                password = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: password,
+                    salt: salt,
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 10000,
+                    numBytesRequested: 256 / 8));
+                string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: password,
+                    salt: salt,
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 10000,
+                    numBytesRequested: 256 / 8));
+
+                //var result = await _userManager.ResetPasswordAsync(user, await _userManager.GeneratePasswordResetTokenAsync(user), password);
+                var result2 = await _userManager.RemovePasswordAsync(user);
+                if(result2.Succeeded)
+                {
+                    result2 = await _userManager.AddPasswordAsync(user, password);
+                    if(result2.Succeeded)
+                    {
+                        _eventBus.TriggerEvent(EventType.PasswordRequestReceived, new Args.PasswordRequestArgs { UserName = user.ChatUserName, TempPassword = password });
+                    }
+                    
+                }
+            }
+            return RedirectToAction(nameof(Login));
         }
 
         #region Helpers

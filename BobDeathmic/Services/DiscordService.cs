@@ -36,6 +36,12 @@ namespace BobDeathmic.Services
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
             _eventBus.TwitchMessageReceived += TwitchMessageReceived;
+            _eventBus.PasswordRequestReceived += PasswordRequestReceived;
+        }
+
+        private void PasswordRequestReceived(object sender, PasswordRequestArgs e)
+        {
+            client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.Users.Where(u => u.Username.ToLower() == e.UserName).FirstOrDefault()?.SendMessageAsync("Dein neues Passwort ist: " + e.TempPassword);
         }
 
         private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
