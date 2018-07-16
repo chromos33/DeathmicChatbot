@@ -33,7 +33,7 @@ namespace BobDeathmic.Controllers
             _serviceProvider = serviceProvider;
             random = new Random(DateTime.Now.Second*DateTime.Now.Millisecond/DateTime.Now.Hour);
         }
-
+        [Authorize(Roles = "Dev,Admin")]
         public IActionResult Index()
         {
             return View();
@@ -45,6 +45,7 @@ namespace BobDeathmic.Controllers
         }
         [BindProperty]
         public Models.ChatUserModel ChatUserModel { get; set; }
+        [Authorize(Roles = "Dev,Admin")]
         public async Task<IActionResult> Edit()
         {
             ChatUserModel = _context.ChatUserModels.Where(x => x.Id.ToString() == RouteData.Values["id"].ToString()).First();
@@ -201,6 +202,7 @@ namespace BobDeathmic.Controllers
             
             return View("Import");
         }
+
         private async Task CreateOrAddUserRoles(string role, string name)
         {
             try

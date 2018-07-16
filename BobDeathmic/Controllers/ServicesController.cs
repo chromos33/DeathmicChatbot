@@ -21,6 +21,7 @@ namespace BobDeathmic.Controllers
         {
             return NotFound();
         }
+        [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> ServiceControls()
         {
             return View();

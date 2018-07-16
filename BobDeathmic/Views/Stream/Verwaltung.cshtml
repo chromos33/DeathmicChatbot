@@ -18,17 +18,23 @@
             <th>Type</th>
             <th></th>
             <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td><a href="@Html.DisplayFor(modelItem => item.Url)">@Html.DisplayFor(modelItem => item.StreamName)</a></td>
-                <td>@Html.DisplayFor(modelItem => item.Type)</td>
-                <td><a asp-action="Edit" asp-route-id="@item.ID">Edit</a></td>
-                <td><a asp-action="Delete" asp-route-id="@item.ID">Delete</a></td>
-            </tr>
+        <tr>
+            <td><a href="@Html.DisplayFor(modelItem => item.Url)">@Html.DisplayFor(modelItem => item.StreamName)</a></td>
+            <td>@Html.DisplayFor(modelItem => item.Type)</td>
+            <td><a asp-action="Edit" asp-route-id="@item.ID">Edit</a></td>
+            @if (item.Type == BobDeathmic.Models.Enum.StreamProviderTypes.Twitch)
+            {
+                <td><a asp-action="TwitchOAuth" asp-route-id="@item.ID">Authorisieren</a></td>
+            }
+
+            <td><a asp-action="Delete" asp-route-id="@item.ID">Delete</a></td>
+        </tr>
         }
     </tbody>
 </table>

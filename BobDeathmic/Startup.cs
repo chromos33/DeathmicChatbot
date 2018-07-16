@@ -39,7 +39,7 @@ namespace BobDeathmic
 
             services.Configure<IdentityOptions>(options =>
             {
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromHours(2);
                 options.Lockout.MaxFailedAccessAttempts = 10;
                 //options.User.RequireUniqueEmail = false;
                 options.Password.RequireDigit = false;

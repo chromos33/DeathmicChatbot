@@ -15,6 +15,9 @@ namespace BobDeathmic.Models
         public string UserID { get; set; }
         public string Url { get; set; }
         public StreamProviderTypes Type { get; set; }
+        public string AccessToken { get; set; }
+        public string Secret { get; set; }
+        public string ClientID { get; set; }
 
         public DateTime Started { get; set; }
         public DateTime Stopped { get; set; }
