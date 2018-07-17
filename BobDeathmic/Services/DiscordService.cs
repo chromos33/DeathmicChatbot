@@ -187,7 +187,7 @@ namespace BobDeathmic.Services
                             inputargs["username"] = arg.Author.Username;
                             inputargs["source"] = "discord";
                             inputargs["channel"] = arg.Channel.Name;
-                            commandresult = await command.ExecuteCommandIfAplicable(inputargs);
+                            commandresult = await command.ExecuteCommandIfApplicable(inputargs);
                             if (commandresult != "")
                             {
                                 arg.Channel.SendMessageAsync(commandresult);

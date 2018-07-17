@@ -12,10 +12,15 @@ namespace BobDeathmic.Services.Helper
         {
             List<IfCommand> Commands = new List<IfCommand>();
             
-            if (!excludeHelp && CommandBuilder.CommandActiveInSource(source, "help"))
+            if (!excludeHelp && CommandBuilder.CommandActiveInSource(source, "Help"))
             {
                 Commands.Help tmp = new Commands.Help();
                 tmp.PopulateCommandList(source);
+                Commands.Add(tmp);
+            }
+            if (CommandBuilder.CommandActiveInSource(source, "ChangeStreamTitle"))
+            {
+                BobDeathmic.Services.Helper.Commands.TwitchStreamTitle tmp = new Commands.TwitchStreamTitle();
                 Commands.Add(tmp);
             }
             /*

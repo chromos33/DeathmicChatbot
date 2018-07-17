@@ -14,7 +14,12 @@ namespace BobDeathmic.Services.Helper.Commands
         public string Category { get { return "General"; } }
         private string sCommandMessage { get; set; }
 
-        public async Task<string> ExecuteCommandIfAplicable(Dictionary<String, String> args)
+        public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
+        {
+            return CommandEventType.None;
+        }
+
+        public async Task<string> ExecuteCommandIfApplicable(Dictionary<String, String> args)
         {
             if (args["message"].ToLower().StartsWith(Trigger))
             {

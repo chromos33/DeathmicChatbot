@@ -3,6 +3,7 @@ using BobDeathmic.Data;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
 using BobDeathmic.Services.Helper;
+using BobDeathmic.Services.Helper.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -52,12 +53,7 @@ namespace BobDeathmic.Services
                 foreach (var MessageQueue in MessageQueues.Where(mq => mq.Value.Count > 0))
                 {
                     client.SendMessage(MessageQueue.Key, MessageQueue.Value.First());
-                    try
-                    {
-                        MessageQueue.Value.RemoveAt(0);
-                    }catch(Exception )
-                    {
-                    }
+                    MessageQueue.Value.RemoveAt(0);
                     
                 }
             }
@@ -87,28 +83,13 @@ namespace BobDeathmic.Services
                 {
                     MessageQueues = new Dictionary<string, List<string>>();
                 }
-                if (e.state == Models.Enum.StreamState.Running)
+                if (e.state != Models.Enum.StreamState.NotRunning)
                 {
                     if (!MessageQueues.ContainsKey(e.stream))
                     {
                         client.JoinChannel(e.stream);
                         
-                        using (var scope = _scopeFactory.CreateScope())
-                        {
-                            var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                            var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower()).FirstOrDefault();
-                            if(stream != null && stream.DiscordRelayChannel == "")
-                            {
-                                foreach(var RelayChannel in _context.RelayChannels.Where(rc => Regex.Match(rc.Name.ToLower(), @"stream_\d+").Success))
-                                {
-                                    if(_context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == RelayChannel.Name.ToLower()).Count() == 0 && stream.DiscordRelayChannel == "")
-                                    {
-                                        stream.DiscordRelayChannel = RelayChannel.Name;
-                                        await _context.SaveChangesAsync();
-                                    }
-                                }
-                            }
-                        }
+                        
                         MessageQueues.Add(e.stream, new List<string>());
                     }
                 }
@@ -180,8 +161,24 @@ namespace BobDeathmic.Services
             CommandList = CommandBuilder.BuildCommands("twitch");
         }
 
-        private void onJoinedChannel(object sender, OnJoinedChannelArgs e)
+        private async void onJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.Channel.ToLower()).FirstOrDefault();
+                if (stream != null && stream.DiscordRelayChannel == "")
+                {
+                    foreach (var RelayChannel in _context.RelayChannels.Where(rc => Regex.Match(rc.Name.ToLower(), @"stream_\d+").Success))
+                    {
+                        if (_context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == RelayChannel.Name.ToLower()).Count() == 0 && stream.DiscordRelayChannel == "")
+                        {
+                            stream.DiscordRelayChannel = RelayChannel.Name;
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                }
+            }
             var twitchchannel = client.JoinedChannels.Where(channel => channel.Channel == e.Channel).FirstOrDefault();
             client.SendMessage(twitchchannel, "Relay Started");
             //Trigger Event to Send "Relay Started" to discord or somesuch
@@ -216,11 +213,25 @@ namespace BobDeathmic.Services
                         inputargs["username"] = e.ChatMessage.Username;
                         inputargs["source"] = "twitch";
                         inputargs["channel"] = e.ChatMessage.Channel;
-                        string CommandResult = await command.ExecuteCommandIfAplicable(inputargs);
+                        string CommandResult = await command.ExecuteCommandIfApplicable(inputargs);
                         if (CommandResult != "")
                         {
+                            isCommand = true;
                             var twitchchannel = client.JoinedChannels.Where(channel => channel.Channel == e.ChatMessage.Channel).FirstOrDefault();
                             client.SendMessage(twitchchannel, CommandResult);
+                        }
+                        if(e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
+                        {
+                            CommandEventType EventType = await command.EventToBeTriggered(inputargs);
+                            switch (EventType)
+                            {
+                                case CommandEventType.None:
+                                    break;
+                                case CommandEventType.TwitchTitle:
+                                    isCommand = true;
+                                    _eventBus.TriggerEvent(Eventbus.EventType.StreamTitleChangeRequested, new StreamTitleChangeArgs { StreamName = e.ChatMessage.Channel, Type = Models.Enum.StreamProviderTypes.Twitch, Message = e.ChatMessage.Message });
+                                    break;
+                            }
                         }
                     }
                 }

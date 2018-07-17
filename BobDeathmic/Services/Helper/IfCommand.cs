@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BobDeathmic.Services.Helper.Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ namespace BobDeathmic.Services.Helper
         string Trigger { get; }
         string Description { get; }
         string Category { get; }
-        Task<string> ExecuteCommandIfAplicable(Dictionary<String, String> args);
+        Task<string> ExecuteCommandIfApplicable(Dictionary<String, String> args);
+
+        Task<CommandEventType> EventToBeTriggered(Dictionary<String, String> args);
     }
 }
