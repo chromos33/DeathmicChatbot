@@ -26,6 +26,8 @@ namespace BobDeathmic.Models
         public string DiscordRelayChannel { get; set; }
         public List<StreamSubscription> StreamSubscriptions { get; set; }
         public ChatUserModel Owner { get; set; }
+        public int UpTimeInterval { get; set; }
+        public DateTime LastUpTime { get; set; }
         public List<string> EnumStreamTypes()
         {
             List<string> EnumTypes = new List<string>();

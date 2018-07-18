@@ -1,6 +1,7 @@
 ﻿using BobDeathmic.Args;
 using BobDeathmic.Data;
 using BobDeathmic.Eventbus;
+using BobDeathmic.Models;
 using BobDeathmic.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -70,6 +71,22 @@ namespace BobDeathmic.Services
                 await Task.Delay(5000, stoppingToken);
             }
         }
+        public bool TriggerUpTime(Models.Stream stream)
+        {
+            if(stream.UpTimeInterval > 0)
+            {
+                if(stream.Started > stream.LastUpTime)
+                {
+                    stream.LastUpTime = stream.Started;
+                }
+                var UpTime = DateTime.Now - stream.LastUpTime;
+                if(UpTime.TotalMinutes > stream.UpTimeInterval)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         public async Task CheckOnlineStreams()
         {
             try
@@ -91,21 +108,21 @@ namespace BobDeathmic.Services
                                 {
                                     if (_stream.StreamState == StreamState.NotRunning)
                                     {
-                                        var streamdata = api.Streams.v5.GetStreamByUserAsync(_stream.UserID.ToString());
-                                        string game = streamdata.Result.Stream.Game;
-                                        string channel = streamdata.Result.Stream.Channel.Name;
-                                        DateTime startdate = streamdata.Result.Stream.CreatedAt;
+                                        var streamdata = await api.Streams.v5.GetStreamByUserAsync(_stream.UserID.ToString());
+                                        string game = streamdata.Stream.Game;
+                                        string channel = streamdata.Stream.Channel.Name;
+                                        DateTime startdate = streamdata.Stream.CreatedAt;
                                         FillStreamArgs();
                                         void FillStreamArgs()
                                         {
                                             args.game = game;
                                             args.channel = channel;
                                             _stream.Game = game;
-                                            _stream.Url = streamdata.Result.Stream.Channel.Url;
-                                            args.link = streamdata.Result.Stream.Channel.Url;
+                                            _stream.Url = streamdata.Stream.Channel.Url;
+                                            args.link = streamdata.Stream.Channel.Url;
 
 
-                                            _stream.Started = streamdata.Result.Stream.CreatedAt;
+                                            _stream.Started = DateTime.Now;
                                             args.Notification = _stream.StreamStartedMessage();
                                             args.stream = _stream.StreamName;
                                         }
@@ -136,6 +153,13 @@ namespace BobDeathmic.Services
                                             await _context.SaveChangesAsync();
                                         }
                                         return true;
+                                    }
+                                    if(TriggerUpTime(_stream))
+                                    {
+                                        args.PostUpTime = true;
+                                        args.Uptime = DateTime.Now - _stream.Started;
+                                        _stream.LastUpTime = DateTime.Now;
+                                        await _context.SaveChangesAsync();
                                     }
                                     _eventBus.TriggerEvent(EventType.StreamChanged, args);
 

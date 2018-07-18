@@ -61,7 +61,7 @@ namespace BobDeathmic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,StreamName,Game,UserID,Url,Type,Started,Stopped,RelayState,StreamState,DiscordRelayChannel")] Stream stream)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,StreamName,Game,UserID,Url,Type,Started,Stopped,RelayState,StreamState,DiscordRelayChannel,UpTimeInterval")] Stream stream)
         {
             if (id != stream.ID)
             {

@@ -104,12 +104,17 @@ namespace BobDeathmic.Services
                             var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.channel.ToLower()).FirstOrDefault();
                             if(Regex.Match(stream.DiscordRelayChannel.ToLower(), @"stream_\d+").Success)
                             {
-                                stream.DiscordRelayChannel = "";
+                                stream.DiscordRelayChannel = "An";
                                 await _context.SaveChangesAsync();
                             }
                         }
                         //Remove Relay Channel from stream if it is a generic DiscordChannel
                     }
+                }
+                if(e.PostUpTime)
+                {
+                    string UpTimeMessage = $"Stream läuft seit {e.Uptime.Hours} Stunden und {e.Uptime.Minutes} Minuten";
+                    MessageQueues[e.stream].Add(UpTimeMessage);
                 }
             }
         }
@@ -167,11 +172,11 @@ namespace BobDeathmic.Services
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.Channel.ToLower()).FirstOrDefault();
-                if (stream != null && stream.DiscordRelayChannel == "")
+                if (stream != null && stream.DiscordRelayChannel == "An")
                 {
                     foreach (var RelayChannel in _context.RelayChannels.Where(rc => Regex.Match(rc.Name.ToLower(), @"stream_\d+").Success))
                     {
-                        if (_context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == RelayChannel.Name.ToLower()).Count() == 0 && stream.DiscordRelayChannel == "")
+                        if (_context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == RelayChannel.Name.ToLower()).Count() == 0)
                         {
                             stream.DiscordRelayChannel = RelayChannel.Name;
                             await _context.SaveChangesAsync();
@@ -192,7 +197,7 @@ namespace BobDeathmic.Services
                     target = stream.DiscordRelayChannel;
                 }
             }
-            if(target != "")
+            if(target != null && target != "")
             {
                 _eventBus.TriggerEvent(EventType.TwitchMessageReceived, new TwitchMessageArgs { Source = e.Channel, Message = "Relay Started", Target = target});
             }
@@ -248,7 +253,7 @@ namespace BobDeathmic.Services
                             target = stream.DiscordRelayChannel;
                         }
                     }
-                    if (target != "")
+                    if (target != null && target != "")
                     {
                         _eventBus.TriggerEvent(EventType.TwitchMessageReceived, new TwitchMessageArgs { Source = e.ChatMessage.Channel, Message = e.ChatMessage.Username + ": " + e.ChatMessage.Message, Target = target });
                     }

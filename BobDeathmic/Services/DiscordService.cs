@@ -46,6 +46,7 @@ namespace BobDeathmic.Services
 
         private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
         {
+            
             client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.TextChannels.Where(c => c.Name.ToLower() == e.Target.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
         }
         private void InitCommands()

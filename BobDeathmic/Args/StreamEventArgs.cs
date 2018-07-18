@@ -1,4 +1,6 @@
-﻿namespace BobDeathmic.Args
+﻿using System;
+
+namespace BobDeathmic.Args
 {
     public class StreamEventArgs
     {
@@ -12,5 +14,7 @@
         public string Notification;
         public Models.Enum.RelayState relayactive;
         public Models.Enum.StreamProviderTypes StreamType;
+        public bool PostUpTime;
+        public TimeSpan Uptime;
     }
 }
