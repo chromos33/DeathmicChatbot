@@ -4,7 +4,6 @@ D:\Github\DeathmicChatbot\BobDeathmic\bin\Debug\netcoreapp2.1\BobDeathmic.runtim
 D:\Github\DeathmicChatbot\BobDeathmic\bin\Debug\netcoreapp2.1\BobDeathmic.dll
 D:\Github\DeathmicChatbot\BobDeathmic\bin\Debug\netcoreapp2.1\BobDeathmic.pdb
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\BobDeathmic.csproj.CoreCompileInputs.cache
-D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\UserSecretsAssemblyInfo.cs
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\BobDeathmic.AssemblyInfoInputs.cache
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\BobDeathmic.AssemblyInfo.cs
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\BobDeathmic.dll
@@ -25,7 +24,6 @@ D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\BobDeathmic.RazorT
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\BobDeathmic.RazorTargetAssemblyInfo.cs
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\BobDeathmic.Views.pdb
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\BobDeathmic.csproj.CopyComplete
-D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\BobDeathmic.csprojAssemblyReference.cache
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Admin\Index.g.cshtml.cs
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Admin\Import.g.cshtml.cs
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Main\AccessDenied.g.cshtml.cs
@@ -35,3 +33,15 @@ D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Main\L
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Main\SignedOut.g.cshtml.cs
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Shared\_LogoutPartial.g.cshtml.cs
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Shared\_LoginPartial.g.cshtml.cs
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\User\ChangePassword.g.cshtml.cs
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\User\Subscriptions.g.cshtml.cs
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Admin\SecurityTokens.g.cshtml.cs
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Stream\Status.g.cshtml.cs
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Stream\Verwaltung.g.cshtml.cs
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Stream\Delete.g.cshtml.cs
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Stream\Edit.g.cshtml.cs
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\BobDeathmic.csprojAssemblyReference.cache
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Services\ServiceControls.g.cshtml.cs
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\UserSecretsAssemblyInfo.cs
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Main\ForgotPassword.g.cshtml.cs
+D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Stream\TwitchOAuth.g.cshtml.cs
