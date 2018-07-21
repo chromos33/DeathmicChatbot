@@ -78,7 +78,7 @@ using BobDeathmic.Models.AccountViewModels;
             WriteLiteral("<div class=\"menu\">\r\n    <div class=\"menuitem\">\r\n        ");
             EndContext();
             BeginContext(267, 66, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "6ea721261a7d4815a92f17a6e1c2e058", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "c3aad0fb238044bd9896ff1aad38b699", async() => {
                 BeginContext(323, 6, true);
                 WriteLiteral("Log in");
                 EndContext();

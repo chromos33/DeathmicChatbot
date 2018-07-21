@@ -84,7 +84,7 @@ using BobDeathmic.Models.AccountViewModels;
             WriteLiteral("\r\n");
             EndContext();
             BeginContext(127, 50, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("link", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.SelfClosing, "0c419ba8c63e446f8231244c9b4a8fd1", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("link", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.SelfClosing, "bb2da50abd9741c48162c2600424232c", async() => {
             }
             );
             __Microsoft_AspNetCore_Mvc_Razor_TagHelpers_UrlResolutionTagHelper = CreateTagHelper<global::Microsoft.AspNetCore.Mvc.Razor.TagHelpers.UrlResolutionTagHelper>();
@@ -123,12 +123,12 @@ using BobDeathmic.Models.AccountViewModels;
             WriteLiteral(" löschen willst?</h3>\r\n\r\n\r\n    ");
             EndContext();
             BeginContext(459, 253, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "3485e23d3b8c4cfe8a3c4e0093b59f65", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "34337d01bdbd4559a4b69376d443f089", async() => {
                 BeginContext(485, 10, true);
                 WriteLiteral("\r\n        ");
                 EndContext();
                 BeginContext(495, 36, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("input", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.SelfClosing, "1f86b81f93ce4c9ab05ed5014ad4bb97", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("input", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.SelfClosing, "24e0c9da07ad426982131a8669fe2d95", async() => {
                 }
                 );
                 __Microsoft_AspNetCore_Mvc_TagHelpers_InputTagHelper = CreateTagHelper<global::Microsoft.AspNetCore.Mvc.TagHelpers.InputTagHelper>();
@@ -153,7 +153,7 @@ __Microsoft_AspNetCore_Mvc_TagHelpers_InputTagHelper.For = ModelExpressionProvid
                 WriteLiteral("\r\n        <input style=\"float:left;\" type=\"submit\" value=\"Löschen\" class=\"btn btn-default\" />\r\n        ");
                 EndContext();
                 BeginContext(634, 65, false);
-                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "aac869263b82458db5b8d64a0f94594e", async() => {
+                __tagHelperExecutionContext = __tagHelperScopeManager.Begin("a", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "6b7febac748a45918c1da564e50c61cc", async() => {
                     BeginContext(689, 6, true);
                     WriteLiteral("Zurück");
                     EndContext();

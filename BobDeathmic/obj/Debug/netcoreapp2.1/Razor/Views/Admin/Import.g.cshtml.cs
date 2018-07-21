@@ -79,7 +79,7 @@ using BobDeathmic.Models.AccountViewModels;
             WriteLiteral("<div class=\"col-md-12 col-xs-12\">\r\n    <h2>Import</h2>\r\n    <p>Immer zuerst Streams importieren dann User</p>\r\n</div>\r\n<div class=\"col-md-6 col-xs-12\">\r\n    <h3>Stream</h3>\r\n    ");
             EndContext();
             BeginContext(269, 528, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "1a753a17edb24fdd84f0042935e04d4b", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "9de7342023ba4e5f8805646a21b2cdcd", async() => {
                 BeginContext(369, 421, true);
                 WriteLiteral(@"
         <div class=""form-group"">
@@ -120,7 +120,7 @@ using BobDeathmic.Models.AccountViewModels;
             WriteLiteral("\r\n</div>\r\n<div class=\"col-md-6 col-xs-12\">\r\n    <h3>User</h3>\r\n\r\n    ");
             EndContext();
             BeginContext(866, 521, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "6603b578534f4b5dba8e70415aae9715", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("form", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "c8781e9e791a49aabb3cbaa6cba38820", async() => {
                 BeginContext(964, 416, true);
                 WriteLiteral(@"
         <div class=""form-group"">
