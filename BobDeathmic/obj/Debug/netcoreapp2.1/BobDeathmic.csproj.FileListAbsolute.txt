@@ -42,6 +42,5 @@ D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Stream
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Stream\Edit.g.cshtml.cs
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\BobDeathmic.csprojAssemblyReference.cache
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Services\ServiceControls.g.cshtml.cs
-D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\UserSecretsAssemblyInfo.cs
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Main\ForgotPassword.g.cshtml.cs
 D:\Github\DeathmicChatbot\BobDeathmic\obj\Debug\netcoreapp2.1\Razor\Views\Stream\TwitchOAuth.g.cshtml.cs
