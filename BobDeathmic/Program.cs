@@ -14,6 +14,7 @@ namespace BobDeathmic
 {
     public class Program
     {
+        public static IConfiguration Configuration { get; set; }
         public static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
 
@@ -36,7 +37,7 @@ namespace BobDeathmic
                     logger.LogError(ex, "An error occurred seeding the DB.");
                 }
             }
-
+            
             host.Run();
         }
 
