@@ -20,30 +20,13 @@ namespace BobDeathmic
 
         public async Task MainAsync(string[] args)
         {
-            var host = BuildWebHost(args);
-            using (var scope = host.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-
-                try
-                {
-                    var context = services.GetRequiredService<Data.ApplicationDbContext>();
-                    context.Database.Migrate();
-                    await Models.SeedData.Initialize(services);
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred seeding the DB.");
-                }
-            }
-            
-            host.Run();
+            BuildWebHost(args).Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseApplicationInsights()
+                .UseUrls("http://localhost:5001/")
                 .UseStartup<Startup>()
                 .Build();
     }
