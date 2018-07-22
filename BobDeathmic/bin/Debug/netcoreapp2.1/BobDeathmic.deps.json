@@ -27,6 +27,7 @@
           "Discord.Net": "2.0.0-beta",
           "Microsoft.ApplicationInsights.AspNetCore": "2.4.0-beta2",
           "Microsoft.AspNetCore.All": "2.1.2",
+          "Microsoft.EntityFrameworkCore": "2.1.1",
           "Microsoft.EntityFrameworkCore.Design": "2.1.1",
           "Microsoft.EntityFrameworkCore.Relational": "2.1.1",
           "Microsoft.Extensions.Configuration": "2.1.1",
