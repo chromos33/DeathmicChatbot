@@ -76,7 +76,7 @@ namespace BobDeathmic.Services
             {
                 while (!client.IsConnected)
                 {
-                    Thread.Sleep(1000);
+                    await Task.Delay(1000);
                 }
                 //join RelayChannel
                 if(MessageQueues == null)
@@ -118,7 +118,7 @@ namespace BobDeathmic.Services
                 }
             }
         }
-        public void Init()
+        public async void Init()
         {
             _eventBus.StreamChanged += StreamChanged;
             _eventBus.DiscordMessageReceived += DiscordMessageReceived;
@@ -132,7 +132,7 @@ namespace BobDeathmic.Services
                     token = _context.SecurityTokens.Where(st => st.service == Models.Enum.TokenType.Twitch).FirstOrDefault();
                     if(token == null || token != null && token.token == "")
                     {
-                        Thread.Sleep(5000);
+                        await Task.Delay(1000);
                     }
                 }
                 

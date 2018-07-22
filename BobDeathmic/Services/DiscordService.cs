@@ -56,11 +56,13 @@ namespace BobDeathmic.Services
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / DateTime.Now.Hour);
-            await ConnectToDiscord();
-            InitCommands();
-            while (!stoppingToken.IsCancellationRequested)
+            if(await ConnectToDiscord())
             {
-                await Task.Delay(5000, stoppingToken);
+                InitCommands();
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    await Task.Delay(5000, stoppingToken);
+                }
             }
             return;
         }
@@ -70,7 +72,7 @@ namespace BobDeathmic.Services
             await client.StopAsync();
             Dispose();
         }
-        protected async Task ConnectToDiscord()
+        protected async Task<bool> ConnectToDiscord()
         {
             var discordConfig = new DiscordSocketConfig { MessageCacheSize = 100 };
             discordConfig.AlwaysDownloadUsers = true;
@@ -104,8 +106,10 @@ namespace BobDeathmic.Services
                 client.UserJoined += ClientJoined;
                 client.ChannelCreated += ChannelChanged;
                 client.ChannelDestroyed += ChannelChanged;
+                return true;
                 
             }
+            return false;
         }
 
         private async Task ChannelChanged(SocketChannel arg)

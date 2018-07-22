@@ -28,6 +28,7 @@ namespace BobDeathmic.Services
         public IConfiguration Configuration { get; }
         public TwitchChecker(IServiceScopeFactory scopeFactory, IEventBus eventBus)
         {
+          
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
             api = new TwitchAPI();
@@ -43,33 +44,26 @@ namespace BobDeathmic.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                Models.SecurityToken data = null;
-                while (data == null)
-                {
-                    data = _context.SecurityTokens.Where(securitykey => securitykey.service == TokenType.Twitch).FirstOrDefault();
-                    if (data == null)
-                    {
-                        //Just to prevent if from sleeping when it has data
-                        Thread.Sleep(10000);
-                    }
-
-                }
+                Models.SecurityToken data = _context.SecurityTokens.Where(securitykey => securitykey.service == TokenType.Twitch).FirstOrDefault();
+                
                 if (data != null)
                 {
                     api.Settings.ClientId = data.ClientID;
                     api.Settings.AccessToken = data.token;
+                    _timer = new System.Timers.Timer(10000);
+                    _timer.Elapsed += (sender, args) => CheckOnlineStreams();
+                    _timer.Start();
+                    while (!stoppingToken.IsCancellationRequested)
+                    {
+                        await Task.Delay(5000, stoppingToken);
+                    }
                 }
                 else
                 {
+                    return;
                 }
             }
-            _timer = new System.Timers.Timer(10000);
-            _timer.Elapsed += (sender, args) => CheckOnlineStreams();
-            _timer.Start();
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                await Task.Delay(5000, stoppingToken);
-            }
+           
         }
         public bool TriggerUpTime(Models.Stream stream)
         {
