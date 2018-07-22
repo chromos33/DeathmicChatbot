@@ -27,6 +27,7 @@ namespace BobDeathmic
             WebHost.CreateDefaultBuilder(args)
                 .UseApplicationInsights()
                 .UseUrls("http://localhost:5001/")
+                .UseLibuv(opts => opts.ThreadCount = 3)
                 .UseStartup<Startup>()
                 .Build();
     }
