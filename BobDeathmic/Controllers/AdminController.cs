@@ -148,9 +148,9 @@ namespace BobDeathmic.Controllers
             XmlReader xReader = XmlReader.Create(fsFile);
             System.Xml.Serialization.XmlSerializer xmlserializer = new System.Xml.Serialization.XmlSerializer(typeof(List<Legacy.User>));
 
-            List<Legacy.User> StreamList = (List<Legacy.User>)xmlserializer.Deserialize(xReader);
+            List<Legacy.User> UserList = (List<Legacy.User>)xmlserializer.Deserialize(xReader);
             fsFile.Close();
-            return StreamList;
+            return UserList;
         }
         private bool ShouldImport()
         {
