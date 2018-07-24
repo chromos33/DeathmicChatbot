@@ -1,0 +1,90 @@
+﻿@model List<BobDeathmic.Models.User.UserRolesViewModel>
+
+<link rel="stylesheet" href="~/css/table.css" />
+<link rel="stylesheet" href="~/css/UserAdmin.css" />
+<div class="breadcrumbs">
+    <span>Streams > Status</span>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Roles</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr data-userID="@item.User.Id">
+                <td>
+                    @item.User.UserName
+                </td>
+                <td>
+                    @foreach (string role in ViewData["PossibleRoles"] as string[])
+                    {
+                        if (role == "User")
+                        {
+                            <div class="rolecontainer">
+                                <label>@role</label>
+                            </div>
+
+                        }
+                        else
+                        {
+                            if (item.Roles.Contains(role))
+                            {
+                                <div class="rolecontainer">
+                                    <input data-UserRole="@role" type="checkbox" checked />
+                                    <label>@role</label>
+                                </div>
+
+                            }
+                            else
+                            {
+                                <div class="rolecontainer">
+                                    <input data-UserRole="@role" type="checkbox" />
+                                    <label>@role</label>
+                                </div>
+                                
+                            }
+                        }
+
+
+                    }
+                </td>
+                <td>
+                    <span class="saveUserRoles">Speichern</span>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+@section Scripts {
+
+    <script>
+            jQuery(document).ready(function(){
+                jQuery(".saveUserRoles").click(function () {
+                $.ajax({
+                    url: '@Url.Action("SaveUserRoles","UserAdmin")',
+                    type: 'POST',
+                    data: {
+                        UserId: jQuery(this).closest("tr").attr("data-userID"),
+                        isAdmin: jQuery(this).closest("tr").find("input[data-UserRole='Admin']:checked").length
+                    },
+                    dataType: 'html',
+                    success: function (data) {
+                        if (data == "true") {
+                            jQuery(cur).find("i").removeClass("font_red").addClass("font_green");
+                        }
+                        else {
+                            jQuery(cur).find("i").removeClass("font_green").addClass("font_red");
+                        }
+                    }
+                })
+            });
+            })
+    </script>
+}
+

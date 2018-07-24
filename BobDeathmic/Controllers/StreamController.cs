@@ -72,6 +72,14 @@ namespace BobDeathmic.Controllers
             {
                 try
                 {
+                    if(stream.DiscordRelayChannel.ToLower() == "aus")
+                    {
+                        stream.RelayState = Models.Enum.RelayState.NotActivated;
+                    }
+                    else
+                    {
+                        stream.RelayState = Models.Enum.RelayState.NotRunning;
+                    }
                     _context.Update(stream);
                     await _context.SaveChangesAsync();
                 }

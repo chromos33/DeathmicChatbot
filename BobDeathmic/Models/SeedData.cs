@@ -14,7 +14,7 @@ namespace BobDeathmic.Models
 {
     public static class SeedData
     {
-        public async static Task Initialize(IServiceProvider serviceProvider)
+        public async static Task Seed(IServiceProvider serviceProvider)
         {
             Contract.Ensures(Contract.Result<Task>() != null);
             using (var context = new Data.ApplicationDbContext(serviceProvider.GetRequiredService<DbContextOptions<Data.ApplicationDbContext>>()))
@@ -24,12 +24,9 @@ namespace BobDeathmic.Models
                     return;
                 }
                 var usermanager = serviceProvider.GetRequiredService <UserManager<ChatUserModel>>();
-
-                var user = new ChatUserModel { UserName = "Admin" };
+                
                 var dev = new ChatUserModel { UserName = "Dev" };
-                var result = await usermanager.CreateAsync(user, "kermit22");
-                result = await usermanager.CreateAsync(dev, "kermit22");
-                await Models.SeedData.CreateOrAddUserRoles("Admin", "Admin", serviceProvider);
+                await usermanager.CreateAsync(dev, "SetupPassword");
                 await Models.SeedData.CreateOrAddUserRoles("Dev", "Dev", serviceProvider);
             }
             return;

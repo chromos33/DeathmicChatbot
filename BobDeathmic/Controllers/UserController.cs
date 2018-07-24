@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BobDeathmic.Controllers
 {
@@ -117,6 +118,22 @@ namespace BobDeathmic.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> DeleteUser()
+        {
+            return View();
+        }
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> DeleteUser(int? id)
+        {
+            var user = await _userManager.GetUserAsync(this.User);
+            await _userManager.DeleteAsync(user);
+            return Redirect(nameof(MainController.Index));
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(Models.User.ChangePasswordViewModel model)
