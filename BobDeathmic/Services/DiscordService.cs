@@ -78,14 +78,36 @@ namespace BobDeathmic.Services
             discordConfig.AlwaysDownloadUsers = true;
             discordConfig.LargeThreshold = 250;
             client = new DiscordSocketClient(discordConfig);
-            string token = "";
+            string token = GetDiscordToken();
+            if (token != "")
+            {
+                await client.LoginAsync(TokenType.Bot, token);
+                await client.StartAsync();
+                InitializeEvents();
+                return true;
+                
+            }
+            return false;
+        }
+        private void InitializeEvents()
+        {
+            client.MessageReceived += MessageReceived;
+            client.Ready += ClientConnected;
+            client.Disconnected += ClientDisconnected;
+            client.UserJoined += ClientJoined;
+            client.ChannelCreated += ChannelChanged;
+            client.ChannelDestroyed += ChannelChanged;
+        }
+        private string GetDiscordToken()
+        {
             using (var scope = _scopeFactory.CreateScope())
             {
+                var token = "";
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var tokens = _context.SecurityTokens.Where(st => st.service == Models.Enum.TokenType.Discord).FirstOrDefault();
-                if(tokens != null)
+                if (tokens != null)
                 {
-                    if(tokens.token == null)
+                    if (tokens.token == null)
                     {
                         token = tokens.ClientID;
                     }
@@ -93,23 +115,10 @@ namespace BobDeathmic.Services
                     {
                         token = tokens.token;
                     }
-                    
+
                 }
+                return token;
             }
-            if(token != "")
-            {
-                await client.LoginAsync(TokenType.Bot, token);
-                await client.StartAsync();
-                client.MessageReceived += MessageReceived;
-                client.Ready += ClientConnected;
-                client.Disconnected += ClientDisconnected;
-                client.UserJoined += ClientJoined;
-                client.ChannelCreated += ChannelChanged;
-                client.ChannelDestroyed += ChannelChanged;
-                return true;
-                
-            }
-            return false;
         }
 
         private async Task ChannelChanged(SocketChannel arg)
@@ -123,43 +132,82 @@ namespace BobDeathmic.Services
         }
         private async Task UpdateRelayChannels()
         {
+            List<string> discordChannels = GetDiscordStreamChannels();
+            List<string> savedChannels = GetSavedRelayChannels();
+                
+                
+            List<string> channelsToBeAdded = discordChannels.Except(savedChannels).ToList();
+            List<string> channelsToBeRemoved = savedChannels.Except(discordChannels).ToList();
+            if(channelsToBeAdded.Count() > 0)
+            {
+                AddChannelsInListToDB(channelsToBeAdded);
+            }
+            if(channelsToBeRemoved.Count() > 0)
+            {
+                RemoveChannelsInListFromDB(channelsToBeRemoved);
+            }
+            if(ChangeDetected(channelsToBeAdded) || ChangeDetected(channelsToBeRemoved))
+            {
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+        private bool ChangeDetected(List<string> List)
+        {
+            return List.Count() > 0;
+        }
+        private void AddChannelsInListToDB(List<string> channelsToBeAdded)
+        {
+            ApplicationDbContext _context = null;
             using (var scope = _scopeFactory.CreateScope())
             {
-                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                List<string> discordChannels = new List<string>();
-                foreach(var channel in client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Channels)
+                _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                foreach (var channel in channelsToBeAdded)
                 {
-                    if(Regex.Match(channel.Name.ToLower(), @"stream_").Success)
-                    {
-                        discordChannels.Add(channel.Name);
-                    }
+                    _context.RelayChannels.Add(new Models.Discord.RelayChannels { Name = channel });
                 }
-                List<string> savedChannels = new List<string>();
+            }
+        }
+        private void RemoveChannelsInListFromDB(List<string> channelsToBeRemoved)
+        {
+            ApplicationDbContext _context = null;
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                foreach (var channel in channelsToBeRemoved)
+                {
+                    _context.RelayChannels.Remove(_context.RelayChannels.Where(rc => rc.Name == channel).FirstOrDefault());
+                }
+            }
+        }
+        private List<string> GetDiscordStreamChannels()
+        {
+            List<string> discordChannels = new List<string>();
+            foreach (var channel in client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Channels)
+            {
+                if (Regex.Match(channel.Name.ToLower(), @"stream_").Success)
+                {
+                    discordChannels.Add(channel.Name);
+                }
+            }
+            return discordChannels;
+        }
+        private List<string> GetSavedRelayChannels()
+        {
+            List<string> savedChannels = new List<string>();
+            ApplicationDbContext _context = null;
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 foreach (var channel in _context.RelayChannels)
                 {
                     savedChannels.Add(channel.Name);
                 }
-                List<string> channelsToBeAdded = discordChannels.Except(savedChannels).ToList();
-                List<string> channelsToBeRemoved = savedChannels.Except(discordChannels).ToList();
-                if(channelsToBeAdded.Count() > 0)
-                {
-                    foreach(var channel in channelsToBeAdded)
-                    {
-                        _context.RelayChannels.Add(new Models.Discord.RelayChannels { Name = channel });
-                    }
-                }
-                if(channelsToBeRemoved.Count() > 0)
-                {
-                    foreach (var channel in channelsToBeRemoved)
-                    {
-                        _context.RelayChannels.Remove(_context.RelayChannels.Where(rc => rc.Name == channel).FirstOrDefault());
-                    }
-                }
-                if(channelsToBeAdded.Count() > 0 || channelsToBeRemoved.Count() > 0)
-                {
-                    await _context.SaveChangesAsync();
-                }
             }
+            return savedChannels;
         }
 
         private async Task ClientDisconnected(Exception arg)
@@ -168,7 +216,7 @@ namespace BobDeathmic.Services
 
         private async Task ClientConnected()
         {
-            UpdateRelayChannels();
+            await UpdateRelayChannels();
         }
         private async Task MessageReceived(SocketMessage arg)
         {

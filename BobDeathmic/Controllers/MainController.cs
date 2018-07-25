@@ -139,41 +139,7 @@ namespace BobDeathmic.Controllers
 
             if(user != null)
             {
-                Random random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / DateTime.Now.Hour);
-                int passes = random.Next(1,8);
-                string password = "";
-                for(int passcounter = 0; passcounter < passes; passcounter++)
-                {
-                    string LoremIpsum = Helper.StaticHelper.GetLoremIpsum().Replace(" ", "").Replace(",", "").Replace(".", "");
-                    password += LoremIpsum.Substring(0,random.Next(0, LoremIpsum.Length));
-                    password += random.Next(5000);
-                }
-                int start = random.Next(password.Length);
-                int end = random.Next(random.Next(password.Length - start - 1));
-                password = password.Substring(start, end);
-                if(password.Length < 8)
-                {
-                    password += random.Next(5000);
-                }
-                byte[] salt = new byte[128 / 8];
-                using (var rng = RandomNumberGenerator.Create())
-                {
-                    rng.GetBytes(salt);
-                }
-
-                password = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                    password: password,
-                    salt: salt,
-                    prf: KeyDerivationPrf.HMACSHA1,
-                    iterationCount: 10000,
-                    numBytesRequested: 256 / 8));
-                string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                    password: password,
-                    salt: salt,
-                    prf: KeyDerivationPrf.HMACSHA1,
-                    iterationCount: 10000,
-                    numBytesRequested: 256 / 8));
-
+                string password = GeneratePassword();
                 //var result = await _userManager.ResetPasswordAsync(user, await _userManager.GeneratePasswordResetTokenAsync(user), password);
                 var result2 = await _userManager.RemovePasswordAsync(user);
                 if(result2.Succeeded)
@@ -188,7 +154,41 @@ namespace BobDeathmic.Controllers
             }
             return RedirectToAction(nameof(Login));
         }
-
+        private string GeneratePassword()
+        {
+            Random random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / DateTime.Now.Hour);
+            int passes = random.Next(1, 8);
+            string password = "";
+            for (int passcounter = 0; passcounter < passes; passcounter++)
+            {
+                string LoremIpsum = Helper.StaticHelper.GetLoremIpsum().Replace(" ", "").Replace(",", "").Replace(".", "");
+                password += LoremIpsum.Substring(0, random.Next(0, LoremIpsum.Length));
+                password += random.Next(5000);
+            }
+            int start = random.Next(password.Length);
+            int end = random.Next(random.Next(password.Length - start - 1));
+            password = password.Substring(start, end);
+            if (password.Length < 8)
+            {
+                password += random.Next(5000);
+            }
+            return password;
+        }
+        private string GeneratePasswordHash(string _password)
+        {
+            byte[] salt = new byte[128 / 8];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+            string password = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: _password,
+                    salt: salt,
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 10000,
+                    numBytesRequested: 256 / 8));
+            return password;
+        }
         #region Helpers
 
         private void AddErrors(IdentityResult result)

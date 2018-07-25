@@ -8,6 +8,7 @@ using BobDeathmic.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace BobDeathmic.Controllers
@@ -15,10 +16,12 @@ namespace BobDeathmic.Controllers
     public class StreamController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public StreamController(ApplicationDbContext context)
+        public StreamController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
         [Authorize(Roles = "User,Dev,Admin")]
         public IActionResult Index()
@@ -182,11 +185,15 @@ namespace BobDeathmic.Controllers
             Models.Stream stream = _context.StreamModels.Where(sm => state.Contains(sm.Secret)).FirstOrDefault();
             if(stream != null)
             {
-                string url = $"https://id.twitch.tv/oauth2/token?client_id={stream.ClientID}&client_secret={stream.Secret}&code={code}&grant_type=authorization_code&redirect_uri=https://localhost:44347/Stream/TwitchReturnUrlAction";
+                var baseUrl = _configuration.GetSection("WebAdress").Value;
+                string url = $"https://id.twitch.tv/oauth2/token?client_id={stream.ClientID}&client_secret={stream.Secret}&code={code}&grant_type=authorization_code&redirect_uri={baseUrl}/Stream/TwitchReturnUrlAction";
+
                 var response = await client.PostAsync(url, new StringContent("", System.Text.Encoding.UTF8, "text/plain"));
                 var responsestring = await response.Content.ReadAsStringAsync();
+
                 JSONObjects.TwitchAuthToken authtoken = JsonConvert.DeserializeObject<JSONObjects.TwitchAuthToken>(responsestring);
                 stream.AccessToken = authtoken.access_token;
+
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
