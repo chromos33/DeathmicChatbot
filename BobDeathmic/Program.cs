@@ -28,7 +28,7 @@ namespace BobDeathmic
                 var services = scope.ServiceProvider;
                 try
                 {
-                    Models.SeedData.Seed(services);
+                    await Models.SeedData.Seed(services);
                 }
                 catch (Exception ex)
                 {

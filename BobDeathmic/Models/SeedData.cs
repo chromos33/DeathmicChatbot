@@ -25,9 +25,10 @@ namespace BobDeathmic.Models
                 }
                 var usermanager = serviceProvider.GetRequiredService <UserManager<ChatUserModel>>();
                 
-                var dev = new ChatUserModel { UserName = "Dev" };
+                var dev = new ChatUserModel { UserName = "Dev", ChatUserName = "Dev" };
                 await usermanager.CreateAsync(dev, "SetupPassword");
                 await Models.SeedData.CreateOrAddUserRoles("Dev", "Dev", serviceProvider);
+
             }
             return;
 

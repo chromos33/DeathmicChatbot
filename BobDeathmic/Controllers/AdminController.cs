@@ -179,9 +179,9 @@ namespace BobDeathmic.Controllers
                     if (connectionstream != null)
                     {
                         newSubscription.Stream = connectionstream;
+                        newSubscription.User = newUserModel;
+                        newUserModel.StreamSubscriptions.Add(newSubscription);
                     }
-                    newSubscription.User = newUserModel;
-                    newUserModel.StreamSubscriptions.Add(newSubscription);
                 }
             }
         }
@@ -193,7 +193,10 @@ namespace BobDeathmic.Controllers
             foreach(Models.StreamSubscription subscription in User.StreamSubscriptions)
             {
                 Models.Stream stream = subscription.Stream;
-                password += stream.StreamName.Substring(random.Next(0, stream.StreamName.Length - 1));
+                if(stream != null && stream.StreamName.Length > 0)
+                {
+                    password += stream.StreamName.Substring(random.Next(0, stream.StreamName.Length - 1));
+                }
             }
             password += random.Next();
             return HashString(password);
@@ -271,6 +274,7 @@ namespace BobDeathmic.Controllers
                 _context.SecurityTokens.Add(token);
                 await _context.SaveChangesAsync();
             }
+            string test = $"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseurl}/Admin/TwitchReturnUrlAction&scope=chat_login viewing_activity_read openid&state=c3ab8aa609ea11e793ae92361f002671";
             return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseurl}/Admin/TwitchReturnUrlAction&scope=chat_login viewing_activity_read openid&state=c3ab8aa609ea11e793ae92361f002671");
         }
         public async Task SaveDiscordToken(SecurityToken token)
@@ -293,7 +297,7 @@ namespace BobDeathmic.Controllers
             var savedtoken = _context.SecurityTokens.Where(st => st.service == BobDeathmic.Models.Enum.TokenType.Twitch).FirstOrDefault();
             savedtoken.code = code;
             var client = new HttpClient();
-            var baseUrl = _configuration.GetSection("WebAdress").Value;
+            string baseUrl = _configuration.GetValue<string>("WebServerWebAddress");
             string url = $"https://id.twitch.tv/oauth2/token?client_id={savedtoken.ClientID}&client_secret={savedtoken.secret}&code={code}&grant_type=authorization_code&redirect_uri={baseUrl}/Admin/TwitchReturnUrlAction";
             var response = await client.PostAsync(url, new StringContent("", System.Text.Encoding.UTF8,"text/plain"));
             var responsestring = await response.Content.ReadAsStringAsync();

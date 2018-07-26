@@ -13,6 +13,14 @@ namespace BobDeathmic.Models
         public List<StreamSubscription> StreamSubscriptions { get; set; }
         public string InitialPassword { get; set; }
         public List<Stream> OwnedStreams { get; set; }
+        public bool IsSubscribed(string streamname)
+        {
+            if(StreamSubscriptions != null && StreamSubscriptions.Where(ss => ss.Stream != null && ss.Stream.StreamName.ToLower() == streamname.ToLower() && ss.Subscribed == Enum.SubscriptionState.Subscribed).FirstOrDefault() != null)
+            {
+                return true;
+            }
+            return false;
+        }
 
     }
 }

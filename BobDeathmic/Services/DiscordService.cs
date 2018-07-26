@@ -16,6 +16,9 @@ using BobDeathmic.Models;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Text;
+using System.Net;
+using Microsoft.EntityFrameworkCore;
 
 namespace BobDeathmic.Services
 {
@@ -37,6 +40,48 @@ namespace BobDeathmic.Services
             _eventBus = eventBus;
             _eventBus.TwitchMessageReceived += TwitchMessageReceived;
             _eventBus.PasswordRequestReceived += PasswordRequestReceived;
+            _eventBus.StreamChanged += StreamChanged;
+        }
+
+        private async void StreamChanged(object sender, StreamEventArgs e)
+        {
+            NotifySubscriber(e);
+        }
+        private async void NotifySubscriber(StreamEventArgs e)
+        {
+            if (e.Notification != "")
+            {
+                while (client.ConnectionState != ConnectionState.Connected)
+                {
+                    await Task.Delay(5000);
+                }
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower()).FirstOrDefault();
+                    foreach (var user in client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users)
+                    {
+                        ChatUserModel dbUser = null;
+                        try
+                        {
+                            dbUser = _context.ChatUserModels.Include(chatuser => chatuser.StreamSubscriptions).Where(x => x.UserName == user.Username).FirstOrDefault();
+                        }
+                        catch(MySql.Data.MySqlClient.MySqlException ex)
+                        {
+                            //Bla bug Aria Senpai encoding
+                            string test2 = user.Mention;
+                            string test = user.Username;
+                            Console.WriteLine("test");
+                            //ignore temporarily
+                        }
+                        if (dbUser != null && dbUser.IsSubscribed(stream.StreamName))
+                        {
+                            //await user.SendMessageAsync(e.Notification);
+                            await Task.Delay(50);
+                        }
+                    }
+                }
+            }
         }
 
         private void PasswordRequestReceived(object sender, PasswordRequestArgs e)
@@ -296,7 +341,7 @@ namespace BobDeathmic.Services
                     }
                 }
                 string Message = "Adresse:";
-                Message += Configuration.GetValue<string>("WebAdress");
+                Message += Configuration.GetValue<string>("WebServerWebAddress");
                 if(password != "")
                 {
                     Message += Environment.NewLine + "UserName; " + cleanedname;

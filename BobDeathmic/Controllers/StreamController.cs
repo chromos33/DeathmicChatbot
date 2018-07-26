@@ -185,7 +185,7 @@ namespace BobDeathmic.Controllers
             Models.Stream stream = _context.StreamModels.Where(sm => state.Contains(sm.Secret)).FirstOrDefault();
             if(stream != null)
             {
-                var baseUrl = _configuration.GetSection("WebAdress").Value;
+                var baseUrl = _configuration.GetSection("WebServerWebAddress").Value;
                 string url = $"https://id.twitch.tv/oauth2/token?client_id={stream.ClientID}&client_secret={stream.Secret}&code={code}&grant_type=authorization_code&redirect_uri={baseUrl}/Stream/TwitchReturnUrlAction";
 
                 var response = await client.PostAsync(url, new StringContent("", System.Text.Encoding.UTF8, "text/plain"));
