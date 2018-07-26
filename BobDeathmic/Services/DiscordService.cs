@@ -59,19 +59,23 @@ namespace BobDeathmic.Services
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower()).FirstOrDefault();
-                    foreach (var user in client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users)
+
+                    //Temporary Fix for 2 Users with strange UserNames
+
+                    List<ulong> blocked = new List<ulong>();
+                    blocked.Add(253993334689890304);
+                    blocked.Add(303554919556710400);
+                    foreach (var user in client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where( u => !blocked.Contains(u.Id)))
                     {
                         ChatUserModel dbUser = null;
                         try
                         {
                             dbUser = _context.ChatUserModels.Include(chatuser => chatuser.StreamSubscriptions).Where(x => x.UserName == user.Username).FirstOrDefault();
                         }
-                        catch(MySql.Data.MySqlClient.MySqlException ex)
+                        catch(Exception)
                         {
-                            //Bla bug Aria Senpai encoding
-                            string test2 = user.Mention;
-                            string test = user.Username;
-                            Console.WriteLine("test");
+                            Console.WriteLine(user.Nickname);
+                            Console.WriteLine(Environment.NewLine);
                             //ignore temporarily
                         }
                         if (dbUser != null && dbUser.IsSubscribed(stream.StreamName))
