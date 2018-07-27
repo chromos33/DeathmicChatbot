@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TwitchLib.Api;
+using TwitchLib.Api.Models.Helix.Streams.GetStreams;
 
 namespace BobDeathmic.Services
 {
@@ -73,14 +74,14 @@ namespace BobDeathmic.Services
         }
         public bool TriggerUpTime(Models.Stream stream)
         {
-            if(stream.UpTimeInterval > 0)
+            if (stream.UpTimeInterval > 0)
             {
-                if(stream.Started > stream.LastUpTime)
+                if (stream.Started > stream.LastUpTime)
                 {
                     stream.LastUpTime = stream.Started;
                 }
                 var UpTime = DateTime.Now - stream.LastUpTime;
-                if(UpTime.TotalMinutes > stream.UpTimeInterval)
+                if (UpTime.TotalMinutes > stream.UpTimeInterval)
                 {
                     return true;
                 }
@@ -93,95 +94,13 @@ namespace BobDeathmic.Services
             {
                 if (!_inProgress)
                 {
-                    using (var scope = _scopeFactory.CreateScope())
-                    {
-                        var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                        _inProgress = true;
-                        foreach (Models.Stream _stream in _context.StreamModels.ToList())
-                        {
-                            StreamEventArgs args = new StreamEventArgs();
-                            args.StreamType = StreamProviderTypes.Twitch;
-                            args.relayactive = _stream.RelayState;
-                            if (_stream.UserID != null && _stream.UserID != "")
-                            {
-                                if (await api.Streams.v5.BroadcasterOnlineAsync(_stream.UserID))
-                                {
-                                    if (_stream.StreamState == StreamState.NotRunning)
-                                    {
-                                        var streamdata = await api.Streams.v5.GetStreamByUserAsync(_stream.UserID.ToString());
-                                        string game = streamdata.Stream.Game;
-                                        string channel = streamdata.Stream.Channel.Name;
-                                        DateTime startdate = streamdata.Stream.CreatedAt;
-                                        FillStreamArgs();
-                                        void FillStreamArgs()
-                                        {
-                                            args.game = game;
-                                            args.channel = channel;
-                                            _stream.Game = game;
-                                            _stream.Url = streamdata.Stream.Channel.Url;
-                                            args.link = streamdata.Stream.Channel.Url;
-
-
-                                            _stream.Started = DateTime.Now;
-                                            args.Notification = _stream.StreamStartedMessage();
-                                            args.stream = _stream.StreamName;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        args.game = _stream.Game;
-                                        args.link = _stream.Url;
-                                        args.channel = _stream.DiscordRelayChannel;
-                                        args.stream = _stream.StreamName;
-                                    }
-                                    //Enable later on
-                                    //SetupRelayChannel();
-                                    await StartStreamOrCheckRelay();
-                                    async Task<bool> StartStreamOrCheckRelay()
-                                    {
-                                        if (_stream.StreamState == StreamState.NotRunning)
-                                        {
-                                            args.state = StreamState.Started;
-                                            _stream.StreamState = StreamState.Running;
-                                            _context.StreamModels.Update(_stream);
-                                            await _context.SaveChangesAsync();
-                                        }
-                                        else
-                                        {
-                                            args.state = StreamState.Running;
-                                            _context.StreamModels.Update(_stream);
-                                            await _context.SaveChangesAsync();
-                                        }
-                                        return true;
-                                    }
-                                    if(TriggerUpTime(_stream))
-                                    {
-                                        args.PostUpTime = true;
-                                        args.Uptime = DateTime.Now - _stream.Started;
-                                        _stream.LastUpTime = DateTime.Now;
-                                        await _context.SaveChangesAsync();
-                                    }
-                                    _eventBus.TriggerEvent(EventType.StreamChanged, args);
-
-                                }
-                                else
-                                {
-                                    if (_stream.StreamState == StreamState.Running)
-                                    {
-                                        args.channel = _stream.StreamName;
-                                        args.game = "";
-                                        args.state = StreamState.NotRunning;
-                                        args.stream = "";
-                                        args.link = "";
-                                        _stream.StreamState = StreamState.NotRunning;
-                                        _context.StreamModels.Update(_stream);
-                                        await _context.SaveChangesAsync();
-                                        _eventBus.TriggerEvent(EventType.StreamChanged, args);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    _inProgress = true;
+                    List<Models.Stream> Streams = GetStreams();
+                    await FillClientIDs(Streams);
+                    GetStreamsResponse StreamsData = await GetStreamData(Streams);
+                    List<string> OnlineStreamIDs = StreamsData.Streams.Select(x => x.UserId).ToList();
+                    SetStreamsOffline(Streams.Where(x => !OnlineStreamIDs.Contains(x.UserID)).ToList());
+                    SetStreamsOnline(Streams.Where(x => OnlineStreamIDs.Contains(x.UserID)).ToList(), StreamsData);
                 }
             }
             catch (Exception ex)
@@ -191,6 +110,83 @@ namespace BobDeathmic.Services
             }
             _inProgress = false;
             return;
+        }
+        private List<Models.Stream> GetStreams()
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                return _context.StreamModels.ToList();
+            }
+        }
+        private async Task FillClientIDs(List<Models.Stream> Streams)
+        {
+            var StreamNameList = Streams.Where(x => x.UserID == null || x.UserID == "").Select(x => x.StreamName).ToList();
+            if (StreamNameList.Count() > 0)
+            {
+                var userdata = await api.Users.helix.GetUsersAsync(logins: StreamNameList);
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    foreach (var user in userdata.Users)
+                    {
+                        Models.Stream stream = Streams.Where(x => x.StreamName.ToLower() == user.Login.ToLower()).FirstOrDefault();
+                        stream.UserID = user.Id;
+
+                        _context.Update(stream);
+                    }
+                    _context.SaveChanges();
+                }
+            }
+        }
+        private async Task<GetStreamsResponse> GetStreamData(List<Models.Stream> Streams)
+        {
+            List<string> StreamIdList = Streams.Where(x => x.UserID != null && x.UserID != "").Select(x => x.UserID).ToList();
+            if (StreamIdList.Count() > 0)
+            {
+                return await api.Streams.helix.GetStreamsAsync(userIds: StreamIdList);
+            }
+            return null;
+        }
+        private async Task SetStreamsOffline(List<Models.Stream> Streams)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                foreach (Models.Stream stream in Streams.Where(x => x.StreamState != StreamState.NotRunning))
+                {
+                    stream.StreamState = StreamState.NotRunning;
+                    _context.Update(stream);
+                    StreamEventArgs args = new StreamEventArgs();
+                    args.stream = "";
+                    args.channel = stream.StreamName;
+                    args.state = stream.StreamState;
+                    args.link = "";
+                    _eventBus.TriggerEvent(EventType.StreamChanged, args);
+                }
+                _context.SaveChanges();
+            }
+        }
+        private async Task SetStreamsOnline(List<Models.Stream> Streams, GetStreamsResponse StreamsData)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                foreach (Models.Stream stream in Streams)
+                {
+                    //Bla do stuff
+                    if(stream.StreamState == StreamState.NotRunning)
+                    {
+                        stream.StreamState = StreamState.Started;
+                    }
+                    else
+                    {
+                        stream.StreamState = StreamState.Running;
+                    }
+                    //Get StreamData for this stream and do stuff
+
+                }
+            }
         }
     }
 }

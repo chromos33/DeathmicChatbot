@@ -59,29 +59,27 @@ namespace BobDeathmic.Services
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower()).FirstOrDefault();
-
-                    //Temporary Fix for 2 Users with strange UserNames
-
-                    List<ulong> blocked = new List<ulong>();
-                    blocked.Add(253993334689890304);
-                    blocked.Add(303554919556710400);
-                    foreach (var user in client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where( u => !blocked.Contains(u.Id)))
+                    if(stream != null)
                     {
-                        ChatUserModel dbUser = null;
-                        try
+                        List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
+                        foreach (var user in client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(u => !blocked.Contains(u.Id)))
                         {
-                            dbUser = _context.ChatUserModels.Include(chatuser => chatuser.StreamSubscriptions).Where(x => x.UserName == user.Username).FirstOrDefault();
-                        }
-                        catch(Exception)
-                        {
-                            Console.WriteLine(user.Nickname);
-                            Console.WriteLine(Environment.NewLine);
-                            //ignore temporarily
-                        }
-                        if (dbUser != null && dbUser.IsSubscribed(stream.StreamName))
-                        {
-                            //await user.SendMessageAsync(e.Notification);
-                            await Task.Delay(50);
+                            ChatUserModel dbUser = null;
+                            try
+                            {
+                                dbUser = _context.ChatUserModels.Include(chatuser => chatuser.StreamSubscriptions).Where(x => x.UserName == user.Username).FirstOrDefault();
+                            }
+                            catch (Exception)
+                            {
+                                _context.DiscordBans.Add(new DiscordBan() { DiscordID = user.Id });
+                                await _context.SaveChangesAsync();
+                                //ignore temporarily
+                            }
+                            if (dbUser != null && dbUser.IsSubscribed(stream.StreamName))
+                            {
+                                //await user.SendMessageAsync(e.Notification);
+                                await Task.Delay(50);
+                            }
                         }
                     }
                 }
@@ -104,7 +102,7 @@ namespace BobDeathmic.Services
         }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / DateTime.Now.Hour);
+            random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / (DateTime.Now.Hour+1));
             if(await ConnectToDiscord())
             {
                 InitCommands();
@@ -269,7 +267,6 @@ namespace BobDeathmic.Services
         }
         private async Task MessageReceived(SocketMessage arg)
         {
-            Console.WriteLine(arg.Content);
             if(arg.Author.Username != "BobDeathmic")
             {
                 string commandresult = "";
@@ -278,47 +275,73 @@ namespace BobDeathmic.Services
                     //Manual WebPageLinkCommand because otherwise would need to redundantly rework Command Structure
                     if(arg.Content.StartsWith("!WebInterfaceLink"))
                     {
-                        GetUserLogin(arg);
+                        SendWebInterfaceLink(arg);
                     }
                     else
                     {
-                        foreach (IfCommand command in CommandList)
-                        {
-                            Dictionary<String, String> inputargs = new Dictionary<string, string>();
-                            inputargs["message"] = arg.Content;
-                            inputargs["username"] = arg.Author.Username;
-                            inputargs["source"] = "discord";
-                            inputargs["channel"] = arg.Channel.Name;
-                            commandresult = await command.ExecuteCommandIfApplicable(inputargs);
-                            if (commandresult != "")
-                            {
-                                arg.Channel.SendMessageAsync(commandresult);
-                            }
-                        }
+                        commandresult = await ExecuteCommands(arg);
                     }
                     
                 }
                 
                 if (commandresult == "")//Commands later on
                 {
-                    if(arg.Channel.Name.StartsWith("stream_"))
+                    RelayMessage(arg);
+                }
+            }
+        }
+        private async Task SendWebInterfaceLink(SocketMessage arg)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
+                if (!blocked.Contains(arg.Author.Id))
+                {
+                    GetUserLogin(arg);
+                }
+                else
+                {
+                    arg.Author.SendMessageAsync($"Bitte Discord Namen ändern und an einen Admin wenden und folgenden Wert mitteilen {arg.Author.Id}");
+                }
+            }
+        }
+        private async Task<string> ExecuteCommands(SocketMessage arg)
+        {
+            string commandresult = "";
+            foreach (IfCommand command in CommandList)
+            {
+                Dictionary<String, String> inputargs = new Dictionary<string, string>();
+                inputargs["message"] = arg.Content;
+                inputargs["username"] = arg.Author.Username;
+                inputargs["source"] = "discord";
+                inputargs["channel"] = arg.Channel.Name;
+                commandresult = await command.ExecuteCommandIfApplicable(inputargs);
+                if (commandresult != "")
+                {
+                    arg.Channel.SendMessageAsync(commandresult);
+                }
+            }
+            return commandresult;
+        }
+        private void RelayMessage(SocketMessage arg)
+        {
+            if (arg.Channel.Name.StartsWith("stream_"))
+            {
+                Args.DiscordMessageArgs args = new Args.DiscordMessageArgs();
+                args.Source = arg.Channel.Name;
+                args.Message = arg.Author.Username + ": " + arg.Content;
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var stream = _context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == arg.Channel.Name.ToLower()).FirstOrDefault();
+                    if (stream != null)
                     {
-                        Args.DiscordMessageArgs args = new Args.DiscordMessageArgs();
-                        args.Source = arg.Channel.Name;
-                        args.Message = arg.Author.Username+": "+arg.Content;
-                        using (var scope = _scopeFactory.CreateScope())
-                        {
-                            var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                            var stream = _context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == arg.Channel.Name.ToLower()).FirstOrDefault();
-                            if(stream != null)
-                            {
-                                args.Target = stream.StreamName;
-                                args.StreamType = stream.Type;
-                            }
-                        }
-                        _eventBus.TriggerEvent(EventType.DiscordMessageReceived, args);
+                        args.Target = stream.StreamName;
+                        args.StreamType = stream.Type;
                     }
                 }
+                _eventBus.TriggerEvent(EventType.DiscordMessageReceived, args);
             }
         }
         #region AccountStuff
@@ -383,7 +406,7 @@ namespace BobDeathmic.Services
                     rng.GetBytes(salt);
                 }
                 string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                    password: "test",
+                    password: password,
                     salt: salt,
                     prf: KeyDerivationPrf.HMACSHA1,
                     iterationCount: 10000,

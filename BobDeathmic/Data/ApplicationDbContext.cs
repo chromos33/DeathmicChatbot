@@ -40,5 +40,6 @@ namespace BobDeathmic.Data
         public DbSet<StreamSubscription> StreamSubscriptions { get; set; }
         public DbSet<SecurityToken> SecurityTokens { get; set; }
         public DbSet<Models.Discord.RelayChannels> RelayChannels { get; set; }
+        public DbSet<Models.DiscordBan> DiscordBans { get; set; }
     }
 }

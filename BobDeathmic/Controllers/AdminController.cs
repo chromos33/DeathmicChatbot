@@ -274,8 +274,7 @@ namespace BobDeathmic.Controllers
                 _context.SecurityTokens.Add(token);
                 await _context.SaveChangesAsync();
             }
-            string test = $"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseurl}/Admin/TwitchReturnUrlAction&scope=chat_login viewing_activity_read openid&state=c3ab8aa609ea11e793ae92361f002671";
-            return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseurl}/Admin/TwitchReturnUrlAction&scope=chat_login viewing_activity_read openid&state=c3ab8aa609ea11e793ae92361f002671");
+            return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseurl}/Admin/TwitchReturnUrlAction&scope=chat_login viewing_activity_read user_read&state=c3ab8aa609ea11e793ae92361f002671");
         }
         public async Task SaveDiscordToken(SecurityToken token)
         {
