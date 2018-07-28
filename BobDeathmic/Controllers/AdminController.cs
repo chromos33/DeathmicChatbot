@@ -90,14 +90,6 @@ namespace BobDeathmic.Controllers
         {
             Models.Stream newStream = new Models.Stream();
             newStream.StreamName = internalStream.sChannel;
-            if (internalStream.bRelayActive)
-            {
-                newStream.RelayState = Models.Enum.RelayState.NotRunning;
-            }
-            else
-            {
-                newStream.RelayState = Models.Enum.RelayState.NotActivated;
-            }
             newStream.DiscordRelayChannel = internalStream.sTargetrelaychannel;
             newStream.StreamState = Models.Enum.StreamState.NotRunning;
             newStream.Game = internalStream.sGame;

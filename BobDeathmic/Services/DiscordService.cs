@@ -40,7 +40,9 @@ namespace BobDeathmic.Services
             _eventBus = eventBus;
             _eventBus.TwitchMessageReceived += TwitchMessageReceived;
             _eventBus.PasswordRequestReceived += PasswordRequestReceived;
-            _eventBus.StreamChanged += StreamChanged;
+            //Piggy backing through Relay
+            //_eventBus.StreamChanged += StreamChanged;
+            _eventBus.RelayPassed += StreamChanged;
         }
 
         private async void StreamChanged(object sender, StreamEventArgs e)
@@ -49,7 +51,7 @@ namespace BobDeathmic.Services
         }
         private async void NotifySubscriber(StreamEventArgs e)
         {
-            if (e.Notification != "")
+            if (e.state == Models.Enum.StreamState.Started)
             {
                 while (client.ConnectionState != ConnectionState.Connected)
                 {
@@ -62,6 +64,7 @@ namespace BobDeathmic.Services
                     if(stream != null)
                     {
                         List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
+                        //var test = client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(u => !blocked.Contains(u.Id)).GroupBy(u => u.Username);
                         foreach (var user in client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(u => !blocked.Contains(u.Id)))
                         {
                             ChatUserModel dbUser = null;
@@ -77,10 +80,29 @@ namespace BobDeathmic.Services
                             }
                             if (dbUser != null && dbUser.IsSubscribed(stream.StreamName))
                             {
-                                //await user.SendMessageAsync(e.Notification);
-                                await Task.Delay(50);
+                                try
+                                {
+                                    await user.SendMessageAsync(e.Notification);
+                                    //Console.WriteLine(dbUser.ChatUserName+ ": " + e.Notification);
+                                    await Task.Delay(100);
+                                }catch(Discord.Net.HttpException ex)
+                                {
+                                    switch(ex.DiscordCode)
+                                    {
+                                        case 50007:
+                                            string message = $"Um Stream Nachrichten zu bekommen bitte BobDeathmic als Freund markieren. {Environment.NewLine} Um diese Nachricht zu deaktivieren einfach in das Webinterface (Link über !WebInterfaceLink) von Bob einloggen und in Benutzer > Subscriptions die Streams deaktivieren "+ user.Mention;
+                                            client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.TextChannels.Where(x => x.Name.ToLower() == "botspam").FirstOrDefault()?.SendMessageAsync(message);
+                                            break;
+                                        default:
+                                            Console.WriteLine(ex.ToString());
+                                            break;
+                                    }
+
+                                }
+                                
                             }
                         }
+                        //Console.WriteLine("Last Notification");
                     }
                 }
             }
@@ -175,7 +197,7 @@ namespace BobDeathmic.Services
 
         private async Task ClientJoined(SocketGuildUser arg)
         {
-            
+            arg.SendMessageAsync("Um Bot Notifications/Features nutzen zu können müsst ihr euch über den Befehl \"!WebInterfaceLink\" beim Bot registrieren");
         }
         private async Task UpdateRelayChannels()
         {
@@ -193,20 +215,12 @@ namespace BobDeathmic.Services
             {
                 RemoveChannelsInListFromDB(channelsToBeRemoved);
             }
-            if(ChangeDetected(channelsToBeAdded) || ChangeDetected(channelsToBeRemoved))
-            {
-                using (var scope = _scopeFactory.CreateScope())
-                {
-                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    await _context.SaveChangesAsync();
-                }
-            }
         }
         private bool ChangeDetected(List<string> List)
         {
             return List.Count() > 0;
         }
-        private void AddChannelsInListToDB(List<string> channelsToBeAdded)
+        private async Task AddChannelsInListToDB(List<string> channelsToBeAdded)
         {
             ApplicationDbContext _context = null;
             using (var scope = _scopeFactory.CreateScope())
@@ -216,9 +230,10 @@ namespace BobDeathmic.Services
                 {
                     _context.RelayChannels.Add(new Models.Discord.RelayChannels { Name = channel });
                 }
+                await _context.SaveChangesAsync();
             }
         }
-        private void RemoveChannelsInListFromDB(List<string> channelsToBeRemoved)
+        private async Task RemoveChannelsInListFromDB(List<string> channelsToBeRemoved)
         {
             ApplicationDbContext _context = null;
             using (var scope = _scopeFactory.CreateScope())
@@ -228,6 +243,7 @@ namespace BobDeathmic.Services
                 {
                     _context.RelayChannels.Remove(_context.RelayChannels.Where(rc => rc.Name == channel).FirstOrDefault());
                 }
+                await _context.SaveChangesAsync();
             }
         }
         private List<string> GetDiscordStreamChannels()

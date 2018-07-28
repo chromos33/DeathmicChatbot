@@ -87,9 +87,13 @@ namespace BobDeathmic.Services
                 {
                     if (!MessageQueues.ContainsKey(e.stream))
                     {
+                        string Relaychannel = await SetRelayChannel(e);
+                        if(Relaychannel != "")
+                        {
+                            e.Notification += $" Das Relay befindet sich in Channel {Relaychannel}";
+                        }
                         client.JoinChannel(e.stream);
-                        
-                        
+
                         MessageQueues.Add(e.stream, new List<string>());
                     }
                 }
@@ -117,6 +121,29 @@ namespace BobDeathmic.Services
                     MessageQueues[e.stream].Add(UpTimeMessage);
                 }
             }
+            _eventBus.TriggerEvent(EventType.RelayPassed, e);
+        }
+        private async Task<string> SetRelayChannel(StreamEventArgs e)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.channel.ToLower()).FirstOrDefault();
+                if (stream != null && stream.DiscordRelayChannel == "An")
+                {
+                    foreach (var RelayChannel in _context.RelayChannels.Where(rc => Regex.Match(rc.Name.ToLower(), @"stream_\d+").Success))
+                    {
+                        if (_context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == RelayChannel.Name.ToLower()).Count() == 0)
+                        {
+                            stream.DiscordRelayChannel = RelayChannel.Name;
+                            _context.Update(stream);
+                            Console.WriteLine(await _context.SaveChangesAsync());
+                            return RelayChannel.Name;
+                        }
+                    }
+                }
+            }
+            return null;
         }
         public async void Init()
         {
@@ -152,7 +179,6 @@ namespace BobDeathmic.Services
             if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
             {
                 MessageQueues[e.Target].Add(e.Message);
-                Console.WriteLine("test");
             }
         }
 
@@ -168,22 +194,6 @@ namespace BobDeathmic.Services
 
         private async void onJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.Channel.ToLower()).FirstOrDefault();
-                if (stream != null && stream.DiscordRelayChannel == "An")
-                {
-                    foreach (var RelayChannel in _context.RelayChannels.Where(rc => Regex.Match(rc.Name.ToLower(), @"stream_\d+").Success))
-                    {
-                        if (_context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == RelayChannel.Name.ToLower()).Count() == 0)
-                        {
-                            stream.DiscordRelayChannel = RelayChannel.Name;
-                            await _context.SaveChangesAsync();
-                        }
-                    }
-                }
-            }
             var twitchchannel = client.JoinedChannels.Where(channel => channel.Channel == e.Channel).FirstOrDefault();
             client.SendMessage(twitchchannel, "Relay Started");
             //Trigger Event to Send "Relay Started" to discord or somesuch
@@ -199,7 +209,7 @@ namespace BobDeathmic.Services
             }
             if(target != null && target != "")
             {
-                _eventBus.TriggerEvent(EventType.TwitchMessageReceived, new TwitchMessageArgs { Source = e.Channel, Message = "Relay Started", Target = target});
+                _eventBus.TriggerEvent(EventType.TwitchMessageReceived, new TwitchMessageArgs { Source = e.Channel, Message = $"Relay Started ({e.Channel})", Target = target});
             }
             
         }

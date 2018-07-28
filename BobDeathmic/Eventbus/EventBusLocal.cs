@@ -14,6 +14,7 @@ namespace BobDeathmic.Eventbus
         public event EventHandler<PasswordRequestArgs> PasswordRequestReceived;
         public event EventHandler<StreamTitleChangeArgs> StreamTitleChangeRequested;
         public event EventHandler<StreamTitleChangeArgs> StreamTitleChanged;
+        public event EventHandler<StreamEventArgs> RelayPassed;
 
         public void TriggerEvent(EventType @event,dynamic EventData)
         {
@@ -37,6 +38,9 @@ namespace BobDeathmic.Eventbus
                 case EventType.StreamTitleChanged:
                     StreamTitleChanged(this, EventData);
                     break;
+                case EventType.RelayPassed:
+                    RelayPassed(this, EventData);
+                    break;
             }
         }
     }
@@ -47,6 +51,7 @@ namespace BobDeathmic.Eventbus
         TwitchMessageReceived = 3,
         PasswordRequestReceived = 4,
         StreamTitleChangeRequested = 5,
-        StreamTitleChanged = 6
+        StreamTitleChanged = 6,
+        RelayPassed = 7
     }
 }

@@ -88,6 +88,10 @@ namespace BobDeathmic.Services
             }
             return false;
         }
+        public TimeSpan GetUpTime(Models.Stream stream)
+        {
+            return DateTime.Now - stream.Started;
+        }
         public async Task CheckOnlineStreams()
         {
             try
@@ -174,19 +178,49 @@ namespace BobDeathmic.Services
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 foreach (Models.Stream stream in Streams)
                 {
-                    //Bla do stuff
-                    if(stream.StreamState == StreamState.NotRunning)
+                    StreamEventArgs args = new StreamEventArgs();
+                    args.stream = stream.StreamName;
+                    args.StreamType = StreamProviderTypes.Twitch;
+                    if (stream.StreamState == StreamState.NotRunning)
                     {
                         stream.StreamState = StreamState.Started;
+                        stream.Started = DateTime.Now;
+                        args.Notification = stream.StreamStartedMessage();
+                        args.state = StreamState.Started;
                     }
                     else
                     {
                         stream.StreamState = StreamState.Running;
+                        args.Notification = "";
+                        args.state = StreamState.Running;
                     }
-                    //Get StreamData for this stream and do stuff
+                    var streamdata = StreamsData.Streams.Where(sd => sd.UserId == stream.UserID).FirstOrDefault();
+                    stream.Game = streamdata.Title;
+                    args.link = stream.Url = GetStreamUrl(stream);
+                    _context.Update(stream);
+                    args.game = streamdata.Title;
+                    args.channel = stream.StreamName;
+                    args.relayactive = stream.RelayState();
+                    if (TriggerUpTime(stream))
+                    {
+                        args.PostUpTime = true;
+                        args.Uptime = GetUpTime(stream);
+                        stream.LastUpTime = DateTime.Now;
+                    }
+                    _context.Update(stream);
+                    _eventBus.TriggerEvent(EventType.StreamChanged, args);
 
                 }
+                _context.SaveChanges();
             }
+        }
+        private string GetStreamUrl(Models.Stream stream)
+        {
+            if(stream.Url == "")
+            {
+                stream.Url = "https://www.twitch.tv/" + stream.StreamName;
+            }
+            return stream.Url;
         }
     }
 }

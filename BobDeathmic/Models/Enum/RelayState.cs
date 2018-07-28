@@ -7,8 +7,7 @@ namespace BobDeathmic.Models.Enum
 {
     public enum RelayState
     {
-        Running = 1,
-        NotRunning = 0,
-        NotActivated = 2
+        Activated = 0,
+        NotActivated = 1
     }
 }

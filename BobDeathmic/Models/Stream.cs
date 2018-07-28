@@ -21,7 +21,7 @@ namespace BobDeathmic.Models
 
         public DateTime Started { get; set; }
         public DateTime Stopped { get; set; }
-        public RelayState RelayState { get; set; }
+        
         public StreamState StreamState { get; set; }
         public string DiscordRelayChannel { get; set; }
         public List<StreamSubscription> StreamSubscriptions { get; set; }
@@ -41,9 +41,21 @@ namespace BobDeathmic.Models
         {
             string message = "";
 
-            message = $"{StreamName} hat angefangen {Game} auf {Url} zu streamen";
+            message = $"{StreamName} hat angefangen {Game} auf {Url} zu streamen.";
+            if(DiscordRelayChannel != null && DiscordRelayChannel != "" && DiscordRelayChannel != "An" && DiscordRelayChannel != "Aus")
+            {
+                message += $" Sein Relay befindet sich in Channel {DiscordRelayChannel}";
+            }
 
             return message;
+        }
+        public RelayState RelayState()
+        {
+            if(DiscordRelayChannel != "Aus" && DiscordRelayChannel != "")
+            {
+                return Enum.RelayState.Activated;
+            }
+            return Enum.RelayState.NotActivated;
         }
     }
 }

@@ -14,6 +14,7 @@ namespace BobDeathmic.Eventbus
         event EventHandler<PasswordRequestArgs> PasswordRequestReceived;
         event EventHandler<StreamTitleChangeArgs> StreamTitleChangeRequested;
         event EventHandler<StreamTitleChangeArgs> StreamTitleChanged;
+        event EventHandler<StreamEventArgs> RelayPassed;
         void TriggerEvent(EventType @event, dynamic EventData);
     }
 }

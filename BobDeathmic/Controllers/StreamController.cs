@@ -64,7 +64,7 @@ namespace BobDeathmic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,StreamName,Game,UserID,Url,Type,Started,Stopped,RelayState,StreamState,DiscordRelayChannel,UpTimeInterval")] Stream stream)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,StreamName,Game,UserID,Url,Type,Started,Stopped,StreamState,DiscordRelayChannel,UpTimeInterval")] Stream stream)
         {
             if (id != stream.ID)
             {
@@ -75,14 +75,6 @@ namespace BobDeathmic.Controllers
             {
                 try
                 {
-                    if(stream.DiscordRelayChannel.ToLower() == "aus")
-                    {
-                        stream.RelayState = Models.Enum.RelayState.NotActivated;
-                    }
-                    else
-                    {
-                        stream.RelayState = Models.Enum.RelayState.NotRunning;
-                    }
                     _context.Update(stream);
                     await _context.SaveChangesAsync();
                 }
