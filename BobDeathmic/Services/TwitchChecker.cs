@@ -99,12 +99,18 @@ namespace BobDeathmic.Services
                 if (!_inProgress)
                 {
                     _inProgress = true;
-                    List<Models.Stream> Streams = GetStreams();
-                    await FillClientIDs(Streams);
-                    GetStreamsResponse StreamsData = await GetStreamData(Streams);
-                    List<string> OnlineStreamIDs = StreamsData.Streams.Select(x => x.UserId).ToList();
-                    SetStreamsOffline(Streams.Where(x => !OnlineStreamIDs.Contains(x.UserID)).ToList());
-                    SetStreamsOnline(Streams.Where(x => OnlineStreamIDs.Contains(x.UserID)).ToList(), StreamsData);
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();//
+                        await FillClientIDs();
+                        GetStreamsResponse StreamsData = await GetStreamData();
+                        List<string> OnlineStreamIDs = StreamsData.Streams.Select(x => x.UserId).ToList();
+                        await SetStreamsOffline(OnlineStreamIDs);
+                        await SetStreamsOnline(OnlineStreamIDs, StreamsData);
+
+                    }
+                    
+                    
                 }
             }
             catch (Exception ex)
@@ -115,52 +121,50 @@ namespace BobDeathmic.Services
             _inProgress = false;
             return;
         }
-        private List<Models.Stream> GetStreams()
+        private async Task FillClientIDs()
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                return _context.StreamModels.ToList();
-            }
-        }
-        private async Task FillClientIDs(List<Models.Stream> Streams)
-        {
-            var StreamNameList = Streams.Where(x => x.UserID == null || x.UserID == "").Select(x => x.StreamName).ToList();
-            if (StreamNameList.Count() > 0)
-            {
-                var userdata = await api.Users.helix.GetUsersAsync(logins: StreamNameList);
-                using (var scope = _scopeFactory.CreateScope())
+                var Streams = _context.StreamModels;
+                var StreamNameList = Streams.Where(x => x.UserID == null || x.UserID == "").Select(x => x.StreamName).ToList();
+                if (StreamNameList.Count() > 0)
                 {
-                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var userdata = await api.Users.helix.GetUsersAsync(logins: StreamNameList);
+                
                     foreach (var user in userdata.Users)
                     {
                         Models.Stream stream = Streams.Where(x => x.StreamName.ToLower() == user.Login.ToLower()).FirstOrDefault();
                         stream.UserID = user.Id;
-
-                        _context.Update(stream);
                     }
                     _context.SaveChanges();
+                
                 }
             }
         }
-        private async Task<GetStreamsResponse> GetStreamData(List<Models.Stream> Streams)
-        {
-            List<string> StreamIdList = Streams.Where(x => x.UserID != null && x.UserID != "").Select(x => x.UserID).ToList();
-            if (StreamIdList.Count() > 0)
-            {
-                return await api.Streams.helix.GetStreamsAsync(userIds: StreamIdList);
-            }
-            return null;
-        }
-        private async Task SetStreamsOffline(List<Models.Stream> Streams)
+        private async Task<GetStreamsResponse> GetStreamData()
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var Streams = _context.StreamModels;
+                List<string> StreamIdList = Streams.Where(x => x.UserID != null && x.UserID != "").Select(x => x.UserID).ToList();
+                if (StreamIdList.Count() > 0)
+                {
+                    return await api.Streams.helix.GetStreamsAsync(userIds: StreamIdList);
+                }
+            }
+            return null;
+        }
+        private async Task SetStreamsOffline(List<string> OnlineStreamIDs)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var Streams = _context.StreamModels.Where(s => !OnlineStreamIDs.Contains(s.UserID));
                 foreach (Models.Stream stream in Streams.Where(x => x.StreamState != StreamState.NotRunning))
                 {
                     stream.StreamState = StreamState.NotRunning;
-                    _context.Update(stream);
                     StreamEventArgs args = new StreamEventArgs();
                     args.stream = "";
                     args.channel = stream.StreamName;
@@ -171,11 +175,12 @@ namespace BobDeathmic.Services
                 _context.SaveChanges();
             }
         }
-        private async Task SetStreamsOnline(List<Models.Stream> Streams, GetStreamsResponse StreamsData)
+        private async Task SetStreamsOnline(List<string> OnlineStreamIDs, GetStreamsResponse StreamsData)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var Streams = _context.StreamModels.Where(s => OnlineStreamIDs.Contains(s.UserID));
                 foreach (Models.Stream stream in Streams)
                 {
                     StreamEventArgs args = new StreamEventArgs();
@@ -197,7 +202,6 @@ namespace BobDeathmic.Services
                     var streamdata = StreamsData.Streams.Where(sd => sd.UserId == stream.UserID).FirstOrDefault();
                     stream.Game = streamdata.Title;
                     args.link = stream.Url = GetStreamUrl(stream);
-                    _context.Update(stream);
                     args.game = streamdata.Title;
                     args.channel = stream.StreamName;
                     args.relayactive = stream.RelayState();
@@ -207,7 +211,6 @@ namespace BobDeathmic.Services
                         args.Uptime = GetUpTime(stream);
                         stream.LastUpTime = DateTime.Now;
                     }
-                    _context.Update(stream);
                     _eventBus.TriggerEvent(EventType.StreamChanged, args);
 
                 }

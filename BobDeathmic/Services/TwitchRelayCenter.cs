@@ -136,7 +136,6 @@ namespace BobDeathmic.Services
                         if (_context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == RelayChannel.Name.ToLower()).Count() == 0)
                         {
                             stream.DiscordRelayChannel = RelayChannel.Name;
-                            _context.Update(stream);
                             Console.WriteLine(await _context.SaveChangesAsync());
                             return RelayChannel.Name;
                         }
