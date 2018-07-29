@@ -51,12 +51,15 @@ namespace BobDeathmic.Services
 
         private void SendMessages()
         {
-            if(MessageQueues != null && MessageQueues.Count() > 0)
+            if(MessageQueues != null && client != null && client.IsConnected)
             {
-                foreach (var MessageQueue in MessageQueues.Where(mq => mq.Value.Count > 0))
+                if(MessageQueues.Count() > 0)
                 {
-                    client.SendMessage(MessageQueue.Key, MessageQueue.Value.First());
-                    MessageQueue.Value.RemoveAt(0);
+                    foreach (var MessageQueue in MessageQueues.Where(mq => mq.Value.Count > 0))
+                    {
+                        client.SendMessage(MessageQueue.Key, MessageQueue.Value.First());
+                        MessageQueue.Value.RemoveAt(0);
+                    }
                 }
             }
         }

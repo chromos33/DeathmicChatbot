@@ -52,7 +52,7 @@ namespace BobDeathmic
             services.ConfigureApplicationCookie(options =>
             {
                 options.ExpireTimeSpan = TimeSpan.FromDays(30);
-                options.LoginPath = "/Account/Login";
+                options.LoginPath = "/Main/Login";
             });
 
             // Add application services.

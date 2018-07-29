@@ -115,16 +115,27 @@ namespace BobDeathmic.Controllers
                 //TODO: remove filter
                 foreach (var oldUserModel in UserList)
                 {
-                    
-                    ChatUserModel newUser = GenerateUserForImport(oldUserModel);
-                    ImportSubscriptions(oldUserModel, newUser);
-                    string password = GeneratePassword(newUser);
-                    var insertResult = await InsertUserAsync(password, newUser);
-                    await AddUserRoleAsync("user", newUser);
-
+                    if(_context.ChatUserModels.Where(x => x.ChatUserName == oldUserModel.Name).Count() == 0)
+                    {
+                        ChatUserModel newUser = null;
+                        try
+                        {
+                            newUser = GenerateUserForImport(oldUserModel);
+                            ImportSubscriptions(oldUserModel, newUser);
+                            string password = GeneratePassword(newUser);
+                            newUser.InitialPassword = password;
+                            var insertResult = await InsertUserAsync(password, newUser);
+                            await AddUserRoleAsync("user", newUser);
+                            _context.SaveChanges();
+                        }
+                        catch(Exception ex)
+                        {
+                        }
+                        
+                    }
                 }
 
-                _context.SaveChanges();
+                
             }
 
 
