@@ -95,7 +95,6 @@ namespace BobDeathmic.Controllers
             newStream.Game = internalStream.sGame;
             newStream.UserID = internalStream.sUserID;
             newStream.Type = Models.Enum.StreamProviderTypes.Twitch;
-            newStream.Url = "www.twitch.tv/" + internalStream.sChannel;
             newStream.StreamName = internalStream.sChannel;
             return newStream;
         }

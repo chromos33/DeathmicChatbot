@@ -94,6 +94,33 @@ namespace BobDeathmic.Controllers
             return View(stream);
         }
 
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> Create()
+        {
+            ViewData["StreamTypes"] = Stream.StaticEnumStreamTypes();
+            var relaychannels = await _context.RelayChannels.ToListAsync();
+            ViewData["RelayChannels"] = relaychannels;
+            ViewData["SelectedRelayChannel"] = "Aus";
+            return View();
+        }
+
+        // POST: Streams2/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> Create([Bind("ID,StreamName,Game,UserID,Url,Type,AccessToken,Secret,ClientID,Started,Stopped,StreamState,DiscordRelayChannel,UpTimeInterval,LastUpTime")] Stream stream)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(stream);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(stream);
+        }
+
         // GET: Streams2/Delete/5
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Delete(int? id)

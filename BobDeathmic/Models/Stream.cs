@@ -37,6 +37,15 @@ namespace BobDeathmic.Models
 
             return EnumTypes;
         }
+        public static List<string> StaticEnumStreamTypes()
+        {
+            List<string> EnumTypes = new List<string>();
+
+            EnumTypes.Add("Twitch");
+            EnumTypes.Add("Mixer");
+
+            return EnumTypes;
+        }
         public string StreamStartedMessage()
         {
             string message = "";
