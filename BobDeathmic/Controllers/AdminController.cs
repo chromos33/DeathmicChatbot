@@ -270,13 +270,13 @@ namespace BobDeathmic.Controllers
         }
         public async Task<IActionResult> AquireTwitchToken(SecurityToken token)
         {
-            string baseurl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            string baseUrl = _configuration.GetValue<string>("WebServerWebAddress");
             if (_context.SecurityTokens.Where(st => st.service == token.service).Count() == 0)
             {
                 _context.SecurityTokens.Add(token);
                 await _context.SaveChangesAsync();
             }
-            return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseurl}/Admin/TwitchReturnUrlAction&scope=chat_login viewing_activity_read user_read&state=c3ab8aa609ea11e793ae92361f002671");
+            return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseUrl}/Admin/TwitchReturnUrlAction&scope=chat_login viewing_activity_read user_read&state=c3ab8aa609ea11e793ae92361f002671");
         }
         public async Task SaveDiscordToken(SecurityToken token)
         {
