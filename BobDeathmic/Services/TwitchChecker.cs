@@ -220,7 +220,7 @@ namespace BobDeathmic.Services
         }
         private string GetStreamUrl(Models.Stream stream)
         {
-            if(stream.Url == "")
+            if(stream.Url == "" || stream.Url == null)
             {
                 stream.Url = "https://www.twitch.tv/" + stream.StreamName;
             }
