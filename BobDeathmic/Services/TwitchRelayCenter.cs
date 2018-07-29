@@ -11,11 +11,13 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using TwitchLib.Client;
 using TwitchLib.Client.Enums;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Extensions;
 using TwitchLib.Client.Models;
+using TwitchLib.Client.Services;
 
 namespace BobDeathmic.Services
 {
@@ -28,6 +30,7 @@ namespace BobDeathmic.Services
         private Dictionary<string, List<string>> MessageQueues;
         private readonly IServiceScopeFactory _scopeFactory;
         private System.Timers.Timer _MessageTimer;
+        private System.Timers.Timer _TestTimer;
         private List<IfCommand> CommandList;
         public async override Task StopAsync(CancellationToken cancellationToken)
         {
@@ -41,7 +44,7 @@ namespace BobDeathmic.Services
         {
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
-            _MessageTimer = new System.Timers.Timer(500);
+            _MessageTimer = new System.Timers.Timer(50);
             _MessageTimer.Elapsed += (sender, args) => SendMessages();
             _MessageTimer.Start();
         }
@@ -54,7 +57,6 @@ namespace BobDeathmic.Services
                 {
                     client.SendMessage(MessageQueue.Key, MessageQueue.Value.First());
                     MessageQueue.Value.RemoveAt(0);
-                    
                 }
             }
         }
@@ -136,7 +138,7 @@ namespace BobDeathmic.Services
                         if (_context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == RelayChannel.Name.ToLower()).Count() == 0)
                         {
                             stream.DiscordRelayChannel = RelayChannel.Name;
-                            Console.WriteLine(await _context.SaveChangesAsync());
+                            await _context.SaveChangesAsync();
                             return RelayChannel.Name;
                         }
                     }
@@ -175,7 +177,7 @@ namespace BobDeathmic.Services
 
         private void DiscordMessageReceived(object sender, DiscordMessageArgs e)
         {
-            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
+            if (e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
             {
                 MessageQueues[e.Target].Add(e.Message);
             }
@@ -188,11 +190,13 @@ namespace BobDeathmic.Services
 
         private void onConnected(object sender, OnConnectedArgs e)
         {
+            client.AddChatCommandIdentifier('!');
             CommandList = CommandBuilder.BuildCommands("twitch");
         }
 
         private async void onJoinedChannel(object sender, OnJoinedChannelArgs e)
         {
+
             var twitchchannel = client.JoinedChannels.Where(channel => channel.Channel == e.Channel).FirstOrDefault();
             client.SendMessage(twitchchannel, "Relay Started");
             //Trigger Event to Send "Relay Started" to discord or somesuch

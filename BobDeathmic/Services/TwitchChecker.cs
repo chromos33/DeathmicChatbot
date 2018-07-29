@@ -170,6 +170,7 @@ namespace BobDeathmic.Services
                     args.channel = stream.StreamName;
                     args.state = stream.StreamState;
                     args.link = "";
+                    args.state = StreamState.NotRunning;
                     _eventBus.TriggerEvent(EventType.StreamChanged, args);
                 }
                 _context.SaveChanges();

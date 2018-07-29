@@ -82,7 +82,7 @@ namespace BobDeathmic.Services
                             {
                                 try
                                 {
-                                    await user.SendMessageAsync(e.Notification);
+                                    //await user.SendMessageAsync(e.Notification);
                                     //Console.WriteLine(dbUser.ChatUserName+ ": " + e.Notification);
                                     await Task.Delay(100);
                                 }catch(Discord.Net.HttpException ex)
@@ -114,8 +114,7 @@ namespace BobDeathmic.Services
         }
 
         private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
-        {
-            
+        {            
             client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.TextChannels.Where(c => c.Name.ToLower() == e.Target.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
         }
         private void InitCommands()
