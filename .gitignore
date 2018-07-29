@@ -2,9 +2,10 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/BobCore/bin/Debug/netcoreapp2.0/XML
-/BobCore/bin/Debug/netcoreapp2.0
-/BobCore/obj
-/BobCore/bin
-/BobCore/bin/
-/.vs/BobCore/v15/Server/sqlite3
+/BobDeathmic/bin/Debug/netcoreapp2.0/XML
+/BobDeathmic/bin/Debug/netcoreapp2.0
+/BobDeathmic/obj
+/BobDeathmic/bin
+/BobDeathmic/bin/
+/.vs/BobDeathmic/v15/Server/sqlite3
+/BobDeathmic/appsettings.*
