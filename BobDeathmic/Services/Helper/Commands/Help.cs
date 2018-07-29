@@ -7,7 +7,7 @@ namespace BobDeathmic.Services.Helper.Commands
 {
     public class Help : IfCommand
     {
-        public string Trigger { get { return "!devhelp"; } }
+        public string Trigger { get { return "!help"; } }
 
         public string Description { get { return "Listet Commands auf"; } }
 
