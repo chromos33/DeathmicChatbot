@@ -147,7 +147,7 @@ namespace BobDeathmic.Services
                     }
                 }
             }
-            return null;
+            return "";
         }
         public async void Init()
         {
