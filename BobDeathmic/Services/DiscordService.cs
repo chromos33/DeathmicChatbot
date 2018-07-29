@@ -82,7 +82,7 @@ namespace BobDeathmic.Services
                             {
                                 try
                                 {
-                                    //await user.SendMessageAsync(e.Notification);
+                                    await user.SendMessageAsync(e.Notification);
                                     //Console.WriteLine(dbUser.ChatUserName+ ": " + e.Notification);
                                     await Task.Delay(100);
                                 }catch(Discord.Net.HttpException ex)
@@ -91,7 +91,7 @@ namespace BobDeathmic.Services
                                     {
                                         case 50007:
                                             string message = $"Um Stream Nachrichten zu bekommen bitte BobDeathmic als Freund markieren. {Environment.NewLine} Um diese Nachricht zu deaktivieren einfach in das Webinterface (Link über !WebInterfaceLink) von Bob einloggen und in Benutzer > Subscriptions die Streams deaktivieren "+ user.Mention;
-                                            //client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.TextChannels.Where(x => x.Name.ToLower() == "botspam").FirstOrDefault()?.SendMessageAsync(message);
+                                            client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.TextChannels.Where(x => x.Name.ToLower() == "botspam").FirstOrDefault()?.SendMessageAsync(message);
                                             break;
                                         default:
                                             Console.WriteLine(ex.ToString());
