@@ -183,7 +183,7 @@ namespace BobDeathmic.Controllers
 
             if (ModelState.IsValid)
             {
-                string baseurl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+                var baseUrl = _configuration.GetSection("WebServerWebAddress").Value;
                 string state = StreamOAuthData.Id + StreamOAuthData.Secret;
                 Models.Stream stream = _context.StreamModels.Where(sm => sm.ID == Int32.Parse(StreamOAuthData.Id)).FirstOrDefault();
                 if(stream != null)
@@ -192,7 +192,7 @@ namespace BobDeathmic.Controllers
                     stream.ClientID = StreamOAuthData.ClientId;
                 }
                 await _context.SaveChangesAsync();
-                return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={StreamOAuthData.ClientId}&redirect_uri={baseurl}/Stream/TwitchReturnUrlAction&scope=channel_editor+chat_login&state={state}");
+                return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={StreamOAuthData.ClientId}&redirect_uri={baseUrl}/Stream/TwitchReturnUrlAction&scope=channel_editor+chat_login&state={state}");
             }
             return View(nameof(TwitchOAuth));
         }
