@@ -172,6 +172,7 @@ namespace BobDeathmic.Services
                     args.link = "";
                     args.state = StreamState.NotRunning;
                     args.relayactive = stream.RelayState();
+                    args.StreamType = StreamProviderTypes.Twitch;
                     _eventBus.TriggerEvent(EventType.StreamChanged, args);
                 }
                 _context.SaveChanges();

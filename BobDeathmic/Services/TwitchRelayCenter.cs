@@ -107,6 +107,7 @@ namespace BobDeathmic.Services
                     if (MessageQueues.ContainsKey(e.stream))
                     {
                         MessageQueues.Remove(e.stream);
+                        client.LeaveChannel(e.stream);
                         using (var scope = _scopeFactory.CreateScope())
                         {
                             var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
