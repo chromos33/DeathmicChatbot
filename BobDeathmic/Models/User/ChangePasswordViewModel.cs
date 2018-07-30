@@ -23,5 +23,7 @@ namespace BobDeathmic.Models.User
         [Display(Name = "Passwort bestätigen")]
         [Compare("NewPassword", ErrorMessage = "Die Passwörter stimmen nicht überein.")]
         public string ConfirmPassword { get; set; }
+
+        public string StatusMessage { get; set; }
     }
 }

@@ -24,6 +24,8 @@ namespace BobDeathmic.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
         }
+        [TempData]
+        public string StatusMessage { get; set; }
         public IActionResult Index()
         {
             return View();
@@ -113,11 +115,7 @@ namespace BobDeathmic.Controllers
             return @return;
             //return RedirectToAction(nameof(Subscriptions));
         }
-        [HttpGet]
-        public IActionResult ChangePassword()
-        {
-            return View();
-        }
+        
 
         [HttpGet]
         public async Task<IActionResult> DeleteUser()
@@ -134,6 +132,12 @@ namespace BobDeathmic.Controllers
             return Redirect(nameof(MainController.Index));
         }
 
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            var model = new Models.User.ChangePasswordViewModel { StatusMessage = StatusMessage };
+            return View(model);
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(Models.User.ChangePasswordViewModel model)
@@ -149,12 +153,13 @@ namespace BobDeathmic.Controllers
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction(nameof(ChangePassword), new { Message = ManageMessageId.ChangePasswordSuccess });
+                    StatusMessage = "Passwort wurde geändert.";
+                    return RedirectToAction(nameof(ChangePassword));
                 }
-                AddErrors(result);
-                return View(model);
+                StatusMessage = "Passwort wurde nicht geändert.";
+                return RedirectToAction(nameof(ChangePassword));
             }
-            return RedirectToAction(nameof(ChangePassword), new { Message = ManageMessageId.Error });
+            return RedirectToAction(nameof(ChangePassword));
         }
         #region Helpers
         public enum ManageMessageId
