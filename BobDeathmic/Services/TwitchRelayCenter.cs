@@ -167,7 +167,7 @@ namespace BobDeathmic.Services
                     }
                 }
                 
-                ConnectionCredentials credentials = new ConnectionCredentials("BotDeathmic", "oauth:"+token.token);
+                ConnectionCredentials credentials = new ConnectionCredentials("BobDeathmic", "oauth:"+token.token);
                 client.Initialize(credentials);
 
             }
