@@ -285,7 +285,7 @@ namespace BobDeathmic.Services
             if(arg.Author.Username != "BobDeathmic")
             {
                 string commandresult = "";
-                if (arg.Content.StartsWith("!WebInterfaceLink"))
+                if (arg.Content.StartsWith("!WebInterfaceLink") || arg.Content.StartsWith("!wil"))
                 {
                     SendWebInterfaceLink(arg);
                 }

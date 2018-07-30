@@ -30,7 +30,7 @@
                         <td><a class="button restartdiscord">Restart</a></td>
                     </tr>
                 }
-                @if (User.IsInRole("User") || User.IsInRole("Admin") || User.IsInRole("Dev"))
+                @if (User.IsInRole("Dev"))
                 {
                     <tr>
                         <td>TwitchRelay</td>
@@ -106,7 +106,6 @@
 
         jQuery(document).ready(function(){
             jQuery(".restarttwitchrelay").click(function () {
-                alert("test");
                 var cur = jQuery(this);
                 $.ajax({
                     url: '@Url.Action("RestartTwitchRelay", "Services")',

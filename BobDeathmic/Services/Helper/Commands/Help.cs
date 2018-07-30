@@ -39,7 +39,7 @@ namespace BobDeathmic.Services.Helper.Commands
                 sCommandMessage += Environment.NewLine;
                 sCommandMessage += Environment.NewLine;
                 sCommandMessage += $"[WebInterface]{Environment.NewLine}";
-                sCommandMessage += "!WebInterfaceLink : Gibt den Link zum Webinterface zurück" + Environment.NewLine;
+                sCommandMessage += "!WebInterfaceLink (!wil) : Gibt den Link zum Webinterface zurück" + Environment.NewLine;
                 foreach (IfCommand tempcommand in Services.Helper.CommandBuilder.BuildCommands(provider, true))
                 {
                     if (currentCategory != tempcommand.Category)

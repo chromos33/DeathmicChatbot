@@ -171,6 +171,7 @@ namespace BobDeathmic.Services
                     args.state = stream.StreamState;
                     args.link = "";
                     args.state = StreamState.NotRunning;
+                    args.relayactive = stream.RelayState();
                     _eventBus.TriggerEvent(EventType.StreamChanged, args);
                 }
                 _context.SaveChanges();
