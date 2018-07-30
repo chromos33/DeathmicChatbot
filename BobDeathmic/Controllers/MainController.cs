@@ -172,6 +172,7 @@ namespace BobDeathmic.Controllers
             {
                 password += random.Next(5000);
             }
+            password = GeneratePasswordHash(password);
             return password;
         }
         private string GeneratePasswordHash(string _password)
