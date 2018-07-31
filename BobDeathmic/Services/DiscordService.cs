@@ -40,12 +40,21 @@ namespace BobDeathmic.Services
             _eventBus = eventBus;
             _eventBus.TwitchMessageReceived += TwitchMessageReceived;
             _eventBus.PasswordRequestReceived += PasswordRequestReceived;
+            //Event for Streams that are not Piggy backed through Relay
+            _eventBus.StreamChanged += StreamChanged;
             //Piggy backing through Relay
-            //_eventBus.StreamChanged += StreamChanged;
-            _eventBus.RelayPassed += StreamChanged;
+            _eventBus.RelayPassed += RelayPassed;
         }
 
-        private async void StreamChanged(object sender, StreamEventArgs e)
+        private void StreamChanged(object sender, StreamEventArgs e)
+        {
+            if(e.StreamType == Models.Enum.StreamProviderTypes.Mixer)
+            {
+                NotifySubscriber(e);
+            }
+        }
+
+        private async void RelayPassed(object sender, StreamEventArgs e)
         {
             NotifySubscriber(e);
         }

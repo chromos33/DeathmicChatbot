@@ -60,9 +60,6 @@ namespace BobDeathmic.Services
                     api.Settings.ClientId = data.ClientID;
                     api.Settings.AccessToken = data.token;
                 }
-                else
-                {
-                }
             }
             _timer = new System.Timers.Timer(10000);
             _timer.Elapsed += (sender, args) => CheckOnlineStreams();
