@@ -1,4 +1,4 @@
-﻿@model IEnumerable<BobDeathmic.Models.Stream>
+﻿@model BobDeathmic.Models.StreamViewModels.StreamListDataModel
 
 @{
     ViewData["Title"] = "Status";
@@ -11,6 +11,7 @@
 <div class="breadcrumbs">
     <span>Streams > Status</span>
 </div>
+@Html.PartialAsync("_StatusMessage", Model.StatusMessage)
 <table class="table">
     <thead>
         <tr>
@@ -19,7 +20,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.StreamList)
         {
             <tr>
                 <td><a href="@Html.DisplayFor(modelItem => item.Url)">@Html.DisplayFor(modelItem => item.StreamName)</a></td>

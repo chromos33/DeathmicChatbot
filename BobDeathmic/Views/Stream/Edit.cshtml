@@ -1,4 +1,4 @@
-﻿@model BobDeathmic.Models.Stream
+﻿@model BobDeathmic.Models.StreamModels.StreamEditViewDataModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -11,6 +11,7 @@
 <div class="breadcrumbs">
     <span>Streams > Verwaltung > Editieren</span>
 </div>
+@Html.PartialAsync("_StatusMessage", Model.StatusMessage)
 <div class="pa-35">
     <h2>Editieren</h2>
 
@@ -20,56 +21,56 @@
         <div class="col-md-4">
             <form asp-action="Edit">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="ID" />
+                <input type="hidden" asp-for="stream.ID" />
                 <div class="form-group">
-                    <label asp-for="StreamName" class="control-label"></label>
-                    <input asp-for="StreamName" class="form-control" />
-                    <span asp-validation-for="StreamName" class="text-danger"></span>
+                    <label asp-for="stream.StreamName" class="control-label"></label>
+                    <input asp-for="stream.StreamName" class="form-control" />
+                    <span asp-validation-for="stream.StreamName" class="text-danger"></span>
                 </div>
                 <div class="form-group d-none">
-                    <label asp-for="Game" class="control-label"></label>
-                    <input asp-for="Game" class="form-control" />
-                    <span asp-validation-for="Game" class="text-danger"></span>
+                    <label asp-for="stream.Game" class="control-label"></label>
+                    <input asp-for="stream.Game" class="form-control" />
+                    <span asp-validation-for="stream.Game" class="text-danger"></span>
                 </div>
                 <div class="form-group d-none">
-                    <label asp-for="UserID" class="control-label"></label>
-                    <input asp-for="UserID" class="form-control" />
-                    <span asp-validation-for="UserID" class="text-danger"></span>
+                    <label asp-for="stream.UserID" class="control-label"></label>
+                    <input asp-for="stream.UserID" class="form-control" />
+                    <span asp-validation-for="stream.UserID" class="text-danger"></span>
                 </div>
                 <div class="form-group d-none">
-                    <label asp-for="Url" class="control-label"></label>
-                    <input asp-for="Url" class="form-control" />
-                    <span asp-validation-for="Url" class="text-danger"></span>
+                    <label asp-for="stream.Url" class="control-label"></label>
+                    <input asp-for="stream.Url" class="form-control" />
+                    <span asp-validation-for="stream.Url" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="Type" class="control-label"></label>
-                    <select asp-for="Type" class="form-control">
-                        @foreach (var streamtype in ViewData["StreamTypes"] as List<string>)
+                    <label asp-for="stream.Type" class="control-label"></label>
+                    <select asp-for="stream.Type" class="form-control">
+                        @foreach (var streamtype in Model.StreamTypes)
                         {
                             <option>@streamtype</option>
                         }
                     </select>
-                    <span asp-validation-for="Type" class="text-danger"></span>
+                    <span asp-validation-for="stream.Type" class="text-danger"></span>
                 </div>
                 <div class="form-group d-none">
-                    <label asp-for="Started" class="control-label"></label>
-                    <input asp-for="Started" class="form-control" />
-                    <span asp-validation-for="Started" class="text-danger"></span>
+                    <label asp-for="stream.Started" class="control-label"></label>
+                    <input asp-for="stream.Started" class="form-control" />
+                    <span asp-validation-for="stream.Started" class="text-danger"></span>
                 </div>
                 <div class="form-group d-none">
-                    <label asp-for="Stopped" class="control-label"></label>
-                    <input asp-for="Stopped" class="form-control" />
-                    <span asp-validation-for="Stopped" class="text-danger"></span>
+                    <label asp-for="stream.Stopped" class="control-label"></label>
+                    <input asp-for="stream.Stopped" class="form-control" />
+                    <span asp-validation-for="stream.Stopped" class="text-danger"></span>
                 </div>
                 <div class="form-group d-none">
-                    <label asp-for="StreamState" class="control-label"></label>
-                    <select asp-for="StreamState" class="form-control"></select>
-                    <span asp-validation-for="StreamState" class="text-danger"></span>
+                    <label asp-for="stream.StreamState" class="control-label"></label>
+                    <select asp-for="stream.StreamState" class="form-control"></select>
+                    <span asp-validation-for="stream.StreamState" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="DiscordRelayChannel" class="control-label"></label>
-                    <select asp-for="DiscordRelayChannel" class="form-control">
-                        @if (ViewData["SelectedRelayChannel"] != null && "Aus" == ViewData["SelectedRelayChannel"] as string)
+                    <label asp-for="stream.DiscordRelayChannel" class="control-label"></label>
+                    <select asp-for="stream.DiscordRelayChannel" class="form-control">
+                        @if (Model.SelectedRelayChannel != null && "Aus" == Model.SelectedRelayChannel)
                         {
                             <option selected="selected">Aus</option>
                         }
@@ -77,7 +78,7 @@
                         {
                             <option>Aus</option>
                         }
-                        @if (ViewData["SelectedRelayChannel"] != null && "An" == ViewData["SelectedRelayChannel"] as string)
+                        @if (Model.SelectedRelayChannel != null && "An" == Model.SelectedRelayChannel)
                         {
                             <option selected="selected">An</option>
                         }
@@ -85,9 +86,9 @@
                         {
                             <option>An</option>
                         }
-                        @foreach (var relaychannel in ViewData["RelayChannels"] as IEnumerable<BobDeathmic.Models.Discord.RelayChannels>)
+                        @foreach (var relaychannel in Model.RelayChannels)
                         {
-                            @if (ViewData["SelectedRelayChannel"] != null && relaychannel.Name == ViewData["SelectedRelayChannel"] as string)
+                            @if (Model.SelectedRelayChannel != null && relaychannel.Name == Model.SelectedRelayChannel)
                             {
                                 <option selected="selected">@relaychannel.Name</option>
                             }
@@ -97,12 +98,12 @@
                             }
                         }
                     </select>
-                    <span asp-validation-for="DiscordRelayChannel" class="text-danger"></span>
+                    <span asp-validation-for="stream.DiscordRelayChannel" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="UpTimeInterval" class="control-label"></label>
-                    <input asp-for="UpTimeInterval" class="form-control" />
-                    <span asp-validation-for="UpTimeInterval" class="text-danger"></span>
+                    <label asp-for="stream.UpTimeInterval" class="control-label"></label>
+                    <input asp-for="stream.UpTimeInterval" class="form-control" />
+                    <span asp-validation-for="stream.UpTimeInterval" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <input type="submit" value="Save" class="btn btn-default" />

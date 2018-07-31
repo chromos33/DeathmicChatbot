@@ -17,5 +17,8 @@ namespace BobDeathmic.Models.StreamViewModels
         [Required]
         [DataType(DataType.Text)]
         public string Secret { get; set; }
+
+        public string RedirectLinkForTwitch { get; set; }
+        public string StatusMessage { get; set; }
     }
 }

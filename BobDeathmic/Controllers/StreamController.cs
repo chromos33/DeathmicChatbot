@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using BobDeathmic.Data;
 using BobDeathmic.Models;
+using BobDeathmic.Models.StreamModels;
+using BobDeathmic.Models.StreamViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,12 +33,18 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Status()
         {
-            return View(await _context.StreamModels.ToListAsync());
+            Models.StreamViewModels.StreamListDataModel model = new Models.StreamViewModels.StreamListDataModel();
+            model.StreamList = await _context.StreamModels.ToListAsync();
+            model.StatusMessage = StatusMessage;
+            return View(model);
         }
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Verwaltung()
         {
-            return View(await _context.StreamModels.ToListAsync());
+            Models.StreamViewModels.StreamListDataModel model = new Models.StreamViewModels.StreamListDataModel();
+            model.StreamList = await _context.StreamModels.ToListAsync();
+            model.StatusMessage = StatusMessage;
+            return View(model);
         }
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Edit(int? id)
@@ -51,11 +59,13 @@ namespace BobDeathmic.Controllers
             {
                 return NotFound();
             }
-            ViewData["StreamTypes"] = stream.EnumStreamTypes();
-            var relaychannels = await _context.RelayChannels.ToListAsync();
-            ViewData["RelayChannels"] = relaychannels;
-            ViewData["SelectedRelayChannel"] = stream.DiscordRelayChannel;
-            return View(stream);
+            StreamEditViewDataModel model = new StreamEditViewDataModel();
+            model.stream = stream;
+            model.StreamTypes = stream.EnumStreamTypes();
+            model.RelayChannels = await _context.RelayChannels.ToListAsync();
+            model.SelectedRelayChannel = stream.DiscordRelayChannel;
+            model.StatusMessage = StatusMessage;
+            return View(model);
         }
 
         // POST: Streams2/Edit/5
@@ -89,9 +99,11 @@ namespace BobDeathmic.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Verwaltung));
+                StatusMessage = "Stream angepasst";
+                return RedirectToAction(nameof(Edit));
             }
-            return View(stream);
+            StatusMessage = "Bitte nochmal versuchen eine Eingabe hat nicht gestimmt";
+            return RedirectToAction(nameof(Edit));
         }
 
         [Authorize(Roles = "User,Dev,Admin")]
@@ -118,9 +130,10 @@ namespace BobDeathmic.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(stream);
+            return RedirectToAction(nameof(Verwaltung));
         }
-
+        [TempData]
+        public string StatusMessage { get; set; }
         // GET: Streams2/Delete/5
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Delete(int? id)
@@ -153,7 +166,7 @@ namespace BobDeathmic.Controllers
         }
 
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> TwitchOAuth(int id)
+        public async Task<IActionResult> TwitchOAuth(int? id)
         {
             if (id == null)
             {
@@ -168,7 +181,8 @@ namespace BobDeathmic.Controllers
             BobDeathmic.Models.StreamViewModels.StreamOAuthDataModel model = new Models.StreamViewModels.StreamOAuthDataModel();
             model.Id = stream.ID.ToString();
             string baseurl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-            ViewData["RedirectLinkForTwitch"] = $"{baseurl}/Stream/TwitchReturnUrlAction";
+            model.RedirectLinkForTwitch= $"{baseurl}/Stream/TwitchReturnUrlAction";
+            model.StatusMessage = StatusMessage;
             return View(model);
         }
         [HttpPost]
@@ -181,12 +195,12 @@ namespace BobDeathmic.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && StreamOAuthData.ClientId != "" && StreamOAuthData.Secret != "")
             {
                 var baseUrl = _configuration.GetSection("WebServerWebAddress").Value;
                 string state = StreamOAuthData.Id + StreamOAuthData.Secret;
                 Models.Stream stream = _context.StreamModels.Where(sm => sm.ID == Int32.Parse(StreamOAuthData.Id)).FirstOrDefault();
-                if(stream != null)
+                if (stream != null)
                 {
                     stream.Secret = StreamOAuthData.Secret;
                     stream.ClientID = StreamOAuthData.ClientId;
@@ -194,6 +208,7 @@ namespace BobDeathmic.Controllers
                 await _context.SaveChangesAsync();
                 return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={StreamOAuthData.ClientId}&redirect_uri={baseUrl}/Stream/TwitchReturnUrlAction&scope=channel_editor+chat_login&state={state}");
             }
+            StatusMessage = "ClientID und Secret entweder leer oder falsch";
             return View(nameof(TwitchOAuth));
         }
         [HttpGet]
@@ -214,8 +229,10 @@ namespace BobDeathmic.Controllers
                 stream.AccessToken = authtoken.access_token;
 
                 await _context.SaveChangesAsync();
+                StatusMessage = "Stream Oauth complete";
             }
-            return RedirectToAction(nameof(Index));
+            
+            return RedirectToAction(nameof(Verwaltung));
         }
         private bool StreamExists(int id)
         {
