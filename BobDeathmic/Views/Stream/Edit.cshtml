@@ -11,7 +11,7 @@
 <div class="breadcrumbs">
     <span>Streams > Verwaltung > Editieren</span>
 </div>
-@await Html.PartialAsync("_StatusMessage", Model.StatusMessage)
+@Html.PartialAsync("_StatusMessage", Model.StatusMessage).Result
 <div class="pa-35">
     <h2>Editieren</h2>
 
