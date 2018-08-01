@@ -10,7 +10,6 @@ namespace BobDeathmic.Args
         //TODO: Change state to Database.Classes.StreamState
         public Models.Enum.StreamState state;
         public string link;
-        public string channel;
         public string Notification;
         public Models.Enum.RelayState relayactive;
         public Models.Enum.StreamProviderTypes StreamType;

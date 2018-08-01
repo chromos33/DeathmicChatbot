@@ -36,9 +36,6 @@ namespace BobDeathmic.Services
         {
             await base.StopAsync(cancellationToken);
             client.Disconnect();
-            _eventBus.StreamChanged -= StreamChanged;
-            _eventBus.DiscordMessageReceived -= DiscordMessageReceived;
-            Dispose();
         }
         public TwitchRelayCenter(IServiceScopeFactory scopeFactory, IEventBus eventBus)
         {
@@ -75,10 +72,16 @@ namespace BobDeathmic.Services
         }
 
         private bool StreamChangedInProgress = false;
+        private bool ConnectioninProgress = false;
+        private bool DisconnectInProgress = false;
         private async void StreamChanged(object sender, StreamEventArgs e)
         {
             if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch && e.relayactive != Models.Enum.RelayState.NotActivated)
             {
+                if(!ConnectioninProgress && !client.IsConnected && e.state != Models.Enum.StreamState.NotRunning)
+                {
+                    Connect();
+                }
                 while (!client.IsConnected)
                 {
                     await Task.Delay(1000);
@@ -108,15 +111,21 @@ namespace BobDeathmic.Services
                     {
                         MessageQueues.Remove(e.stream);
                         client.LeaveChannel(e.stream);
+
                         using (var scope = _scopeFactory.CreateScope())
                         {
                             var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                            var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.channel.ToLower()).FirstOrDefault();
+                            var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower()).FirstOrDefault();
                             if(Regex.Match(stream.DiscordRelayChannel.ToLower(), @"stream_\d+").Success)
                             {
                                 stream.DiscordRelayChannel = "An";
                                 await _context.SaveChangesAsync();
                             }
+                        }
+                        if(MessageQueues.Count() == 0)
+                        {
+                            client.Disconnect();
+                            DisconnectInProgress = true;
                         }
                         //Remove Relay Channel from stream if it is a generic DiscordChannel
                     }
@@ -134,7 +143,7 @@ namespace BobDeathmic.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.channel.ToLower()).FirstOrDefault();
+                var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower()).FirstOrDefault();
                 if (stream != null && stream.DiscordRelayChannel == "An")
                 {
                     foreach (var RelayChannel in _context.RelayChannels.Where(rc => Regex.Match(rc.Name.ToLower(), @"stream_\d+").Success))
@@ -176,7 +185,21 @@ namespace BobDeathmic.Services
             client.OnMessageReceived += onMessageReceived;
             client.OnConnected += onConnected;
             client.OnIncorrectLogin += onIncorrectLogin;
-            client.Connect();
+            client.OnDisconnected += onDisconnected;
+        }
+
+        private void onDisconnected(object sender, OnDisconnectedArgs e)
+        {
+            DisconnectInProgress = false;
+        }
+
+        public void Connect()
+        {
+            if(!ConnectioninProgress && !DisconnectInProgress)
+            {
+                ConnectioninProgress = true;
+                client.Connect();
+            }
         }
 
         private void DiscordMessageReceived(object sender, DiscordMessageArgs e)
@@ -189,11 +212,13 @@ namespace BobDeathmic.Services
 
         private void onIncorrectLogin(object sender, OnIncorrectLoginArgs e)
         {
-            
+            Console.WriteLine("test");
+            ConnectioninProgress = false;
         }
 
         private void onConnected(object sender, OnConnectedArgs e)
         {
+            ConnectioninProgress = false;
             client.AddChatCommandIdentifier('!');
             CommandList = CommandBuilder.BuildCommands("twitch");
         }

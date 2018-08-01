@@ -72,7 +72,7 @@ namespace BobDeathmic.Services
                                         args.Notification = stream.StreamStartedMessage();
                                         args.state = StreamState.Started;
                                         args.link = stream.Url;
-                                        args.channel = stream.StreamName;
+                                        args.stream = stream.StreamName;
                                         args.StreamType = StreamProviderTypes.Mixer;
                                         //replace with real state when/if relay integrated
                                         args.relayactive = RelayState.NotActivated;
@@ -93,7 +93,7 @@ namespace BobDeathmic.Services
                                 }
                             }
                         }
-                        _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync();
                         IQueryable<Models.Stream> GetStreams()
                         {
                             return _context.StreamModels.Where(x => x.Type == StreamProviderTypes.Mixer);

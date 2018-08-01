@@ -104,7 +104,6 @@ namespace BobDeathmic.Services
                         List<string> OnlineStreamIDs = StreamsData.Streams.Select(x => x.UserId).ToList();
                         await SetStreamsOffline(OnlineStreamIDs);
                         await SetStreamsOnline(OnlineStreamIDs, StreamsData);
-
                     }
                     
                     
@@ -163,8 +162,7 @@ namespace BobDeathmic.Services
                 {
                     stream.StreamState = StreamState.NotRunning;
                     StreamEventArgs args = new StreamEventArgs();
-                    args.stream = "";
-                    args.channel = stream.StreamName;
+                    args.stream = stream.StreamName;
                     args.state = stream.StreamState;
                     args.link = "";
                     args.state = StreamState.NotRunning;
@@ -203,7 +201,6 @@ namespace BobDeathmic.Services
                     stream.Game = streamdata.Title;
                     args.link = stream.Url = GetStreamUrl(stream);
                     args.game = streamdata.Title;
-                    args.channel = stream.StreamName;
                     args.relayactive = stream.RelayState();
                     if (TriggerUpTime(stream))
                     {
