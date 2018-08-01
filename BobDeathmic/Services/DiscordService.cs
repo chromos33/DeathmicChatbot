@@ -69,7 +69,7 @@ namespace BobDeathmic.Services
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower()).FirstOrDefault();
+                    Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower() && e.StreamType == sm.Type).FirstOrDefault();
                     if(stream != null)
                     {
                         List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
