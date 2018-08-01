@@ -48,6 +48,10 @@ namespace BobDeathmic.Services
                         var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                         HttpClient client = new HttpClient();
                         string baseUrl = "https://mixer.com/api/v1/channels/";
+                        IQueryable<Models.Stream> GetStreams()
+                        {
+                            return _context.StreamModels.Where(x => x.Type == StreamProviderTypes.Mixer);
+                        }
                         foreach (Models.Stream stream in GetStreams())
                         {
                             string RequestLink = baseUrl + stream.StreamName;
@@ -59,18 +63,28 @@ namespace BobDeathmic.Services
                                 if(stream.StreamState == StreamState.NotRunning)
                                 {
                                     SetStreamOnline();
+                                    StreamStarted();
                                     void SetStreamOnline()
                                     {
                                         stream.Started = DateTime.Now;
                                         stream.Game = streamInfo.type.name;
-                                        stream.StreamState = StreamState.Started;
+                                        switch(stream.StreamState)
+                                        {
+                                            case StreamState.Started:
+                                                stream.StreamState = StreamState.Running;
+                                                break;
+                                            case StreamState.NotRunning:
+                                                stream.StreamState = StreamState.Started;
+                                                break;
+                                        }
+                                        
                                         stream.Url = $"https://mixer.com/{stream.StreamName}";
                                     }
                                     void StreamStarted()
                                     {
                                         StreamEventArgs args = new StreamEventArgs();
                                         args.Notification = stream.StreamStartedMessage();
-                                        args.state = StreamState.Started;
+                                        args.state = stream.StreamState;
                                         args.link = stream.Url;
                                         args.stream = stream.StreamName;
                                         args.StreamType = StreamProviderTypes.Mixer;
@@ -94,10 +108,6 @@ namespace BobDeathmic.Services
                             }
                         }
                         await _context.SaveChangesAsync();
-                        IQueryable<Models.Stream> GetStreams()
-                        {
-                            return _context.StreamModels.Where(x => x.Type == StreamProviderTypes.Mixer);
-                        }
                         _inProgress = false;
                     }
                 }

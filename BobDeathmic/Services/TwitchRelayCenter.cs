@@ -136,7 +136,10 @@ namespace BobDeathmic.Services
                     MessageQueues[e.stream].Add(UpTimeMessage);
                 }
             }
-            _eventBus.TriggerEvent(EventType.RelayPassed, e);
+            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
+            {
+                _eventBus.TriggerEvent(EventType.RelayPassed, e);
+            }
         }
         private async Task<string> SetRelayChannel(StreamEventArgs e)
         {

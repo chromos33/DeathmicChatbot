@@ -48,7 +48,7 @@ namespace BobDeathmic.Services
 
         private void StreamChanged(object sender, StreamEventArgs e)
         {
-            if(e.StreamType == Models.Enum.StreamProviderTypes.Mixer)
+            if (e.StreamType == Models.Enum.StreamProviderTypes.Mixer && e.state == Models.Enum.StreamState.Started) ;
             {
                 NotifySubscriber(e);
             }
@@ -92,7 +92,7 @@ namespace BobDeathmic.Services
                                 try
                                 {
                                     await user.SendMessageAsync(e.Notification);
-                                    Console.WriteLine(dbUser.ChatUserName+ ": " + e.Notification);
+                                    //Console.WriteLine(dbUser.ChatUserName+ ": " + e.Notification);
                                     await Task.Delay(100);
                                 }catch(Discord.Net.HttpException ex)
                                 {

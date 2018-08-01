@@ -158,7 +158,7 @@ namespace BobDeathmic.Services
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var Streams = _context.StreamModels.Where(s => !OnlineStreamIDs.Contains(s.UserID));
-                foreach (Models.Stream stream in Streams.Where(x => x.StreamState != StreamState.NotRunning))
+                foreach (Models.Stream stream in Streams.Where(x => x.StreamState != StreamState.NotRunning && x.Type == StreamProviderTypes.Twitch))
                 {
                     stream.StreamState = StreamState.NotRunning;
                     StreamEventArgs args = new StreamEventArgs();
