@@ -48,7 +48,7 @@ namespace BobDeathmic.Services
 
         private void StreamChanged(object sender, StreamEventArgs e)
         {
-            if (e.StreamType == Models.Enum.StreamProviderTypes.Mixer && e.state == Models.Enum.StreamState.Started) ;
+            if (e.StreamType == Models.Enum.StreamProviderTypes.Mixer && e.state == Models.Enum.StreamState.Started)
             {
                 NotifySubscriber(e);
             }
