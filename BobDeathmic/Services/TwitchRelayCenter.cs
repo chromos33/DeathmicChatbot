@@ -81,71 +81,79 @@ namespace BobDeathmic.Services
         private bool DisconnectInProgress = false;
         private async void StreamChanged(object sender, StreamEventArgs e)
         {
-            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch && e.relayactive != Models.Enum.RelayState.NotActivated)
+            try
             {
-                if(!ConnectioninProgress && !client.IsConnected && e.state != Models.Enum.StreamState.NotRunning)
+                if (e.StreamType == Models.Enum.StreamProviderTypes.Twitch && e.relayactive != Models.Enum.RelayState.NotActivated)
                 {
-                    //Testing purposes
-                    Connect();
-                }
-                while (!client.IsConnected)
-                {
-                    await Task.Delay(1000);
-                }
-                //join RelayChannel
-                if(MessageQueues == null)
-                {
-                    MessageQueues = new Dictionary<string, List<string>>();
-                }
-                if (e.state != Models.Enum.StreamState.NotRunning)
-                {
-                    if (!MessageQueues.ContainsKey(e.stream))
+                    if (!ConnectioninProgress && !client.IsConnected && e.state != Models.Enum.StreamState.NotRunning)
                     {
-                        string Relaychannel = await SetRelayChannel(e);
-                        if(Relaychannel != "")
-                        {
-                            e.Notification += $" Das Relay befindet sich in Channel {Relaychannel}";
-                        }
-                        client.JoinChannel(e.stream);
-
-                        MessageQueues.Add(e.stream, new List<string>());
+                        //Testing purposes
+                        Connect();
                     }
-                }
-                else
-                {
-                    if (MessageQueues.ContainsKey(e.stream))
+                    while (!client.IsConnected)
                     {
-                        MessageQueues.Remove(e.stream);
-                        client.LeaveChannel(e.stream);
-
-                        using (var scope = _scopeFactory.CreateScope())
+                        await Task.Delay(1000);
+                    }
+                    //join RelayChannel
+                    if (MessageQueues == null)
+                    {
+                        MessageQueues = new Dictionary<string, List<string>>();
+                    }
+                    if (e.state != Models.Enum.StreamState.NotRunning)
+                    {
+                        if (!MessageQueues.ContainsKey(e.stream))
                         {
-                            var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                            var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower()).FirstOrDefault();
-                            if(Regex.Match(stream.DiscordRelayChannel.ToLower(), @"stream_\d+").Success)
+                            string Relaychannel = await SetRelayChannel(e);
+                            if (Relaychannel != "")
                             {
-                                stream.DiscordRelayChannel = "An";
-                                await _context.SaveChangesAsync();
+                                e.Notification += $" Das Relay befindet sich in Channel {Relaychannel}";
                             }
+                            client.JoinChannel(e.stream);
+
+                            MessageQueues.Add(e.stream, new List<string>());
                         }
-                        if(MessageQueues.Count() == 0)
+                    }
+                    else
+                    {
+                        if (MessageQueues.ContainsKey(e.stream))
                         {
-                            client.Disconnect();
-                            DisconnectInProgress = true;
+                            MessageQueues.Remove(e.stream);
+                            client.LeaveChannel(e.stream);
+
+                            using (var scope = _scopeFactory.CreateScope())
+                            {
+                                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower()).FirstOrDefault();
+                                if (Regex.Match(stream.DiscordRelayChannel.ToLower(), @"stream_\d+").Success)
+                                {
+                                    stream.DiscordRelayChannel = "An";
+                                    await _context.SaveChangesAsync();
+                                }
+                            }
+                            if (MessageQueues.Count() == 0)
+                            {
+                                client.Disconnect();
+                                DisconnectInProgress = true;
+                            }
+                            //Remove Relay Channel from stream if it is a generic DiscordChannel
                         }
-                        //Remove Relay Channel from stream if it is a generic DiscordChannel
+                    }
+                    if (e.PostUpTime)
+                    {
+                        string UpTimeMessage = $"Stream läuft seit {e.Uptime.Hours} Stunden und {e.Uptime.Minutes} Minuten";
+                        MessageQueues[e.stream].Add(UpTimeMessage);
                     }
                 }
-                if(e.PostUpTime)
+                if (e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
                 {
-                    string UpTimeMessage = $"Stream läuft seit {e.Uptime.Hours} Stunden und {e.Uptime.Minutes} Minuten";
-                    MessageQueues[e.stream].Add(UpTimeMessage);
+                    _eventBus.TriggerEvent(EventType.RelayPassed, e);
                 }
-            }
-            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
+            }catch(Exception ex)
             {
-                _eventBus.TriggerEvent(EventType.RelayPassed, e);
+                Console.WriteLine("Exeption at TwitchRelayCenter StreamChanged");
+                Console.WriteLine(ex.ToString());
             }
+            
         }
         private async Task<string> SetRelayChannel(StreamEventArgs e)
         {

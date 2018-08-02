@@ -140,16 +140,24 @@ namespace BobDeathmic.Services
         }
         private async Task<GetStreamsResponse> GetStreamData()
         {
-            using (var scope = _scopeFactory.CreateScope())
+            try
             {
-                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var Streams = _context.StreamModels;
-                List<string> StreamIdList = Streams.Where(x => x.UserID != null && x.UserID != "").Select(x => x.UserID).ToList();
-                if (StreamIdList.Count() > 0)
+                using (var scope = _scopeFactory.CreateScope())
                 {
-                    return await api.Streams.helix.GetStreamsAsync(userIds: StreamIdList);
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var Streams = _context.StreamModels;
+                    List<string> StreamIdList = Streams.Where(x => x.UserID != null && x.UserID != "").Select(x => x.UserID).ToList();
+                    if (StreamIdList.Count() > 0)
+                    {
+                        return await api.Streams.helix.GetStreamsAsync(userIds: StreamIdList);
+                    }
                 }
+            }catch(Exception ex)
+            {
+                Console.WriteLine("Exeption at TwitchChecker GetStreamData");
+                Console.WriteLine(ex.ToString());
             }
+            
             return null;
         }
         private async Task SetStreamsOffline(List<string> OnlineStreamIDs)
