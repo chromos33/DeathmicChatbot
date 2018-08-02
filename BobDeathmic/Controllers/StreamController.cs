@@ -227,6 +227,7 @@ namespace BobDeathmic.Controllers
 
                 JSONObjects.TwitchAuthToken authtoken = JsonConvert.DeserializeObject<JSONObjects.TwitchAuthToken>(responsestring);
                 stream.AccessToken = authtoken.access_token;
+                stream.RefreshToken = authtoken.refresh_token;
 
                 await _context.SaveChangesAsync();
                 StatusMessage = "Stream Oauth complete";

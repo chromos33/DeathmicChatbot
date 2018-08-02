@@ -268,16 +268,6 @@ namespace BobDeathmic.Controllers
             }
             return RedirectToAction(nameof(SecurityTokens));
         }
-        public async Task<IActionResult> AquireTwitchToken(SecurityToken token)
-        {
-            string baseUrl = _configuration.GetValue<string>("WebServerWebAddress");
-            if (_context.SecurityTokens.Where(st => st.service == token.service).Count() == 0)
-            {
-                _context.SecurityTokens.Add(token);
-                await _context.SaveChangesAsync();
-            }
-            return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseUrl}/Admin/TwitchReturnUrlAction&scope=chat_login viewing_activity_read user_read&state=c3ab8aa609ea11e793ae92361f002671");
-        }
         public async Task SaveDiscordToken(SecurityToken token)
         {
             if (_context.SecurityTokens.Where(st => st.service == token.service).Count() == 0)
@@ -291,6 +281,25 @@ namespace BobDeathmic.Controllers
             }
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IActionResult> AquireTwitchToken(SecurityToken token)
+        {
+            string baseUrl = _configuration.GetValue<string>("WebServerWebAddress");
+            if (_context.SecurityTokens.Where(st => st.service == token.service).Count() == 0)
+            {
+                _context.SecurityTokens.Add(token);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                var oldtoken = _context.SecurityTokens.Where(st => st.service == token.service).FirstOrDefault();
+                oldtoken = token;
+                await _context.SaveChangesAsync();
+            }
+            string state = "as435aerfaw45w456";
+            return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseUrl}/Admin/TwitchReturnUrlAction&scope=chat_login&state={state}");
+        }
+
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> TwitchReturnUrlAction(string code, string scope, string state)
@@ -304,6 +313,7 @@ namespace BobDeathmic.Controllers
             var responsestring = await response.Content.ReadAsStringAsync();
             JSONObjects.TwitchAuthToken authtoken = JsonConvert.DeserializeObject<JSONObjects.TwitchAuthToken>(responsestring);
             savedtoken.token = authtoken.access_token;
+            savedtoken.RefreshToken = authtoken.refresh_token;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(SecurityTokens));
         }

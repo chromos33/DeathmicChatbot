@@ -56,7 +56,10 @@ namespace BobDeathmic.Services
 
         private async void RelayPassed(object sender, StreamEventArgs e)
         {
-            NotifySubscriber(e);
+            if(e.StreamType != Models.Enum.StreamProviderTypes.Mixer)
+            {
+                NotifySubscriber(e);
+            }
         }
         private async void NotifySubscriber(StreamEventArgs e)
         {

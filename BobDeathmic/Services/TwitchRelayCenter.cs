@@ -4,10 +4,13 @@ using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
 using BobDeathmic.Services.Helper;
 using BobDeathmic.Services.Helper.Commands;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,13 +35,15 @@ namespace BobDeathmic.Services
         private System.Timers.Timer _MessageTimer;
         private System.Timers.Timer _TestTimer;
         private List<IfCommand> CommandList;
+        private readonly IConfiguration _configuration;
         public async override Task StopAsync(CancellationToken cancellationToken)
         {
             await base.StopAsync(cancellationToken);
             client.Disconnect();
         }
-        public TwitchRelayCenter(IServiceScopeFactory scopeFactory, IEventBus eventBus)
+        public TwitchRelayCenter(IServiceScopeFactory scopeFactory, IEventBus eventBus, IConfiguration configuration)
         {
+            _configuration = configuration;
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
             _MessageTimer = new System.Timers.Timer(50);
@@ -80,6 +85,7 @@ namespace BobDeathmic.Services
             {
                 if(!ConnectioninProgress && !client.IsConnected && e.state != Models.Enum.StreamState.NotRunning)
                 {
+                    //Testing purposes
                     Connect();
                 }
                 while (!client.IsConnected)
@@ -167,23 +173,7 @@ namespace BobDeathmic.Services
             _eventBus.StreamChanged += StreamChanged;
             _eventBus.DiscordMessageReceived += DiscordMessageReceived;
             client = new TwitchClient();
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                SecurityToken token = null;
-                while(token == null || token != null && token.token == "")
-                {
-                    token = _context.SecurityTokens.Where(st => st.service == Models.Enum.TokenType.Twitch).FirstOrDefault();
-                    if(token == null || token != null && token.token == "")
-                    {
-                        await Task.Delay(1000);
-                    }
-                }
-                
-                ConnectionCredentials credentials = new ConnectionCredentials("BobDeathmic", "oauth:"+token.token);
-                client.Initialize(credentials);
-
-            }
+            await UpdateCredentials();
             client.OnJoinedChannel += onJoinedChannel;
             client.OnMessageReceived += onMessageReceived;
             client.OnConnected += onConnected;
@@ -194,6 +184,31 @@ namespace BobDeathmic.Services
         private void onDisconnected(object sender, OnDisconnectedArgs e)
         {
             DisconnectInProgress = false;
+        }
+        private async Task RefreshToken()
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var savedtoken = _context.SecurityTokens.Where(x => x.service == Models.Enum.TokenType.Twitch).FirstOrDefault();
+                if(savedtoken != null && savedtoken.RefreshToken != null && savedtoken.RefreshToken != "")
+                {
+                    var client = new HttpClient();
+                    string baseUrl = _configuration.GetValue<string>("WebServerWebAddress");
+                    string url = $"https://id.twitch.tv/oauth2/token?grant_type=refresh_token&refresh_token={savedtoken.RefreshToken}&client_id={savedtoken.ClientID}&client_secret={savedtoken.secret}";
+                    var response = await client.PostAsync(url, new StringContent("", System.Text.Encoding.UTF8, "text/plain"));
+                    var responsestring = await response.Content.ReadAsStringAsync();
+                    JSONObjects.TwitchRefreshTokenData refresh = JsonConvert.DeserializeObject<JSONObjects.TwitchRefreshTokenData>(responsestring);
+                    if(refresh.error == null)
+                    {
+                        savedtoken.token = refresh.access_token;
+                        savedtoken.RefreshToken = refresh.refresh_token;
+                        _context.SaveChanges();
+                        Console.WriteLine("Refreshed Token");
+                    }
+                }
+                
+            }
         }
 
         public void Connect()
@@ -213,14 +228,37 @@ namespace BobDeathmic.Services
             }
         }
 
-        private void onIncorrectLogin(object sender, OnIncorrectLoginArgs e)
+        private async void onIncorrectLogin(object sender, OnIncorrectLoginArgs e)
         {
-            Console.WriteLine("test");
+            Console.WriteLine("Login False");
             ConnectioninProgress = false;
+            await RefreshToken();
+            await UpdateCredentials();
+        }
+        private async Task UpdateCredentials()
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                SecurityToken token = null;
+                while (token == null || token != null && token.token == "")
+                {
+                    token = _context.SecurityTokens.Where(st => st.service == Models.Enum.TokenType.Twitch).FirstOrDefault();
+                    if (token == null || token != null && token.token == "")
+                    {
+                        await Task.Delay(1000);
+                    }
+                }
+
+                ConnectionCredentials credentials = new ConnectionCredentials("BobDeathmic", "oauth:" + token.token);
+                client.Initialize(credentials);
+
+            }
         }
 
         private void onConnected(object sender, OnConnectedArgs e)
         {
+            Console.WriteLine("Connected");
             ConnectioninProgress = false;
             client.AddChatCommandIdentifier('!');
             CommandList = CommandBuilder.BuildCommands("twitch");

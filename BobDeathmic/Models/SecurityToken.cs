@@ -14,5 +14,6 @@ namespace BobDeathmic.Models
         public TokenType service { get; set; }
         public string code { get; set; }
         public string secret { get; set; }
+        public string RefreshToken { get; set; }
     }
 }

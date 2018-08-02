@@ -18,6 +18,7 @@ namespace BobDeathmic.Models
         public string AccessToken { get; set; }
         public string Secret { get; set; }
         public string ClientID { get; set; }
+        public string RefreshToken { get; set; }
 
         public DateTime Started { get; set; }
         public DateTime Stopped { get; set; }
