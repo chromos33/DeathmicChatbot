@@ -10,6 +10,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
+using BobDeathmic.Models.User;
 
 namespace BobDeathmic.Controllers
 {
@@ -40,7 +41,7 @@ namespace BobDeathmic.Controllers
             {
                 bool add = true;
                 
-                if(streamsubs != null && streamsubs.Where(ss => ss.Stream.StreamName == stream.StreamName).Count() > 0)
+                if(streamsubs != null && streamsubs.Where(ss => ss.Stream.StreamName == stream.StreamName && ss.Stream.Type == stream.Type).Count() > 0)
                 {
                     add = false;
                 }
@@ -49,12 +50,13 @@ namespace BobDeathmic.Controllers
                     FilteredStreams.Add(stream);
                 }
             }
-            if(FilteredStreams.Count() > 0)
+            AddSubscriptionViewModel model = new AddSubscriptionViewModel();
+            if (FilteredStreams.Count() > 0)
             {
-                ViewData["SubscribeableStream"] = FilteredStreams;
+                model.SubscribableStreams = FilteredStreams;
             }
-            ViewData["Subscriptions"] = streamsubs;
-            return View();
+            model.Subscriptions = streamsubs;
+            return View(model);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -64,7 +66,7 @@ namespace BobDeathmic.Controllers
             {
                 return View(model);
             }
-            var stream = _context.StreamModels.Where(s => s.StreamName.ToLower() == model.StreamNameForSubscription.ToLower()).FirstOrDefault();
+            var stream = _context.StreamModels.Where(s => s.StreamName.ToLower() == model.StreamNameForSubscription.ToLower() && s.Type == model.type).FirstOrDefault();
             ChatUserModel user = await _userManager.GetUserAsync(this.User);
             if (stream != null)
             {

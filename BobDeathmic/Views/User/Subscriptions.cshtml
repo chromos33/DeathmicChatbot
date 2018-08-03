@@ -11,7 +11,7 @@
     <span>Benutzer > Subscriptions</span>
 </div>
 <div class="pa-35">
-    @if (ViewData["SubscribeableStream"] != null)
+    @if (Model.SubscribableStreams != null)
     {
     <div class="mb-20">
         <h2>Subscription hinzufügen</h2>
@@ -22,10 +22,11 @@
                     <form asp-controller="User" asp-action="AddSubscription" method="post" class="form-vertical">
                         <label asp-for="StreamNameForSubscription" class="control-label"></label>
                         <div class="clearfix"></div>
+                        <input class="typefield" type="hidden" asp-for="type" value="@Model.SubscribableStreams.FirstOrDefault().Type"/>
                         <select asp-for="StreamNameForSubscription" class="form-control">
-                            @foreach (var stream in ViewData["SubscribeableStream"] as List<BobDeathmic.Models.Stream>)
+                            @foreach (var stream in Model.SubscribableStreams)
                             {
-                                <option>@stream.StreamName</option>
+                                <option data-type="@stream.Type">@stream.StreamName</option>
                             }
                         </select>
                         <button type="submit" class="btn btn-default">Subscription hinzufügen</button>
@@ -50,12 +51,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (ViewData["Subscriptions"] != null)
+                    @if (Model.Subscriptions != null)
                     {
-                        @foreach (StreamSubscription sub in ViewData["Subscriptions"] as IEnumerable<StreamSubscription>)
+                        @foreach (StreamSubscription sub in Model.Subscriptions)
                         {
                             <tr>
-                                <td>@sub.Stream.StreamName</td>
+                                <td>@sub.Stream.StreamName (@sub.Stream.Type)</td>
                                 <td>
                                     <a class="subscriptionswitch" data-id="@sub.ID">
 
@@ -77,6 +78,10 @@
             @section Scripts {
 
                 <script>
+                    jQuery("#StreamNameForSubscription").change(function () { 
+                        var cur = this;
+                        jQuery(".typefield").val(jQuery(cur).find("option:selected").attr("data-type"));
+                    });
             jQuery(document).ready(function(){
                 jQuery(".subscriptionswitch").click(function () {
                     var cur = jQuery(this);
