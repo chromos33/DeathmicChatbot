@@ -77,7 +77,7 @@ namespace BobDeathmic.Services
                     {
                         List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
                         //var test = client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(u => !blocked.Contains(u.Id)).GroupBy(u => u.Username);
-                        foreach (var user in client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(u => !blocked.Contains(u.Id)))
+                        foreach (var user in client.Guilds.Single(g => g.Name.ToLower() == "deathmic").Users.Where(u => !blocked.Contains(u.Id)))
                         {
                             ChatUserModel dbUser = null;
                             try
@@ -94,7 +94,7 @@ namespace BobDeathmic.Services
                             {
                                 try
                                 {
-                                    await user.SendMessageAsync(e.Notification);
+                                    //await user.SendMessageAsync(e.Notification);
                                     //Console.WriteLine(dbUser.ChatUserName+ ": " + e.Notification);
                                     await Task.Delay(100);
                                 }catch(Discord.Net.HttpException ex)
@@ -122,12 +122,12 @@ namespace BobDeathmic.Services
 
         private void PasswordRequestReceived(object sender, PasswordRequestArgs e)
         {
-            client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.Users.Where(u => u.Username.ToLower() == e.UserName).FirstOrDefault()?.SendMessageAsync("Dein neues Passwort ist: " + e.TempPassword);
+            client.Guilds.Single(g => g.Name.ToLower() == "deathmic")?.Users.Single(u => u.Username.ToLower() == e.UserName)?.SendMessageAsync("Dein neues Passwort ist: " + e.TempPassword);
         }
 
         private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
         {            
-            client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.TextChannels.Where(c => c.Name.ToLower() == e.Target.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
+            client.Guilds.Single(g => g.Name.ToLower() == "deathmic")?.TextChannels.Single(c => c.Name.ToLower() == e.Target.ToLower())?.SendMessageAsync(e.Message);
         }
         private void InitCommands()
         {
@@ -203,12 +203,16 @@ namespace BobDeathmic.Services
 
         private async Task ChannelChanged(SocketChannel arg)
         {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             UpdateRelayChannels();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
 
         private async Task ClientJoined(SocketGuildUser arg)
         {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             arg.SendMessageAsync("Um Bot Notifications/Features nutzen zu können müsst ihr euch über den Befehl \"!WebInterfaceLink\" beim Bot registrieren");
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
         private async Task UpdateRelayChannels()
         {
@@ -218,18 +222,22 @@ namespace BobDeathmic.Services
                 
             List<string> channelsToBeAdded = discordChannels.Except(savedChannels).ToList();
             List<string> channelsToBeRemoved = savedChannels.Except(discordChannels).ToList();
-            if(channelsToBeAdded.Count() > 0)
+            if(channelsToBeAdded.Any())
             {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 AddChannelsInListToDB(channelsToBeAdded);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
-            if(channelsToBeRemoved.Count() > 0)
+            if(channelsToBeRemoved.Any())
             {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 RemoveChannelsInListFromDB(channelsToBeRemoved);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
         private bool ChangeDetected(List<string> List)
         {
-            return List.Count() > 0;
+            return List.Any();
         }
         private async Task AddChannelsInListToDB(List<string> channelsToBeAdded)
         {
@@ -260,7 +268,7 @@ namespace BobDeathmic.Services
         private List<string> GetDiscordStreamChannels()
         {
             List<string> discordChannels = new List<string>();
-            foreach (var channel in client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Channels)
+            foreach (var channel in client.Guilds.Single(g => g.Name.ToLower() == "deathmic").Channels)
             {
                 if (Regex.Match(channel.Name.ToLower(), @"stream_").Success)
                 {
@@ -297,9 +305,11 @@ namespace BobDeathmic.Services
             if(arg.Author.Username != "BobDeathmic")
             {
                 string commandresult = "";
-                if (arg.Content.StartsWith("!WebInterfaceLink") || arg.Content.StartsWith("!wil"))
+                if (arg.Content.StartsWith("!WebInterfaceLink", StringComparison.CurrentCulture) || arg.Content.StartsWith("!wil", StringComparison.CurrentCulture))
                 {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     SendWebInterfaceLink(arg);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 }
                 if (CommandList != null)
                 {
@@ -320,11 +330,15 @@ namespace BobDeathmic.Services
                 List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
                 if (!blocked.Contains(arg.Author.Id))
                 {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     GetUserLogin(arg);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 }
                 else
                 {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     arg.Author.SendMessageAsync($"Bitte Discord Namen ändern und an einen Admin wenden und folgenden Wert mitteilen {arg.Author.Id}");
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 }
             }
         }
@@ -348,7 +362,7 @@ namespace BobDeathmic.Services
         }
         private void RelayMessage(SocketMessage arg)
         {
-            if (arg.Channel.Name.StartsWith("stream_"))
+            if (arg.Channel.Name.StartsWith("stream_", StringComparison.CurrentCulture))
             {
                 Args.DiscordMessageArgs args = new Args.DiscordMessageArgs();
                 args.Source = arg.Channel.Name;

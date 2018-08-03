@@ -23,7 +23,7 @@ namespace BobDeathmic.Services
         protected TwitchAPI api;
         private readonly IServiceScopeFactory _scopeFactory;
         private System.Timers.Timer _timer;
-        private bool _inProgress = false;
+        private bool _inProgress;
         private IEventBus _eventBus;
 
         public IConfiguration Configuration { get; }
@@ -123,8 +123,8 @@ namespace BobDeathmic.Services
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var Streams = _context.StreamModels;
-                var StreamNameList = Streams.Where(x => x.UserID == null || x.UserID == "").Select(x => x.StreamName).ToList();
-                if (StreamNameList.Count() > 0)
+                var StreamNameList = Streams.Where(x => string.IsNullOrEmpty(x.UserID)).Select(x => x.StreamName).ToList();
+                if (StreamNameList.Any())
                 {
                     var userdata = await api.Users.helix.GetUsersAsync(logins: StreamNameList);
                 
@@ -146,8 +146,8 @@ namespace BobDeathmic.Services
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     var Streams = _context.StreamModels;
-                    List<string> StreamIdList = Streams.Where(x => x.UserID != null && x.UserID != "").Select(x => x.UserID).ToList();
-                    if (StreamIdList.Count() > 0)
+                    List<string> StreamIdList = Streams.Where(x => !string.IsNullOrEmpty(x.UserID)).Select(x => x.UserID).ToList();
+                    if (StreamIdList.Any())
                     {
                         return await api.Streams.helix.GetStreamsAsync(userIds: StreamIdList);
                     }
@@ -205,7 +205,7 @@ namespace BobDeathmic.Services
                         args.Notification = "";
                         args.state = StreamState.Running;
                     }
-                    var streamdata = StreamsData.Streams.Where(sd => sd.UserId == stream.UserID).FirstOrDefault();
+                    var streamdata = StreamsData.Streams.Single(sd => sd.UserId == stream.UserID);
                     stream.Game = streamdata.Title;
                     args.link = stream.Url = GetStreamUrl(stream);
                     args.game = streamdata.Title;
@@ -224,7 +224,7 @@ namespace BobDeathmic.Services
         }
         private string GetStreamUrl(Models.Stream stream)
         {
-            if(stream.Url == "" || stream.Url == null)
+            if(string.IsNullOrEmpty(stream.Url))
             {
                 stream.Url = "https://www.twitch.tv/" + stream.StreamName;
             }
