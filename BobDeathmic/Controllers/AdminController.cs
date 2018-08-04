@@ -297,7 +297,7 @@ namespace BobDeathmic.Controllers
                 await _context.SaveChangesAsync();
             }
             string state = "as435aerfaw45w456";
-            return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseUrl}/Admin/TwitchReturnUrlAction&scope=chat_login&state={state}");
+            return Redirect($"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id={token.ClientID}&redirect_uri={baseUrl}/Admin/TwitchReturnUrlAction&scope=channel_editor+chat_login+user:edit&state={state}");
         }
 
         [HttpGet]
