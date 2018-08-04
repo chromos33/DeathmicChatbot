@@ -8,6 +8,7 @@ namespace BobDeathmic.Services.Helper.Commands
     public class TwitchStreamTitle : IfCommand
     {
         public string Trigger => "!changestreamtitle";
+        public string alias => "!cst";
 
         public string Description => "Ändert den StreamTitel (!changestreamtitle game='Bla' title='Bla')";
 
@@ -15,7 +16,7 @@ namespace BobDeathmic.Services.Helper.Commands
 
         public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
         {
-            if (args["message"].ToLower().StartsWith(Trigger))
+            if (args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias))
             {
                 return CommandEventType.TwitchTitle;
             }
