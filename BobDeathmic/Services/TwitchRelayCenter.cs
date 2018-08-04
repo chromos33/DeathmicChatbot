@@ -258,6 +258,11 @@ namespace BobDeathmic.Services
                         string relayChannel = await SetRelayChannel(args);
                         args = UpdateNotification(relayChannel, args);
                     }
+                    if (e.PostUpTime)
+                    {
+                        string UpTimeMessage = $"Stream läuft seit {e.Uptime.Hours} Stunden und {e.Uptime.Minutes} Minuten";
+                        MessageQueues[e.stream].Add(UpTimeMessage);
+                    }
                 }
 
 
