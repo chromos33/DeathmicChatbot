@@ -20,6 +20,7 @@
     <div class="row">
         <div class="col-md-4">
             <p>RedirectURL: @Model.RedirectLinkForTwitch</p>
+            <p>Einzutragen unter https://glass.twitch.tv/console/apps einfach neue Anwendung registrieren</p>
             <form asp-controller="Stream" asp-action="TwitchOAuth">
                 <div asp-validation-summary="All" class="text-danger"></div>
                 <input type="hidden" asp-for="Id" />
