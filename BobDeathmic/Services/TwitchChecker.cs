@@ -196,7 +196,7 @@ namespace BobDeathmic.Services
                     if (stream.StreamState == StreamState.NotRunning)
                     {
                         stream.StreamState = StreamState.Started;
-                        stream.Started = streamdata.StartedAt;
+                        stream.Started = streamdata.StartedAt.AddHours(2);
                         args.Notification = stream.StreamStartedMessage();
                         args.state = StreamState.Started;
                     }
