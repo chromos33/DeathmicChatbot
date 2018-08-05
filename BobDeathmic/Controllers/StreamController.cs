@@ -180,7 +180,7 @@ namespace BobDeathmic.Controllers
             }
             BobDeathmic.Models.StreamViewModels.StreamOAuthDataModel model = new Models.StreamViewModels.StreamOAuthDataModel();
             model.Id = stream.ID.ToString();
-            string baseurl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            string baseurl = _configuration.GetSection("WebServerWebAddress").Value;
             model.RedirectLinkForTwitch= $"{baseurl}/Stream/TwitchReturnUrlAction";
             model.StatusMessage = StatusMessage;
             return View(model);
