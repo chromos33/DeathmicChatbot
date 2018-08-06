@@ -33,6 +33,10 @@ namespace BobDeathmic.Data
                 .HasMany(s => s.StreamSubscriptions)
                 .WithOne(ss => ss.Stream)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<Stream>()
+                .HasMany(s => s.Commands)
+                .WithOne(sc => sc.stream)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<Stream>().HasOne(s => s.Owner).WithMany(u => u.OwnedStreams);
         }
         public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
@@ -41,5 +45,6 @@ namespace BobDeathmic.Data
         public DbSet<SecurityToken> SecurityTokens { get; set; }
         public DbSet<Models.Discord.RelayChannels> RelayChannels { get; set; }
         public DbSet<Models.DiscordBan> DiscordBans { get; set; }
+        public DbSet<BobDeathmic.Models.StreamCommand> StreamCommand { get; set; }
     }
 }
