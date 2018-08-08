@@ -4,6 +4,7 @@ using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
 using BobDeathmic.Services.Helper;
 using BobDeathmic.Services.Helper.Commands;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -33,7 +34,7 @@ namespace BobDeathmic.Services
         private Dictionary<string, List<string>> MessageQueues;
         private readonly IServiceScopeFactory _scopeFactory;
         private System.Timers.Timer _MessageTimer;
-        private System.Timers.Timer _TestTimer;
+        private System.Timers.Timer _AutoCommandTimer;
         private readonly IConfiguration _configuration;
         private List<IfCommand> CommandList;
 
@@ -115,8 +116,38 @@ namespace BobDeathmic.Services
         {
             ConnectionChangeInProgress = false;
             Console.WriteLine("TwitchRelayCenter Connected");
+            if (_AutoCommandTimer == null)
+            {
+                _AutoCommandTimer = new System.Timers.Timer();
+                _AutoCommandTimer = new System.Timers.Timer(TimeSpan.FromMinutes(1).TotalMilliseconds);
+                _AutoCommandTimer.Elapsed += (autocommandsender, args) => ExecuteAutoCommands();
+            }
+            if(!_AutoCommandTimer.Enabled)
+            {
+                _AutoCommandTimer.Start();
+            }
         }
 
+        private void ExecuteAutoCommands()
+        {
+            if(MessageQueues.Count() > 0)
+            {
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    foreach(var messageQueue in MessageQueues)
+                    {
+                        var commands = _context.StreamCommand.Include(sc => sc.stream).Where(sc => sc.Mode == StreamCommandMode.Auto && sc.stream.StreamName == messageQueue.Key && sc.AutoInverval > 0 && (DateTime.Now - sc.LastExecution).Minutes > sc.AutoInverval);
+                        foreach (StreamCommand command in commands)
+                        {
+                            messageQueue.Value.Add(command.response);
+                            command.LastExecution = DateTime.Now;
+                        }
+                    }
+                    _context.SaveChanges();
+                }
+            }
+        }
         private async void LoginAuthFailed(object sender, OnIncorrectLoginArgs e)
         {
             ConnectionChangeInProgress = false;
@@ -129,6 +160,10 @@ namespace BobDeathmic.Services
         private void Disconnected(object sender, OnDisconnectedArgs e)
         {
             ConnectionChangeInProgress = false;
+            if (_AutoCommandTimer != null)
+            {
+                _AutoCommandTimer.Stop();
+            }
             Console.WriteLine("TwitchRelayCenter Disconnected");
         }
 
@@ -169,7 +204,14 @@ namespace BobDeathmic.Services
         {
             if(!e.ChatMessage.IsMe)
             {
-                if(!e.ChatMessage.Message.StartsWith("!", StringComparison.CurrentCulture))
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    if(MessageQueues.ContainsKey(e.ChatMessage.Channel.ToLower()))
+                    {
+                            MessageQueues[e.ChatMessage.Channel].Add(GetManualCommandResponse(e.ChatMessage.Channel, e.ChatMessage.Message));
+                    }
+                }
+                if (!e.ChatMessage.Message.StartsWith("!", StringComparison.CurrentCulture))
                 {
                     string target = "";
                     using (var scope = _scopeFactory.CreateScope())
@@ -188,7 +230,7 @@ namespace BobDeathmic.Services
                 }
                 else
                 {
-                    if(CommandList != null)
+                    if (CommandList != null)
                     {
                         foreach (IfCommand command in CommandList)
                         {
@@ -217,9 +259,17 @@ namespace BobDeathmic.Services
                             }
                         }
                     }
-                    //switch(e.)
                 }
                 
+            }
+        }
+        private string GetManualCommandResponse(string streamname,string message)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var command =  _context.StreamCommand.Include(sc => sc.stream).Where(sc => sc.Mode == StreamCommandMode.Manual && sc.stream.StreamName == streamname && message.Contains(sc.name)).FirstOrDefault();
+                return command.response;
             }
         }
         #endregion

@@ -19,6 +19,7 @@ namespace BobDeathmic.Models
         public string response { get; set; }
         public StreamCommandMode Mode { get; set; }
         public int AutoInverval { get; set; }
+        public DateTime LastExecution { get; set; }
         [Required]
         public int streamID { get; set; }
         public Stream stream { get; set; }
