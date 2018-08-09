@@ -208,7 +208,11 @@ namespace BobDeathmic.Services
                 {
                     if(MessageQueues.ContainsKey(e.ChatMessage.Channel.ToLower()))
                     {
-                            MessageQueues[e.ChatMessage.Channel].Add(GetManualCommandResponse(e.ChatMessage.Channel, e.ChatMessage.Message));
+                        string message = GetManualCommandResponse(e.ChatMessage.Channel, e.ChatMessage.Message);
+                        if(message != "")
+                        {
+                            MessageQueues[e.ChatMessage.Channel].Add(message);
+                        }   
                     }
                 }
                 if (!e.ChatMessage.Message.StartsWith("!", StringComparison.CurrentCulture))
@@ -265,11 +269,16 @@ namespace BobDeathmic.Services
         }
         private string GetManualCommandResponse(string streamname,string message)
         {
+
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var command =  _context.StreamCommand.Include(sc => sc.stream).Where(sc => sc.Mode == StreamCommandMode.Manual && sc.stream.StreamName == streamname && message.Contains(sc.name)).FirstOrDefault();
-                return command.response;
+                if(command != null)
+                {
+                    return command.response;
+                }
+                return "";  
             }
         }
         #endregion
