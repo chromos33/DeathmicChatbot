@@ -127,7 +127,7 @@ namespace BobDeathmic.Services
 
         private void PasswordRequestReceived(object sender, PasswordRequestArgs e)
         {
-            client.Guilds.Single(g => g.Name.ToLower() == "deathmic")?.Users.Single(u => u.Username.ToLower() == e.UserName)?.SendMessageAsync("Dein neues Passwort ist: " + e.TempPassword);
+            client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.Users.Where(u => u.Username.ToLower() == e.UserName).FirstOrDefault()?.SendMessageAsync("Dein neues Passwort ist: " + e.TempPassword);
         }
 
         private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
