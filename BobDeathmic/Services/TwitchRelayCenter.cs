@@ -287,7 +287,7 @@ namespace BobDeathmic.Services
         {
             Console.WriteLine("StreamChanged");
             StreamEventArgs args = e;
-            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
+            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch && e.relayactive == Models.Enum.RelayState.Activated)
             {
                 if (args.state == Models.Enum.StreamState.NotRunning)
                 {
