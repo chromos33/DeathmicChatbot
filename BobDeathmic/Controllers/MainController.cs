@@ -27,7 +27,7 @@ namespace BobDeathmic.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                return View();
+                return RedirectToAction("Subscriptions","User");
             }
             //return View();
             return RedirectToAction("Login");
@@ -85,7 +85,7 @@ namespace BobDeathmic.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return RedirectToLocal(returnUrl);
+                    return RedirectToAction("Subscriptions", "User");
                 }
                 if (result.IsLockedOut)
                 {

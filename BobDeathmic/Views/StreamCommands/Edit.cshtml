@@ -47,3 +47,25 @@
     </div>
 </div>
 
+@section Scripts {
+    <script>
+            ToggleAutoInterval(jQuery("#Mode").find(":selected").val());
+            jQuery("#Mode").on("change", function () {
+                ToggleAutoInterval(jQuery(this).find(":selected").val());
+            })
+            function ToggleAutoInterval(state) {
+                switch(state)
+                {
+                    case "Auto":
+                        jQuery(".autointervalctn").show();
+                    break;
+                    case "Manual":
+                        jQuery(".autointervalctn").hide();
+                    break;
+
+                }
+
+            }
+    </script>
+
+}
