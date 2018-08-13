@@ -207,7 +207,6 @@ namespace BobDeathmic.Services
                         args.state = StreamState.Running;
                     }
                     
-                    stream.Game = streamdata.Title;
                     args.link = stream.Url = GetStreamUrl(stream);
                     args.game = streamdata.Title;
                     args.relayactive = stream.RelayState();
