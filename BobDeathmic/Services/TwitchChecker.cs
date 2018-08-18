@@ -193,6 +193,8 @@ namespace BobDeathmic.Services
                     args.stream = stream.StreamName;
                     args.StreamType = StreamProviderTypes.Twitch;
                     var streamdata = StreamsData.Streams.Single(sd => sd.UserId == stream.UserID);
+                    args.link = stream.Url = GetStreamUrl(stream);
+                    args.game = streamdata.Title;
                     if (stream.StreamState == StreamState.NotRunning)
                     {
                         stream.StreamState = StreamState.Started;
@@ -206,9 +208,6 @@ namespace BobDeathmic.Services
                         args.Notification = "";
                         args.state = StreamState.Running;
                     }
-                    
-                    args.link = stream.Url = GetStreamUrl(stream);
-                    args.game = streamdata.Title;
                     args.relayactive = stream.RelayState();
                     if (TriggerUpTime(stream))
                     {
