@@ -192,14 +192,14 @@ namespace BobDeathmic.Services
                     StreamEventArgs args = new StreamEventArgs();
                     args.stream = stream.StreamName;
                     args.StreamType = StreamProviderTypes.Twitch;
-                    var streamdata = StreamsData.Streams.Single(sd => sd.UserId == stream.UserID);
+                    TwitchLib.Api.Models.Helix.Streams.GetStreams.Stream streamdata = StreamsData.Streams.Single(sd => sd.UserId == stream.UserID);
                     args.link = stream.Url = GetStreamUrl(stream);
                     args.game = streamdata.Title;
                     if (stream.StreamState == StreamState.NotRunning)
                     {
                         stream.StreamState = StreamState.Started;
                         stream.Started = streamdata.StartedAt.ToLocalTime();
-                        args.Notification = stream.StreamStartedMessage();
+                        args.Notification = stream.StreamStartedMessage(streamdata);
                         args.state = StreamState.Started;
                     }
                     else

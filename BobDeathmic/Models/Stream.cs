@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BobDeathmic.Models.Enum;
+using TwitchLib.Api.Models.Helix.Streams.GetStreams;
 
 namespace BobDeathmic.Models
 {
@@ -49,11 +50,11 @@ namespace BobDeathmic.Models
 
             return EnumTypes;
         }
-        public string StreamStartedMessage()
+        public string StreamStartedMessage(TwitchLib.Api.Models.Helix.Streams.GetStreams.Stream data)
         {
             string message = "";
 
-            message = $"{StreamName} hat angefangen {Game} auf {Url} zu streamen.";
+            message = $"{StreamName} hat angefangen {data.Title} auf {Url} zu streamen.";
             if(Type == StreamProviderTypes.Twitch && DiscordRelayChannel != null && DiscordRelayChannel != "" && DiscordRelayChannel != "An" && DiscordRelayChannel != "Aus")
             {
                 message += $" Sein Relay befindet sich in Channel {DiscordRelayChannel}";
