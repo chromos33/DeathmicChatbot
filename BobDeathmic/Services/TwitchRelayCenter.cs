@@ -296,9 +296,7 @@ namespace BobDeathmic.Services
                     {
                         RemoveMessageQueue(args);
                         LeaveChannel(args);
-                    }
-                    
-                    
+                    } 
                 }
                 else
                 {
@@ -323,12 +321,12 @@ namespace BobDeathmic.Services
                         MessageQueues[e.stream].Add(UpTimeMessage);
                     }
                 }
-
-
+            }
+            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
+            {
                 _eventBus.TriggerEvent(EventType.RelayPassed, args);
             }
             
-
         }
 
         private void LeaveChannel(StreamEventArgs args)
