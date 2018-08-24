@@ -83,7 +83,7 @@ namespace BobDeathmic.Services
                                     void StreamStarted()
                                     {
                                         StreamEventArgs args = new StreamEventArgs();
-                                        args.Notification = stream.StreamStartedMessage();
+                                        args.Notification = stream.StreamStartedMessage(args.game);
                                         args.state = stream.StreamState;
                                         args.link = stream.Url;
                                         args.stream = stream.StreamName;

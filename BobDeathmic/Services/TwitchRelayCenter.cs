@@ -164,6 +164,7 @@ namespace BobDeathmic.Services
             {
                 _AutoCommandTimer.Stop();
             }
+            RefreshToken();
             Console.WriteLine("TwitchRelayCenter Disconnected");
         }
 
@@ -295,7 +296,6 @@ namespace BobDeathmic.Services
                     {
                         RemoveMessageQueue(args);
                         LeaveChannel(args);
-                        DisconnectOnEmptyMessageQueues();
                     }
                     
                     
@@ -395,17 +395,6 @@ namespace BobDeathmic.Services
         }
         #endregion
         #endregion
-        private void DisconnectOnEmptyMessageQueues()
-        {
-            if(!MessageQueues.Any())
-            {
-                if(client.IsConnected)
-                {
-                    ConnectionChangeInProgress = true;
-                    client.Disconnect();
-                }
-            }
-        }
         private void AddMessageQueue(StreamEventArgs e)
         {
             if(MessageQueues == null)
