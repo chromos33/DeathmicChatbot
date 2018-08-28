@@ -322,7 +322,7 @@ namespace BobDeathmic.Services
                     }
                 }
             }
-            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
+            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch && e.state == Models.Enum.StreamState.Started)
             {
                 _eventBus.TriggerEvent(EventType.RelayPassed, args);
             }
