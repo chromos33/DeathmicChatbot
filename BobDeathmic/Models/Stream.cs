@@ -50,17 +50,6 @@ namespace BobDeathmic.Models
 
             return EnumTypes;
         }
-        public string StreamStartedMessage(TwitchLib.Api.Models.Helix.Streams.GetStreams.Stream data)
-        {
-            string message = "";
-
-            message = $"{StreamName} hat angefangen {data.Title} auf {Url} zu streamen.";
-            if(Type == StreamProviderTypes.Twitch && DiscordRelayChannel != null && DiscordRelayChannel != "" && DiscordRelayChannel != "An" && DiscordRelayChannel != "Aus")
-            {
-                message += $" Sein Relay befindet sich in Channel {DiscordRelayChannel}";
-            }
-            return message;
-        }
         public string StreamStartedMessage(string title)
         {
             string message = "";

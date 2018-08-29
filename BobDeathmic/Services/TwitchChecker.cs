@@ -199,7 +199,7 @@ namespace BobDeathmic.Services
                     {
                         stream.StreamState = StreamState.Started;
                         stream.Started = streamdata.StartedAt.ToLocalTime();
-                        args.Notification = stream.StreamStartedMessage(streamdata);
+                        args.Notification = stream.StreamStartedMessage(streamdata.Title);
                         args.state = StreamState.Started;
                     }
                     else
