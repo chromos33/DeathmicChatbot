@@ -14,29 +14,44 @@
         <div class="col-md-4">
             <form asp-action="Edit">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="ID" />
                 <div class="form-group">
                     <label asp-for="name" class="control-label"></label>
-                    <input asp-for="name" class="form-control" />
+                    <input asp-for="name" required class="form-control" />
                     <span asp-validation-for="name" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="response" class="control-label"></label>
-                    <input asp-for="response" class="form-control" />
+                    <input size="30" asp-for="response" required class="form-control" />
                     <span asp-validation-for="response" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="Mode" class="control-label"></label>
-                    <select asp-for="Mode" class="form-control"></select>
+                    <select asp-for="Mode" required class="form-control">
+                        @foreach (StreamCommandMode mode in ViewData["Modes"] as List<StreamCommandMode>)
+                        {
+                            <option>@mode</option>
+
+                        }
+                    </select>
                     <span asp-validation-for="Mode" class="text-danger"></span>
                 </div>
-                <div class="form-group">
+                <div class="form-group autointervalctn">
                     <label asp-for="AutoInverval" class="control-label"></label>
-                    <input asp-for="AutoInverval" class="form-control" />
+                    <input asp-for="AutoInverval" min="0" value="0" class="form-control" />
                     <span asp-validation-for="AutoInverval" class="text-danger"></span>
                 </div>
                 <div class="form-group">
-                    <input type="submit" value="Save" class="btn btn-default" />
+                    <label asp-for="streamID" class="control-label"></label>
+                    <select asp-for="streamID" required class="form-control">
+                        @foreach (Stream _stream in ViewData["Streams"] as List<Stream>)
+                        {
+                            <option value="@_stream.ID">@_stream.StreamName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="streamID" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-default" />
                 </div>
             </form>
         </div>

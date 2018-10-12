@@ -85,6 +85,8 @@ namespace BobDeathmic.Controllers
                 Value = a.ID.ToString(),
                 Text = a.StreamName
             }).ToList());
+            ViewData["Streams"] = _context.StreamModels.ToList();
+            ViewData["Modes"] = new List<StreamCommandMode> { StreamCommandMode.Manual, StreamCommandMode.Auto };
             return View(streamCommand);
         }
 
