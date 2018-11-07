@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using BobDeathmic.Models;
+using BobDeathmic.Models.GiveAwayModels;
 
 namespace BobDeathmic.Data
 {
@@ -38,6 +39,20 @@ namespace BobDeathmic.Data
                 .WithOne(sc => sc.stream)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<Stream>().HasOne(s => s.Owner).WithMany(u => u.OwnedStreams);
+            builder.Entity<ChatUserModel>()
+                .HasMany(s => s.GiveAways)
+                .WithOne(u => u.Admin)
+                .OnDelete(DeleteBehavior.SetNull);
+            builder.Entity<GiveAway>()
+                .HasMany(ga => ga.GiveAwayItems)
+                .WithOne(gai => gai.GiveAway)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<GiveAwayItem>()
+                .HasOne(gai => gai.Owner)
+                .WithMany(u => u.OwnedItems);
+            builder.Entity<GiveAwayItem>()
+                .HasOne(gai => gai.Receiver)
+                .WithMany(u => u.ReceivedItems);
         }
         public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
         public DbSet<Models.Stream> StreamModels { get; set; }
@@ -46,5 +61,6 @@ namespace BobDeathmic.Data
         public DbSet<Models.Discord.RelayChannels> RelayChannels { get; set; }
         public DbSet<Models.DiscordBan> DiscordBans { get; set; }
         public DbSet<BobDeathmic.Models.StreamCommand> StreamCommand { get; set; }
+        public DbSet<GiveAway> GiveAways { get; set; }
     }
 }
