@@ -57,7 +57,7 @@ namespace BobDeathmic.Models
             message = $"{StreamName} hat angefangen {title} auf {Url} zu streamen.";
             if (Type == StreamProviderTypes.Twitch && DiscordRelayChannel != null && DiscordRelayChannel != "" && DiscordRelayChannel != "An" && DiscordRelayChannel != "Aus")
             {
-                message += $" Sein Relay befindet sich in Channel {DiscordRelayChannel}";
+                message += $" Relay befindet sich in Channel {DiscordRelayChannel}";
             }
             return message;
         }
