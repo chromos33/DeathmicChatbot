@@ -13,7 +13,6 @@ namespace BobDeathmic.Models.GiveAwayModels
         public string SteamID { get; set; }
         public string Link { get; set; }
         public int Views { get; set; }
-        public GiveAway GiveAway {get;set;}
         
         public ChatUserModel Owner { get; set; }
         

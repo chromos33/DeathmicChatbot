@@ -14,7 +14,6 @@ namespace BobDeathmic.Models
         public List<StreamSubscription> StreamSubscriptions { get; set; }
         public string InitialPassword { get; set; }
         public List<Stream> OwnedStreams { get; set; }
-        public List<GiveAwayModels.GiveAway> GiveAways {get;set;}
         public List<GiveAwayItem> OwnedItems { get; set; }
         public List<GiveAwayItem> ReceivedItems { get; set; }
         public bool IsSubscribed(string streamname)
