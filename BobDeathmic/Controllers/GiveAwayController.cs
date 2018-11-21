@@ -65,6 +65,10 @@ namespace BobDeathmic.Controllers
                 _context.Add(item);
                 await _context.SaveChangesAsync();
             }
+            else
+            {
+                return View(item);
+            }
             return RedirectToAction(nameof(Index));
         }
     }
