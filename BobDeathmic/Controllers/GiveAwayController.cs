@@ -71,5 +71,38 @@ namespace BobDeathmic.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var user = await _manager.GetUserAsync(HttpContext.User);
+            user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
+            var item = _context.GiveAwayItems.Where(x => x.GiveAwayItemId == id && x.Owner == user).FirstOrDefault();
+            if(item != null)
+            {
+                return View(item);
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Streams2/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> Edit([Bind("GiveAwayItemId,Title,Key,SteamID,Link,Views,Owner,Receiver")] GiveAwayItem item)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Update(item);
+                var test = await _context.SaveChangesAsync();
+                Console.WriteLine("test");
+            }
+            else
+            {
+                return View(item);
+            }
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
