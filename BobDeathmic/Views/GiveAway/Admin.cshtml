@@ -1,0 +1,56 @@
+﻿@model BobDeathmic.Models.ViewModels.GiveAwayAdminViewModel
+
+<link rel="stylesheet" href="~/css/forms.css" />
+<link rel="stylesheet" href="~/css/Buttons.css" />
+<div class="breadcrumbs">
+    <span>Weihnachtsgeschenk > Admin</span>
+</div>
+<div class="pa-35" style="display:flex;justify-content:space-between;">
+    <span>
+        <span>Output Channel:</span>
+        <select>
+            @foreach (String channel in Model.Channels)
+            {
+                <option>@channel</option>
+            }
+        </select>
+    </span>
+    <span class="button">Nächstes Item</span>
+    <span class="button">Verlosen</span>
+</div>
+<div>
+    <iframe class="preview" height="600" width="600" src="http://www.google.de"></iframe>
+</div>
+@section Scripts {
+
+    <script>
+        
+        if (false) {
+            jQuery("#StreamNameForSubscription").change(function () {
+                        var cur = this;
+                        jQuery(".typefield").val(jQuery(cur).find("option:selected").attr("data-type"));
+                    });
+            jQuery(document).ready(function(){
+                jQuery(".subscriptionswitch").click(function () {
+                    var cur = jQuery(this);
+                $.ajax({
+                    url: '@Url.Action("ChangeSubscription","User")',
+                    type: 'POST',
+                    data: {Id: jQuery(this).attr("data-id")},
+                    dataType: 'html',
+                    success: function (data) {
+                        if (data == "true") {
+                            jQuery(cur).find("i").removeClass("font_red").addClass("font_green");
+                        }
+                        else {
+                            jQuery(cur).find("i").removeClass("font_green").addClass("font_red");
+                        }
+                    }
+                })
+            });
+            })
+        }
+                    
+        
+    </script>
+}

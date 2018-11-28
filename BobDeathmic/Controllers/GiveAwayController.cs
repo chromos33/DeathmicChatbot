@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BobDeathmic.Models;
+using BobDeathmic.Models.Discord;
 using BobDeathmic.Models.GiveAwayModels;
+using BobDeathmic.Models.ViewModels;
 using Discord;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using MoreLinq;
 
 namespace BobDeathmic.Controllers
 {
@@ -103,6 +106,70 @@ namespace BobDeathmic.Controllers
                 return View(item);
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var stream = await _context.GiveAwayItems
+                .FirstOrDefaultAsync(m => m.GiveAwayItemId == id);
+            if (stream == null)
+            {
+                return NotFound();
+            }
+
+            return View(stream);
+        }
+
+        // POST: Streams2/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var giveawayitem = await _context.GiveAwayItems.FindAsync(id);
+            _context.GiveAwayItems.Remove(giveawayitem);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        [Authorize(Roles = "Admin,Dev")]
+        public async Task<IActionResult> Admin()
+        {
+            GiveAwayAdminViewModel model = new GiveAwayAdminViewModel();
+            model.Item = GetNextGiveAwayItem();
+            List<String> Channels = new List<string>();
+            foreach(RelayChannels channel in _context.RelayChannels)
+            {
+                Channels.Add(channel.Name);
+            }
+            model.Channels = getChatChannels();
+            return View(model);
+        }
+        private GiveAwayItem GetNextGiveAwayItem()
+        {
+            var GiveAwayItems = _context.GiveAwayItems.MinBy(g => g.Views);
+            if(GiveAwayItems.Count() > 0)
+            {
+               return GiveAwayItems.ElementAt(random.Next(0, GiveAwayItems.Count()-1));
+            }
+            return null;
+
+        }
+        private List<String> getChatChannels()
+        {
+            List<String> Channels = new List<string>();
+            foreach (RelayChannels channel in _context.RelayChannels)
+            {
+                Channels.Add(channel.Name);
+            }
+            return Channels;
         }
     }
 }

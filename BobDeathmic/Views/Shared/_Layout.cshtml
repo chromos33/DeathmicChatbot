@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-12 col-sm-12 col-md-4 col-lg-3 bg_dark navi">
+            <div class="col-12 col-sm-12 col-md-4 col-lg-2 bg_dark navi">
                 <div class="mobile_overflowcontainer">
                     <div class="navigationcontainer relative">
                         <a href="~/Datenschutz.html" style="position:absolute;left:0;bottom:0;">Datenschutz</a>
@@ -69,6 +69,12 @@
                                         <div class="menuitem">
                                             <a asp-area="" asp-controller="GiveAway" asp-action="Index">Meine Geschenke</a>
                                         </div>
+                                        @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
+                                        {
+                                            <div class="menuitem">
+                                                <a asp-area="" asp-controller="GiveAway" asp-action="Admin">Admin</a>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -126,7 +132,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-12 col-md-8 col-lg-9 pa-0">
+            <div class="col-12 col-sm-12 col-md-8 col-lg-10 pa-0">
                 @RenderBody()
             </div>
         </div>

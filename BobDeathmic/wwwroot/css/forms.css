@@ -17,3 +17,9 @@ option {
     color: #BAC6D1 !important;
     background:black;
 }
+select
+{
+    background:transparent;
+    border-radius:5px;
+    border:1px solid black;
+}

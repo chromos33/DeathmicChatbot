@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" PrivateAssets="All" />
+    <PackageReference Include="morelinq" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 	<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.1" />
 	<PackageReference Include="TwitchLib" Version="2.1.5" />
