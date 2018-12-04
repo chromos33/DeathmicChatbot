@@ -15,6 +15,7 @@ namespace BobDeathmic.Eventbus
         event EventHandler<StreamTitleChangeArgs> StreamTitleChangeRequested;
         event EventHandler<StreamTitleChangeArgs> StreamTitleChanged;
         event EventHandler<StreamEventArgs> RelayPassed;
+        event EventHandler<GiveAwayEventArgs> GiveAwayMessage;
         void TriggerEvent(EventType @event, dynamic EventData);
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BobDeathmic.Models.Enum;
-using TwitchLib.Api.Models.Helix.Streams.GetStreams;
 
 namespace BobDeathmic.Models
 {

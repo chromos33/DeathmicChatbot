@@ -15,6 +15,7 @@ namespace BobDeathmic.Eventbus
         public event EventHandler<StreamTitleChangeArgs> StreamTitleChangeRequested;
         public event EventHandler<StreamTitleChangeArgs> StreamTitleChanged;
         public event EventHandler<StreamEventArgs> RelayPassed;
+        public event EventHandler<GiveAwayEventArgs> GiveAwayMessage;
 
         public void TriggerEvent(EventType @event,dynamic EventData)
         {
@@ -41,6 +42,9 @@ namespace BobDeathmic.Eventbus
                 case EventType.RelayPassed:
                     RelayPassed(this, EventData);
                     break;
+                case EventType.GiveAwayMessage:
+                    GiveAwayMessage(this, EventData);
+                    break;
             }
         }
     }
@@ -52,6 +56,7 @@ namespace BobDeathmic.Eventbus
         PasswordRequestReceived = 4,
         StreamTitleChangeRequested = 5,
         StreamTitleChanged = 6,
-        RelayPassed = 7
+        RelayPassed = 7,
+        GiveAwayMessage = 8
     }
 }

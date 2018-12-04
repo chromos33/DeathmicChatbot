@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using BobDeathmic.Models;
 using BobDeathmic.Models.GiveAwayModels;
+using BobDeathmic.Models.GiveAway;
 
 namespace BobDeathmic.Data
 {
@@ -45,6 +46,18 @@ namespace BobDeathmic.Data
             builder.Entity<GiveAwayItem>()
                 .HasOne(gai => gai.Receiver)
                 .WithMany(u => u.ReceivedItems);
+            builder.Entity<User_GiveAwayItem>()
+                .HasKey(t => new { t.UserID, t.giveawayitemID });
+
+            builder.Entity<User_GiveAwayItem>()
+                .HasOne(pt => pt.User)
+                .WithMany(p => p.AppliedTo)
+                .HasForeignKey(pt => pt.UserID);
+
+            builder.Entity<User_GiveAwayItem>()
+                .HasOne(pt => pt.giveawayitem)
+                .WithMany(t => t.Applicants)
+                .HasForeignKey(pt => pt.giveawayitemID);
         }
         public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
         public DbSet<Models.Stream> StreamModels { get; set; }

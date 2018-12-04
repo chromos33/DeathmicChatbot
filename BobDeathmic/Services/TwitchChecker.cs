@@ -13,7 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TwitchLib.Api;
-using TwitchLib.Api.Models.Helix.Streams.GetStreams;
+using TwitchLib.Api.Helix.Models.Streams;
 
 namespace BobDeathmic.Services
 {
@@ -126,7 +126,7 @@ namespace BobDeathmic.Services
                 var StreamNameList = Streams.Where(x => string.IsNullOrEmpty(x.UserID)).Select(x => x.StreamName).ToList();
                 if (StreamNameList.Any())
                 {
-                    var userdata = await api.Users.helix.GetUsersAsync(logins: StreamNameList);
+                    var userdata = await api.Helix.Users.GetUsersAsync(logins: StreamNameList);
                 
                     foreach (var user in userdata.Users)
                     {
@@ -149,7 +149,7 @@ namespace BobDeathmic.Services
                     List<string> StreamIdList = Streams.Where(x => !string.IsNullOrEmpty(x.UserID)).Select(x => x.UserID).ToList();
                     if (StreamIdList.Any())
                     {
-                        return await api.Streams.helix.GetStreamsAsync(userIds: StreamIdList);
+                        return await api.Helix.Streams.GetStreamsAsync(userIds: StreamIdList);
                     }
                 }
             }catch(Exception ex)
@@ -192,7 +192,7 @@ namespace BobDeathmic.Services
                     StreamEventArgs args = new StreamEventArgs();
                     args.stream = stream.StreamName;
                     args.StreamType = StreamProviderTypes.Twitch;
-                    TwitchLib.Api.Models.Helix.Streams.GetStreams.Stream streamdata = StreamsData.Streams.Single(sd => sd.UserId == stream.UserID);
+                    TwitchLib.Api.Helix.Models.Streams.Stream streamdata = StreamsData.Streams.Single(sd => sd.UserId == stream.UserID);
                     args.link = stream.Url = GetStreamUrl(stream);
                     args.game = streamdata.Title;
                     if (stream.StreamState == StreamState.NotRunning)

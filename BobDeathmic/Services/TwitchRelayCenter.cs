@@ -21,7 +21,8 @@ using TwitchLib.Client.Enums;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Extensions;
 using TwitchLib.Client.Models;
-using TwitchLib.Client.Services;
+using System.Diagnostics.Contracts;
+using TwitchLib.Communication.Events;
 
 namespace BobDeathmic.Services
 {
@@ -156,8 +157,7 @@ namespace BobDeathmic.Services
             client.Disconnect();
             client.SetConnectionCredentials(await GetTwitchCredentials());
         }
-
-        private void Disconnected(object sender, OnDisconnectedArgs e)
+        private void Disconnected(object sender, OnDisconnectedEventArgs e)
         {
             ConnectionChangeInProgress = false;
             if (_AutoCommandTimer != null)
@@ -167,7 +167,6 @@ namespace BobDeathmic.Services
             RefreshToken();
             Console.WriteLine("TwitchRelayCenter Disconnected");
         }
-
         private void ConnectionError(object sender, OnConnectionErrorArgs e)
         {
             ConnectionChangeInProgress = false;

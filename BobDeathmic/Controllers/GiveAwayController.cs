@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic.Args;
+using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
 using BobDeathmic.Models.Discord;
 using BobDeathmic.Models.GiveAwayModels;
@@ -24,17 +26,19 @@ namespace BobDeathmic.Controllers
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
         private readonly UserManager<ChatUserModel> _manager;
+        private readonly IEventBus _eventBus;
         private Random random;
 
         [TempData]
         public string StatusMessage { get; set; }
 
-        public GiveAwayController(Data.ApplicationDbContext context, IServiceProvider serviceProvider, IConfiguration configuration, UserManager<ChatUserModel> manager)
+        public GiveAwayController(Data.ApplicationDbContext context, IServiceProvider serviceProvider, IConfiguration configuration, UserManager<ChatUserModel> manager, IEventBus eventBus)
         {
             _context = context;
             _serviceProvider = serviceProvider;
             _configuration = configuration;
             _manager = manager;
+            _eventBus = eventBus;
             random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / DateTime.Now.Hour);
         }
         [Authorize(Roles = "User,Dev,Admin")]
@@ -79,7 +83,7 @@ namespace BobDeathmic.Controllers
         {
             var user = await _manager.GetUserAsync(HttpContext.User);
             user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
-            var item = _context.GiveAwayItems.Where(x => x.GiveAwayItemId == id && x.Owner == user).FirstOrDefault();
+            var item = _context.GiveAwayItems.Where(x => x.GiveAwayItemID == id && x.Owner == user).FirstOrDefault();
             if(item != null)
             {
                 return View(item);
@@ -98,8 +102,7 @@ namespace BobDeathmic.Controllers
             if (ModelState.IsValid)
             {
                 _context.Update(item);
-                var test = await _context.SaveChangesAsync();
-                Console.WriteLine("test");
+                await _context.SaveChangesAsync();
             }
             else
             {
@@ -117,7 +120,7 @@ namespace BobDeathmic.Controllers
             }
 
             var stream = await _context.GiveAwayItems
-                .FirstOrDefaultAsync(m => m.GiveAwayItemId == id);
+                .FirstOrDefaultAsync(m => m.GiveAwayItemID == id);
             if (stream == null)
             {
                 return NotFound();
@@ -143,7 +146,10 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> Admin()
         {
             GiveAwayAdminViewModel model = new GiveAwayAdminViewModel();
-            model.Item = GetNextGiveAwayItem();
+            if((model.Item = GetCurrentGiveAwayItem()) == null)
+            {
+                model.Item = null;
+            }
             List<String> Channels = new List<string>();
             foreach(RelayChannels channel in _context.RelayChannels)
             {
@@ -152,15 +158,35 @@ namespace BobDeathmic.Controllers
             model.Channels = getChatChannels();
             return View(model);
         }
-        private GiveAwayItem GetNextGiveAwayItem()
+        private async Task SetNextGiveAwayItem()
         {
-            var GiveAwayItems = _context.GiveAwayItems.MinBy(g => g.Views);
+            await ResetCurrentItem();
+            var GiveAwayItems = _context.GiveAwayItems.MinBy(g => g.Views).Where(x => !x.current);
             if(GiveAwayItems.Count() > 0)
             {
-               return GiveAwayItems.ElementAt(random.Next(0, GiveAwayItems.Count()-1));
+                var item = GiveAwayItems.ElementAt(random.Next(0, GiveAwayItems.Count() - 1));
+                item.current = true;
+                item.Views++;
+                _context.SaveChanges();
+            }
+        }
+        private async Task ResetCurrentItem()
+        {
+            var item = _context.GiveAwayItems.Where(x => x.current).FirstOrDefault();
+            if(item != null)
+            {
+                item.current = false;
+                await _context.SaveChangesAsync();
+            }
+        }
+        private GiveAwayItem GetCurrentGiveAwayItem()
+        {
+            var GiveAwayItems = _context.GiveAwayItems.Where(x => x.current);
+            if (GiveAwayItems.Count() > 0)
+            {
+                return GiveAwayItems.FirstOrDefault();
             }
             return null;
-
         }
         private List<String> getChatChannels()
         {
@@ -171,5 +197,20 @@ namespace BobDeathmic.Controllers
             }
             return Channels;
         }
+        [Authorize(Roles = "Admin,Dev")]
+        public async Task<IActionResult> NextItem(string channel)
+        {
+            //Do Stuff
+            await SetNextGiveAwayItem();
+            _eventBus.TriggerEvent(EventType.GiveAwayMessage,new GiveAwayEventArgs { channel = channel});
+            return RedirectToAction(nameof(Admin));
+        }
+        [Authorize(Roles = "Admin,Dev")]
+        public async Task<IActionResult> Raffle()
+        {
+            //Do Stuff
+            return RedirectToAction(nameof(Admin));
+        }
+
     }
 }

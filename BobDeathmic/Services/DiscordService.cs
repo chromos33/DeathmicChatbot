@@ -20,6 +20,7 @@ using System.Text;
 using System.Net;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
+using BobDeathmic.Models.GiveAwayModels;
 
 namespace BobDeathmic.Services
 {
@@ -45,6 +46,25 @@ namespace BobDeathmic.Services
             _eventBus.StreamChanged += StreamChanged;
             //Piggy backing through Relay
             _eventBus.RelayPassed += RelayPassed;
+            _eventBus.GiveAwayMessage += GiveAwayMessage;
+        }
+
+        private void GiveAwayMessage(object sender, GiveAwayEventArgs e)
+        {
+            client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().TextChannels.Where(c => c.Name.ToLower() == e.channel.ToLower()).FirstOrDefault()?.SendMessageAsync(GetCurrentGiveAwayItem().Announcement());
+            GiveAwayItem GetCurrentGiveAwayItem()
+            {
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var GiveAwayItems = _context.GiveAwayItems.Where(x => x.current);
+                    if (GiveAwayItems.Count() > 0)
+                    {
+                        return GiveAwayItems.FirstOrDefault();
+                    }
+                    return null;
+                } 
+            }
         }
 
         private void StreamChanged(object sender, StreamEventArgs e)
@@ -119,7 +139,6 @@ namespace BobDeathmic.Services
                                 
                             }
                         }
-                        //Console.WriteLine("Last Notification");
                     }
                 }
             }

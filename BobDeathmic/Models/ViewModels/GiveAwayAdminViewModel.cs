@@ -10,5 +10,6 @@ namespace BobDeathmic.Models.ViewModels
     {
         public GiveAwayItem Item;
         public List<String> Channels;
+        public List<ChatUserModel> Applicants;
     }
 }

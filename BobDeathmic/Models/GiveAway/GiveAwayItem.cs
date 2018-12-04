@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BobDeathmic.Models.GiveAway;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,7 +9,8 @@ namespace BobDeathmic.Models.GiveAwayModels
 {
     public class GiveAwayItem
     {
-        public int GiveAwayItemId { get; set; }
+        [Key]
+        public int GiveAwayItemID { get; set; }
 
         [Required]
         public string Title { get; set; }
@@ -18,10 +20,32 @@ namespace BobDeathmic.Models.GiveAwayModels
         [Url]
         public string Link { get; set; }
         public int Views { get; set; }
+        public bool current { get; set; }
         
         public ChatUserModel Owner { get; set; }
         
         public ChatUserModel Receiver { get; set; }
-        
+
+        public List<User_GiveAwayItem> Applicants { get; set; }
+
+        public List<ChatUserModel> getApplicants()
+        {
+            List<ChatUserModel> users = new List<ChatUserModel>();
+            if(Applicants == null)
+            {
+                Applicants = new List<User_GiveAwayItem>();
+            }
+            foreach(User_GiveAwayItem item in Applicants)
+            {
+                users.Add(item.User);
+            }
+            return users;
+        }
+        public string Announcement()
+        {
+            return "GiveAway für " + Title + " mit !Gapply teilnehmen";
+        }
+
+
     }
 }

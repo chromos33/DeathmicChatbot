@@ -87,18 +87,19 @@ namespace BobDeathmic.Services
                     {
                         if (Game != "" && Title != "")
                         {
-                            await api.Channels.v5.UpdateChannelAsync(channelId: stream.UserID, status: Title, game: Game);
+                            await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: Title, game: Game);
                             
                         }
                         if (Game != "" && Title == "")
                         {
-                            var test = await api.Channels.v5.UpdateChannelAsync(channelId: stream.UserID, game: Game);
+                            var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, game: Game);
                         }
                         if (Game == "" && Title != "")
                         {
-                            var test = await api.Channels.v5.UpdateChannelAsync(channelId: stream.UserID, status: Title);
+                            var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: Title);
                         }
-                    }catch(Exception ex) when (ex is TwitchLib.Api.Exceptions.InvalidCredentialException || ex is TwitchLib.Api.Exceptions.BadScopeException)
+                        
+                    }catch(Exception ex) when (ex is TwitchLib.Api.Core.Exceptions.InvalidCredentialException || ex is TwitchLib.Api.Core.Exceptions.BadScopeException)
                     {
                         
                         api.Settings.AccessToken = await RefreshToken(stream.StreamName);
@@ -107,15 +108,15 @@ namespace BobDeathmic.Services
                         {
                             if (Game != "" && Title != "")
                             {
-                                var test = await api.Channels.v5.UpdateChannelAsync(channelId: stream.UserID, status: Title, game: Game);
+                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: Title, game: Game);
                             }
                             if (Game != "" && Title == "")
                             {
-                                var test = await api.Channels.v5.UpdateChannelAsync(channelId: stream.UserID, game: Game);
+                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, game: Game);
                             }
                             if (Game == "" && Title != "")
                             {
-                                var test = await api.Channels.v5.UpdateChannelAsync(channelId: stream.UserID, status: Title);
+                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: Title);
                             }
                         }
                     }
