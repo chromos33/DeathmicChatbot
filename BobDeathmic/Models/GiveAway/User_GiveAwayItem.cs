@@ -14,7 +14,19 @@ namespace BobDeathmic.Models.GiveAway
         public string UserID { get; set; }
         public ChatUserModel User { get; set; }
 
-        public int giveawayitemID { get; set; }
-        public GiveAwayItem giveawayitem { get; set; }
+        public int GiveAwayItemID { get; set; }
+        public GiveAwayItem GiveAwayItem { get; set; }
+
+        public User_GiveAwayItem()
+        {
+
+        }
+        public User_GiveAwayItem(ChatUserModel user, GiveAwayItem item)
+        {
+            UserID = user.Id;
+            User = user;
+            GiveAwayItemID = item.GiveAwayItemID;
+            GiveAwayItem = item;
+        }
     }
 }

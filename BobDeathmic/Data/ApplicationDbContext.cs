@@ -47,7 +47,7 @@ namespace BobDeathmic.Data
                 .HasOne(gai => gai.Receiver)
                 .WithMany(u => u.ReceivedItems);
             builder.Entity<User_GiveAwayItem>()
-                .HasKey(t => new { t.UserID, t.giveawayitemID });
+                .HasKey(t => new { t.UserID, t.GiveAwayItemID });
 
             builder.Entity<User_GiveAwayItem>()
                 .HasOne(pt => pt.User)
@@ -55,9 +55,9 @@ namespace BobDeathmic.Data
                 .HasForeignKey(pt => pt.UserID);
 
             builder.Entity<User_GiveAwayItem>()
-                .HasOne(pt => pt.giveawayitem)
+                .HasOne(pt => pt.GiveAwayItem)
                 .WithMany(t => t.Applicants)
-                .HasForeignKey(pt => pt.giveawayitemID);
+                .HasForeignKey(pt => pt.GiveAwayItemID);
         }
         public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
         public DbSet<Models.Stream> StreamModels { get; set; }
@@ -67,5 +67,6 @@ namespace BobDeathmic.Data
         public DbSet<Models.DiscordBan> DiscordBans { get; set; }
         public DbSet<BobDeathmic.Models.StreamCommand> StreamCommand { get; set; }
         public DbSet<GiveAwayItem> GiveAwayItems { get; set; }
+        public DbSet<User_GiveAwayItem> User_GiveAway { get; set; }
     }
 }

@@ -21,6 +21,7 @@ using System.Net;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
 using BobDeathmic.Models.GiveAwayModels;
+using BobDeathmic.Models.GiveAway;
 
 namespace BobDeathmic.Services
 {
@@ -385,7 +386,70 @@ namespace BobDeathmic.Services
                     arg.Channel.SendMessageAsync(commandresult);
                 }
             }
+            if(arg.Content.StartsWith("!Gapply"))
+            {
+                ApplyToGiveAway(arg);
+            }
+            if (arg.Content.StartsWith("!Gcease"))
+            {
+                CeaseApplication(arg);
+            }
             return commandresult;
+        }
+        private void CeaseApplication(SocketMessage arg)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var user = _context.ChatUserModels.Where(x => x.ChatUserName == arg.Author.Username).FirstOrDefault();
+                var remove = _context.User_GiveAway.Where(x => x.UserID == user.Id).FirstOrDefault();
+                if(remove != null)
+                {
+                    _context.User_GiveAway.Remove(remove);
+                    _context.SaveChanges();
+                }
+            }
+        }
+        private void ApplyToGiveAway(SocketMessage arg)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var GiveAwayItem = _context.GiveAwayItems.Where(x => x.current).FirstOrDefault();
+                if (GiveAwayItem.Applicants == null)
+                {
+                    GiveAwayItem.Applicants = new List<User_GiveAwayItem>();
+                }
+                if (GiveAwayItem.Applicants.Where(x => x.User.ChatUserName == arg.Author.Username).Count() == 0)
+                {
+                    var user = _context.ChatUserModels.Where(x => x.ChatUserName == arg.Author.Username).FirstOrDefault();
+                    var item = _context.GiveAwayItems.Where(x => x.current).FirstOrDefault();
+                    if (user != null && item != null)
+                    {
+                        User_GiveAwayItem relation = new User_GiveAwayItem(user, item);
+                        if (user.AppliedTo == null)
+                        {
+                            user.AppliedTo = new List<User_GiveAwayItem>();
+                        }
+                        if (item.Applicants == null)
+                        {
+                            item.Applicants = new List<User_GiveAwayItem>();
+                        }
+                        user.AppliedTo.Add(relation);
+                        item.Applicants.Add(relation);
+                        arg.Author.SendMessageAsync("Teilnahme erfolgreich");
+                    }
+                    else
+                    {
+                        arg.Author.SendMessageAsync("Gibt nichs zum teilnehmen");
+                    }
+                }
+                else
+                {
+                    arg.Author.SendMessageAsync("Nimmst schon teil.");
+                }
+                _context.SaveChanges();
+            }
         }
         private void RelayMessage(SocketMessage arg)
         {

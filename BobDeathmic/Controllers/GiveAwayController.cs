@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using MoreLinq;
 
@@ -27,12 +28,13 @@ namespace BobDeathmic.Controllers
         private readonly IConfiguration _configuration;
         private readonly UserManager<ChatUserModel> _manager;
         private readonly IEventBus _eventBus;
+        private IMemoryCache _cache;
         private Random random;
 
         [TempData]
         public string StatusMessage { get; set; }
 
-        public GiveAwayController(Data.ApplicationDbContext context, IServiceProvider serviceProvider, IConfiguration configuration, UserManager<ChatUserModel> manager, IEventBus eventBus)
+        public GiveAwayController(Data.ApplicationDbContext context, IServiceProvider serviceProvider, IConfiguration configuration, UserManager<ChatUserModel> manager, IEventBus eventBus, IMemoryCache memoryCache)
         {
             _context = context;
             _serviceProvider = serviceProvider;
@@ -40,6 +42,7 @@ namespace BobDeathmic.Controllers
             _manager = manager;
             _eventBus = eventBus;
             random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / DateTime.Now.Hour);
+            _cache = memoryCache;
         }
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Index()
@@ -193,7 +196,18 @@ namespace BobDeathmic.Controllers
             List<String> Channels = new List<string>();
             foreach (RelayChannels channel in _context.RelayChannels)
             {
-                Channels.Add(channel.Name);
+                var val = "";
+                _cache.TryGetValue("Channel", out val);
+                if(channel.Name == val && Channels.Count() > 0)
+                {
+                    var temp = Channels[0];
+                    Channels[0] = channel.Name;
+                    Channels.Add(temp);
+                }
+                else
+                {
+                    Channels.Add(channel.Name);
+                }
             }
             return Channels;
         }
@@ -202,6 +216,7 @@ namespace BobDeathmic.Controllers
         {
             //Do Stuff
             await SetNextGiveAwayItem();
+            _cache.Set("Channel", channel);
             _eventBus.TriggerEvent(EventType.GiveAwayMessage,new GiveAwayEventArgs { channel = channel});
             return RedirectToAction(nameof(Admin));
         }
