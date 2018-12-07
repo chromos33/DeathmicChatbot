@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using BobDeathmic.Models.GiveAway;
@@ -11,11 +12,14 @@ namespace BobDeathmic.Models
     // Add profile data for application users by adding properties to the ChatUserModel class
     public class ChatUserModel : IdentityUser
     {
+
         public string ChatUserName { get; set; }
         public List<StreamSubscription> StreamSubscriptions { get; set; }
         public string InitialPassword { get; set; }
         public List<Stream> OwnedStreams { get; set; }
+
         public List<GiveAwayItem> OwnedItems { get; set; }
+
         public List<GiveAwayItem> ReceivedItems { get; set; }
         public List<User_GiveAwayItem> AppliedTo { get; set; }
         public bool IsSubscribed(string streamname)

@@ -9,12 +9,13 @@ namespace BobDeathmic.Models.GiveAway
 {
     public class User_GiveAwayItem
     {
+        [Key]
         public int User_GiveAwayItemID;
 
         public string UserID { get; set; }
         public ChatUserModel User { get; set; }
 
-        public int GiveAwayItemID { get; set; }
+        public string GiveAwayItemID { get; set; }
         public GiveAwayItem GiveAwayItem { get; set; }
 
         public User_GiveAwayItem()
@@ -25,7 +26,7 @@ namespace BobDeathmic.Models.GiveAway
         {
             UserID = user.Id;
             User = user;
-            GiveAwayItemID = item.GiveAwayItemID;
+            GiveAwayItemID = item.Id;
             GiveAwayItem = item;
         }
     }

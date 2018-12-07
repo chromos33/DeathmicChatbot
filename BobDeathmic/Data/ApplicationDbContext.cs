@@ -40,12 +40,16 @@ namespace BobDeathmic.Data
                 .WithOne(sc => sc.stream)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<Stream>().HasOne(s => s.Owner).WithMany(u => u.OwnedStreams);
+
             builder.Entity<GiveAwayItem>()
                 .HasOne(gai => gai.Owner)
-                .WithMany(u => u.OwnedItems);
+                .WithMany(u => u.OwnedItems)
+                .OnDelete(DeleteBehavior.ClientSetNull);
             builder.Entity<GiveAwayItem>()
                 .HasOne(gai => gai.Receiver)
-                .WithMany(u => u.ReceivedItems);
+                .WithMany(u => u.ReceivedItems)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
             builder.Entity<User_GiveAwayItem>()
                 .HasKey(t => new { t.UserID, t.GiveAwayItemID });
 

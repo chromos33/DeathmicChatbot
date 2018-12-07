@@ -415,18 +415,20 @@ namespace BobDeathmic.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var GiveAwayItem = _context.GiveAwayItems.Where(x => x.current).FirstOrDefault();
+                var GiveAwayItem = _context.GiveAwayItems.Include(x => x.Applicants).Where(x => x.current).FirstOrDefault();
                 if (GiveAwayItem.Applicants == null)
                 {
                     GiveAwayItem.Applicants = new List<User_GiveAwayItem>();
                 }
-                if (GiveAwayItem.Applicants.Where(x => x.User.ChatUserName == arg.Author.Username).Count() == 0)
+                var user = _context.ChatUserModels.Where(x => x.ChatUserName == arg.Author.Username).FirstOrDefault();
+                if (GiveAwayItem.Applicants.Where(x => x.UserID == user.Id).Count() == 0)
                 {
-                    var user = _context.ChatUserModels.Where(x => x.ChatUserName == arg.Author.Username).FirstOrDefault();
+                    
                     var item = _context.GiveAwayItems.Where(x => x.current).FirstOrDefault();
                     if (user != null && item != null)
                     {
                         User_GiveAwayItem relation = new User_GiveAwayItem(user, item);
+                        relation.User = user;
                         if (user.AppliedTo == null)
                         {
                             user.AppliedTo = new List<User_GiveAwayItem>();
@@ -517,7 +519,7 @@ namespace BobDeathmic.Services
                 password += arg.Author.Username.Substring(random.Next(0, arg.Author.Username.Length - 1));
                 newUser.StreamSubscriptions = new List<Models.StreamSubscription>();
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                foreach (var Stream in _context.StreamModels)
+                foreach (var Stream in _context.StreamModels.Where(x => x.StreamName != null))
                 {
                     password += Stream.StreamName.Substring(random.Next(0, Stream.StreamName.Length - 1));
                     Models.StreamSubscription newSubscription = new Models.StreamSubscription();

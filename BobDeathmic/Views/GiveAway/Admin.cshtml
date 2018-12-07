@@ -5,41 +5,45 @@
 <div class="breadcrumbs">
     <span>Weihnachtsgeschenk > Admin</span>
 </div>
-<div class="pa-35" style="display:flex;justify-content:space-between;">
-    <span>
-        <span>Output Channel:</span>
-        <select class="channelselection">
-            @foreach (String channel in Model.Channels)
-            {
-                <option>@channel</option>
-            }
-        </select>
-    </span>
-    <a asp-action="NextItem" class="button nextitem">Nächstes Item</a>
-    <a asp-action="Raffle" class="button raffle">Verlosen</a>
-</div>
-<div class="GiveAwayPreviewContainer">
-    <h1>@Model.Item.Title</h1>
-    <a href="@Model.Item.Link" class="button">Zur Vorschau</a>
-    <div class="applicants">
-        <ul>
-            @foreach (ChatUserModel item in Model.Item.getApplicants())
-            {
-                <li>@item.UserName</li>
-            }
-        </ul>
+    <div class="pa-35" style="display:flex;justify-content:space-between;">
+        <span>
+            <span>Output Channel:</span>
+            <select class="channelselection">
+                @foreach (String channel in Model.Channels)
+                {
+                    <option>@channel</option>
+                }
+            </select>
+        </span>
+        <a asp-action="NextItem" class="button nextitem">Nächstes Item</a>
+        <a asp-action="Raffle" class="button raffle">Verlosen</a>
     </div>
-</div>
-@section Scripts {
-    <script>
-        var link = jQuery(".nextitem").attr("href");
-        var channel = jQuery(".channelselection").find(":selected").text();
-        jQuery(".nextitem").attr("href", link + "?channel=" + channel);
-        jQuery(document).ready(function () {
-            jQuery(".channelselection").on("change", function () {
-                var channel = jQuery(".channelselection").find(":selected").text();
-                jQuery(".nextitem").attr("href",link + "?channel=" + channel);
-            })
-        });
-    </script>
-}
+    <div class="GiveAwayPreviewContainer">
+        @if (Model.Item != null)
+        {
+            <h1>@Model.Item.Title</h1>
+            <a href="@Model.Item.Link" class="button">Zur Vorschau</a>
+            <div class="applicants">
+                <ul>
+                    @foreach (ChatUserModel item in Model.Item.ItemApplicants())
+                    {
+                        <li>@item.UserName</li>
+                    }
+                </ul>
+                
+            </div>
+        }
+        </div>
+    @section Scripts {
+        <script>
+            var link = jQuery(".nextitem").attr("href");
+            var channel = jQuery(".channelselection").find(":selected").text();
+            jQuery(".nextitem").attr("href", link + "?channel=" + channel);
+            jQuery(document).ready(function () {
+                jQuery(".channelselection").on("change", function () {
+                    var channel = jQuery(".channelselection").find(":selected").text();
+                    jQuery(".nextitem").attr("href", link + "?channel=" + channel);
+                })
+            });
+        </script>
+    }

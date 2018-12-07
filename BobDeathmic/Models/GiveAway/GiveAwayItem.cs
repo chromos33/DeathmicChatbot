@@ -9,8 +9,7 @@ namespace BobDeathmic.Models.GiveAwayModels
 {
     public class GiveAwayItem
     {
-        [Key]
-        public int GiveAwayItemID { get; set; }
+        public string Id { get; set; }
 
         [Required]
         public string Title { get; set; }
@@ -21,14 +20,14 @@ namespace BobDeathmic.Models.GiveAwayModels
         public string Link { get; set; }
         public int Views { get; set; }
         public bool current { get; set; }
-        
+        public string OwnerID { get; set; }
         public ChatUserModel Owner { get; set; }
-        
+        public string ReceiverID { get; set; }
         public ChatUserModel Receiver { get; set; }
 
         public List<User_GiveAwayItem> Applicants { get; set; }
 
-        public List<ChatUserModel> getApplicants()
+        public List<ChatUserModel> ItemApplicants()
         {
             List<ChatUserModel> users = new List<ChatUserModel>();
             if(Applicants == null)

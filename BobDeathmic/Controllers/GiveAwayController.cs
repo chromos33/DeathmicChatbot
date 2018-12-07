@@ -86,7 +86,7 @@ namespace BobDeathmic.Controllers
         {
             var user = await _manager.GetUserAsync(HttpContext.User);
             user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
-            var item = _context.GiveAwayItems.Where(x => x.GiveAwayItemID == id && x.Owner == user).FirstOrDefault();
+            var item = _context.GiveAwayItems.Where(x => x.Id == id.ToString() && x.Owner == user).FirstOrDefault();
             if(item != null)
             {
                 return View(item);
@@ -123,7 +123,7 @@ namespace BobDeathmic.Controllers
             }
 
             var stream = await _context.GiveAwayItems
-                .FirstOrDefaultAsync(m => m.GiveAwayItemID == id);
+                .FirstOrDefaultAsync(m => m.Id == id.ToString());
             if (stream == null)
             {
                 return NotFound();
@@ -159,12 +159,13 @@ namespace BobDeathmic.Controllers
                 Channels.Add(channel.Name);
             }
             model.Channels = getChatChannels();
+            
             return View(model);
         }
         private async Task SetNextGiveAwayItem()
         {
             await ResetCurrentItem();
-            var GiveAwayItems = _context.GiveAwayItems.MinBy(g => g.Views).Where(x => !x.current);
+            var GiveAwayItems = _context.GiveAwayItems.MinBy(g => g.Views).Where(x => !x.current && x.Receiver == null);
             if(GiveAwayItems.Count() > 0)
             {
                 var item = GiveAwayItems.ElementAt(random.Next(0, GiveAwayItems.Count() - 1));
@@ -184,7 +185,7 @@ namespace BobDeathmic.Controllers
         }
         private GiveAwayItem GetCurrentGiveAwayItem()
         {
-            var GiveAwayItems = _context.GiveAwayItems.Where(x => x.current);
+            var GiveAwayItems = _context.GiveAwayItems.Where(x => x.current).Include(x => x.Applicants);
             if (GiveAwayItems.Count() > 0)
             {
                 return GiveAwayItems.FirstOrDefault();
