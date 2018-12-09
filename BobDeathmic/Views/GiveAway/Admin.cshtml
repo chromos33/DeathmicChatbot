@@ -18,32 +18,44 @@
         <a asp-action="NextItem" class="button nextitem">Nächstes Item</a>
         <a asp-action="Raffle" class="button raffle">Verlosen</a>
     </div>
-    <div class="GiveAwayPreviewContainer">
+    <div class="GiveAwayPreviewContainer pa-35">
         @if (Model.Item != null)
         {
-            <h1>@Model.Item.Title</h1>
+            <h1 class="mb-4">@Model.Item.Title</h1>
             <a href="@Model.Item.Link" class="button">Zur Vorschau</a>
-            <div class="applicants">
-                <ul>
-                    @foreach (ChatUserModel item in Model.Item.ItemApplicants())
+            <div class="applicants mt-4">
+                <h2>Teilnehmer</h2>
+                <table>
+                    @foreach (ChatUserModel item in Model.Applicants)
                     {
-                        <li>@item.UserName</li>
+                        <tr>@item.UserName</tr>
                     }
-                </ul>
-                
+                </table>
             </div>
         }
         </div>
     @section Scripts {
         <script>
+            var lockrefresh = false;
+            jQuery(".nextitem, .raffle").mouseenter(function () { lockrefresh = true; })
+            jQuery(".nextitem, .raffle").mouseleave(function () { lockrefresh = false; })
             var link = jQuery(".nextitem").attr("href");
+            var rafflelink = jQuery(".raffle").attr("href");
             var channel = jQuery(".channelselection").find(":selected").text();
             jQuery(".nextitem").attr("href", link + "?channel=" + channel);
+            jQuery(".raffle").attr("href", rafflelink + "?channel=" + channel);
             jQuery(document).ready(function () {
                 jQuery(".channelselection").on("change", function () {
                     var channel = jQuery(".channelselection").find(":selected").text();
                     jQuery(".nextitem").attr("href", link + "?channel=" + channel);
+                    jQuery(".raffle").attr("href", rafflelink + "?channel=" + channel);
                 })
             });
+            setTimeout(function () {
+                if (!lockrefresh) {
+                    location.reload();
+                }
+            }, 10000);
+            
         </script>
     }

@@ -149,18 +149,22 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> Admin()
         {
             GiveAwayAdminViewModel model = new GiveAwayAdminViewModel();
-            if((model.Item = GetCurrentGiveAwayItem()) == null)
-            {
-                model.Item = null;
-            }
-            List<String> Channels = new List<string>();
-            foreach(RelayChannels channel in _context.RelayChannels)
-            {
-                Channels.Add(channel.Name);
-            }
+            model.Item = GetCurrentGiveAwayItem();
             model.Channels = getChatChannels();
-            
+            if (model.Item != null)
+            {
+                model.Applicants = getApplicants(model.Item);
+            }
             return View(model);
+        }
+        private List<ChatUserModel> getApplicants(GiveAwayItem item)
+        {
+            List<ChatUserModel> result = new List<ChatUserModel>();
+            foreach(var applicant in  item.Applicants)
+            {
+                result.Add(_context.ChatUserModels.Where(u => u.Id == applicant.UserID).FirstOrDefault());
+            }
+            return result;
         }
         private async Task SetNextGiveAwayItem()
         {
@@ -195,10 +199,14 @@ namespace BobDeathmic.Controllers
         private List<String> getChatChannels()
         {
             List<String> Channels = new List<string>();
+            var val = "";
+            _cache.TryGetValue("Channel", out val);
+            if (val == "")
+            {
+                _cache.Set("Channel", _context.RelayChannels.FirstOrDefault().Name);
+            }
             foreach (RelayChannels channel in _context.RelayChannels)
             {
-                var val = "";
-                _cache.TryGetValue("Channel", out val);
                 if(channel.Name == val && Channels.Count() > 0)
                 {
                     var temp = Channels[0];
@@ -222,9 +230,19 @@ namespace BobDeathmic.Controllers
             return RedirectToAction(nameof(Admin));
         }
         [Authorize(Roles = "Admin,Dev")]
-        public async Task<IActionResult> Raffle()
+        public async Task<IActionResult> Raffle(string channel)
         {
             //Do Stuff
+            var currentitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.current).FirstOrDefault();
+            if(currentitem != null && currentitem.Applicants.Count() > 0)
+            {
+                int test = random.Next(currentitem.Applicants.Count());
+                var winner = currentitem.Applicants[test];
+                currentitem.Receiver = winner.User;
+                currentitem.ReceiverID = winner.UserID;
+                _context.SaveChanges();
+                _eventBus.TriggerEvent(EventType.GiveAwayMessage, new GiveAwayEventArgs { winner = winner.User, channel = channel });
+            }
             return RedirectToAction(nameof(Admin));
         }
 

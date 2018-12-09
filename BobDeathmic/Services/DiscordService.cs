@@ -52,7 +52,14 @@ namespace BobDeathmic.Services
 
         private void GiveAwayMessage(object sender, GiveAwayEventArgs e)
         {
-            client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().TextChannels.Where(c => c.Name.ToLower() == e.channel.ToLower()).FirstOrDefault()?.SendMessageAsync(GetCurrentGiveAwayItem().Announcement());
+            if(e.winner == null)
+            {
+                client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().TextChannels.Where(c => c.Name.ToLower() == e.channel.ToLower()).FirstOrDefault()?.SendMessageAsync(GetCurrentGiveAwayItem().Announcement());
+            }
+            else
+            {
+                client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().TextChannels.Where(c => c.Name.ToLower() == e.channel.ToLower()).FirstOrDefault()?.SendMessageAsync(GetCurrentGiveAwayItem().WinnerAnnouncment());
+            }
             GiveAwayItem GetCurrentGiveAwayItem()
             {
                 using (var scope = _scopeFactory.CreateScope())

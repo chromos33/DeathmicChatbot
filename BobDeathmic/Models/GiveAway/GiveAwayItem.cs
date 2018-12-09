@@ -26,25 +26,15 @@ namespace BobDeathmic.Models.GiveAwayModels
         public ChatUserModel Receiver { get; set; }
 
         public List<User_GiveAwayItem> Applicants { get; set; }
-
-        public List<ChatUserModel> ItemApplicants()
-        {
-            List<ChatUserModel> users = new List<ChatUserModel>();
-            if(Applicants == null)
-            {
-                Applicants = new List<User_GiveAwayItem>();
-            }
-            foreach(User_GiveAwayItem item in Applicants)
-            {
-                users.Add(item.User);
-            }
-            return users;
-        }
+        
         public string Announcement()
         {
             return "GiveAway für " + Title + " mit !Gapply teilnehmen";
         }
-
+        public string WinnerAnnouncment()
+        {
+            return "Gewonnen hat " + Receiver.ChatUserName;
+        }
 
     }
 }
