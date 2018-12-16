@@ -69,6 +69,9 @@
                                         <div class="menuitem">
                                             <a asp-area="" asp-controller="GiveAway" asp-action="Index">Meine Geschenke</a>
                                         </div>
+                                        <div class="menuitem">
+                                            <a asp-area="" asp-controller="GiveAway" asp-action="Winnings">Gewonne Geschenke</a>
+                                        </div>
                                         @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
                                         {
                                             <div class="menuitem">

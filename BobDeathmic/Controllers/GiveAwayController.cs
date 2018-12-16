@@ -52,6 +52,13 @@ namespace BobDeathmic.Controllers
             return View("GiveAwayList",user);
         }
         [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> Winnings()
+        {
+            var user = await _manager.GetUserAsync(HttpContext.User);
+            user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.ReceivedItems).FirstOrDefault();
+            return View("Winnings", user);
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Create()
         {
             

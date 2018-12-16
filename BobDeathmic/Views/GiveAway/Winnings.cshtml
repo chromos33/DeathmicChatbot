@@ -1,0 +1,36 @@
+﻿@model BobDeathmic.Models.ChatUserModel
+
+@{
+    ViewData["Title"] = "Status";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/table.css" />
+<link rel="stylesheet" href="~/css/Stream/Status.css" />
+
+<div class="breadcrumbs">
+    <span>GiveAway</span>
+</div>
+<a asp-action="Create">Create</a>
+<table class="table responsive">
+    <thead>
+        <tr>
+            <th>Spiel</th>
+            <th>Code</th>
+            <th>Link</th>
+            <th>Schenker</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ReceivedItems)
+        {
+        <tr>
+            <td>@item.Title</td>
+            <td>@item.Key</td>
+            <td>@item.Link</td>
+            <td>@item.Owner.ChatUserName</td>
+
+        </tr>
+        }
+    </tbody>
+</table>
