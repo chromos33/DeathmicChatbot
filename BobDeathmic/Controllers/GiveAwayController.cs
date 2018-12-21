@@ -41,7 +41,7 @@ namespace BobDeathmic.Controllers
             _configuration = configuration;
             _manager = manager;
             _eventBus = eventBus;
-            random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / DateTime.Now.Hour);
+            random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / (DateTime.Now.Hour+1));
             _cache = memoryCache;
         }
         [Authorize(Roles = "User,Dev,Admin")]
