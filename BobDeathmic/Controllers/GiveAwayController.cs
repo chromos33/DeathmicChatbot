@@ -41,7 +41,7 @@ namespace BobDeathmic.Controllers
             _configuration = configuration;
             _manager = manager;
             _eventBus = eventBus;
-            random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / (DateTime.Now.Hour+1));
+            random = new Random();
             _cache = memoryCache;
         }
         [Authorize(Roles = "User,Dev,Admin")]
@@ -236,21 +236,45 @@ namespace BobDeathmic.Controllers
             _eventBus.TriggerEvent(EventType.GiveAwayMessage,new GiveAwayEventArgs { channel = channel});
             return RedirectToAction(nameof(Admin));
         }
+
+
         [Authorize(Roles = "Admin,Dev")]
         public async Task<IActionResult> Raffle(string channel)
         {
             //Do Stuff
+            doRaffle(channel);
+            return RedirectToAction(nameof(Admin));
+        }
+        private void doRaffle(string channel)
+        {
             var currentitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.current).FirstOrDefault();
-            if(currentitem != null && currentitem.Applicants.Count() > 0)
+            List<ChatUserModel> Applicants = null;
+            ChatUserModel tmpwinner = null;
+            if (currentitem != null && currentitem.Applicants.Count() > 0)
             {
                 int test = random.Next(currentitem.Applicants.Count());
                 var winner = currentitem.Applicants[test];
                 currentitem.Receiver = winner.User;
+                tmpwinner = winner.User;
                 currentitem.ReceiverID = winner.UserID;
                 _context.SaveChanges();
                 _eventBus.TriggerEvent(EventType.GiveAwayMessage, new GiveAwayEventArgs { winner = winner.User, channel = channel });
             }
-            return RedirectToAction(nameof(Admin));
+            //Raffle again if Applicants and GiveAwayItems with same name > 0
+            if (currentitem.Applicants.Count() > 1 && _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.Id != currentitem.Id && x.ReceiverID == null).Count() > 0)
+            {
+                var newitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.Receiver == null).FirstOrDefault();
+                foreach(var user in currentitem.Applicants.Where(x => x.UserID != tmpwinner.Id).ToList())
+                {
+                    var m_n_relation = new Models.GiveAway.User_GiveAwayItem(user.User, newitem);
+                    newitem.Applicants.Add(m_n_relation);
+                    user.User.AppliedTo.Add(m_n_relation);
+                }
+                currentitem.current = false;
+                newitem.current = true;
+                _context.SaveChanges();
+                doRaffle(channel);
+            }
         }
 
     }

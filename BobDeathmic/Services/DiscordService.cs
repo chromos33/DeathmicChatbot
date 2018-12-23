@@ -65,7 +65,7 @@ namespace BobDeathmic.Services
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var GiveAwayItems = _context.GiveAwayItems.Where(x => x.current);
+                    var GiveAwayItems = _context.GiveAwayItems.Include(x=> x.Receiver).Where(x => x.current);
                     if (GiveAwayItems.Count() > 0)
                     {
                         return GiveAwayItems.FirstOrDefault();
