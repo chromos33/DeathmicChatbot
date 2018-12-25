@@ -176,7 +176,7 @@ namespace BobDeathmic.Controllers
         private async Task SetNextGiveAwayItem()
         {
             await ResetCurrentItem();
-            var GiveAwayItems = _context.GiveAwayItems.MinBy(g => g.Views).Where(x => !x.current && x.Receiver == null);
+            var GiveAwayItems = _context.GiveAwayItems.MinBy(g => g.Views).Where(x => !x.current && x.ReceiverID == null);
             if(GiveAwayItems.Count() > 0)
             {
                 var item = GiveAwayItems.ElementAt(random.Next(0, GiveAwayItems.Count() - 1));
@@ -247,7 +247,7 @@ namespace BobDeathmic.Controllers
         }
         private void doRaffle(string channel)
         {
-            var currentitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.current).FirstOrDefault();
+            var currentitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.current).MinBy(g => g.Views).FirstOrDefault();
             List<ChatUserModel> Applicants = null;
             ChatUserModel tmpwinner = null;
             if (currentitem != null && currentitem.Applicants.Count() > 0)
