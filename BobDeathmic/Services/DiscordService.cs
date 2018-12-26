@@ -155,7 +155,7 @@ namespace BobDeathmic.Services
         private void PasswordRequestReceived(object sender, PasswordRequestArgs e)
         {
             var server = client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault();
-            var users = server?.Users.Where(u => u.Username.ToLower() == e.UserName && u.Status != UserStatus.Offline);
+            var users = server?.Users.Where(u => u.Username.ToLower() == e.UserName.ToLower() && u.Status != UserStatus.Offline);
             var user = users.FirstOrDefault();
             user?.SendMessageAsync("Dein neues Passwort ist: " + e.TempPassword);
         }
