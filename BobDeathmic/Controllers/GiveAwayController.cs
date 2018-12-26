@@ -55,7 +55,7 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> Winnings()
         {
             var user = await _manager.GetUserAsync(HttpContext.User);
-            user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.ReceivedItems).FirstOrDefault();
+            user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.ReceivedItems).ThenInclude(x => x.Owner).FirstOrDefault();
             return View("Winnings", user);
         }
         [Authorize(Roles = "User,Dev,Admin")]
@@ -247,7 +247,7 @@ namespace BobDeathmic.Controllers
         }
         private void doRaffle(string channel)
         {
-            var currentitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.current).MinBy(g => g.Views).FirstOrDefault();
+            var currentitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.current).FirstOrDefault();
             List<ChatUserModel> Applicants = null;
             ChatUserModel tmpwinner = null;
             if (currentitem != null && currentitem.Applicants.Count() > 0)
