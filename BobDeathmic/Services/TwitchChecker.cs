@@ -146,7 +146,7 @@ namespace BobDeathmic.Services
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     var Streams = _context.StreamModels;
-                    List<string> StreamIdList = Streams.Where(x => !string.IsNullOrEmpty(x.UserID)).Select(x => x.UserID).ToList();
+                    List<string> StreamIdList = Streams.Where(x => !string.IsNullOrEmpty(x.UserID) && x.Type == StreamProviderTypes.Twitch).Select(x => x.UserID).ToList();
                     if (StreamIdList.Any())
                     {
                         return await api.Helix.Streams.GetStreamsAsync(userIds: StreamIdList);
@@ -186,7 +186,7 @@ namespace BobDeathmic.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var Streams = _context.StreamModels.Where(s => OnlineStreamIDs.Contains(s.UserID));
+                var Streams = _context.StreamModels.Where(s => OnlineStreamIDs.Contains(s.UserID) && s.Type == StreamProviderTypes.Twitch);
                 foreach (Models.Stream stream in Streams)
                 {
                     StreamEventArgs args = new StreamEventArgs();
