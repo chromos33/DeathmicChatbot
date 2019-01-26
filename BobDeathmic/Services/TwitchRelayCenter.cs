@@ -38,6 +38,7 @@ namespace BobDeathmic.Services
         private System.Timers.Timer _AutoCommandTimer;
         private readonly IConfiguration _configuration;
         private List<IfCommand> CommandList;
+        private Random random;
 
 
         public async override Task StopAsync(CancellationToken cancellationToken)
@@ -51,6 +52,7 @@ namespace BobDeathmic.Services
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
             CommandList = CommandBuilder.BuildCommands("twitch");
+            random = new Random();
 
         }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -142,6 +144,13 @@ namespace BobDeathmic.Services
                         foreach (StreamCommand command in commands)
                         {
                             messageQueue.Value.Add(command.response);
+                            command.LastExecution = DateTime.Now;
+                        }
+                        commands = _context.StreamCommand.Include(sc => sc.stream).Where(sc => sc.Mode == StreamCommandMode.Random && sc.stream.StreamName == messageQueue.Key && sc.AutoInverval > 0 && (DateTime.Now - sc.LastExecution).Minutes > sc.AutoInverval);
+                        foreach (StreamCommand command in commands)
+                        {
+                            string[] Zitate = command.response.Split("|");
+                            messageQueue.Value.Add(Zitate[random.Next(Zitate.Count()-1)]);
                             command.LastExecution = DateTime.Now;
                         }
                     }
