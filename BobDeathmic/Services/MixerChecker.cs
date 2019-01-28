@@ -67,16 +67,15 @@ namespace BobDeathmic.Services
                                     void SetStreamOnline()
                                     {
                                         stream.Started = DateTime.Now;
-                                        stream.Game = streamInfo.type.name;
-                                        switch(stream.StreamState)
+                                        if(streamInfo.type != null)
                                         {
-                                            case StreamState.Started:
-                                                stream.StreamState = StreamState.Running;
-                                                break;
-                                            case StreamState.NotRunning:
-                                                stream.StreamState = StreamState.Started;
-                                                break;
+                                            stream.Game = streamInfo.type.name;
                                         }
+                                        else
+                                        {
+                                            stream.Game = "Undefined";
+                                        }
+                                        stream.StreamState = StreamState.Started;
                                         
                                         stream.Url = $"https://mixer.com/{stream.StreamName}";
                                     }
@@ -92,6 +91,10 @@ namespace BobDeathmic.Services
                                         args.relayactive = RelayState.NotActivated;
                                         _eventBus.TriggerEvent(EventType.StreamChanged, args);
                                     }
+                                }
+                                else
+                                {
+                                    stream.StreamState = StreamState.Running;
                                 }
                             }
                             else

@@ -258,17 +258,23 @@ namespace BobDeathmic.Services
                                 var twitchchannel = client.JoinedChannels.Where(channel => channel.Channel == e.ChatMessage.Channel).FirstOrDefault();
                                 client.SendMessage(twitchchannel, CommandResult);
                             }
-                            if (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
+                            CommandEventType EventType = await command.EventToBeTriggered(inputargs);
+                            switch (EventType)
                             {
-                                CommandEventType EventType = await command.EventToBeTriggered(inputargs);
-                                switch (EventType)
-                                {
-                                    case CommandEventType.None:
-                                        break;
-                                    case CommandEventType.TwitchTitle:
+                                case CommandEventType.None:
+                                    break;
+                                case CommandEventType.Strawpoll:
+                                    if (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
+                                    {
+                                        _eventBus.TriggerEvent(Eventbus.EventType.StrawPollRequested, new StrawPollRequestEventArgs { StreamName = e.ChatMessage.Channel, Type = Models.Enum.StreamProviderTypes.Twitch, Message = e.ChatMessage.Message });
+                                    }
+                                    break;
+                                case CommandEventType.TwitchTitle:
+                                    if (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
+                                    {
                                         _eventBus.TriggerEvent(Eventbus.EventType.StreamTitleChangeRequested, new StreamTitleChangeArgs { StreamName = e.ChatMessage.Channel, Type = Models.Enum.StreamProviderTypes.Twitch, Message = e.ChatMessage.Message });
-                                        break;
-                                }
+                                    }
+                                    break;
                             }
                         }
                     }
@@ -352,7 +358,7 @@ namespace BobDeathmic.Services
             {
                 try
                 {
-                    client.JoinChannel(args.stream);
+                    client.JoinChannel(args.stream.ToLower());
                 }
                 catch (Exception ex)
                 {

@@ -36,6 +36,7 @@ namespace BobDeathmic.Models
     public enum StreamCommandMode
     {
         Auto = 0,
-        Manual = 1
+        Manual = 1,
+        Random = 2
     }
 }

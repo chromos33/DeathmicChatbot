@@ -71,13 +71,13 @@ namespace BobDeathmic.Services
                     TwitchAPI api = new TwitchAPI();
                     api.Settings.ClientId = stream.ClientID;
                     api.Settings.AccessToken = stream.AccessToken;
-                    var GameRegex = Regex.Match(e.Message, @"(?<=game=')\w+(?=')");
+                    var GameRegex = Regex.Match(e.Message, @"(?<=game=').*(?='$)");
                     string Game = "";
                     if (GameRegex.Success)
                     {
                         Game = GameRegex.Value;
                     }
-                    var TitleRegex = Regex.Match(e.Message, @"(?<=title=\')\w+(?=\')");
+                    var TitleRegex = Regex.Match(e.Message, @"(?<=title=').*(?='$)");
                     string Title = "";
                     if (TitleRegex.Success)
                     {

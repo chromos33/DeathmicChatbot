@@ -96,22 +96,22 @@ namespace BobDeathmic.Services
                 if (!_inProgress)
                 {
                     _inProgress = true;
-                    using (var scope = _scopeFactory.CreateScope())
+                    await FillClientIDs();
+                    GetStreamsResponse StreamsData = await GetStreamData();
+                    List<string> OnlineStreamIDs = StreamsData.Streams.Select(x => x.UserId).ToList();
+                    await SetStreamsOffline(OnlineStreamIDs);
+                    if (StreamsData.Streams.Count() > 0)
                     {
-                        var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();//
-                        await FillClientIDs();
-                        GetStreamsResponse StreamsData = await GetStreamData();
-                        List<string> OnlineStreamIDs = StreamsData.Streams.Select(x => x.UserId).ToList();
-                        await SetStreamsOffline(OnlineStreamIDs);
                         await SetStreamsOnline(OnlineStreamIDs, StreamsData);
                     }
-                    
-                    
+                    else
+                    {
+                        _inProgress = false;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
                 _inProgress = false;
             }
             _inProgress = false;

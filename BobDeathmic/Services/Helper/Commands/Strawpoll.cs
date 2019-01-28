@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace BobDeathmic.Services.Helper.Commands
 {
-    public class TwitchStreamTitle : IfCommand
+    public class Strawpoll : IfCommand
     {
-        public string Trigger => "!stream";
-        public string alias => "!cst";
+        public string Trigger => "!strawpoll";
+        public string alias => "!straw";
 
-        public string Description => "Ändert den StreamTitel (!stream game='Bla' title='Bla')";
+        public string Description => "Erstellt einen Strawpoll (!strawpoll q='Frage' o='Option1|Option2' [m='true/false'])";
 
         public string Category => "stream";
 
@@ -18,9 +18,9 @@ namespace BobDeathmic.Services.Helper.Commands
         {
             if (args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias))
             {
-                return CommandEventType.TwitchTitle;
+                return CommandEventType.Strawpoll;
             }
-            return CommandEventType.None;   
+            return CommandEventType.None;
         }
 
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args)

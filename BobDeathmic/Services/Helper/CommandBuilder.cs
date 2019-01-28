@@ -18,9 +18,14 @@ namespace BobDeathmic.Services.Helper
                 tmp.PopulateCommandList(source);
                 Commands.Add(tmp);
             }
-            if (CommandBuilder.CommandActiveInSource(source, "ChangeStreamTitle"))
+            if (CommandBuilder.CommandActiveInSource(source, "stream"))
             {
                 BobDeathmic.Services.Helper.Commands.TwitchStreamTitle tmp = new Commands.TwitchStreamTitle();
+                Commands.Add(tmp);
+            }
+            if (CommandBuilder.CommandActiveInSource(source, "strawpoll"))
+            {
+                BobDeathmic.Services.Helper.Commands.Strawpoll tmp = new Commands.Strawpoll();
                 Commands.Add(tmp);
             }
             /*

@@ -16,6 +16,7 @@ namespace BobDeathmic.Eventbus
         public event EventHandler<StreamTitleChangeArgs> StreamTitleChanged;
         public event EventHandler<StreamEventArgs> RelayPassed;
         public event EventHandler<GiveAwayEventArgs> GiveAwayMessage;
+        public event EventHandler<StrawPollRequestEventArgs> StrawPollRequested;
 
         public void TriggerEvent(EventType @event,dynamic EventData)
         {
@@ -45,6 +46,9 @@ namespace BobDeathmic.Eventbus
                 case EventType.GiveAwayMessage:
                     GiveAwayMessage(this, EventData);
                     break;
+                case EventType.StrawPollRequested:
+                    StrawPollRequested(this, EventData);
+                    break;
             }
         }
     }
@@ -57,6 +61,7 @@ namespace BobDeathmic.Eventbus
         StreamTitleChangeRequested = 5,
         StreamTitleChanged = 6,
         RelayPassed = 7,
-        GiveAwayMessage = 8
+        GiveAwayMessage = 8,
+        StrawPollRequested = 9
     }
 }

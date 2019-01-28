@@ -64,6 +64,7 @@ namespace BobDeathmic
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.DiscordService>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchRelayCenter>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchAPICalls>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.StrawPollService>();
 
             
             services.AddMvc();
