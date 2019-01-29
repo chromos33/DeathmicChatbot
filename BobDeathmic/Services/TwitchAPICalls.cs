@@ -71,32 +71,20 @@ namespace BobDeathmic.Services
                     TwitchAPI api = new TwitchAPI();
                     api.Settings.ClientId = stream.ClientID;
                     api.Settings.AccessToken = stream.AccessToken;
-                    var GameRegex = Regex.Match(e.Message, @"(?<=game=').*(?='$)");
-                    string Game = "";
-                    if (GameRegex.Success)
-                    {
-                        Game = GameRegex.Value;
-                    }
-                    var TitleRegex = Regex.Match(e.Message, @"(?<=title=').*(?='$)");
-                    string Title = "";
-                    if (TitleRegex.Success)
-                    {
-                        Title = TitleRegex.Value;
-                    }
                     try
                     {
-                        if (Game != "" && Title != "")
+                        if (e.Game != "" && e.Title != "")
                         {
-                            await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: Title, game: Game);
+                            await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title, game: e.Game);
                             
                         }
-                        if (Game != "" && Title == "")
+                        if (e.Game != "" && e.Title == "")
                         {
-                            var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, game: Game);
+                            var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, game: e.Game);
                         }
-                        if (Game == "" && Title != "")
+                        if (e.Game == "" && e.Title != "")
                         {
-                            var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: Title);
+                            var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title);
                         }
                         
                     }catch(Exception ex) when (ex is TwitchLib.Api.Core.Exceptions.InvalidCredentialException || ex is TwitchLib.Api.Core.Exceptions.BadScopeException)
@@ -106,17 +94,17 @@ namespace BobDeathmic.Services
 
                         if(api.Settings.AccessToken != "")
                         {
-                            if (Game != "" && Title != "")
+                            if (e.Game != "" && e.Title != "")
                             {
-                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: Title, game: Game);
+                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title, game: e.Game);
                             }
-                            if (Game != "" && Title == "")
+                            if (e.Game != "" && e.Title == "")
                             {
-                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, game: Game);
+                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, game: e.Game);
                             }
-                            if (Game == "" && Title != "")
+                            if (e.Game == "" && e.Title != "")
                             {
-                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: Title);
+                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title);
                             }
                         }
                     }

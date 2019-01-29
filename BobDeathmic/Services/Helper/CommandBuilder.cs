@@ -23,6 +23,16 @@ namespace BobDeathmic.Services.Helper
                 BobDeathmic.Services.Helper.Commands.TwitchStreamTitle tmp = new Commands.TwitchStreamTitle();
                 Commands.Add(tmp);
             }
+            if (CommandBuilder.CommandActiveInSource(source, "game"))
+            {
+                BobDeathmic.Services.Helper.Commands.Game tmp = new Commands.Game();
+                Commands.Add(tmp);
+            }
+            if (CommandBuilder.CommandActiveInSource(source, "title"))
+            {
+                BobDeathmic.Services.Helper.Commands.Title tmp = new Commands.Title();
+                Commands.Add(tmp);
+            }
             if (CommandBuilder.CommandActiveInSource(source, "strawpoll"))
             {
                 BobDeathmic.Services.Helper.Commands.Strawpoll tmp = new Commands.Strawpoll();

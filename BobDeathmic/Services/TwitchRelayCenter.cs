@@ -272,7 +272,8 @@ namespace BobDeathmic.Services
                                 case CommandEventType.TwitchTitle:
                                     if (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
                                     {
-                                        _eventBus.TriggerEvent(Eventbus.EventType.StreamTitleChangeRequested, new StreamTitleChangeArgs { StreamName = e.ChatMessage.Channel, Type = Models.Enum.StreamProviderTypes.Twitch, Message = e.ChatMessage.Message });
+
+                                        _eventBus.TriggerEvent(Eventbus.EventType.StreamTitleChangeRequested, PrepareStreamTitleChange(e.ChatMessage.Channel,e.ChatMessage.Message));
                                     }
                                     break;
                             }
@@ -281,6 +282,44 @@ namespace BobDeathmic.Services
                 }
                 
             }
+        }
+        private StreamTitleChangeArgs PrepareStreamTitleChange(string StreamName,string Message)
+        {
+            var arg = new StreamTitleChangeArgs();
+            arg.StreamName = StreamName;
+            arg.Type = Models.Enum.StreamProviderTypes.Twitch;
+            if(Message.StartsWith("!stream"))
+            {
+                var questionRegex = Regex.Match(Message, @"game=\'(.*?)\'");
+                var GameRegex = Regex.Match(Message, @"game=\'(.*?)\'");
+                string Game = "";
+                if (GameRegex.Success)
+                {
+                    Game = GameRegex.Value;
+                }
+                var TitleRegex = Regex.Match(Message, @"title=\'(.*?)\'");
+                string Title = "";
+                if (TitleRegex.Success)
+                {
+                    Title = TitleRegex.Value;
+                }
+                arg.Game = Game;
+                arg.Title = Title;
+            }
+            else
+            {
+                if(Message.StartsWith("!game"))
+                {
+                    arg.Game = Message.Replace("!game ","");
+                    arg.Title = "";
+                }
+                if(Message.StartsWith("!title"))
+                {
+                    arg.Title = Message.Replace("!title ", "");
+                    arg.Game = "";
+                }
+            }
+            return arg;
         }
         private string GetManualCommandResponse(string streamname,string message)
         {
