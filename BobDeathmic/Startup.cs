@@ -13,6 +13,11 @@ using BobDeathmic.Models;
 using BobDeathmic.Services;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using BobDeathmic.Eventbus;
+using Microsoft.AspNetCore.Http;
+using JavaScriptEngineSwitcher.ChakraCore;
+using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
+using React.AspNet;
+
 
 namespace BobDeathmic
 {
@@ -66,7 +71,9 @@ namespace BobDeathmic
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchAPICalls>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.StrawPollService>();
 
-            
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddReact();
+            services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName).AddChakraCore();
             services.AddMvc();
         }
 
@@ -84,7 +91,24 @@ namespace BobDeathmic
             {
                 app.UseExceptionHandler("/Main/Error");
             }
+            app.UseReact(config =>
+            {
+                // If you want to use server-side rendering of React components,
+                // add all the necessary JavaScript files here. This includes
+                // your components as well as all of their dependencies.
+                // See http://reactjs.net/ for more information. Example:
+                //config
+                //    .AddScript("~/Scripts/First.jsx")
+                //    .AddScript("~/Scripts/Second.jsx");
 
+                // If you use an external build too (for example, Babel, Webpack,
+                // Browserify or Gulp), you can improve performance by disabling
+                // ReactJS.NET's version of Babel and loading the pre-transpiled
+                // scripts. Example:
+                //config
+                //    .SetLoadBabel(false)
+                //    .AddScriptWithoutTransform("~/Scripts/bundle.server.js");
+            });
             app.UseStaticFiles();
 
             app.UseAuthentication();

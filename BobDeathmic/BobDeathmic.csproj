@@ -7,10 +7,16 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
+    <PackageReference Include="Discord.Net" Version="2.0.1" />
+    <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore" Version="3.0.4" />
+    <PackageReference Include="JavaScriptEngineSwitcher.Extensions.MsDependencyInjection" Version="3.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.ChakraCore" Version="1.11.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
@@ -19,7 +25,7 @@
     <PackageReference Include="morelinq" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
 	<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.4" />
-	<PackageReference Include="React.AspNet" Version="3.4.1" />
+	<PackageReference Include="React.AspNet" Version="4.0.0" />
 	<PackageReference Include="TwitchLib" Version="3.0.1" />
   </ItemGroup>
 

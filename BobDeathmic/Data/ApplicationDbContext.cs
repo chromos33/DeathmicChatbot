@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using BobDeathmic.Models;
 using BobDeathmic.Models.GiveAwayModels;
 using BobDeathmic.Models.GiveAway;
+using BobDeathmic.Models.EventDateFinder;
+using BobDeathmic.Models.EventDateFinder.ManyMany;
 
 namespace BobDeathmic.Data
 {
@@ -62,6 +64,19 @@ namespace BobDeathmic.Data
                 .HasOne(pt => pt.GiveAwayItem)
                 .WithMany(t => t.Applicants)
                 .HasForeignKey(pt => pt.GiveAwayItemID);
+
+            builder.Entity<ChatUserModel_Calendar>()
+                .HasKey(t => new { t.CalendarID, t.ChatUserModelID });
+
+            builder.Entity<ChatUserModel_Calendar>()
+                .HasOne(pt => pt.ChatUserModel)
+                .WithMany(p => p.Calendars)
+                .HasForeignKey(pt => pt.ChatUserModelID);
+
+            builder.Entity<ChatUserModel_Calendar>()
+                .HasOne(pt => pt.Calendar)
+                .WithMany(t => t.Members)
+                .HasForeignKey(pt => pt.CalendarID);
         }
         public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
         public DbSet<Models.Stream> StreamModels { get; set; }
@@ -72,5 +87,10 @@ namespace BobDeathmic.Data
         public DbSet<BobDeathmic.Models.StreamCommand> StreamCommand { get; set; }
         public DbSet<GiveAwayItem> GiveAwayItems { get; set; }
         public DbSet<User_GiveAwayItem> User_GiveAway { get; set; }
+        public DbSet<Calendar> Calendars { get; set; }
+        public DbSet<AppointmentRequest> AppointmentRequests {get;set;}
+        public DbSet<AppointmentRequestTemplate> AppointmentRequestTemplates { get; set; }
+        public DbSet<EventDate> EventDates { get; set; }
+        public DbSet<ChatUserModel_Calendar> ChatUserModel_Calendar { get; set; }
     }
 }
