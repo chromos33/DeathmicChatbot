@@ -7,4 +7,5 @@ button,
     line-height:16px !important;
     padding:10px 20px !important;
     cursor:pointer;
+    display:inline-block;
 }

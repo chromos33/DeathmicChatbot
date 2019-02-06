@@ -8,8 +8,8 @@ namespace BobDeathmic.Models.EventDateFinder.ManyMany
 {
     public class ChatUserModel_Calendar
     {
-        [Key]
-        public string ChatUserModel_CalendarID;
+        public string ChatUserModel_CalendarID { get; set; }
+
         public string CalendarID { get; set; }
         public Calendar Calendar { get; set; }
         public string ChatUserModelID { get; set; }

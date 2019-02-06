@@ -2,14 +2,99 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic.Data;
+using BobDeathmic.Models;
+using BobDeathmic.ReactDataClasses.EventDateFinder.OverView;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace BobDeathmic.Controllers
 {
     public class EventDateFinderController : Controller
     {
+        private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
+        private UserManager<ChatUserModel> _userManager;
+        public EventDateFinderController(ApplicationDbContext context, IConfiguration configuration, UserManager<ChatUserModel> userManager)
+        {
+            _context = context;
+            _configuration = configuration;
+            _userManager = userManager;
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
         public IActionResult Index()
         {
+            return View();
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> OverViewData()
+        {
+            OverView data = new OverView();
+            data.AddCalendarLink = this.Url.Action("CreateCalendar");
+            ChatUserModel user = await _userManager.GetUserAsync(this.User);
+            data.Calendars = getRelevantCalendars(user);
+            return Json(data);
+        }
+
+        private List<Calendar> getRelevantCalendars(ChatUserModel user)
+        {
+            
+            List<Calendar> Calendars = new List<Calendar>();
+            foreach(Models.EventDateFinder.Calendar calendar in _context.EventCalendar.Include(x => x.Admin).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Admin.Id == user.Id || x.isMember(user)))
+            {
+                //TODO make a custom CalendarMember object to facilitate better security (no need to lay open all data)
+                var FilteredMembers = _context.ChatUserModels.Where(x => !calendar.getMembers().Any( x2 => x2.Id == x.Id)).ToArray();
+                ChatUser[] Members = new ChatUser[FilteredMembers.Count()];
+                for(int i = 0;i < FilteredMembers.Count();i++)
+                {
+                    Members[i] = new ChatUser { Name = FilteredMembers[i].ChatUserName };
+                }
+                Calendars.Add(new Calendar {key = calendar.Id, ChatUsers = Members, EditLink = this.Url.Action("EditCalendar"), Name = calendar.Name,VoteLink = this.Url.Action("EventDateFinder", "VoteOnCalendar", new { ID = calendar.Id})});
+                
+            }
+            return Calendars;
+        }
+
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> CreateCalendar()
+        {
+            ChatUserModel admin = await _userManager.GetUserAsync(this.User);
+            Models.EventDateFinder.Calendar newCalendar = new Models.EventDateFinder.Calendar();
+            if(admin.AdministratedCalendars == null)
+            {
+                admin.AdministratedCalendars = new List<Models.EventDateFinder.Calendar>();
+            }
+            admin.AdministratedCalendars.Add(newCalendar);
+            if(admin.Calendars == null)
+            {
+                admin.Calendars = new List<Models.EventDateFinder.ManyMany.ChatUserModel_Calendar>();
+            }
+            Models.EventDateFinder.ManyMany.ChatUserModel_Calendar JoinTable = new Models.EventDateFinder.ManyMany.ChatUserModel_Calendar();
+            JoinTable.Calendar = newCalendar;
+            JoinTable.ChatUserModel = admin;
+            admin.Calendars.Add(JoinTable);
+            newCalendar.Members.Add(JoinTable);
+            _context.EventCalendar.Add(newCalendar);
+            _context.ChatUserModel_Calendar.Add(JoinTable);
+            _context.SaveChanges();
+
+            //Create Calendar here stuff
+            return View();
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> EditCalendar()
+        {
+            //Edit Calendar here stuff
+            return View();
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> VoteOnCalendar(int ID)
+        {
+            //Create Calendar here stuff
             return View();
         }
     }

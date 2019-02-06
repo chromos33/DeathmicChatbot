@@ -3,7 +3,22 @@
 @*
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
-<div ID="reactcontent"></div>
+<link rel="stylesheet" href="~/css/forms.css" />
+<link rel="stylesheet" href="~/css/Buttons.css" />
+<div class="breadcrumbs">
+    <span>EventCalendar > Übersicht</span>
+</div>
+<div class="pa-35">
+    <h2>Event Kalendar</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-4" ID="reactcontent">
+            
+        </div>
+    </div>
+</div>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/16.4.0/umd/react.development.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.4.0/umd/react-dom.development.js"></script>
-<script src="@Url.Content("~/ReactComponents/EventDateFinderList.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/OverView/OverView.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/OverView/Calendar.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/OverView/ChatUserSelect.jsx")"></script>

@@ -59,24 +59,17 @@ namespace BobDeathmic.Data
                 .HasOne(pt => pt.User)
                 .WithMany(p => p.AppliedTo)
                 .HasForeignKey(pt => pt.UserID);
-
             builder.Entity<User_GiveAwayItem>()
                 .HasOne(pt => pt.GiveAwayItem)
                 .WithMany(t => t.Applicants)
                 .HasForeignKey(pt => pt.GiveAwayItemID);
 
-            builder.Entity<ChatUserModel_Calendar>()
-                .HasKey(t => new { t.CalendarID, t.ChatUserModelID });
 
-            builder.Entity<ChatUserModel_Calendar>()
-                .HasOne(pt => pt.ChatUserModel)
-                .WithMany(p => p.Calendars)
-                .HasForeignKey(pt => pt.ChatUserModelID);
 
-            builder.Entity<ChatUserModel_Calendar>()
-                .HasOne(pt => pt.Calendar)
-                .WithMany(t => t.Members)
-                .HasForeignKey(pt => pt.CalendarID);
+            builder.Entity<Calendar>()
+                .HasOne(c => c.Admin)
+                .WithMany(u => u.AdministratedCalendars)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
         public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
         public DbSet<Models.Stream> StreamModels { get; set; }
@@ -87,7 +80,7 @@ namespace BobDeathmic.Data
         public DbSet<BobDeathmic.Models.StreamCommand> StreamCommand { get; set; }
         public DbSet<GiveAwayItem> GiveAwayItems { get; set; }
         public DbSet<User_GiveAwayItem> User_GiveAway { get; set; }
-        public DbSet<Calendar> Calendars { get; set; }
+        public DbSet<Calendar> EventCalendar { get; set; }
         public DbSet<AppointmentRequest> AppointmentRequests {get;set;}
         public DbSet<AppointmentRequestTemplate> AppointmentRequestTemplates { get; set; }
         public DbSet<EventDate> EventDates { get; set; }
