@@ -9,7 +9,7 @@ namespace BobDeathmic.Models.EventDateFinder
 {
     public class Calendar
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         
         public List<AppointmentRequestTemplate> AppointmentRequestTemplate { get; set; }

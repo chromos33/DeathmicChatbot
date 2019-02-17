@@ -3,6 +3,7 @@
         super(props);
     }
     render() {
+        console.log(this.props);
         return (
             <div className="row">
                 <div className="col-md-6 col-12 mb-4">

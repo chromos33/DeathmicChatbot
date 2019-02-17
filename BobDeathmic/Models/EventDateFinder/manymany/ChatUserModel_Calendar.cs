@@ -10,7 +10,7 @@ namespace BobDeathmic.Models.EventDateFinder.ManyMany
     {
         public string ChatUserModel_CalendarID { get; set; }
 
-        public string CalendarID { get; set; }
+        public int CalendarID { get; set; }
         public Calendar Calendar { get; set; }
         public string ChatUserModelID { get; set; }
         public ChatUserModel ChatUserModel { get; set; }

@@ -53,43 +53,78 @@ namespace BobDeathmic.Controllers
                 {
                     Members[i] = new ChatUser { Name = FilteredMembers[i].ChatUserName };
                 }
-                Calendars.Add(new Calendar {key = calendar.Id, ChatUsers = Members, EditLink = this.Url.Action("EditCalendar"), Name = calendar.Name,VoteLink = this.Url.Action("EventDateFinder", "VoteOnCalendar", new { ID = calendar.Id})});
+                Calendars.Add(new Calendar {Id = calendar.Id,key = calendar.Id, ChatUsers = Members, EditLink = this.Url.Action("EditCalendar", "EventDateFinder", new { ID = calendar.Id }), Name = calendar.Name,VoteLink = this.Url.Action("EventDateFinder", "VoteOnCalendar", new { ID = calendar.Id})});
                 
             }
             return Calendars;
         }
-
+        [HttpPost]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> CreateCalendar()
+        public async Task UpdateCalendarTitle(string ID,string Title)
         {
-            ChatUserModel admin = await _userManager.GetUserAsync(this.User);
-            Models.EventDateFinder.Calendar newCalendar = new Models.EventDateFinder.Calendar();
-            if(admin.AdministratedCalendars == null)
+            if(Int32.TryParse(ID, out int _ID))
             {
-                admin.AdministratedCalendars = new List<Models.EventDateFinder.Calendar>();
+                var Calendar = _context.EventCalendar.Where(x => x.Id == _ID).FirstOrDefault();
+                if (Calendar != null)
+                {
+                    Calendar.Name = Title;
+                    await _context.SaveChangesAsync();
+                }
             }
-            admin.AdministratedCalendars.Add(newCalendar);
-            if(admin.Calendars == null)
-            {
-                admin.Calendars = new List<Models.EventDateFinder.ManyMany.ChatUserModel_Calendar>();
-            }
-            Models.EventDateFinder.ManyMany.ChatUserModel_Calendar JoinTable = new Models.EventDateFinder.ManyMany.ChatUserModel_Calendar();
-            JoinTable.Calendar = newCalendar;
-            JoinTable.ChatUserModel = admin;
-            admin.Calendars.Add(JoinTable);
-            newCalendar.Members.Add(JoinTable);
-            _context.EventCalendar.Add(newCalendar);
-            _context.ChatUserModel_Calendar.Add(JoinTable);
-            _context.SaveChanges();
-
-            //Create Calendar here stuff
-            return View();
+            
         }
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> EditCalendar()
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> GetCalendar(int ID)
+        {
+            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Where(x => x.Id == ID).FirstOrDefault();
+            if(_calendar != null)
+            {
+                if(_calendar.Name == null)
+                {
+                    _calendar.Name = "";
+                    _context.SaveChangesAsync();
+                }
+                return Json(_calendar);
+            }
+            return RedirectToAction("OverViewData");
+            
+        }
+
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> CreateCalendar(int? ID)
+        {
+            if(ID == null)
+            {
+                ChatUserModel admin = await _userManager.GetUserAsync(this.User);
+                Models.EventDateFinder.Calendar newCalendar = new Models.EventDateFinder.Calendar();
+                if (admin.AdministratedCalendars == null)
+                {
+                    admin.AdministratedCalendars = new List<Models.EventDateFinder.Calendar>();
+                }
+                admin.AdministratedCalendars.Add(newCalendar);
+                if (admin.Calendars == null)
+                {
+                    admin.Calendars = new List<Models.EventDateFinder.ManyMany.ChatUserModel_Calendar>();
+                }
+                Models.EventDateFinder.ManyMany.ChatUserModel_Calendar JoinTable = new Models.EventDateFinder.ManyMany.ChatUserModel_Calendar();
+                JoinTable.Calendar = newCalendar;
+                JoinTable.ChatUserModel = admin;
+                admin.Calendars.Add(JoinTable);
+                newCalendar.Members.Add(JoinTable);
+                _context.EventCalendar.Add(newCalendar);
+                _context.ChatUserModel_Calendar.Add(JoinTable);
+                _context.SaveChanges();
+                return View(newCalendar.Id);
+            }
+            //Create Calendar here stuff
+            return View(ID);
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> EditCalendar(int ID)
         {
             //Edit Calendar here stuff
-            return View();
+            return RedirectToAction("CreateCalendar",new { ID = ID});
         }
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> VoteOnCalendar(int ID)
