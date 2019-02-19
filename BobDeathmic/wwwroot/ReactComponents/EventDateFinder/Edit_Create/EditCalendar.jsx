@@ -1,17 +1,18 @@
 ﻿class EditCalendar extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { data: [] };
+        this.state = { data: [], eventEmitter: new EventEmitter()};
     }
     componentWillMount() {
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('get', "/EventDateFinder/GetCalendar/" + this.props.ID , true);
-        xhr.onload = () => {
-            const data = JSON.parse(xhr.responseText);
-            this.setState({ data: data });
-        };
-        xhr.send();
+        var thisreference = this;
+        $.ajax({
+            url: "/EventDateFinder/GetCalendar/" + this.props.ID,
+            type: "GET",
+            data: {},
+            success: function (result) {
+                thisreference.setState({ data: result });
+            }
+        }); 
     }
     render() {
         if (this.state.data.name === undefined) {
@@ -25,6 +26,8 @@
             return (
                 <div className="OverView">
                     <NameField owner={this.props.ID} value={this.state.data.name} />
+                    <ChatUserSelect ID={this.props.ID} eventEmitter={this.state.eventEmitter} />
+                    <InvitedUserList ID={this.props.ID} eventEmitter={this.state.eventEmitter} />
                 </div>
             );
         }

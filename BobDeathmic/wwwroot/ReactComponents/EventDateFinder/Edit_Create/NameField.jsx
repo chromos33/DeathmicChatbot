@@ -1,7 +1,6 @@
 ﻿class NameField extends React.Component {
     constructor(props) {
         super(props);
-        console.log(props);
         this.state = { value: props.value, id: props.owner};
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleFocus = this.handleFocus.bind(this);

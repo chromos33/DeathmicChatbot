@@ -8,5 +8,6 @@ namespace BobDeathmic.ReactDataClasses.EventDateFinder.OverView
     public class ChatUser
     {
         public string Name;
+        public int key;
     }
 }

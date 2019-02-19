@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BobDeathmic.Data;
 using BobDeathmic.Models;
+using BobDeathmic.Models.EventDateFinder.ManyMany;
 using BobDeathmic.ReactDataClasses.EventDateFinder.OverView;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -47,13 +48,7 @@ namespace BobDeathmic.Controllers
             foreach(Models.EventDateFinder.Calendar calendar in _context.EventCalendar.Include(x => x.Admin).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Admin.Id == user.Id || x.isMember(user)))
             {
                 //TODO make a custom CalendarMember object to facilitate better security (no need to lay open all data)
-                var FilteredMembers = _context.ChatUserModels.Where(x => !calendar.getMembers().Any( x2 => x2.Id == x.Id)).ToArray();
-                ChatUser[] Members = new ChatUser[FilteredMembers.Count()];
-                for(int i = 0;i < FilteredMembers.Count();i++)
-                {
-                    Members[i] = new ChatUser { Name = FilteredMembers[i].ChatUserName };
-                }
-                Calendars.Add(new Calendar {Id = calendar.Id,key = calendar.Id, ChatUsers = Members, EditLink = this.Url.Action("EditCalendar", "EventDateFinder", new { ID = calendar.Id }), Name = calendar.Name,VoteLink = this.Url.Action("EventDateFinder", "VoteOnCalendar", new { ID = calendar.Id})});
+                Calendars.Add(new Calendar {Id = calendar.Id,key = calendar.Id, EditLink = this.Url.Action("EditCalendar", "EventDateFinder", new { ID = calendar.Id }), Name = calendar.Name,VoteLink = this.Url.Action("EventDateFinder", "VoteOnCalendar", new { ID = calendar.Id})});
                 
             }
             return Calendars;
@@ -72,7 +67,86 @@ namespace BobDeathmic.Controllers
                 }
             }
             
+            
         }
+        [HttpPost]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task AddInvitedUser(string ID, string ChatUser)
+        {
+            if (Int32.TryParse(ID, out int _ID))
+            {
+                var Calendar = _context.EventCalendar.Where(x => x.Id == _ID).FirstOrDefault();
+                if (Calendar != null)
+                {
+                    if(Calendar.Members.Where(x => x.ChatUserModel.ChatUserName == ChatUser).Count() == 0)
+                    {
+                        ChatUserModel user = _context.ChatUserModels.Where(x => x.ChatUserName.ToLower() == ChatUser.ToLower()).FirstOrDefault();
+                        if(user != null)
+                        {
+                            ChatUserModel_Calendar newrelation = new ChatUserModel_Calendar();
+                            newrelation.Calendar = Calendar;
+                            newrelation.ChatUserModel = user;
+                            if(Calendar.Members == null)
+                            {
+                                Calendar.Members = new List<ChatUserModel_Calendar>();
+                            }
+                            Calendar.Members.Add(newrelation);
+                            if(user.Calendars == null)
+                            {
+                                user.Calendars = new List<ChatUserModel_Calendar>();
+                            }
+                            user.Calendars.Add(newrelation);
+                            _context.ChatUserModel_Calendar.Add(newrelation);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                    
+                }
+            }
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<JsonResult> InvitableUsers(int ID)
+        {
+            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Include(x => x.Members).Where(x => x.Id == ID).FirstOrDefault();
+            if (_calendar != null)
+            {
+                //TODO get real Filtered Members
+                List<ChatUserModel_Calendar> relation = _context.ChatUserModel_Calendar.Include(x=>x.ChatUserModel).Where(x => x.Calendar == _calendar).ToList();
+                List<ChatUserModel> ToFilterMembers = new List<ChatUserModel>();
+                foreach(ChatUserModel_Calendar temp in relation)
+                {
+                    ToFilterMembers.Add(temp.ChatUserModel);
+                }
+                List<ChatUserModel> FilteredMembers = _context.ChatUserModels.Where(x => !ToFilterMembers.Contains(x)).ToList();
+                ChatUser[] Members = new ChatUser[FilteredMembers.Count()];
+                for (int i = 0; i < FilteredMembers.Count(); i++)
+                {
+                    Members[i] = new ChatUser { Name = FilteredMembers[i].ChatUserName };
+                }
+                return Json(Members);
+            }
+            return null;
+
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<JsonResult> InvitedUsers(int ID)
+        {
+            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
+            if (_calendar != null)
+            {
+                ChatUser[] Members = new ChatUser[_calendar.Members.Count()];
+                for (int i = 0; i < _calendar.Members.Count(); i++)
+                {
+                    Members[i] = new ChatUser { Name = _calendar.Members[i].ChatUserModel.ChatUserName, key=i };
+                }
+                return Json(Members);
+            }
+            return null;
+
+        }
+        
         [Authorize(Roles = "User,Dev,Admin")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> GetCalendar(int ID)

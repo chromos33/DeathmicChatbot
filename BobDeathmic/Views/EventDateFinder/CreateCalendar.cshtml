@@ -4,6 +4,8 @@
 *@
 <link rel="stylesheet" href="~/css/forms.css" />
 <link rel="stylesheet" href="~/css/Buttons.css" />
+<link rel="stylesheet" href="~/css/React.css" />
+<script src="~/js/EventEmitter.min.js"></script>
 <div class="breadcrumbs">
     <span>EventCalendar > Editieren</span>
 </div>
@@ -18,9 +20,14 @@
 </div>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/16.4.0/umd/react.development.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.4.0/umd/react-dom.development.js"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/ChatUserSelect.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/EditCalendar.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/NameField.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/InvitedMemberList.jsx")"></script>
+
 <script>
-    var elem = React.createElement(EditCalendar, { ID: @Model});
-    ReactDOM.render(elem, document.getElementById('reactcontent'));
+    document.addEventListener("DOMContentLoaded", function (event) {
+        var elem = React.createElement(EditCalendar, { ID: @Model});
+        ReactDOM.render(elem, document.getElementById('reactcontent'));
+    });
 </script>
