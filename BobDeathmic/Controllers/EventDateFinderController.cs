@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BobDeathmic.Data;
 using BobDeathmic.Models;
+using BobDeathmic.Models.EventDateFinder;
 using BobDeathmic.Models.EventDateFinder.ManyMany;
 using BobDeathmic.ReactDataClasses.EventDateFinder.OverView;
 using Microsoft.AspNetCore.Authorization;
@@ -41,14 +42,14 @@ namespace BobDeathmic.Controllers
             return Json(data);
         }
 
-        private List<Calendar> getRelevantCalendars(ChatUserModel user)
+        private List<ReactDataClasses.EventDateFinder.OverView.Calendar> getRelevantCalendars(ChatUserModel user)
         {
             
-            List<Calendar> Calendars = new List<Calendar>();
+            List<ReactDataClasses.EventDateFinder.OverView.Calendar> Calendars = new List<ReactDataClasses.EventDateFinder.OverView.Calendar>();
             foreach(Models.EventDateFinder.Calendar calendar in _context.EventCalendar.Include(x => x.Admin).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Admin.Id == user.Id || x.isMember(user)))
             {
                 //TODO make a custom CalendarMember object to facilitate better security (no need to lay open all data)
-                Calendars.Add(new Calendar {Id = calendar.Id,key = calendar.Id, EditLink = this.Url.Action("EditCalendar", "EventDateFinder", new { ID = calendar.Id }), Name = calendar.Name,VoteLink = this.Url.Action("EventDateFinder", "VoteOnCalendar", new { ID = calendar.Id})});
+                Calendars.Add(new ReactDataClasses.EventDateFinder.OverView.Calendar { Id = calendar.Id,key = calendar.Id, EditLink = this.Url.Action("EditCalendar", "EventDateFinder", new { ID = calendar.Id }), Name = calendar.Name,VoteLink = this.Url.Action("EventDateFinder", "VoteOnCalendar", new { ID = calendar.Id})});
                 
             }
             return Calendars;
@@ -146,7 +147,78 @@ namespace BobDeathmic.Controllers
             return null;
 
         }
+        [Authorize(Roles = "User,Dev,Admin")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<JsonResult> Templates(int ID)
+        {
+            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Include(x => x.AppointmentRequestTemplate).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
+            if (_calendar != null)
+            {
+                return Json(_calendar.AppointmentRequestTemplate.Select(x => new {key = x.ID, Day = x.Day,Start = x.StartTime.ToString("HH:mm"),Stop = x.StopTime.ToString("HH:mm") }), new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore});
+            }
+            return null;
+
+        }
         
+        [Authorize(Roles = "User,Dev,Admin")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<bool> SetDayOfTemplate(string ID, int Day)
+        {
+            EventDateTemplate template = _context.AppointmentRequestTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            if(template != null)
+            {
+                template.Day = (Models.EventDateFinder.Day)Enum.ToObject(typeof(Models.EventDateFinder.Day), Day);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<bool> SetStartOfTemplate(string ID, string Start)
+        {
+            EventDateTemplate template = _context.AppointmentRequestTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            if (template != null)
+            {
+                template.StartTime = DateTime.ParseExact(Start,"HH:mm",System.Globalization.CultureInfo.InvariantCulture);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<bool> SetStopOfTemplate(string ID, string Stop)
+        {
+            EventDateTemplate template = _context.AppointmentRequestTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            if (template != null)
+            {
+                template.StopTime = DateTime.ParseExact(Stop, "HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<JsonResult> AddTemplate(int ID)
+        {
+            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
+            if (_calendar != null)
+            {
+                EventDateTemplate item = new EventDateTemplate();
+                item.Calendar = _calendar;
+                _calendar.AppointmentRequestTemplate.Add(item);
+                _context.AppointmentRequestTemplates.Add(item);
+                _context.SaveChanges();
+                return Json(new { Day = item.Day, Start = item.StartTime, Stop = item.StopTime }, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore });
+            }
+            return null;
+
+        }
         [Authorize(Roles = "User,Dev,Admin")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> GetCalendar(int ID)

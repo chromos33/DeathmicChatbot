@@ -82,7 +82,7 @@ namespace BobDeathmic.Data
         public DbSet<User_GiveAwayItem> User_GiveAway { get; set; }
         public DbSet<Calendar> EventCalendar { get; set; }
         public DbSet<AppointmentRequest> AppointmentRequests {get;set;}
-        public DbSet<AppointmentRequestTemplate> AppointmentRequestTemplates { get; set; }
+        public DbSet<EventDateTemplate> AppointmentRequestTemplates { get; set; }
         public DbSet<EventDate> EventDates { get; set; }
         public DbSet<ChatUserModel_Calendar> ChatUserModel_Calendar { get; set; }
     }

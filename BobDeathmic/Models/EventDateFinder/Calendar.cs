@@ -12,7 +12,7 @@ namespace BobDeathmic.Models.EventDateFinder
         public int Id { get; set; }
         public string Name { get; set; }
         
-        public List<AppointmentRequestTemplate> AppointmentRequestTemplate { get; set; }
+        public List<EventDateTemplate> AppointmentRequestTemplate { get; set; }
         public List<ChatUserModel_Calendar> Members { get; set; }
 
         public string AdministratorID { get; set; }
@@ -23,7 +23,7 @@ namespace BobDeathmic.Models.EventDateFinder
 
         public Calendar()
         {
-            AppointmentRequestTemplate = new List<AppointmentRequestTemplate>();
+            AppointmentRequestTemplate = new List<EventDateTemplate>();
             Members = new List<ChatUserModel_Calendar>();
             EventDates = new List<EventDate>();
         }

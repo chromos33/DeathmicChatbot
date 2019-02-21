@@ -28,6 +28,7 @@
                     <NameField owner={this.props.ID} value={this.state.data.name} />
                     <ChatUserSelect ID={this.props.ID} eventEmitter={this.state.eventEmitter} />
                     <InvitedUserList ID={this.props.ID} eventEmitter={this.state.eventEmitter} />
+                    <TemplateList ID={this.props.ID} />
                 </div>
             );
         }
