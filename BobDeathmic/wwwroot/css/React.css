@@ -6,3 +6,48 @@
     padding-top:10px;
     border-top:1px solid black;
 }
+.template:first-child
+{
+    margin-top:20px;
+}
+.template{
+    padding:20px;
+    position:relative;
+}
+.template:nth-child(odd) {
+    background: #272c2e !important;
+}
+.template .days
+{
+    display:flex;
+    justify-content:space-around;
+    margin-bottom:20px;
+}
+.template .days .day
+{
+    display:flex;
+    flex-direction:column;
+}
+.template .times
+{
+    display:flex;
+    justify-content:space-around;
+}
+.template .times .time
+{
+    display:flex;
+    justify-content:space-around;
+    flex-direction:column;
+    text-align:center;
+}
+.template .delete
+{
+    position:absolute;
+    left:0;
+    bottom:0;
+    opacity:0.6;
+    transition:0.5s ease all;
+}
+.template .delete:hover {
+    opacity: 1;
+}

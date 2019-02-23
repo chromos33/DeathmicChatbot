@@ -25,10 +25,11 @@
         else {
             return (
                 <div className="OverView">
+                    <span>Name</span>
                     <NameField owner={this.props.ID} value={this.state.data.name} />
                     <ChatUserSelect ID={this.props.ID} eventEmitter={this.state.eventEmitter} />
                     <InvitedUserList ID={this.props.ID} eventEmitter={this.state.eventEmitter} />
-                    <TemplateList ID={this.props.ID} />
+                    <TemplateList ID={this.props.ID} eventEmitter={this.state.eventEmitter} />
                 </div>
             );
         }

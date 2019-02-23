@@ -4,7 +4,7 @@
         this.state = { Templates: [] };
         this.handleAddTemplateClick = this.handleAddTemplateClick.bind(this);
         this.handleAddTemplateClick = this.handleAddTemplateClick.bind(this);
-        this.handleRadioChange = this.handleRadioChange.bind(this);
+        this.handleUpdateTemplates = this.handleUpdateTemplates.bind(this);
     }
     componentWillMount() {
         var thisreference = this;
@@ -16,30 +16,37 @@
                 thisreference.setState({ Templates: result });
             }
         });
+        this.props.eventEmitter.addListener("UpdateTemplates", thisreference.handleUpdateTemplates);
     }
-    handleOnClick(event) {
-
-    }
-    handleOnChange(event) {
-
-    }
-    handleRadioChange(event) {
-        alert("test");
+    handleUpdateTemplates(event) {
+        var tempthis = this;
+        $.ajax({
+            url: "/EventDateFinder/Templates/" + this.props.ID,
+            type: "GET",
+            data: {},
+            success: function (result) {
+                tempthis.setState({ Templates: result });
+            }
+        });
     }
     handleAddTemplateClick(event) {
+        tempthis = this;
         $.ajax({
             url: "/EventDateFinder/AddTemplate/" + this.props.ID,
             type: "GET",
             data: {},
             success: function (result) {
-                thisreference.setState({ Templates: this.state.Templates.push(result) });
+                var temptemplates = tempthis.state.Templates;
+                temptemplates.push(result);
+                tempthis.setState({ Templates: temptemplates });
             }
         });
     }
     render() {
         if (this.state.Templates.length > 0) {
+            var tempthis = this;
             templateNodes = this.state.Templates.map(function (template) {
-                return <Template key={template.key} name={template.key} day={template.Day} start={template.Start} stop={template.Stop} />;
+                return <Template calendar={tempthis.props.ID} eventEmitter={tempthis.props.eventEmitter} key={template.key} name={template.key} day={template.Day} start={template.Start} stop={template.Stop} />;
             });
             return (
                 <div>

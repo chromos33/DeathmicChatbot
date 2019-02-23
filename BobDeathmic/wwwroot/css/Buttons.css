@@ -9,3 +9,12 @@ button,
     cursor:pointer;
     display:inline-block;
 }
+.delete {
+    background: #f41f1f;
+    font-size: 16px !important;
+    line-height: 16px !important;
+    padding: 10px 20px !important;
+    cursor: pointer;
+    display: inline-block;
+    color:white;
+}

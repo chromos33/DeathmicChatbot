@@ -2,7 +2,8 @@
     constructor(props) {
         super(props);
         this.state = { InvitedUsers: [] };
-        this.handleAddedChatMember = this.handleAddedChatMember.bind(this);
+        this.handleUpdateChatMembers = this.handleUpdateChatMembers.bind(this);
+        this.handleOnRemoveClick = this.handleOnRemoveClick.bind(this);
     }
     componentWillMount() {
         var thisreference = this;
@@ -14,9 +15,9 @@
                 thisreference.setState({ InvitedUsers: result });
             }
         });
-        this.props.eventEmitter.addListener("AddedChatMember", thisreference.handleAddedChatMember);
+        this.props.eventEmitter.addListener("UpdateChatMembers", thisreference.handleUpdateChatMembers);
     }
-    handleAddedChatMember(event) {
+    handleUpdateChatMembers(event) {
         var thisreference = this;
         $.ajax({
             url: "/EventDateFinder/InvitedUsers/" + thisreference.props.ID,
@@ -24,6 +25,21 @@
             data: {},
             success: function (result) {
                 thisreference.setState({ InvitedUsers: result });
+            }
+        });
+    }
+    handleOnRemoveClick(event) {
+        var thisreference = this;
+        event.persist();        
+        $.ajax({
+            url: "/EventDateFinder/RemoveInvitedUser/",
+            type: "POST",
+            data: {
+                ID: thisreference.props.ID,
+                ChatUser: event.target.dataset.value
+            },
+            success: function (result) {
+                thisreference.props.eventEmitter.emitEvent("UpdateChatMembers");
             }
         });
     }
@@ -35,10 +51,10 @@
     render() {
         chatUserNodes = "";
         if (this.state.InvitedUsers.length > 0) {
-            console.log(this.state.InvitedUsers)
+            var tempthis = this;
             chatUserNodes = this.state.InvitedUsers.map(function (chatUser) {
                 return (<div key={chatUser.key} className="col-12 userListItem">
-                    <span>{chatUser.name}</span><span className="button">remove</span>
+                    <span>{chatUser.name}</span><span onClick={tempthis.handleOnRemoveClick} data-value={chatUser.name} className="button">remove</span>
                 </div>);
             });
             return (

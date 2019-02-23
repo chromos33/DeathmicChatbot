@@ -105,6 +105,20 @@ namespace BobDeathmic.Controllers
                 }
             }
         }
+        [HttpPost]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task RemoveInvitedUser(string ID, string ChatUser)
+        {
+            if (Int32.TryParse(ID, out int _ID))
+            {
+                var RelationToDelete = _context.ChatUserModel_Calendar.Include(x => x.ChatUserModel).Where(x => x.CalendarID == _ID && x.ChatUserModel.ChatUserName == ChatUser).FirstOrDefault();
+                if(RelationToDelete != null)
+                {
+                    _context.ChatUserModel_Calendar.Remove(RelationToDelete);
+                    _context.SaveChanges();
+                }
+            }
+        }
         [Authorize(Roles = "User,Dev,Admin")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> InvitableUsers(int ID)
@@ -218,6 +232,19 @@ namespace BobDeathmic.Controllers
             }
             return null;
 
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public void RemoveTemplate(string ID,int CalendarID)
+        {
+            var calendar = _context.EventCalendar.Where(x => x.Id == CalendarID).FirstOrDefault();
+            var template = _context.AppointmentRequestTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            if(calendar != null && template != null)
+            {
+                calendar.AppointmentRequestTemplate.Remove(template);
+                _context.Remove(template);
+                _context.SaveChanges();
+            }
         }
         [Authorize(Roles = "User,Dev,Admin")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]

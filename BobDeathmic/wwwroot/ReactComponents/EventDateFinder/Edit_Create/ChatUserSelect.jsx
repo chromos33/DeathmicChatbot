@@ -26,7 +26,7 @@
                 ChatUser: thisreference.state.selectedUser.name
             },
             success: function (result) {
-                thisreference.props.eventEmitter.emitEvent("AddedChatMember");
+                thisreference.props.eventEmitter.emitEvent("UpdateChatMembers");
             }
         });
     }
