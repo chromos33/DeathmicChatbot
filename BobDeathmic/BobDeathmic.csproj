@@ -23,6 +23,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="morelinq" Version="3.0.0" />
+    <PackageReference Include="NCrontab" Version="3.3.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
 	<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.4" />
 	<PackageReference Include="React.AspNet" Version="4.0.0" />

@@ -17,7 +17,8 @@ using Microsoft.AspNetCore.Http;
 using JavaScriptEngineSwitcher.ChakraCore;
 using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using React.AspNet;
-
+using BobDeathmic.Services.Helper;
+using BobDeathmic.Services.Tasks;
 
 namespace BobDeathmic
 {
@@ -70,6 +71,9 @@ namespace BobDeathmic
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchRelayCenter>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchAPICalls>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.StrawPollService>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.SchedulerHostService>();
+
+            services.AddSingleton<IScheduledTask, EventCalendarTask>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddReact();
