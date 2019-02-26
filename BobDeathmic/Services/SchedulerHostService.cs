@@ -19,9 +19,9 @@ namespace BobDeathmic.Services
                 var Scheduler = new SchedulerTaskWrapper
                 {
                     Schedule = CrontabSchedule.Parse(scheduledTask.Schedule),
-                    Task = scheduledTask
+                    Task = scheduledTask,
+                    Init = true
                 };
-                Scheduler.Initialize();
                 _scheduledTasks.Add(Scheduler);
             }
         }
@@ -39,7 +39,7 @@ namespace BobDeathmic.Services
             var taskFactory = new TaskFactory(TaskScheduler.Current);
             var referenceTime = DateTime.Now;
 
-            List<SchedulerTaskWrapper> tasksThatShouldRun = _scheduledTasks.Where(t => t.ShouldRun(referenceTime)).ToList();
+            List<SchedulerTaskWrapper> tasksThatShouldRun = _scheduledTasks.Where(t => t.ShouldRun()).ToList();
 
             foreach (var taskThatShouldRun in tasksThatShouldRun)
             {

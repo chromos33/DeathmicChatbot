@@ -14,6 +14,23 @@ namespace BobDeathmic.Models.EventDateFinder
         public DateTime StartTime { get; set; }
         public DateTime StopTime { get; set; }
         public Day Day { get; set; }
+
+        //Pos 1 / 2 cause only showing 2 weeks)
+        public EventDate CreateEventDate(int Pos)
+        {
+            EventDate Clone = new EventDate();
+            Clone.Calendar = Calendar;
+            Clone.StartTime = StartTime;
+            Clone.StopTime = StopTime;
+            TimeSpan add = new TimeSpan();
+            DateTime today = DateTime.Today.Add(new TimeSpan(1, StartTime.Hour, StartTime.Minute,0));
+
+            // The (... + 7) % 7 ensures we end up with a value in the range [0, 6]
+            int daysUntilTargetDay = (((int)Day - (int)today.DayOfWeek + 7) % 7) + Pos * 7;
+            DateTime nextDayOccurence = today.AddDays(daysUntilTargetDay);
+            Clone.Date = nextDayOccurence;
+            return Clone;
+        }
     }
     public enum Day
     {

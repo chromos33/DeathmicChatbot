@@ -165,10 +165,10 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> Templates(int ID)
         {
-            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Include(x => x.AppointmentRequestTemplate).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
+            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Include(x => x.EventDateTemplates).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
             if (_calendar != null)
             {
-                return Json(_calendar.AppointmentRequestTemplate.Select(x => new {key = x.ID, Day = x.Day,Start = x.StartTime.ToString("HH:mm"),Stop = x.StopTime.ToString("HH:mm") }), new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore});
+                return Json(_calendar.EventDateTemplates.Select(x => new {key = x.ID, Day = x.Day,Start = x.StartTime.ToString("HH:mm"),Stop = x.StopTime.ToString("HH:mm") }), new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore});
             }
             return null;
 
@@ -225,7 +225,7 @@ namespace BobDeathmic.Controllers
             {
                 EventDateTemplate item = new EventDateTemplate();
                 item.Calendar = _calendar;
-                _calendar.AppointmentRequestTemplate.Add(item);
+                _calendar.EventDateTemplates.Add(item);
                 _context.AppointmentRequestTemplates.Add(item);
                 _context.SaveChanges();
                 return Json(new { Day = item.Day, Start = item.StartTime, Stop = item.StopTime }, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore });
@@ -241,7 +241,7 @@ namespace BobDeathmic.Controllers
             var template = _context.AppointmentRequestTemplates.Where(x => x.ID == ID).FirstOrDefault();
             if(calendar != null && template != null)
             {
-                calendar.AppointmentRequestTemplate.Remove(template);
+                calendar.EventDateTemplates.Remove(template);
                 _context.Remove(template);
                 _context.SaveChanges();
             }

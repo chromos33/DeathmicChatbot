@@ -8,8 +8,12 @@ namespace BobDeathmic.Services
         public NCrontab.CrontabSchedule Schedule { get; set; }
         public IScheduledTask Task { get; set; }
         public DateTime NextRunTime { get; set; }
-        private bool Init = false;
-        public bool ShouldRun(DateTime time)
+        public bool Init;
+        public SchedulerTaskWrapper()
+        {
+            NextRunTime = DateTime.Now.Subtract(TimeSpan.FromMinutes(1));
+        }
+        public bool ShouldRun()
         {
             if(Init)
             {
@@ -17,16 +21,15 @@ namespace BobDeathmic.Services
                 Increment();
                 return false;
             }
-            return NextRunTime.Hour == Schedule.GetNextOccurrence(time).Hour && NextRunTime.Minute == Schedule.GetNextOccurrence(time).Minute;
+            if(NextRunTime < Schedule.GetNextOccurrence(DateTime.Now))
+            {
+                return true;
+            }
+            return NextRunTime.Hour == Schedule.GetNextOccurrence(DateTime.Now).Hour && NextRunTime.Minute == Schedule.GetNextOccurrence(DateTime.Now).Minute;
         }
         public void Increment()
         {
-            NextRunTime = Schedule.GetNextOccurrence(DateTime.Now);
-        }
-        public void Initialize()
-        {
-            Init = true;
-            NextRunTime = Schedule.GetNextOccurrence(DateTime.Now);
+            NextRunTime = Schedule.GetNextOccurrence(NextRunTime);
         }
     }
 }

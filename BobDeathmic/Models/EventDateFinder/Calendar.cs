@@ -12,7 +12,7 @@ namespace BobDeathmic.Models.EventDateFinder
         public int Id { get; set; }
         public string Name { get; set; }
         
-        public List<EventDateTemplate> AppointmentRequestTemplate { get; set; }
+        public List<EventDateTemplate> EventDateTemplates { get; set; }
         public List<ChatUserModel_Calendar> Members { get; set; }
 
         public string AdministratorID { get; set; }
@@ -23,7 +23,7 @@ namespace BobDeathmic.Models.EventDateFinder
 
         public Calendar()
         {
-            AppointmentRequestTemplate = new List<EventDateTemplate>();
+            EventDateTemplates = new List<EventDateTemplate>();
             Members = new List<ChatUserModel_Calendar>();
             EventDates = new List<EventDate>();
         }
@@ -44,6 +44,15 @@ namespace BobDeathmic.Models.EventDateFinder
                 Users.Add(member.ChatUserModel);
             }
             return Users;
+        }
+        public List<AppointmentRequest> GenerateAppointmentRequests(EventDate eventDate)
+        {
+            List<AppointmentRequest> tmp = new List<AppointmentRequest>();
+            foreach(ChatUserModel_Calendar MemberRelation in Members)
+            {
+                tmp.Add(new AppointmentRequest { Owner = MemberRelation.ChatUserModel, EventDate = eventDate });
+            }
+            return tmp;
         }
     }
 }

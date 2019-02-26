@@ -11,6 +11,15 @@ namespace BobDeathmic.Models.EventDateFinder
         public string ID { get; set; }
         public EventDate EventDate { get; set; }
         public ChatUserModel Owner { get; set; }
+        public AppointmentRequest()
+        {
+
+        }
+        public AppointmentRequest(ChatUserModel Owner,EventDate EventDate)
+        {
+            this.EventDate = EventDate;
+            this.Owner = Owner;
+        }
     }
 }
 
