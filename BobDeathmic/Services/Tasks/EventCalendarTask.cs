@@ -23,37 +23,63 @@ namespace BobDeathmic.Services.Tasks
         {
             if(_context != null)
             {
-                var ApplicableCalendars = _context.EventCalendar.Include(x => x.EventDateTemplates).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Members.Count() > 0 && x.EventDateTemplates.Count() > 0);
-                foreach(Calendar calendar in ApplicableCalendars)
+                var ApplicableCalendars = _context.EventCalendar.Include(x => x.EventDateTemplates).Include(x => x.EventDates).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Members.Count() > 0 && x.EventDateTemplates.Count() > 0);
+                RemovePassedEventDates();
+                foreach (Calendar calendar in ApplicableCalendars)
                 {
-                    RemovePassedEventDates(calendar);
-                    UpdateEventDatesOnCalendar(calendar);
+                    AddEventDatesOnCalendar(calendar);
+                    UpdateEventDates(calendar);
                     _context.SaveChanges();
                 }
             }
         }
-        private void RemovePassedEventDates(Calendar calendar)
+        private void RemovePassedEventDates()
         {
-            var EventDatesToRemove = calendar.EventDates.Where(x => x.Date < DateTime.Now);
+            
+            var EventDatesToRemove = _context.EventDates.Where(x => x.Date < DateTime.Now);
             foreach(EventDate remove in EventDatesToRemove)
             {
-                calendar.EventDates.Remove(remove);
+                _context.EventDates.Remove(remove);
+
+            }
+            foreach(Calendar calendar in _context.EventCalendar)
+            {
+                var EventDatesInCalendarToRemove = calendar.EventDates.Where(x => x.Date < DateTime.Now);
+                foreach (EventDate remove in EventDatesInCalendarToRemove)
+                {
+                    calendar.EventDates.Remove(remove);
+                }
             }
         }
-        private void UpdateEventDatesOnCalendar(Calendar calendar)
+        private void AddEventDatesOnCalendar(Calendar calendar)
         {
             // Next 2 weeks
             for(int week = 0; week < 2;week++ )
             {
                 foreach(EventDateTemplate template in calendar.EventDateTemplates)
                 {
-                    var eventdate = template.CreateEventDate(week);
-                    if(calendar.EventDates.Where( x => x.Date == eventdate.Date).Count() == 0)
+                    EventDate eventdate = template.CreateEventDate(week);
+                    eventdate.EventDateTemplateID = template.ID;
+                    if(calendar.EventDates.Where( x => x.Date == eventdate.Date && x.StartTime == eventdate.StartTime && x.StopTime == eventdate.StopTime).Count() == 0)
                     {
-                        //TODO Add AppointmentRequests to EventDate
                         eventdate.Teilnahmen = calendar.GenerateAppointmentRequests(eventdate);
+                        _context.EventDates.Add(eventdate);
                         calendar.EventDates.Add(eventdate);
                     }
+                }
+            }
+        }
+        private void UpdateEventDates(Calendar calendar)
+        {
+            foreach (EventDate update in calendar.EventDates)
+            {
+                var template = _context.EventDateTemplates.Where(x => x.ID == update.EventDateTemplateID).FirstOrDefault();
+                if(template != null)
+                {
+                    update.StartTime = template.StartTime;
+                    update.StopTime = template.StopTime;
+                    update.Date =  DateTime.ParseExact(update.Date.ToString("dd-MM-yyyy") + " " + update.StartTime.ToString("HH:mm"), "dd-MM-yyyy HH:mm",
+                                    System.Globalization.CultureInfo.InvariantCulture);
                 }
             }
         }

@@ -12,18 +12,19 @@
             type: "GET",
             data: {},
             success: function (result) {
-                thisreference.setState({ chatUsers: result, selectedUser: result[0] });
+                thisreference.setState({ chatUsers: result, selectedUser: result[0].name });
             }
         });
     }
     handleOnClick(event) {
+        
         var thisreference = this;
         $.ajax({
             url: "/EventDateFinder/AddInvitedUser/",
             type: "POST",
             data: {
                 ID: thisreference.props.ID,
-                ChatUser: thisreference.state.selectedUser.name
+                ChatUser: thisreference.state.selectedUser
             },
             success: function (result) {
                 thisreference.props.eventEmitter.emitEvent("UpdateChatMembers");
@@ -31,6 +32,7 @@
         });
     }
     handleOnChange(event) {
+        console.log(event.target.value);
         this.setState({ selectedUser: event.target.value});
     }
     render() {

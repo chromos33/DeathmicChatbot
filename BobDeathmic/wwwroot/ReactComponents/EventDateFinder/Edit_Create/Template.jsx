@@ -58,7 +58,21 @@
         });
     }
     handleOnEndChange(event) {
-
+        var tempthis = this;
+        event.persist();
+        var value = event.target.value;
+        $.ajax({
+            url: "/EventDateFinder/SetStopOfTemplate/" + this.state.name,
+            type: "GET",
+            data: {
+                Stop: event.target.value
+            },
+            success: function (result) {
+                if (result === true) {
+                    tempthis.setState({ stop: value });
+                }
+            }
+        });
     }
     render() {
         var tempthis = this;

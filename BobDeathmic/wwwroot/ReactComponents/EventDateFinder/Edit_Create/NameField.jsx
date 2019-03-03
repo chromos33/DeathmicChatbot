@@ -7,7 +7,7 @@
         this.hangleOnChange = this.hangleOnChange.bind(this);
     }
     componentDidUpdate(prevstate) {
-        if (prevstate.value === "") {
+        if (prevstate.value === "" && this.props.value !== "") {
             this.setState({ value: this.props.value });
         }
         if (prevstate.id === "undefined") {

@@ -70,7 +70,29 @@ namespace BobDeathmic.Data
                 .HasOne(c => c.Admin)
                 .WithMany(u => u.AdministratedCalendars)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+            builder.Entity<Calendar>()
+                .HasMany(x => x.EventDates)
+                .WithOne(y => y.Calendar)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<EventDate>()
+                .HasOne(x => x.Calendar)
+                .WithMany(y => y.EventDates)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            builder.Entity<EventDate>()
+                .HasMany(x => x.Teilnahmen)
+                .WithOne(x => x.EventDate)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<Calendar>()
+                .HasMany(x => x.EventDateTemplates)
+                .WithOne(y => y.Calendar)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<AppointmentRequest>()
+                .HasOne(x => x.Owner)
+                .WithMany(x => x.AppointmentRequests)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            
         }
+        //a foreign key constraint fails (`bobcoreef`.`appointmentrequests`, CONSTRAINT `FK_AppointmentRequests_EventDates_EventDateID` FOREIGN KEY (`EventDateID`) REFERENCES `eventdates` (`ID`)) ---
         public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
         public DbSet<Models.Stream> StreamModels { get; set; }
         public DbSet<StreamSubscription> StreamSubscriptions { get; set; }
@@ -82,7 +104,7 @@ namespace BobDeathmic.Data
         public DbSet<User_GiveAwayItem> User_GiveAway { get; set; }
         public DbSet<Calendar> EventCalendar { get; set; }
         public DbSet<AppointmentRequest> AppointmentRequests {get;set;}
-        public DbSet<EventDateTemplate> AppointmentRequestTemplates { get; set; }
+        public DbSet<EventDateTemplate> EventDateTemplates { get; set; }
         public DbSet<EventDate> EventDates { get; set; }
         public DbSet<ChatUserModel_Calendar> ChatUserModel_Calendar { get; set; }
     }

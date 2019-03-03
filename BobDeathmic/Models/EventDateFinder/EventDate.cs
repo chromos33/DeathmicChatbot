@@ -9,7 +9,9 @@ namespace BobDeathmic.Models.EventDateFinder
     public class EventDate
     {
         public string ID { get; set; }
+        public int CalendarId { get; set; }
         public Calendar Calendar { get; set; }
+        public string EventDateTemplateID { get; set; }
         public List<AppointmentRequest> Teilnahmen { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime StopTime { get; set; }

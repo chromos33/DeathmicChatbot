@@ -7,6 +7,7 @@ using BobDeathmic.Models;
 using BobDeathmic.Models.EventDateFinder;
 using BobDeathmic.Models.EventDateFinder.ManyMany;
 using BobDeathmic.ReactDataClasses.EventDateFinder.OverView;
+using BobDeathmic.ReactDataClasses.EventDateFinder.Vote;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +50,7 @@ namespace BobDeathmic.Controllers
             foreach(Models.EventDateFinder.Calendar calendar in _context.EventCalendar.Include(x => x.Admin).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Admin.Id == user.Id || x.isMember(user)))
             {
                 //TODO make a custom CalendarMember object to facilitate better security (no need to lay open all data)
-                Calendars.Add(new ReactDataClasses.EventDateFinder.OverView.Calendar { Id = calendar.Id,key = calendar.Id, EditLink = this.Url.Action("EditCalendar", "EventDateFinder", new { ID = calendar.Id }), Name = calendar.Name,VoteLink = this.Url.Action("EventDateFinder", "VoteOnCalendar", new { ID = calendar.Id})});
+                Calendars.Add(new ReactDataClasses.EventDateFinder.OverView.Calendar { Id = calendar.Id,key = calendar.Id, EditLink = this.Url.Action("EditCalendar", "EventDateFinder", new { ID = calendar.Id }), Name = calendar.Name,VoteLink = this.Url.Action("VoteOnCalendar", "EventDateFinder", new { ID = calendar.Id})});
                 
             }
             return Calendars;
@@ -146,6 +147,60 @@ namespace BobDeathmic.Controllers
         }
         [Authorize(Roles = "User,Dev,Admin")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<JsonResult> GetEventDates(int ID)
+        {
+            List<EventDate> EventDates = _context.EventDates.Include(x => x.Calendar).Include(x => x.Teilnahmen).ThenInclude(x => x.Owner).Where(x => x.CalendarId == ID).OrderBy(x => x.Date).ThenBy(x => x.StartTime).ToList();
+            if (EventDates.Count() >0)
+            {
+                VoteReactData ReactData = new VoteReactData();
+                ReactData.Header = new List<EventDateHeader>();
+                ReactData.User = new List<VoteChatUser>();
+                ChatUserModel user = await _userManager.GetUserAsync(this.User);
+                foreach(EventDate EventDate in EventDates)
+                {
+                    if(ReactData.Header.Where(x => x.Date == EventDate.Date.ToString("dd.MM.yy") && x.Time == EventDate.StartTime.ToString("HH:mm") + " - " + EventDate.StopTime.ToString("HH:mm")).Count() == 0)
+                    {
+                        ReactData.Header.Add(new EventDateHeader { Date = EventDate.Date.ToString("dd.MM.yy"), Time = EventDate.StartTime.ToString("HH:mm") + " - " + EventDate.StopTime.ToString("HH:mm") });
+                        foreach (AppointmentRequest request in EventDate.Teilnahmen.OrderBy(x => x.EventDate.Date).ThenBy(x => x.EventDate.StartTime))
+                        {
+                            if (ReactData.User.Where(x => x.Name.ToLower() == request.Owner.ChatUserName.ToLower()).Count() == 0)
+                            {
+                                var userdata = new VoteChatUser { key = request.Owner.ChatUserName, Name = request.Owner.ChatUserName };
+                                userdata.canEdit = request.Owner == user;
+                                userdata.Requests = new List<VoteRequest>();
+                                VoteRequest tmp = new VoteRequest();
+                                tmp.AppointmentRequestID = request.ID;
+                                tmp.UserName = request.Owner.ChatUserName;
+                                tmp.State = request.State;
+                                tmp.Date = request.EventDate.Date;
+                                tmp.Time = request.EventDate.StartTime;
+                                userdata.Requests.Add(tmp);
+                                ReactData.User.Add(userdata);
+
+                            }
+                            else
+                            {
+                                var userdata = ReactData.User.Where(x => x.Name.ToLower() == request.Owner.ChatUserName.ToLower()).FirstOrDefault();
+                                VoteRequest tmp = new VoteRequest();
+                                tmp.AppointmentRequestID = request.ID;
+                                tmp.UserName = request.Owner.ChatUserName;
+                                tmp.State = request.State;
+                                tmp.Date = request.EventDate.Date;
+                                tmp.Time = request.EventDate.StartTime;
+                                userdata.Requests.Add(tmp);
+                            }
+                        }
+                    }
+                }
+                var json = Json(ReactData, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore });
+                return json;
+            }
+            return new JsonResult("");
+
+        }
+        
+        [Authorize(Roles = "User,Dev,Admin")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> InvitedUsers(int ID)
         {
             Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
@@ -178,7 +233,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<bool> SetDayOfTemplate(string ID, int Day)
         {
-            EventDateTemplate template = _context.AppointmentRequestTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            EventDateTemplate template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
             if(template != null)
             {
                 template.Day = (Models.EventDateFinder.Day)Enum.ToObject(typeof(Models.EventDateFinder.Day), Day);
@@ -192,7 +247,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<bool> SetStartOfTemplate(string ID, string Start)
         {
-            EventDateTemplate template = _context.AppointmentRequestTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            EventDateTemplate template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
             if (template != null)
             {
                 template.StartTime = DateTime.ParseExact(Start,"HH:mm",System.Globalization.CultureInfo.InvariantCulture);
@@ -206,7 +261,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<bool> SetStopOfTemplate(string ID, string Stop)
         {
-            EventDateTemplate template = _context.AppointmentRequestTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            EventDateTemplate template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
             if (template != null)
             {
                 template.StopTime = DateTime.ParseExact(Stop, "HH:mm", System.Globalization.CultureInfo.InvariantCulture);
@@ -226,9 +281,9 @@ namespace BobDeathmic.Controllers
                 EventDateTemplate item = new EventDateTemplate();
                 item.Calendar = _calendar;
                 _calendar.EventDateTemplates.Add(item);
-                _context.AppointmentRequestTemplates.Add(item);
+                _context.EventDateTemplates.Add(item);
                 _context.SaveChanges();
-                return Json(new { Day = item.Day, Start = item.StartTime, Stop = item.StopTime }, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore });
+                return Json(new { key =item.ID, Day = item.Day, Start = item.StartTime, Stop = item.StopTime }, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore });
             }
             return null;
 
@@ -238,7 +293,7 @@ namespace BobDeathmic.Controllers
         public void RemoveTemplate(string ID,int CalendarID)
         {
             var calendar = _context.EventCalendar.Where(x => x.Id == CalendarID).FirstOrDefault();
-            var template = _context.AppointmentRequestTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            var template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
             if(calendar != null && template != null)
             {
                 calendar.EventDateTemplates.Remove(template);
@@ -303,7 +358,7 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> VoteOnCalendar(int ID)
         {
             //Create Calendar here stuff
-            return View();
+            return View(ID);
         }
     }
 }

@@ -104,6 +104,17 @@ namespace BobDeathmic.Controllers
         }
         [HttpGet]
         [AllowAnonymous]
+        public IActionResult ClearTables()
+        {
+            foreach(Models.EventDateFinder.EventDate date in _dbcontext.EventDates)
+            {
+                _dbcontext.EventDates.Remove(date);
+            }
+            _dbcontext.SaveChanges();
+            return RedirectToAction(nameof(Login));
+        }
+        [HttpGet]
+        [AllowAnonymous]
         public IActionResult Lockout()
         {
             return View();

@@ -16,8 +16,8 @@
     render() {
         calendarNodes = "";
         if (this.state.data.calendars !== undefined) {
-            calendarNodes = this.state.data.calendars.map(function (comment) {
-                return <Calendar key={comment.key} editLink={comment.editLink} name={comment.name} voteLink={comment.voteLink} chatUsers={comment.chatUsers}></Calendar>
+            calendarNodes = this.state.data.calendars.map(function (calendar) {
+                return <Calendar key={calendar.key} editLink={calendar.editLink} name={calendar.name} voteLink={calendar.voteLink} chatUsers={calendar.chatUsers}></Calendar>
             });
         }
         return (
