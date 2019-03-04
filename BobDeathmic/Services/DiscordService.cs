@@ -48,6 +48,12 @@ namespace BobDeathmic.Services
             //Piggy backing through Relay
             _eventBus.RelayPassed += RelayPassed;
             _eventBus.GiveAwayMessage += GiveAwayMessage;
+            _eventBus.DiscordWhisperRequested += WhisperRequested;
+        }
+
+        private void WhisperRequested(object sender, DiscordWhisperArgs e)
+        {
+            client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(x => x.Username.ToLower() == e.UserName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
         }
 
         private void GiveAwayMessage(object sender, GiveAwayEventArgs e)

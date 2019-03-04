@@ -86,9 +86,15 @@
     padding:10px 0;
     border-top:2px solid grey;
 }
-.requestNode
+.VoteUser_Name
 {
-    position:relative;
+    flex:1 0 5% !important;
+}
+.voteHeader:first-child {
+    flex:1 0 5%;
+}
+.requestNode {
+    position: relative;
 }
 .requestNode:after
 {

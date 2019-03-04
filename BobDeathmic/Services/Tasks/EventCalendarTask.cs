@@ -1,4 +1,6 @@
-﻿using BobDeathmic.Data;
+﻿using BobDeathmic.Args;
+using BobDeathmic.Data;
+using BobDeathmic.Eventbus;
 using BobDeathmic.Models.EventDateFinder;
 using BobDeathmic.Services.Helper;
 using Microsoft.EntityFrameworkCore;
@@ -14,25 +16,40 @@ namespace BobDeathmic.Services.Tasks
     {
         public string Schedule => "* * * * *";
         private readonly ApplicationDbContext _context;
-        public EventCalendarTask(ApplicationDbContext context)
+        private IEventBus _eventBus;
+        public EventCalendarTask(ApplicationDbContext context, IEventBus eventBus)
         {
             _context = context;
+            _eventBus = eventBus;
         }
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             if(_context != null)
             {
-                var ApplicableCalendars = _context.EventCalendar.Include(x => x.EventDateTemplates).Include(x => x.EventDates).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Members.Count() > 0 && x.EventDateTemplates.Count() > 0);
+                var ApplicableCalendars = _context.EventCalendar.Include(x => x.EventDateTemplates).Include(x => x.EventDates).ThenInclude(x => x.Teilnahmen).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Members.Count() > 0 && x.EventDateTemplates.Count() > 0);
                 RemovePassedEventDates();
                 foreach (Calendar calendar in ApplicableCalendars)
                 {
                     AddEventDatesOnCalendar(calendar);
                     UpdateEventDates(calendar);
                     _context.SaveChanges();
+                    NotifyUsers(calendar);
                 }
             }
         }
+
+        private void NotifyUsers(Calendar calendar)
+        {
+            foreach (EventDate date in calendar.EventDates.Where(x => x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(5)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(1)).Date))
+            {
+                foreach(AppointmentRequest request in date.Teilnahmen.Where(x => x.State == AppointmentRequestState.NotYetVoted))
+                {
+                    _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = request.Owner.UserName, Message = $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Calendar.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen"});
+                }
+            }
+        }
+
         private void RemovePassedEventDates()
         {
             

@@ -6,12 +6,21 @@
     }
     handleOnChange(event) {
         this.setState({ State: event.target.value });
-        console.log(this.props.requestID);
-        //TODO update Data On Server
+        var thisreference = this;
+        var tmpevent = event;
+        $.ajax({
+            url: "/EventDateFinder/UpdateRequestState/",
+            type: "GET",
+            data: {
+                requestID: thisreference.props.requestID,
+                state: event.target.value
+            },
+            success: function (result) {
+            }
+        });
     }
     render() {
         var tmpthis = this;
-        console.log(this.props.canEdit);
         if (this.props.canEdit) {
             if (this.state.possibleStates.length > 0) {
                 var states = this.state.possibleStates.map(function (state) {

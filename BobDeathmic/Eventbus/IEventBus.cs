@@ -17,6 +17,7 @@ namespace BobDeathmic.Eventbus
         event EventHandler<StreamEventArgs> RelayPassed;
         event EventHandler<GiveAwayEventArgs> GiveAwayMessage;
         event EventHandler<StrawPollRequestEventArgs> StrawPollRequested;
+        event EventHandler<DiscordWhisperArgs> DiscordWhisperRequested;
         void TriggerEvent(EventType @event, dynamic EventData);
     }
 }

@@ -106,6 +106,18 @@ namespace BobDeathmic.Controllers
                 }
             }
         }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task UpdateRequestState(string requestID, string state)
+        {
+            var Request = _context.AppointmentRequests.Where(x => x.ID == requestID).FirstOrDefault();
+            if(Request != null)
+            {
+                Request.State = (AppointmentRequestState) Enum.Parse(typeof(AppointmentRequestState), state);
+                _context.SaveChanges();
+            }
+
+        }
         [HttpPost]
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task RemoveInvitedUser(string ID, string ChatUser)
@@ -113,7 +125,7 @@ namespace BobDeathmic.Controllers
             if (Int32.TryParse(ID, out int _ID))
             {
                 var RelationToDelete = _context.ChatUserModel_Calendar.Include(x => x.ChatUserModel).Where(x => x.CalendarID == _ID && x.ChatUserModel.ChatUserName == ChatUser).FirstOrDefault();
-                if(RelationToDelete != null)
+                if (RelationToDelete != null)
                 {
                     _context.ChatUserModel_Calendar.Remove(RelationToDelete);
                     _context.SaveChanges();
@@ -149,7 +161,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> GetEventDates(int ID)
         {
-            List<EventDate> EventDates = _context.EventDates.Include(x => x.Calendar).Include(x => x.Teilnahmen).ThenInclude(x => x.Owner).Where(x => x.CalendarId == ID).OrderBy(x => x.Date).ThenBy(x => x.StartTime).ToList();
+            List<EventDate> EventDates = _context.EventDates.Include(x => x.Calendar).Include(x => x.Teilnahmen).ThenInclude(x => x.Owner).Where(x => x.CalendarId == ID).OrderBy(x => x.Date).ThenBy(x => x.StartTime).Take(6).ToList();
             if (EventDates.Count() >0)
             {
                 VoteReactData ReactData = new VoteReactData();
