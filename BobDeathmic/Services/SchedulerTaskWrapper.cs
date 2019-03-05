@@ -21,15 +21,17 @@ namespace BobDeathmic.Services
                 Increment();
                 return false;
             }
-            if(NextRunTime < Schedule.GetNextOccurrence(DateTime.Now))
+            var next = Schedule.GetNextOccurrence(DateTime.Now);
+            if (NextRunTime < DateTime.Now)
             {
                 return true;
             }
-            return NextRunTime.Hour == Schedule.GetNextOccurrence(DateTime.Now).Hour && NextRunTime.Minute == Schedule.GetNextOccurrence(DateTime.Now).Minute;
+            return false;
+            //return NextRunTime.Hour == Schedule.GetNextOccurrence(DateTime.Now).Hour && NextRunTime.Minute == Schedule.GetNextOccurrence(DateTime.Now).Minute;
         }
         public void Increment()
         {
-            NextRunTime = Schedule.GetNextOccurrence(NextRunTime);
+            NextRunTime = Schedule.GetNextOccurrence(DateTime.Now);
         }
     }
 }
