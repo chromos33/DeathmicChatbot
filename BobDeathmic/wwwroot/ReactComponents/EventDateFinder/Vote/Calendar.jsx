@@ -16,7 +16,7 @@
         });
     }
     render() {
-        if (this.state.data.Header != undefined && this.state.data.Header.length > 0 && this.state.data.User != undefined) {
+        if (this.state.data.Header !== undefined && this.state.data.Header.length > 0 && this.state.data.User !== undefined) {
             var tempthis = this;
             headerNodes = this.state.data.Header.map(function (Header) {
                 return <span key={Header.Date + Header.Time} className="voteHeader"><span className="date">{Header.Date}</span><br /><span className="time">{Header.Time}</span></span>;
