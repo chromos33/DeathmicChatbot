@@ -15,7 +15,7 @@ namespace BobDeathmic.Services.Tasks
 {
     public class EventCalendarTask : IScheduledTask
     {
-        public string Schedule => "0 6 * * *";
+        public string Schedule => "0 18 * * *";
         private readonly ApplicationDbContext _context;
         private IEventBus _eventBus;
         private IConfiguration _configuration;
