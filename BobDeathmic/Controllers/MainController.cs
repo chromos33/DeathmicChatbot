@@ -85,7 +85,7 @@ namespace BobDeathmic.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return RedirectToAction("Subscriptions", "User");
+                    return Redirect(returnUrl);
                 }
                 if (result.IsLockedOut)
                 {
@@ -101,17 +101,6 @@ namespace BobDeathmic.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
-        }
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult ClearTables()
-        {
-            foreach(Models.EventDateFinder.EventDate date in _dbcontext.EventDates)
-            {
-                _dbcontext.EventDates.Remove(date);
-            }
-            _dbcontext.SaveChanges();
-            return RedirectToAction(nameof(Login));
         }
         [HttpGet]
         [AllowAnonymous]

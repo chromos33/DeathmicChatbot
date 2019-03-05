@@ -4,6 +4,7 @@ using BobDeathmic.Eventbus;
 using BobDeathmic.Models.EventDateFinder;
 using BobDeathmic.Services.Helper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +15,15 @@ namespace BobDeathmic.Services.Tasks
 {
     public class EventCalendarTask : IScheduledTask
     {
-        public string Schedule => "* * * * *";
+        public string Schedule => "0 6 * * *";
         private readonly ApplicationDbContext _context;
         private IEventBus _eventBus;
-        public EventCalendarTask(ApplicationDbContext context, IEventBus eventBus)
+        private IConfiguration _configuration;
+        public EventCalendarTask(ApplicationDbContext context, IEventBus eventBus, IConfiguration Configuration)
         {
             _context = context;
             _eventBus = eventBus;
+            _configuration = Configuration;
         }
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -41,11 +44,12 @@ namespace BobDeathmic.Services.Tasks
 
         private void NotifyUsers(Calendar calendar)
         {
-            foreach (EventDate date in calendar.EventDates.Where(x => x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(5)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(1)).Date))
+            string address = _configuration.GetValue<string>("WebServerWebAddress");
+            foreach (EventDate date in calendar.EventDates.Where(x => x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(4)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(1)).Date))
             {
                 foreach(AppointmentRequest request in date.Teilnahmen.Where(x => x.State == AppointmentRequestState.NotYetVoted))
                 {
-                    _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = request.Owner.UserName, Message = $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Calendar.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen"});
+                    _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = request.Owner.UserName, Message = $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Calendar.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/EventDateFinder/VoteOnCalendar/1" });
                 }
             }
         }
