@@ -85,7 +85,15 @@ namespace BobDeathmic.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return Redirect(returnUrl);
+                    if(returnUrl != null)
+                    {
+                        return Redirect(returnUrl);
+                    }
+                    else
+                    {
+                        return RedirectToAction("Subscriptions", "User");
+                    }
+                    
                 }
                 if (result.IsLockedOut)
                 {
