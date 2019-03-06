@@ -104,7 +104,6 @@ namespace BobDeathmic.Services
         private bool ConnectionChangeInProgress;
         private async Task Connect()
         {
-            Console.WriteLine("trying to connect");
             if(!ConnectionChangeInProgress)
             {
                 ConnectionChangeInProgress = true;
@@ -118,7 +117,6 @@ namespace BobDeathmic.Services
         private void HasConnected(object sender, OnConnectedArgs e)
         {
             ConnectionChangeInProgress = false;
-            Console.WriteLine("TwitchRelayCenter Connected");
             if (_AutoCommandTimer == null)
             {
                 _AutoCommandTimer = new System.Timers.Timer();
@@ -161,7 +159,6 @@ namespace BobDeathmic.Services
         private async void LoginAuthFailed(object sender, OnIncorrectLoginArgs e)
         {
             ConnectionChangeInProgress = false;
-            Console.WriteLine("Invalid Credentials");
             await RefreshToken();
             client.Disconnect();
             client.SetConnectionCredentials(await GetTwitchCredentials());
@@ -174,19 +171,16 @@ namespace BobDeathmic.Services
                 _AutoCommandTimer.Stop();
             }
             RefreshToken();
-            Console.WriteLine("TwitchRelayCenter Disconnected");
         }
         private void ConnectionError(object sender, OnConnectionErrorArgs e)
         {
             ConnectionChangeInProgress = false;
-            Console.WriteLine("Connection Error");
         }
 
         
 
         private void ChannelJoined(object sender, OnJoinedChannelArgs e)
         {
-            Console.WriteLine("Joined Channel");
             var twitchchannel = client.JoinedChannels.Where(channel => channel.Channel == e.Channel).FirstOrDefault();
             client.SendMessage(twitchchannel, "Relay Started");
             //Trigger Event to Send "Relay Started" to discord or somesuch
@@ -207,7 +201,6 @@ namespace BobDeathmic.Services
         }
         private void ChannelLeft(object sender, OnLeftChannelArgs e)
         {
-            Console.WriteLine("Left Channel");
         }
         private async void MessageReceived(object sender, OnMessageReceivedArgs e)
         {
@@ -339,7 +332,6 @@ namespace BobDeathmic.Services
         #region RelayBus Events
         private async void StreamChanged(object sender, StreamEventArgs e)
         {
-            Console.WriteLine("StreamChanged");
             StreamEventArgs args = e;
             if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch && e.relayactive == Models.Enum.RelayState.Activated)
             {
@@ -502,7 +494,6 @@ namespace BobDeathmic.Services
                         savedtoken.token = refresh.access_token;
                         savedtoken.RefreshToken = refresh.refresh_token;
                         _context.SaveChanges();
-                        Console.WriteLine("Refreshed Token");
                     }
                 }
             }

@@ -15,7 +15,8 @@ namespace BobDeathmic.Services
         }
         public bool ShouldRun()
         {
-            if(Init)
+            Console.WriteLine("ShouldRun");
+            if (Init)
             {
                 Init = false;
                 Increment();
@@ -31,6 +32,7 @@ namespace BobDeathmic.Services
         }
         public void Increment()
         {
+            Console.WriteLine("Increment");
             NextRunTime = Schedule.GetNextOccurrence(DateTime.Now);
         }
     }

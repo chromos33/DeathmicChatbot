@@ -130,7 +130,6 @@ namespace BobDeathmic.Services
                                 try
                                 {
                                     await user.SendMessageAsync(e.Notification);
-                                    //Console.WriteLine(dbUser.ChatUserName+ ": " + e.Notification);
                                     await Task.Delay(200);
                                 }catch(Discord.Net.HttpException ex)
                                 {

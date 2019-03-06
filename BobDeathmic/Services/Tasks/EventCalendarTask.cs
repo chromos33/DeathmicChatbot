@@ -44,6 +44,7 @@ namespace BobDeathmic.Services.Tasks
 
         private void NotifyUsers(Calendar calendar)
         {
+            Console.WriteLine("NotifyUsers");
             string address = _configuration.GetValue<string>("WebServerWebAddress");
             foreach (EventDate date in calendar.EventDates.Where(x => x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(4)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(1)).Date))
             {
@@ -56,7 +57,7 @@ namespace BobDeathmic.Services.Tasks
 
         private void RemovePassedEventDates()
         {
-            
+            Console.WriteLine("RemovePassedEventDates");
             var EventDatesToRemove = _context.EventDates.Where(x => x.Date < DateTime.Now);
             foreach(EventDate remove in EventDatesToRemove)
             {
@@ -74,8 +75,9 @@ namespace BobDeathmic.Services.Tasks
         }
         private void AddEventDatesOnCalendar(Calendar calendar)
         {
+            Console.WriteLine("AddEventDatesOnCalendar");
             // Next 2 weeks
-            for(int week = 0; week < 2;week++ )
+            for (int week = 0; week < 2;week++ )
             {
                 foreach(EventDateTemplate template in calendar.EventDateTemplates)
                 {
@@ -92,6 +94,7 @@ namespace BobDeathmic.Services.Tasks
         }
         private void UpdateEventDates(Calendar calendar)
         {
+            Console.WriteLine("UpdateEventDates");
             foreach (EventDate update in calendar.EventDates)
             {
                 var template = _context.EventDateTemplates.Where(x => x.ID == update.EventDateTemplateID).FirstOrDefault();
