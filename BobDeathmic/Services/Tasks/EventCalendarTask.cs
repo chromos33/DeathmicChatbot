@@ -1,6 +1,7 @@
 ﻿using BobDeathmic.Args;
 using BobDeathmic.Data;
 using BobDeathmic.Eventbus;
+using BobDeathmic.Helper;
 using BobDeathmic.Models.EventDateFinder;
 using BobDeathmic.Services.Helper;
 using Microsoft.EntityFrameworkCore;
@@ -46,12 +47,24 @@ namespace BobDeathmic.Services.Tasks
         {
             Console.WriteLine("NotifyUsers");
             string address = _configuration.GetValue<string>("WebServerWebAddress");
+            List<MutableTuple<string, string>> GroupedNotifications = new List<MutableTuple<string, string>>();
             foreach (EventDate date in calendar.EventDates.Where(x => x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(4)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(1)).Date))
             {
                 foreach(AppointmentRequest request in date.Teilnahmen.Where(x => x.State == AppointmentRequestState.NotYetVoted))
                 {
-                    _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = request.Owner.UserName, Message = $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Calendar.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/EventDateFinder/VoteOnCalendar/1" });
+                    if(GroupedNotifications.Where(x => x.First == request.Owner.UserName).Count() == 0)
+                    {
+                        GroupedNotifications.Add(new MutableTuple<string, string>(request.Owner.UserName, $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Calendar.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/EventDateFinder/VoteOnCalendar/1"));
+                    }
+                    else
+                    {
+                        GroupedNotifications.Where(x => x.First == request.Owner.UserName).FirstOrDefault().Second += Environment.NewLine + $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Calendar.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/EventDateFinder/VoteOnCalendar/1";
+                    }
                 }
+            }
+            foreach(MutableTuple<string,string> tuple in GroupedNotifications)
+            {
+                _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = tuple.First , Message = tuple.Second });
             }
         }
 
