@@ -8,9 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.0.1" />
-    <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore" Version="3.0.6" />
     <PackageReference Include="JavaScriptEngineSwitcher.ChakraCore.Native.linux-x64" Version="3.0.6" />
     <PackageReference Include="JavaScriptEngineSwitcher.Extensions.MsDependencyInjection" Version="3.0.0" />
+    <PackageReference Include="JavaScriptEngineSwitcher.Msie" Version="3.0.2" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.7.0-beta2" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.8" />
     <PackageReference Include="Microsoft.ChakraCore" Version="1.11.6">
