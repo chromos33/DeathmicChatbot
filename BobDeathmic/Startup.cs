@@ -14,7 +14,7 @@ using BobDeathmic.Services;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using BobDeathmic.Eventbus;
 using Microsoft.AspNetCore.Http;
-using JavaScriptEngineSwitcher.Msie;
+using JavaScriptEngineSwitcher.Jurassic;
 using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using React.AspNet;
 using BobDeathmic.Services.Helper;
@@ -77,7 +77,7 @@ namespace BobDeathmic
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddReact();
-            services.AddJsEngineSwitcher().AddMsie();
+            services.AddJsEngineSwitcher().AddJurassic();
             services.AddMvc();
         }
 
