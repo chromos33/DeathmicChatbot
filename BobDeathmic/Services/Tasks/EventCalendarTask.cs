@@ -16,7 +16,7 @@ namespace BobDeathmic.Services.Tasks
 {
     public class EventCalendarTask : IScheduledTask
     {
-        public string Schedule => "0 18 * * *";
+        public string Schedule => "0 19 * * *";
         private readonly ApplicationDbContext _context;
         private IEventBus _eventBus;
         private IConfiguration _configuration;
@@ -38,7 +38,7 @@ namespace BobDeathmic.Services.Tasks
                     AddEventDatesOnCalendar(calendar);
                     UpdateEventDates(calendar);
                     _context.SaveChanges();
-                    //NotifyUsers(calendar);
+                    NotifyUsers(calendar);
                 }
             }
         }
