@@ -169,49 +169,66 @@ namespace BobDeathmic.Controllers
         {
             Console.WriteLine("GetEventDates");
             List<EventDate> EventDates = _context.EventDates.Include(x => x.Calendar).Include(x => x.Teilnahmen).ThenInclude(x => x.Owner).Where(x => x.CalendarId == ID).OrderBy(x => x.Date).ThenBy(x => x.StartTime).Take(6).ToList();
+            Console.WriteLine("GetEventDates Step 1");
             if (EventDates.Count() >0)
             {
                 VoteReactData ReactData = new VoteReactData();
                 ReactData.Header = new List<EventDateHeader>();
                 ReactData.User = new List<VoteChatUser>();
                 ChatUserModel user = await _userManager.GetUserAsync(this.User);
-                foreach(EventDate EventDate in EventDates)
+                Console.WriteLine("GetEventDates Step 2");
+                foreach (EventDate EventDate in EventDates)
                 {
                     if(ReactData.Header.Where(x => x.Date == EventDate.Date.ToString("dd.MM.yy") && x.Time == EventDate.StartTime.ToString("HH:mm") + " - " + EventDate.StopTime.ToString("HH:mm")).Count() == 0)
                     {
+                        Console.WriteLine("GetEventDates Step 2.1");
                         ReactData.Header.Add(new EventDateHeader { Date = EventDate.Date.ToString("dd.MM.yy"), Time = EventDate.StartTime.ToString("HH:mm") + " - " + EventDate.StopTime.ToString("HH:mm") });
+                        Console.WriteLine("GetEventDates Step 2.2");
                         foreach (AppointmentRequest request in EventDate.Teilnahmen.OrderBy(x => x.EventDate.Date).ThenBy(x => x.EventDate.StartTime))
                         {
+                            Console.WriteLine("GetEventDates Step 2.3");
                             if (ReactData.User.Where(x => x.Name.ToLower() == request.Owner.ChatUserName.ToLower()).Count() == 0)
                             {
+                                Console.WriteLine("GetEventDates Step 2.4.1");
                                 var userdata = new VoteChatUser { key = request.Owner.ChatUserName, Name = request.Owner.ChatUserName };
+                                Console.WriteLine("GetEventDates Step 2.4.1.1");
                                 userdata.canEdit = request.Owner == user;
                                 userdata.Requests = new List<VoteRequest>();
+                                Console.WriteLine("GetEventDates Step 2.4.1.2");
                                 VoteRequest tmp = new VoteRequest();
                                 tmp.AppointmentRequestID = request.ID;
                                 tmp.UserName = request.Owner.ChatUserName;
                                 tmp.State = request.State;
                                 tmp.Date = request.EventDate.Date;
                                 tmp.Time = request.EventDate.StartTime;
+                                Console.WriteLine("GetEventDates Step 2.4.1.3");
                                 userdata.Requests.Add(tmp);
+                                Console.WriteLine("GetEventDates Step 2.4.1.4");
                                 ReactData.User.Add(userdata);
+                                Console.WriteLine("GetEventDates Step 2.4.1.5");
 
                             }
                             else
                             {
+                                Console.WriteLine("GetEventDates Step 2.4.2");
                                 var userdata = ReactData.User.Where(x => x.Name.ToLower() == request.Owner.ChatUserName.ToLower()).FirstOrDefault();
+                                Console.WriteLine("GetEventDates Step 2.4.2.1");
                                 VoteRequest tmp = new VoteRequest();
                                 tmp.AppointmentRequestID = request.ID;
                                 tmp.UserName = request.Owner.ChatUserName;
                                 tmp.State = request.State;
                                 tmp.Date = request.EventDate.Date;
                                 tmp.Time = request.EventDate.StartTime;
+                                Console.WriteLine("GetEventDates Step 2.4.2.2");
                                 userdata.Requests.Add(tmp);
+                                Console.WriteLine("GetEventDates Step 2.4.2.3");
                             }
                         }
                     }
                 }
+                Console.WriteLine("GetEventDates Step 3.1");
                 var json = Json(ReactData, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore });
+                Console.WriteLine("GetEventDates Step 3.2");
                 return json;
             }
             return new JsonResult("");
