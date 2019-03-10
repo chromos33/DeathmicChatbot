@@ -38,7 +38,7 @@ namespace BobDeathmic.Services.Tasks
                     AddEventDatesOnCalendar(calendar);
                     UpdateEventDates(calendar);
                     _context.SaveChanges();
-                    NotifyUsers(calendar);
+                    //NotifyUsers(calendar);
                 }
             }
         }
@@ -77,6 +77,7 @@ namespace BobDeathmic.Services.Tasks
                 _context.EventDates.Remove(remove);
 
             }
+            _context.SaveChanges();
             foreach(Calendar calendar in _context.EventCalendar)
             {
                 var EventDatesInCalendarToRemove = calendar.EventDates.Where(x => x.Date < DateTime.Now);
@@ -85,6 +86,7 @@ namespace BobDeathmic.Services.Tasks
                     calendar.EventDates.Remove(remove);
                 }
             }
+            _context.SaveChanges();
         }
         private void AddEventDatesOnCalendar(Calendar calendar)
         {
@@ -104,6 +106,7 @@ namespace BobDeathmic.Services.Tasks
                     }
                 }
             }
+            _context.SaveChanges();
         }
         private void UpdateEventDates(Calendar calendar)
         {
@@ -119,6 +122,7 @@ namespace BobDeathmic.Services.Tasks
                                     System.Globalization.CultureInfo.InvariantCulture);
                 }
             }
+            _context.SaveChanges();
         }
     }
 }

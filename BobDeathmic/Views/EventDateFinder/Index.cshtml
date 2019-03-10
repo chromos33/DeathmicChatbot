@@ -13,11 +13,15 @@
     <hr />
     <div class="row">
         <div class="col-md-4" ID="reactcontent">
-            
+
         </div>
     </div>
 </div>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/16.4.0/umd/react.development.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.4.0/umd/react-dom.development.js"></script>
+@*
+    <script src="@Url.Content("~/js/react.development.js")"></script>
+    <script src="@Url.Content("~/js/react-dom.development.js")"></script>
+*@
+<script src="@Url.Content("~/js/react.production.min.js")"></script>
+<script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
 <script src="@Url.Content("~/ReactComponents/EventDateFinder/OverView/OverView.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/EventDateFinder/OverView/Calendar.jsx")"></script>
