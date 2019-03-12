@@ -64,12 +64,15 @@ namespace BobDeathmic.Data
                 .WithMany(t => t.Applicants)
                 .HasForeignKey(pt => pt.GiveAwayItemID);
 
-
+            builder.Entity<ChatUserModel>()
+                .HasMany(x => x.Calendars)
+                .WithOne(x => x.ChatUserModel)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.Entity<Calendar>()
                 .HasOne(c => c.Admin)
                 .WithMany(u => u.AdministratedCalendars)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.SetNull);
             builder.Entity<Calendar>()
                 .HasMany(x => x.EventDates)
                 .WithOne(y => y.Calendar)
@@ -78,6 +81,7 @@ namespace BobDeathmic.Data
                 .HasOne(x => x.Calendar)
                 .WithMany(y => y.EventDates)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+
             builder.Entity<EventDate>()
                 .HasMany(x => x.Teilnahmen)
                 .WithOne(x => x.EventDate)

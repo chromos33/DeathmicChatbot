@@ -12,6 +12,7 @@ namespace BobDeathmic.ReactDataClasses.EventDateFinder.OverView
         public string Name { get; set; }
         public string EditLink { get; set; }
         public string VoteLink { get; set; }
+        public string DeleteLink { get; set; }
         public ChatUser[] ChatUsers { get; set; }
         public int key { get; set; }
 

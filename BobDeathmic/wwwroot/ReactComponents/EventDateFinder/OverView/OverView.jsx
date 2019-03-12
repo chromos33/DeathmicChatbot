@@ -15,9 +15,10 @@
     }
     render() {
         calendarNodes = "";
+        console.log(this.state.data);
         if (this.state.data.calendars !== undefined) {
             calendarNodes = this.state.data.calendars.map(function (calendar) {
-                return <Calendar key={calendar.key} editLink={calendar.editLink} name={calendar.name} voteLink={calendar.voteLink} chatUsers={calendar.chatUsers}></Calendar>
+                return <Calendar key={calendar.key} deleteLink={calendar.deleteLink} editLink={calendar.editLink} name={calendar.name} voteLink={calendar.voteLink} chatUsers={calendar.chatUsers}></Calendar>
             });
         }
         return (

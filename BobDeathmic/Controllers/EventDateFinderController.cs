@@ -51,8 +51,14 @@ namespace BobDeathmic.Controllers
             foreach(Models.EventDateFinder.Calendar calendar in _context.EventCalendar.Include(x => x.Admin).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Admin.Id == user.Id || x.isMember(user)))
             {
                 //TODO make a custom CalendarMember object to facilitate better security (no need to lay open all data)
-                Calendars.Add(new ReactDataClasses.EventDateFinder.OverView.Calendar { Id = calendar.Id,key = calendar.Id, EditLink = this.Url.Action("EditCalendar", "EventDateFinder", new { ID = calendar.Id }), Name = calendar.Name,VoteLink = this.Url.Action("VoteOnCalendar", "EventDateFinder", new { ID = calendar.Id})});
-                
+                if(calendar.Admin == user)
+                {
+                    Calendars.Add(new ReactDataClasses.EventDateFinder.OverView.Calendar { Id = calendar.Id, key = calendar.Id, DeleteLink = this.Url.Action("Delete", "EventDateFinder", new { ID = calendar.Id }), EditLink = this.Url.Action("EditCalendar", "EventDateFinder", new { ID = calendar.Id }), Name = calendar.Name, VoteLink = this.Url.Action("VoteOnCalendar", "EventDateFinder", new { ID = calendar.Id }) });
+                }
+                else
+                {
+                    Calendars.Add(new ReactDataClasses.EventDateFinder.OverView.Calendar { Id = calendar.Id, key = calendar.Id, DeleteLink = "", EditLink = "", Name = calendar.Name, VoteLink = this.Url.Action("VoteOnCalendar", "EventDateFinder", new { ID = calendar.Id }) });
+                }
             }
             return Calendars;
         }
@@ -72,6 +78,35 @@ namespace BobDeathmic.Controllers
             }
             
             
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var calendar = await _context.EventCalendar
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (calendar == null)
+            {
+                return NotFound();
+            }
+
+            return View(calendar);
+        }
+
+        // POST: Streams2/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var stream = await _context.EventCalendar.FindAsync(id);
+            _context.EventCalendar.Remove(stream);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
         [HttpPost]
         [Authorize(Roles = "User,Dev,Admin")]
