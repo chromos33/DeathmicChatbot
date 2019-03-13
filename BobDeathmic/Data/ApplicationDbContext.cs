@@ -75,10 +75,10 @@ namespace BobDeathmic.Data
                 .OnDelete(DeleteBehavior.SetNull);
             builder.Entity<Event>()
                 .HasMany(x => x.EventDates)
-                .WithOne(y => y.Calendar)
+                .WithOne(y => y.Event)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<EventDate>()
-                .HasOne(x => x.Calendar)
+                .HasOne(x => x.Event)
                 .WithMany(y => y.EventDates)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
@@ -88,7 +88,7 @@ namespace BobDeathmic.Data
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<Event>()
                 .HasMany(x => x.EventDateTemplates)
-                .WithOne(y => y.Calendar)
+                .WithOne(y => y.Event)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<AppointmentRequest>()
                 .HasOne(x => x.Owner)
