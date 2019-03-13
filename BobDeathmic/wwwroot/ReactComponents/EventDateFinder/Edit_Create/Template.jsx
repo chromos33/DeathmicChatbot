@@ -12,7 +12,7 @@
         event.persist();
         var tempevent = event;
         $.ajax({
-            url: "/EventDateFinder/SetDayOfTemplate/" + this.state.name,
+            url: "/Events/SetDayOfTemplate/" + this.state.name,
             type: "GET",
             data: {
                 Day: event.target.value
@@ -29,7 +29,7 @@
         var tempthis = this;
         event.persist();
         $.ajax({
-            url: "/EventDateFinder/RemoveTemplate/",
+            url: "/Events/RemoveTemplate/",
             type: "GET",
             data: {
                 ID: tempthis.state.name,
@@ -45,7 +45,7 @@
         event.persist();
         var value = event.target.value;
         $.ajax({
-            url: "/EventDateFinder/SetStartOfTemplate/" + this.state.name,
+            url: "/Events/SetStartOfTemplate/" + this.state.name,
             type: "GET",
             data: {
                 Start: event.target.value
@@ -62,7 +62,7 @@
         event.persist();
         var value = event.target.value;
         $.ajax({
-            url: "/EventDateFinder/SetStopOfTemplate/" + this.state.name,
+            url: "/Events/SetStopOfTemplate/" + this.state.name,
             type: "GET",
             data: {
                 Stop: event.target.value

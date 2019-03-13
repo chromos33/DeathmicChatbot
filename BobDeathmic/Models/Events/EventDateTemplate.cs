@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models.EventDateFinder
+namespace BobDeathmic.Models.Events
 {
     //Template aus dem EventDates generiert werden
     //TODO Rename is confusing cause in reality it is a EventDateTemplate
     public class EventDateTemplate
     {
         public string ID { get; set; }
-        public Calendar Calendar { get; set; }
+        public Event Event { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime StopTime { get; set; }
         public Day Day { get; set; }
@@ -19,7 +19,7 @@ namespace BobDeathmic.Models.EventDateFinder
         public EventDate CreateEventDate(int Pos)
         {
             EventDate Clone = new EventDate();
-            Clone.Calendar = Calendar;
+            Clone.Event = Event;
             Clone.StartTime = StartTime;
             Clone.StopTime = StopTime;
             TimeSpan add = new TimeSpan();

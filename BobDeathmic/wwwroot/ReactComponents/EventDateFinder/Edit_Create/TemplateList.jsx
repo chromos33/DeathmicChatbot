@@ -9,7 +9,7 @@
     componentWillMount() {
         var thisreference = this;
         $.ajax({
-            url: "/EventDateFinder/Templates/" + this.props.ID,
+            url: "/Events/Templates/" + this.props.ID,
             type: "GET",
             data: {},
             success: function (result) {
@@ -21,7 +21,7 @@
     handleUpdateTemplates(event) {
         var tempthis = this;
         $.ajax({
-            url: "/EventDateFinder/Templates/" + this.props.ID,
+            url: "/Events/Templates/" + this.props.ID,
             type: "GET",
             data: {},
             success: function (result) {
@@ -32,7 +32,7 @@
     handleAddTemplateClick(event) {
         tempthis = this;
         $.ajax({
-            url: "/EventDateFinder/AddTemplate/" + this.props.ID,
+            url: "/Events/AddTemplate/" + this.props.ID,
             type: "GET",
             data: {},
             success: function (result) {

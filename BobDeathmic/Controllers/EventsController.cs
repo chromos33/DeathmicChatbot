@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using BobDeathmic.Data;
 using BobDeathmic.Models;
-using BobDeathmic.Models.EventDateFinder;
-using BobDeathmic.Models.EventDateFinder.ManyMany;
+using BobDeathmic.Models.Events;
+using BobDeathmic.Models.Events.ManyMany;
 using BobDeathmic.ReactDataClasses.EventDateFinder.OverView;
 using BobDeathmic.ReactDataClasses.EventDateFinder.Vote;
 using Microsoft.AspNetCore.Authorization;
@@ -16,12 +16,12 @@ using Microsoft.Extensions.Configuration;
 
 namespace BobDeathmic.Controllers
 {
-    public class EventDateFinderController : Controller
+    public class EventsController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private UserManager<ChatUserModel> _userManager;
-        public EventDateFinderController(ApplicationDbContext context, IConfiguration configuration, UserManager<ChatUserModel> userManager)
+        public EventsController(ApplicationDbContext context, IConfiguration configuration, UserManager<ChatUserModel> userManager)
         {
             _context = context;
             _configuration = configuration;
@@ -36,9 +36,8 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> OverViewData()
         {
-            Console.WriteLine("OverViewData");
             OverView data = new OverView();
-            data.AddCalendarLink = this.Url.Action("CreateCalendar");
+            data.AddCalendarLink = this.Url.Action("CreateEvent");
             ChatUserModel user = await _userManager.GetUserAsync(this.User);
             data.Calendars = getRelevantCalendars(user);
             return Json(data);
@@ -48,7 +47,7 @@ namespace BobDeathmic.Controllers
         {
             
             List<ReactDataClasses.EventDateFinder.OverView.Calendar> Calendars = new List<ReactDataClasses.EventDateFinder.OverView.Calendar>();
-            foreach(Models.EventDateFinder.Calendar calendar in _context.EventCalendar.Include(x => x.Admin).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Admin.Id == user.Id || x.isMember(user)))
+            foreach(Models.Events.Event calendar in _context.Events.Include(x => x.Admin).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Admin.Id == user.Id || x.isMember(user)))
             {
                 //TODO make a custom CalendarMember object to facilitate better security (no need to lay open all data)
                 if(calendar.Admin == user)
@@ -66,10 +65,9 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task UpdateCalendarTitle(string ID,string Title)
         {
-            Console.WriteLine("UpdateCalendarTitle");
             if (Int32.TryParse(ID, out int _ID))
             {
-                var Calendar = _context.EventCalendar.Where(x => x.Id == _ID).FirstOrDefault();
+                var Calendar = _context.Events.Where(x => x.Id == _ID).FirstOrDefault();
                 if (Calendar != null)
                 {
                     Calendar.Name = Title;
@@ -87,7 +85,7 @@ namespace BobDeathmic.Controllers
                 return NotFound();
             }
 
-            var calendar = await _context.EventCalendar
+            var calendar = await _context.Events
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (calendar == null)
             {
@@ -103,8 +101,8 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var stream = await _context.EventCalendar.FindAsync(id);
-            _context.EventCalendar.Remove(stream);
+            var stream = await _context.Events.FindAsync(id);
+            _context.Events.Remove(stream);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -112,10 +110,9 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task AddInvitedUser(string ID, string ChatUser)
         {
-            Console.WriteLine("AddInvitedUser");
             if (Int32.TryParse(ID, out int _ID))
             {
-                var Calendar = _context.EventCalendar.Where(x => x.Id == _ID).FirstOrDefault();
+                var Calendar = _context.Events.Where(x => x.Id == _ID).FirstOrDefault();
                 if (Calendar != null)
                 {
                     if(Calendar.Members.Where(x => x.ChatUserModel.ChatUserName == ChatUser).Count() == 0)
@@ -123,20 +120,20 @@ namespace BobDeathmic.Controllers
                         ChatUserModel user = _context.ChatUserModels.Where(x => x.ChatUserName.ToLower() == ChatUser.ToLower()).FirstOrDefault();
                         if(user != null)
                         {
-                            ChatUserModel_Calendar newrelation = new ChatUserModel_Calendar();
+                            ChatUserModel_Event newrelation = new ChatUserModel_Event();
                             newrelation.Calendar = Calendar;
                             newrelation.ChatUserModel = user;
                             if(Calendar.Members == null)
                             {
-                                Calendar.Members = new List<ChatUserModel_Calendar>();
+                                Calendar.Members = new List<ChatUserModel_Event>();
                             }
                             Calendar.Members.Add(newrelation);
                             if(user.Calendars == null)
                             {
-                                user.Calendars = new List<ChatUserModel_Calendar>();
+                                user.Calendars = new List<ChatUserModel_Event>();
                             }
                             user.Calendars.Add(newrelation);
-                            _context.ChatUserModel_Calendar.Add(newrelation);
+                            _context.ChatUserModel_Event.Add(newrelation);
                             await _context.SaveChangesAsync();
                         }
                     }
@@ -148,7 +145,6 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task UpdateRequestState(string requestID, string state)
         {
-            Console.WriteLine("UpdateRequestState");
             var Request = _context.AppointmentRequests.Where(x => x.ID == requestID).FirstOrDefault();
             if(Request != null)
             {
@@ -161,13 +157,12 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task RemoveInvitedUser(string ID, string ChatUser)
         {
-            Console.WriteLine("RemoveInvitedUser");
             if (Int32.TryParse(ID, out int _ID))
             {
-                var RelationToDelete = _context.ChatUserModel_Calendar.Include(x => x.ChatUserModel).Where(x => x.CalendarID == _ID && x.ChatUserModel.ChatUserName == ChatUser).FirstOrDefault();
+                var RelationToDelete = _context.ChatUserModel_Event.Include(x => x.ChatUserModel).Where(x => x.CalendarID == _ID && x.ChatUserModel.ChatUserName == ChatUser).FirstOrDefault();
                 if (RelationToDelete != null)
                 {
-                    _context.ChatUserModel_Calendar.Remove(RelationToDelete);
+                    _context.ChatUserModel_Event.Remove(RelationToDelete);
                     _context.SaveChanges();
                 }
             }
@@ -176,14 +171,13 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> InvitableUsers(int ID)
         {
-            Console.WriteLine("InvitableUsers");
-            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Include(x => x.Members).Where(x => x.Id == ID).FirstOrDefault();
+            Models.Events.Event _calendar = _context.Events.Include(x => x.Members).Where(x => x.Id == ID).FirstOrDefault();
             if (_calendar != null)
             {
                 //TODO get real Filtered Members
-                List<ChatUserModel_Calendar> relation = _context.ChatUserModel_Calendar.Include(x=>x.ChatUserModel).Where(x => x.Calendar == _calendar).ToList();
+                List<ChatUserModel_Event> relation = _context.ChatUserModel_Event.Include(x=>x.ChatUserModel).Where(x => x.Calendar == _calendar).ToList();
                 List<ChatUserModel> ToFilterMembers = new List<ChatUserModel>();
-                foreach(ChatUserModel_Calendar temp in relation)
+                foreach(ChatUserModel_Event temp in relation)
                 {
                     ToFilterMembers.Add(temp.ChatUserModel);
                 }
@@ -202,68 +196,50 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> GetEventDates(int ID)
         {
-            Console.WriteLine("GetEventDates");
             List<EventDate> EventDates = _context.EventDates.Include(x => x.Calendar).Include(x => x.Teilnahmen).ThenInclude(x => x.Owner).Where(x => x.CalendarId == ID).OrderBy(x => x.Date).ThenBy(x => x.StartTime).Take(6).ToList();
-            Console.WriteLine("GetEventDates Step 1");
             if (EventDates.Count() >0)
             {
                 VoteReactData ReactData = new VoteReactData();
                 ReactData.Header = new List<EventDateHeader>();
                 ReactData.User = new List<VoteChatUser>();
                 ChatUserModel user = await _userManager.GetUserAsync(this.User);
-                Console.WriteLine("GetEventDates Step 2");
                 foreach (EventDate EventDate in EventDates)
                 {
                     if(ReactData.Header.Where(x => x.Date == EventDate.Date.ToString("dd.MM.yy") && x.Time == EventDate.StartTime.ToString("HH:mm") + " - " + EventDate.StopTime.ToString("HH:mm")).Count() == 0)
                     {
-                        Console.WriteLine("GetEventDates Step 2.1");
                         ReactData.Header.Add(new EventDateHeader { Date = EventDate.Date.ToString("dd.MM.yy"), Time = EventDate.StartTime.ToString("HH:mm") + " - " + EventDate.StopTime.ToString("HH:mm") });
-                        Console.WriteLine("GetEventDates Step 2.2");
                         foreach (AppointmentRequest request in EventDate.Teilnahmen.OrderBy(x => x.EventDate.Date).ThenBy(x => x.EventDate.StartTime))
                         {
-                            Console.WriteLine("GetEventDates Step 2.3");
                             if (ReactData.User.Where(x => x.Name.ToLower() == request.Owner.ChatUserName.ToLower()).Count() == 0)
                             {
-                                Console.WriteLine("GetEventDates Step 2.4.1");
                                 var userdata = new VoteChatUser { key = request.Owner.ChatUserName, Name = request.Owner.ChatUserName };
-                                Console.WriteLine("GetEventDates Step 2.4.1.1");
                                 userdata.canEdit = request.Owner == user;
                                 userdata.Requests = new List<VoteRequest>();
-                                Console.WriteLine("GetEventDates Step 2.4.1.2");
                                 VoteRequest tmp = new VoteRequest();
                                 tmp.AppointmentRequestID = request.ID;
                                 tmp.UserName = request.Owner.ChatUserName;
                                 tmp.State = request.State;
                                 tmp.Date = request.EventDate.Date;
                                 tmp.Time = request.EventDate.StartTime;
-                                Console.WriteLine("GetEventDates Step 2.4.1.3");
                                 userdata.Requests.Add(tmp);
-                                Console.WriteLine("GetEventDates Step 2.4.1.4");
                                 ReactData.User.Add(userdata);
-                                Console.WriteLine("GetEventDates Step 2.4.1.5");
 
                             }
                             else
                             {
-                                Console.WriteLine("GetEventDates Step 2.4.2");
                                 var userdata = ReactData.User.Where(x => x.Name.ToLower() == request.Owner.ChatUserName.ToLower()).FirstOrDefault();
-                                Console.WriteLine("GetEventDates Step 2.4.2.1");
                                 VoteRequest tmp = new VoteRequest();
                                 tmp.AppointmentRequestID = request.ID;
                                 tmp.UserName = request.Owner.ChatUserName;
                                 tmp.State = request.State;
                                 tmp.Date = request.EventDate.Date;
                                 tmp.Time = request.EventDate.StartTime;
-                                Console.WriteLine("GetEventDates Step 2.4.2.2");
                                 userdata.Requests.Add(tmp);
-                                Console.WriteLine("GetEventDates Step 2.4.2.3");
                             }
                         }
                     }
                 }
-                Console.WriteLine("GetEventDates Step 3.1");
                 var json = Json(ReactData, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore });
-                Console.WriteLine("GetEventDates Step 3.2");
                 return json;
             }
             return new JsonResult("");
@@ -274,8 +250,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> InvitedUsers(int ID)
         {
-            Console.WriteLine("InvitedUsers");
-            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
+            Models.Events.Event _calendar = _context.Events.Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
             if (_calendar != null)
             {
                 ChatUser[] Members = new ChatUser[_calendar.Members.Count()];
@@ -292,8 +267,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> Templates(int ID)
         {
-            Console.WriteLine("Templates");
-            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Include(x => x.EventDateTemplates).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
+            Models.Events.Event _calendar = _context.Events.Include(x => x.EventDateTemplates).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
             if (_calendar != null)
             {
                 return Json(_calendar.EventDateTemplates.Select(x => new {key = x.ID, Day = x.Day,Start = x.StartTime.ToString("HH:mm"),Stop = x.StopTime.ToString("HH:mm") }), new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore});
@@ -306,11 +280,10 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<bool> SetDayOfTemplate(string ID, int Day)
         {
-            Console.WriteLine("SetDayOfTemplate");
             EventDateTemplate template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
             if(template != null)
             {
-                template.Day = (Models.EventDateFinder.Day)Enum.ToObject(typeof(Models.EventDateFinder.Day), Day);
+                template.Day = (Models.Events.Day)Enum.ToObject(typeof(Models.Events.Day), Day);
                 _context.SaveChanges();
                 return true;
             }
@@ -321,7 +294,6 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<bool> SetStartOfTemplate(string ID, string Start)
         {
-            Console.WriteLine("SetStartOfTemplate");
             EventDateTemplate template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
             if (template != null)
             {
@@ -336,7 +308,6 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<bool> SetStopOfTemplate(string ID, string Stop)
         {
-            Console.WriteLine("SetStopOfTemplate");
             EventDateTemplate template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
             if (template != null)
             {
@@ -351,8 +322,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> AddTemplate(int ID)
         {
-            Console.WriteLine("AddTemplate");
-            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
+            Models.Events.Event _calendar = _context.Events.Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
             if (_calendar != null)
             {
                 EventDateTemplate item = new EventDateTemplate();
@@ -369,8 +339,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public void RemoveTemplate(string ID,int CalendarID)
         {
-            Console.WriteLine("RemoveTemplate");
-            var calendar = _context.EventCalendar.Where(x => x.Id == CalendarID).FirstOrDefault();
+            var calendar = _context.Events.Where(x => x.Id == CalendarID).FirstOrDefault();
             var template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
             if(calendar != null && template != null)
             {
@@ -381,10 +350,9 @@ namespace BobDeathmic.Controllers
         }
         [Authorize(Roles = "User,Dev,Admin")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> GetCalendar(int ID)
+        public async Task<IActionResult> GetEvent(int ID)
         {
-            Console.WriteLine("GetCalendar");
-            Models.EventDateFinder.Calendar _calendar = _context.EventCalendar.Where(x => x.Id == ID).FirstOrDefault();
+            Models.Events.Event _calendar = _context.Events.Where(x => x.Id == ID).FirstOrDefault();
             if(_calendar != null)
             {
                 if(_calendar.Name == null)
@@ -399,29 +367,28 @@ namespace BobDeathmic.Controllers
         }
 
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> CreateCalendar(int? ID)
+        public async Task<IActionResult> CreateEvent(int? ID)
         {
-            Console.WriteLine("CreateCalendar");
             if (ID == null)
             {
                 ChatUserModel admin = await _userManager.GetUserAsync(this.User);
-                Models.EventDateFinder.Calendar newCalendar = new Models.EventDateFinder.Calendar();
+                Models.Events.Event newCalendar = new Models.Events.Event();
                 if (admin.AdministratedCalendars == null)
                 {
-                    admin.AdministratedCalendars = new List<Models.EventDateFinder.Calendar>();
+                    admin.AdministratedCalendars = new List<Models.Events.Event>();
                 }
                 admin.AdministratedCalendars.Add(newCalendar);
                 if (admin.Calendars == null)
                 {
-                    admin.Calendars = new List<Models.EventDateFinder.ManyMany.ChatUserModel_Calendar>();
+                    admin.Calendars = new List<Models.Events.ManyMany.ChatUserModel_Event>();
                 }
-                Models.EventDateFinder.ManyMany.ChatUserModel_Calendar JoinTable = new Models.EventDateFinder.ManyMany.ChatUserModel_Calendar();
+                Models.Events.ManyMany.ChatUserModel_Event JoinTable = new Models.Events.ManyMany.ChatUserModel_Event();
                 JoinTable.Calendar = newCalendar;
                 JoinTable.ChatUserModel = admin;
                 admin.Calendars.Add(JoinTable);
                 newCalendar.Members.Add(JoinTable);
-                _context.EventCalendar.Add(newCalendar);
-                _context.ChatUserModel_Calendar.Add(JoinTable);
+                _context.Events.Add(newCalendar);
+                _context.ChatUserModel_Event.Add(JoinTable);
                 _context.SaveChanges();
                 return View(newCalendar.Id);
             }
@@ -431,15 +398,11 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> EditCalendar(int ID)
         {
-            Console.WriteLine("EditCalendar");
-            //Edit Calendar here stuff
-            return RedirectToAction("CreateCalendar",new { ID = ID});
+            return RedirectToAction("CreateEvent", new { ID = ID});
         }
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> VoteOnCalendar(int ID)
         {
-            Console.WriteLine("VoteOnCalendar");
-            //Create Calendar here stuff
             return View(ID);
         }
     }

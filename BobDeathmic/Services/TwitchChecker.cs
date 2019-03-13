@@ -154,7 +154,6 @@ namespace BobDeathmic.Services
                 }
             }catch(Exception ex)
             {
-                Console.WriteLine("Exeption at TwitchChecker GetStreamData");
                 Console.WriteLine(ex.ToString());
             }
             

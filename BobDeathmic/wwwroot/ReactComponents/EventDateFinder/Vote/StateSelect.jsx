@@ -9,7 +9,7 @@
         var thisreference = this;
         var tmpevent = event;
         $.ajax({
-            url: "/EventDateFinder/UpdateRequestState/",
+            url: "/Events/UpdateRequestState/",
             type: "GET",
             data: {
                 requestID: thisreference.props.requestID,

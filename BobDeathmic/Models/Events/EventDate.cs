@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models.EventDateFinder
+namespace BobDeathmic.Models.Events
 {
     //Wird in der Abstimmung generiert für z.b. 14 Tage im Vorraus und dann jeden Tag wird das älteste bzw "15 te" gelöscht
     public class EventDate
     {
         public string ID { get; set; }
         public int CalendarId { get; set; }
-        public Calendar Calendar { get; set; }
+        public Event Event { get; set; }
         public string EventDateTemplateID { get; set; }
         public List<AppointmentRequest> Teilnahmen { get; set; }
         public DateTime StartTime { get; set; }

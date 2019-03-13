@@ -8,7 +8,7 @@
     componentWillMount() {
         var thisreference = this;
         $.ajax({
-            url: "/EventDateFinder/InvitedUsers/" + this.props.ID,
+            url: "/Events/InvitedUsers/" + this.props.ID,
             type: "GET",
             data: {},
             success: function (result) {
@@ -20,7 +20,7 @@
     handleUpdateChatMembers(event) {
         var thisreference = this;
         $.ajax({
-            url: "/EventDateFinder/InvitedUsers/" + thisreference.props.ID,
+            url: "/Events/InvitedUsers/" + thisreference.props.ID,
             type: "GET",
             data: {},
             success: function (result) {
@@ -32,7 +32,7 @@
         var thisreference = this;
         event.persist();        
         $.ajax({
-            url: "/EventDateFinder/RemoveInvitedUser/",
+            url: "/Events/RemoveInvitedUser/",
             type: "POST",
             data: {
                 ID: thisreference.props.ID,

@@ -8,7 +8,7 @@
     componentWillMount() {
         var thisreference = this;
         $.ajax({
-            url: "/EventDateFinder/InvitableUsers/" + this.props.ID,
+            url: "/Events/InvitableUsers/" + this.props.ID,
             type: "GET",
             data: {},
             success: function (result) {
@@ -20,7 +20,7 @@
         
         var thisreference = this;
         $.ajax({
-            url: "/EventDateFinder/AddInvitedUser/",
+            url: "/Events/AddInvitedUser/",
             type: "POST",
             data: {
                 ID: thisreference.props.ID,

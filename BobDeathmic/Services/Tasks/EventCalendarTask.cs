@@ -2,7 +2,7 @@
 using BobDeathmic.Data;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Helper;
-using BobDeathmic.Models.EventDateFinder;
+using BobDeathmic.Models.Events;
 using BobDeathmic.Services.Helper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -31,9 +31,9 @@ namespace BobDeathmic.Services.Tasks
         {
             if(_context != null)
             {
-                var ApplicableCalendars = _context.EventCalendar.Include(x => x.EventDateTemplates).Include(x => x.EventDates).ThenInclude(x => x.Teilnahmen).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Members.Count() > 0 && x.EventDateTemplates.Count() > 0);
+                var ApplicableCalendars = _context.Events.Include(x => x.EventDateTemplates).Include(x => x.EventDates).ThenInclude(x => x.Teilnahmen).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Members.Count() > 0 && x.EventDateTemplates.Count() > 0);
                 RemovePassedEventDates();
-                foreach (Calendar calendar in ApplicableCalendars)
+                foreach (Event calendar in ApplicableCalendars)
                 {
                     AddEventDatesOnCalendar(calendar);
                     UpdateEventDates(calendar);
@@ -43,7 +43,7 @@ namespace BobDeathmic.Services.Tasks
             }
         }
 
-        private void NotifyUsers(Calendar calendar)
+        private void NotifyUsers(Event calendar)
         {
             Console.WriteLine("NotifyUsers");
             string address = _configuration.GetValue<string>("WebServerWebAddress");
@@ -54,11 +54,11 @@ namespace BobDeathmic.Services.Tasks
                 {
                     if(GroupedNotifications.Where(x => x.First == request.Owner.UserName).Count() == 0)
                     {
-                        GroupedNotifications.Add(new MutableTuple<string, string>(request.Owner.UserName, $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Calendar.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/EventDateFinder/VoteOnCalendar/1"));
+                        GroupedNotifications.Add(new MutableTuple<string, string>(request.Owner.UserName, $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Event.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/EventDateFinder/VoteOnCalendar/1"));
                     }
                     else
                     {
-                        GroupedNotifications.Where(x => x.First == request.Owner.UserName).FirstOrDefault().Second += Environment.NewLine + $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Calendar.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/EventDateFinder/VoteOnCalendar/1";
+                        GroupedNotifications.Where(x => x.First == request.Owner.UserName).FirstOrDefault().Second += Environment.NewLine + $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Event.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/EventDateFinder/VoteOnCalendar/1";
                     }
                 }
             }
@@ -78,7 +78,7 @@ namespace BobDeathmic.Services.Tasks
 
             }
             _context.SaveChanges();
-            foreach(Calendar calendar in _context.EventCalendar)
+            foreach(Event calendar in _context.Events)
             {
                 var EventDatesInCalendarToRemove = calendar.EventDates.Where(x => x.Date < DateTime.Now);
                 foreach (EventDate remove in EventDatesInCalendarToRemove)
@@ -88,7 +88,7 @@ namespace BobDeathmic.Services.Tasks
             }
             _context.SaveChanges();
         }
-        private void AddEventDatesOnCalendar(Calendar calendar)
+        private void AddEventDatesOnCalendar(Event calendar)
         {
             Console.WriteLine("AddEventDatesOnCalendar");
             // Next 2 weeks
@@ -108,7 +108,7 @@ namespace BobDeathmic.Services.Tasks
             }
             _context.SaveChanges();
         }
-        private void UpdateEventDates(Calendar calendar)
+        private void UpdateEventDates(Event calendar)
         {
             Console.WriteLine("UpdateEventDates");
             foreach (EventDate update in calendar.EventDates)

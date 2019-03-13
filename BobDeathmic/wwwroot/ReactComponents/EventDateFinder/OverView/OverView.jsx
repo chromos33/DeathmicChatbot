@@ -29,4 +29,4 @@
         );
     }
 }
-ReactDOM.render(<OverView url="/EventDateFinder/OverViewData" />, document.getElementById('reactcontent'));
+ReactDOM.render(<OverView url="/Events/OverViewData" />, document.getElementById('reactcontent'));

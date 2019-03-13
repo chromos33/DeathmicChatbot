@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using BobDeathmic.Models;
 using BobDeathmic.Models.GiveAwayModels;
 using BobDeathmic.Models.GiveAway;
-using BobDeathmic.Models.EventDateFinder;
-using BobDeathmic.Models.EventDateFinder.ManyMany;
+using BobDeathmic.Models.Events;
+using BobDeathmic.Models.Events.ManyMany;
 
 namespace BobDeathmic.Data
 {
@@ -69,11 +69,11 @@ namespace BobDeathmic.Data
                 .WithOne(x => x.ChatUserModel)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            builder.Entity<Calendar>()
+            builder.Entity<Event>()
                 .HasOne(c => c.Admin)
                 .WithMany(u => u.AdministratedCalendars)
                 .OnDelete(DeleteBehavior.SetNull);
-            builder.Entity<Calendar>()
+            builder.Entity<Event>()
                 .HasMany(x => x.EventDates)
                 .WithOne(y => y.Calendar)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -86,7 +86,7 @@ namespace BobDeathmic.Data
                 .HasMany(x => x.Teilnahmen)
                 .WithOne(x => x.EventDate)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<Calendar>()
+            builder.Entity<Event>()
                 .HasMany(x => x.EventDateTemplates)
                 .WithOne(y => y.Calendar)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -106,10 +106,10 @@ namespace BobDeathmic.Data
         public DbSet<BobDeathmic.Models.StreamCommand> StreamCommand { get; set; }
         public DbSet<GiveAwayItem> GiveAwayItems { get; set; }
         public DbSet<User_GiveAwayItem> User_GiveAway { get; set; }
-        public DbSet<Calendar> EventCalendar { get; set; }
+        public DbSet<Event> Events { get; set; }
         public DbSet<AppointmentRequest> AppointmentRequests {get;set;}
         public DbSet<EventDateTemplate> EventDateTemplates { get; set; }
         public DbSet<EventDate> EventDates { get; set; }
-        public DbSet<ChatUserModel_Calendar> ChatUserModel_Calendar { get; set; }
+        public DbSet<ChatUserModel_Event> ChatUserModel_Event { get; set; }
     }
 }

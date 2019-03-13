@@ -27,7 +27,7 @@
     handleFocus(event) {
         if (this.state.id !== undefined) {
 
-            const Url = "/EventDateFinder/UpdateCalendarTitle/";
+            const Url = "/Events/UpdateEventTitle/";
             const data = new FormData();
             $.ajax({
                 url: Url,

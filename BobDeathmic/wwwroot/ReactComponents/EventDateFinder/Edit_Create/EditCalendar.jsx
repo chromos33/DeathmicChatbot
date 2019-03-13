@@ -1,4 +1,4 @@
-﻿class EditCalendar extends React.Component {
+﻿class EditEvent extends React.Component {
     constructor(props) {
         super(props);
         this.state = { data: [], eventEmitter: new EventEmitter()};
@@ -6,7 +6,7 @@
     componentWillMount() {
         var thisreference = this;
         $.ajax({
-            url: "/EventDateFinder/GetCalendar/" + this.props.ID,
+            url: "/Events/GetEvent/" + this.props.ID,
             type: "GET",
             data: {},
             success: function (result) {

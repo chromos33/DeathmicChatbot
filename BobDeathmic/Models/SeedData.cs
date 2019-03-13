@@ -55,8 +55,6 @@ namespace BobDeathmic.Models
             }
             catch (Exception)
             {
-                Console.WriteLine(name);
-                Console.WriteLine(role);
             }
 
         }

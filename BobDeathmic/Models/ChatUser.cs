@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using BobDeathmic.Models.EventDateFinder;
-using BobDeathmic.Models.EventDateFinder.ManyMany;
+using BobDeathmic.Models.Events;
+using BobDeathmic.Models.Events.ManyMany;
 using BobDeathmic.Models.GiveAway;
 using BobDeathmic.Models.GiveAwayModels;
-using BobDeathmic.Models.Test;
 using Microsoft.AspNetCore.Identity;
 
 namespace BobDeathmic.Models
@@ -26,8 +25,8 @@ namespace BobDeathmic.Models
         public List<GiveAwayItem> ReceivedItems { get; set; }
         public List<User_GiveAwayItem> AppliedTo { get; set; }
 
-        public List<ChatUserModel_Calendar> Calendars { get; set; }
-        public List<Calendar> AdministratedCalendars { get; set; }
+        public List<ChatUserModel_Event> Calendars { get; set; }
+        public List<Event> AdministratedCalendars { get; set; }
         public List<AppointmentRequest> AppointmentRequests { get; set; }
 
         public bool IsSubscribed(string streamname)

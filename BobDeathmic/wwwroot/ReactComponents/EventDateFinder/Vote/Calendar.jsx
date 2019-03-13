@@ -6,7 +6,7 @@
     componentWillMount() {
         var thisreference = this;
         $.ajax({
-            url: "/EventDateFinder/GetEventDates/" + this.props.ID,
+            url: "/Events/GetEventDates/" + this.props.ID,
             type: "GET",
             data: {},
             success: function (result) {

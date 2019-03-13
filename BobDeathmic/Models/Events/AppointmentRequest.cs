@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models.EventDateFinder
+namespace BobDeathmic.Models.Events
 {
     //Missing counter relation to ChatUserModel
     public class AppointmentRequest

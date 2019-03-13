@@ -34,7 +34,6 @@ namespace BobDeathmic.Controllers
                 await _microservices.Where(ms=>ms.GetType() == typeof(DiscordService)).FirstOrDefault()?.StartAsync(new System.Threading.CancellationToken(false));
             }catch(Exception ex)
             {
-                Console.WriteLine("test");
             }
             
             return "Started";
@@ -48,7 +47,6 @@ namespace BobDeathmic.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("test");
             }
             return "Stopped";
         }
@@ -62,7 +60,6 @@ namespace BobDeathmic.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("test");
             }
             return "Restart";
         }
@@ -76,7 +73,6 @@ namespace BobDeathmic.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("test");
             }
             return "Stopped";
         }
@@ -91,7 +87,6 @@ namespace BobDeathmic.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("test");
             }
             return "Restart";
         }
