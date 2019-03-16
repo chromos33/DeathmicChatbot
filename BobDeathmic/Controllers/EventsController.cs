@@ -6,8 +6,8 @@ using BobDeathmic.Data;
 using BobDeathmic.Models;
 using BobDeathmic.Models.Events;
 using BobDeathmic.Models.Events.ManyMany;
-using BobDeathmic.ReactDataClasses.EventDateFinder.OverView;
-using BobDeathmic.ReactDataClasses.EventDateFinder.Vote;
+using BobDeathmic.ReactDataClasses.Events.OverView;
+using BobDeathmic.ReactDataClasses.Events.Vote;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -43,20 +43,20 @@ namespace BobDeathmic.Controllers
             return Json(data);
         }
 
-        private List<ReactDataClasses.EventDateFinder.OverView.Calendar> getRelevantCalendars(ChatUserModel user)
+        private List<ReactDataClasses.Events.OverView.Calendar> getRelevantCalendars(ChatUserModel user)
         {
             
-            List<ReactDataClasses.EventDateFinder.OverView.Calendar> Calendars = new List<ReactDataClasses.EventDateFinder.OverView.Calendar>();
+            List<ReactDataClasses.Events.OverView.Calendar> Calendars = new List<ReactDataClasses.Events.OverView.Calendar>();
             foreach(Models.Events.Event calendar in _context.Events.Include(x => x.Admin).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Admin.Id == user.Id || x.isMember(user)))
             {
                 //TODO make a custom CalendarMember object to facilitate better security (no need to lay open all data)
                 if(calendar.Admin == user)
                 {
-                    Calendars.Add(new ReactDataClasses.EventDateFinder.OverView.Calendar { Id = calendar.Id, key = calendar.Id, DeleteLink = this.Url.Action("Delete", "EventDateFinder", new { ID = calendar.Id }), EditLink = this.Url.Action("EditCalendar", "EventDateFinder", new { ID = calendar.Id }), Name = calendar.Name, VoteLink = this.Url.Action("VoteOnCalendar", "EventDateFinder", new { ID = calendar.Id }) });
+                    Calendars.Add(new ReactDataClasses.Events.OverView.Calendar { Id = calendar.Id, key = calendar.Id, DeleteLink = this.Url.Action("Delete", "Events", new { ID = calendar.Id }), EditLink = this.Url.Action("EditCalendar", "Events", new { ID = calendar.Id }), Name = calendar.Name, VoteLink = this.Url.Action("VoteOnCalendar", "Events", new { ID = calendar.Id }) });
                 }
                 else
                 {
-                    Calendars.Add(new ReactDataClasses.EventDateFinder.OverView.Calendar { Id = calendar.Id, key = calendar.Id, DeleteLink = "", EditLink = "", Name = calendar.Name, VoteLink = this.Url.Action("VoteOnCalendar", "EventDateFinder", new { ID = calendar.Id }) });
+                    Calendars.Add(new ReactDataClasses.Events.OverView.Calendar { Id = calendar.Id, key = calendar.Id, DeleteLink = "", EditLink = "", Name = calendar.Name, VoteLink = this.Url.Action("VoteOnCalendar", "Events", new { ID = calendar.Id }) });
                 }
             }
             return Calendars;
