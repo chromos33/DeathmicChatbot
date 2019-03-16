@@ -16,7 +16,7 @@ namespace BobDeathmic.Services.Tasks
 {
     public class EventCalendarTask : IScheduledTask
     {
-        public string Schedule => "0 19 * * *";
+        public string Schedule => "0 18 * * *";
         private readonly ApplicationDbContext _context;
         private IEventBus _eventBus;
         private IConfiguration _configuration;
@@ -54,11 +54,11 @@ namespace BobDeathmic.Services.Tasks
                 {
                     if(GroupedNotifications.Where(x => x.First == request.Owner.UserName).Count() == 0)
                     {
-                        GroupedNotifications.Add(new MutableTuple<string, string>(request.Owner.UserName, $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Event.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/EventDateFinder/VoteOnCalendar/1"));
+                        GroupedNotifications.Add(new MutableTuple<string, string>(request.Owner.UserName, $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Event.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/Events/VoteOnCalendar/{calendar.Id}"));
                     }
                     else
                     {
-                        GroupedNotifications.Where(x => x.First == request.Owner.UserName).FirstOrDefault().Second += Environment.NewLine + $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Event.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/EventDateFinder/VoteOnCalendar/1";
+                        GroupedNotifications.Where(x => x.First == request.Owner.UserName).FirstOrDefault().Second += Environment.NewLine + $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Event.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmmen. {address}/Events/VoteOnCalendar/{calendar.Id}";
                     }
                 }
             }
@@ -110,7 +110,6 @@ namespace BobDeathmic.Services.Tasks
         }
         private void UpdateEventDates(Event calendar)
         {
-            Console.WriteLine("UpdateEventDates");
             foreach (EventDate update in calendar.EventDates)
             {
                 var template = _context.EventDateTemplates.Where(x => x.ID == update.EventDateTemplateID).FirstOrDefault();

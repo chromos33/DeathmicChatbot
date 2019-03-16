@@ -196,7 +196,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> GetEventDates(int ID)
         {
-            List<EventDate> EventDates = _context.EventDates.Include(x => x.Event).Include(x => x.Teilnahmen).ThenInclude(x => x.Owner).Where(x => x.CalendarId == ID).OrderBy(x => x.Date).ThenBy(x => x.StartTime).Take(6).ToList();
+            List<EventDate> EventDates = _context.EventDates.Include(x => x.Event).Include(x => x.Teilnahmen).ThenInclude(x => x.Owner).Where(x => x.Event.Id == ID).OrderBy(x => x.Date).ThenBy(x => x.StartTime).Take(6).ToList();
             if (EventDates.Count() >0)
             {
                 VoteReactData ReactData = new VoteReactData();
