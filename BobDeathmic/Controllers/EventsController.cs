@@ -63,7 +63,7 @@ namespace BobDeathmic.Controllers
         }
         [HttpPost]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task UpdateCalendarTitle(string ID,string Title)
+        public async Task UpdateEventTitle(string ID,string Title)
         {
             if (Int32.TryParse(ID, out int _ID))
             {
