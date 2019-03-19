@@ -16,5 +16,10 @@ namespace BobDeathmic.Models.Events
         public DateTime StartTime { get; set; }
         public DateTime StopTime { get; set; }
         public DateTime Date { get; set; }
+
+        internal string AdminNotification(string name = "Calendar")
+        {
+            return $"Möglicher Termin für {name}: {Date.ToString("dd.MM.yyyy HH:mm")}";
+        }
     }
 }

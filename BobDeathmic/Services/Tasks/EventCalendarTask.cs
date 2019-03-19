@@ -39,7 +39,17 @@ namespace BobDeathmic.Services.Tasks
                     UpdateEventDates(calendar);
                     _context.SaveChanges();
                     NotifyUsers(calendar);
+                    NotifyAdmin(calendar);
                 }
+            }
+        }
+
+        private void NotifyAdmin(Event calendar)
+        {
+            var NotifiableEventDates = calendar.EventDates.Where(x => x.Teilnahmen.Where(y => y.State == AppointmentRequestState.Available || y.State == AppointmentRequestState.IfNeedBe).Count() == x.Teilnahmen.Count());
+            foreach (EventDate date in NotifiableEventDates)
+            {
+                _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = calendar.Admin.ChatUserName, Message = date.AdminNotification(calendar.Name) });
             }
         }
 

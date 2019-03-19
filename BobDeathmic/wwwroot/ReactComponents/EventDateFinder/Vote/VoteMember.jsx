@@ -10,9 +10,8 @@
             key++;
             console.log(request.State);
             return (
-                <span key={key} className="requestNode" data-state={request.State}>
-                    <StateSelect canEdit={tmpthis.props.canEdit} requestID={request.AppointmentRequestID} possibleStates={request.States} state={request.State} />
-                </span>
+                    <StateSelect key={key} canEdit={tmpthis.props.canEdit} requestID={request.AppointmentRequestID} possibleStates={request.States} state={request.State} />
+                
                 );
         });
         if (requestnodes.length > 0) {

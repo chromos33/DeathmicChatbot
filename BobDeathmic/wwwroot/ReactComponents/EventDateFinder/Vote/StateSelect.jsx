@@ -58,11 +58,13 @@
                     }
                 });
                 return (
-                    <div>
-                        <select key={this.props.key} value={this.state.State} onChange={this.handleOnChange} className={"chatUser_" + this.props.key}>
-                            {states}
-                        </select>
-                    </div>
+                    <span data-state={this.state.State} className="requestNode">
+                        <div>
+                            <select key={this.props.key} value={this.state.State} onChange={this.handleOnChange} className={"chatUser_" + this.props.key}>
+                                {states}
+                            </select>
+                        </div>
+                    </span>
                 );
             }
         }
@@ -70,35 +72,43 @@
             switch (this.state.State) {
                 case 0:
                     return (
-                        <div>
-                            <p className="mb-0">
-                                Noch nicht entschieden
-                            </p>
-                        </div>
+                        <span className="requestNode" data-state={this.state.State}>
+                            <div>
+                                <p className="mb-0">
+                                    Noch nicht entschieden
+                                </p>
+                            </div>
+                        </span>
                     );
                 case 1:
                     return (
-                        <div>
-                            <p className="mb-0">
-                                Ich kann
-                            </p>
-                        </div>
+                        <span className="requestNode" data-state={this.state.State}>
+                            <div>
+                                <p className="mb-0">
+                                    Ich kann
+                                </p>
+                            </div>
+                        </span>
                     );
                 case 2:
                     return (
-                        <div>
-                            <p className="mb-0">
-                                Ich kann nicht
-                            </p>
-                        </div>
+                        <span className="requestNode" data-state={this.state.State}>
+                            <div>
+                                <p className="mb-0">
+                                    Ich kann nicht
+                                </p>
+                            </div>
+                        </span>
                     );
                 case 3:
                     return (
-                        <div>
-                            <p className="mb-0">
-                                Wenn es sein muss
-                            </p>
-                        </div>
+                        <span className="requestNode" data-state={this.state.State}>
+                            <div>
+                                <p className="mb-0">
+                                    Wenn es sein muss
+                                </p>
+                            </div>
+                        </span>
                     );
             }
         }
