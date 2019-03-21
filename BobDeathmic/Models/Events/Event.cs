@@ -28,14 +28,6 @@ namespace BobDeathmic.Models.Events
             EventDates = new List<EventDate>();
         }
 
-        public bool isMember(ChatUserModel user)
-        {
-            if(Members.Where(x => x.ChatUserModelID == user.Id).Count() > 0)
-            {
-                return true;
-            }
-            return false;
-        }
         public List<ChatUserModel> getMembers()
         {
             List<ChatUserModel> Users = new List<ChatUserModel>();

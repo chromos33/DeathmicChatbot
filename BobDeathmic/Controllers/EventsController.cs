@@ -47,7 +47,7 @@ namespace BobDeathmic.Controllers
         {
             
             List<ReactDataClasses.Events.OverView.Calendar> Calendars = new List<ReactDataClasses.Events.OverView.Calendar>();
-            foreach(Models.Events.Event calendar in _context.Events.Include(x => x.Admin).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Admin.Id == user.Id || x.isMember(user)))
+            foreach(Models.Events.Event calendar in _context.Events.Include(x => x.Admin).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Admin.Id == user.Id || x.Members.Where(y => y.ChatUserModelID == user.Id).Count() > 0))
             {
                 //TODO make a custom CalendarMember object to facilitate better security (no need to lay open all data)
                 if(calendar.Admin == user)
