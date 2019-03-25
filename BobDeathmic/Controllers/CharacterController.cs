@@ -49,17 +49,23 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> RollStats(string GM)
         {
             string stats = "";
+            int sum = 0;
             for(int i = 0;i<6;i++)
             {
-                stats += Roll(4,6,1).ToString();
+                int result = Roll(4, 6, 1);
+                sum += result;
+                stats += result.ToString();
                 if(i != 5)
                 {
                     stats += ",";
                 }
             }
             ChatUserModel user = await _userManager.GetUserAsync(this.User);
-            _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = GM, Message = $"{user.ChatUserName} hat {stats} Stats für den Charakter gewürfelt." });
-            _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = user.ChatUserName, Message = $"Du hast {stats} Stats für den Charakter gewürfelt." });
+            _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = GM, Message = $"{user.ChatUserName} hat {stats} Stats ({sum}) für den Charakter gewürfelt " });
+            if(GM != user.ChatUserName)
+            {
+                _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = user.ChatUserName, Message = $"Du hast {stats} Stats ({sum}) für den Charakter gewürfelt." });
+            }
             return RedirectToAction("Index");
         }
         private int Roll(int numdies,int die)

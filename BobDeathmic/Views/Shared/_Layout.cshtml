@@ -42,105 +42,105 @@
 
                         @if (User.IsInRole("User") || User.IsInRole("Admin") || User.IsInRole("Dev"))
                         {
-                        <div class="menu">
-                            <div class="menuitem">
-                                <span class="submenuopener">Streams<i class="fa fa-chevron-down"></i></span>
-                                <div class="submenu">
-                                    <div class="heightgiver">
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Stream" asp-action="Status">Status</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Stream" asp-action="Verwaltung">Verwaltung</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Stream" asp-action="Create"><i class="fa fa-plus"></i> Hinzufügen</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="StreamCommands" asp-action="Index">Commands</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="menuitem">
-                                <span class="submenuopener">GiveAway<i class="fa fa-chevron-down"></i></span>
-                                <div class="submenu">
-                                    <div class="heightgiver">
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="GiveAway" asp-action="Index">Meine Geschenke</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="GiveAway" asp-action="Winnings">Gewonne Geschenke</a>
-                                        </div>
-                                        @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
-                                        {
-                                            <div class="menuitem">
-                                                <a asp-area="" asp-controller="GiveAway" asp-action="Admin">Admin</a>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="menuitem">
-                                <a asp-area="" asp-controller="Services" asp-action="ServiceControls">Dienste</a>
-                            </div>
-                            @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
-                            {
+                            <div class="menu">
                                 <div class="menuitem">
-                                    <span class="submenuopener">Admin<i class="fa fa-chevron-down"></i></span>
+                                    <span class="submenuopener">Streams<i class="fa fa-chevron-down"></i></span>
                                     <div class="submenu">
                                         <div class="heightgiver">
-                                            @if (User.IsInRole("Dev"))
-                                            {
-                                                <div class="menuitem">
-
-                                                    <a asp-area="" asp-controller="Admin" asp-action="Import">Import</a>
-
-                                                </div>
-                                                <div class="menuitem">
-                                                    <a asp-area="" asp-controller="Admin" asp-action="SecurityTokens">Tokens</a>
-                                                </div>
-                                                <div class="menuitem">
-                                                    <a asp-area="" asp-controller="UserAdmin" asp-action="Index">User Manager</a>
-                                                </div>
-                                            }
                                             <div class="menuitem">
-                                                <a asp-area="" asp-controller="DiscordBans" asp-action="Index">Discord Bans</a>
+                                                <a asp-area="" asp-controller="Stream" asp-action="Status">Status</a>
+                                            </div>
+                                            <div class="menuitem">
+                                                <a asp-area="" asp-controller="Stream" asp-action="Verwaltung">Verwaltung</a>
+                                            </div>
+                                            <div class="menuitem">
+                                                <a asp-area="" asp-controller="Stream" asp-action="Create"><i class="fa fa-plus"></i> Hinzufügen</a>
+                                            </div>
+                                            <div class="menuitem">
+                                                <a asp-area="" asp-controller="StreamCommands" asp-action="Index">Commands</a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            }
-                            <div class="menuitem">
-                                <span class="submenuopener">Benutzer <i class="fa fa-chevron-down"></i></span>
-                                <div class="submenu">
-                                    <div class="heightgiver">
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="User" asp-action="Subscriptions">Subscriptions</a>
+                                <div class="menuitem">
+                                    <span class="submenuopener">GiveAway<i class="fa fa-chevron-down"></i></span>
+                                    <div class="submenu">
+                                        <div class="heightgiver">
+                                            <div class="menuitem">
+                                                <a asp-area="" asp-controller="GiveAway" asp-action="Index">Meine Geschenke</a>
+                                            </div>
+                                            <div class="menuitem">
+                                                <a asp-area="" asp-controller="GiveAway" asp-action="Winnings">Gewonne Geschenke</a>
+                                            </div>
+                                            @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
+                                            {
+                                                <div class="menuitem">
+                                                    <a asp-area="" asp-controller="GiveAway" asp-action="Admin">Admin</a>
+                                                </div>
+                                            }
                                         </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="User" asp-action="ChangePassword">Passwort ändern</a>
+                                    </div>
+                                </div>
+                                <div class="menuitem">
+                                    <a asp-area="" asp-controller="Services" asp-action="ServiceControls">Dienste</a>
+                                </div>
+                                @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
+                                {
+                                    <div class="menuitem">
+                                        <span class="submenuopener">Admin<i class="fa fa-chevron-down"></i></span>
+                                        <div class="submenu">
+                                            <div class="heightgiver">
+                                                @if (User.IsInRole("Dev"))
+                                                {
+                                                    <div class="menuitem">
+
+                                                        <a asp-area="" asp-controller="Admin" asp-action="Import">Import</a>
+
+                                                    </div>
+                                                    <div class="menuitem">
+                                                        <a asp-area="" asp-controller="Admin" asp-action="SecurityTokens">Tokens</a>
+                                                    </div>
+                                                    <div class="menuitem">
+                                                        <a asp-area="" asp-controller="UserAdmin" asp-action="Index">User Manager</a>
+                                                    </div>
+                                                }
+                                                <div class="menuitem">
+                                                    <a asp-area="" asp-controller="DiscordBans" asp-action="Index">Discord Bans</a>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="User" asp-action="DeleteUser">Nutzer löschen</a>
+                                    </div>
+                                }
+                                <div class="menuitem">
+                                    <span class="submenuopener">Benutzer <i class="fa fa-chevron-down"></i></span>
+                                    <div class="submenu">
+                                        <div class="heightgiver">
+                                            <div class="menuitem">
+                                                <a asp-area="" asp-controller="User" asp-action="Subscriptions">Subscriptions</a>
+                                            </div>
+                                            <div class="menuitem">
+                                                <a asp-area="" asp-controller="User" asp-action="ChangePassword">Passwort ändern</a>
+                                            </div>
+                                            <div class="menuitem">
+                                                <a asp-area="" asp-controller="User" asp-action="DeleteUser">Nutzer löschen</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="menuitem">
+                                    <span class="submenuopener">P&P <i class="fa fa-chevron-down"></i></span>
+                                    <div class="submenu">
+                                        <div class="heightgiver">
+                                            <div class="menuitem">
+                                                <a asp-area="" asp-controller="Events" asp-action="Index">Event Kalendar</a>
+                                            </div>
+                                            <div class="menuitem">
+                                                <a asp-area="" asp-controller="Character" asp-action="Index">Character Rollen</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="menuitem">
-                                <span class="submenuopener">P&P <i class="fa fa-chevron-down"></i></span>
-                                <div class="submenu">
-                                    <div class="heightgiver">
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Events" asp-action="Index">Event Kalendar</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Character" asp-action="Index">Character Rollen</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         }
                         <div class="navi_footer">
 
@@ -158,6 +158,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/responsivetables.js" asp-append-version="true"></script>
+    <script src="~/js/jquery.validate.min.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)
 

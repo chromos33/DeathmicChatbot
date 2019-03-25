@@ -13,9 +13,10 @@
     <div class="row">
         <div class="col-12 mb-5">
             <h1>Gold</h1>
-            <form asp-controller="Character" asp-action="RollGold" method="post">
+            <form asp-controller="Character" class="RollGold" asp-action="RollGold" method="post">
                 <label>GM</label><br />
-                <select name="GM">
+                <select required name="GM">
+                    <option disabled selected> -- GM auswählen -- </option>
                     @foreach (ChatUserModel user in Model)
                     {
                         <option>@user.ChatUserName</option>
@@ -26,36 +27,65 @@
                     <tr>
                         <td>
                             <label for="numdies">Würfelzahl</label><br />
-                            <input name="numdies" type="number" />
+                            <input required name="numdies" type="number" />
                         </td>
                         <td>
                             <label for="die">Würfel Seiten</label><br />
-                            <input name="die" type="number" />
+                            <input required name="die" type="number" />
                         </td>
                         <td>
                             <label for="multiplikator">Multiplikator</label><br />
-                            <input name="multiplikator" type="number" value="10" />
+                            <input required name="multiplikator" type="number" value="10" />
                         </td>
                     </tr>
                 </table>
-                <button asp-controller="Character" asp-action="RollGold">Gold Würfeln</button>
+                <button class="btn" asp-controller="Character" asp-action="RollGold">Gold Würfeln</button>
             </form>
         </div>
         <div class="col-12 mb-5">
             <h1>Character</h1>
-            <form asp-controller="Character" asp-action="RollStats" method="post">
+            <form asp-controller="Character" class="RollStats" asp-action="RollStats" method="post">
                 <label>GM</label><br />
-                <select name="GM">
+                <select required name="GM">
+                    <option disabled selected> -- GM auswählen -- </option>
                     @foreach (ChatUserModel user in Model)
                     {
                         <option>@user.ChatUserName</option>
                     }
                 </select>
                 <br />
-                <button asp-controller="Character" asp-action="RollStats">Gold Würfeln</button>
+                <button class="btn" asp-controller="Character" asp-action="RollStats">Stats Würfeln</button>
             </form>
         </div>
     </div>
-    
+    @section Scripts {
+        <script> 
+            $(".RollGold").validate({
 
+                submitHandler: function (form) {
+                    $.ajax({
+                        type: $(form).attr('method'),
+                        url: $(form).attr('action') + "?isAjax=1",
+                        data: $(form).serialize(),
+                        success: function (data) {
+                        }
+                    });
+                    return false; // required to block normal submit since you used ajax
+                }
+            });
+            $(".RollStats").validate({
+
+                submitHandler: function (form) {
+                    $.ajax({
+                        type: $(form).attr('method'),
+                        url: $(form).attr('action') + "?isAjax=1",
+                        data: $(form).serialize(),
+                        success: function (data) {
+                        }
+                    });
+                    return false; // required to block normal submit since you used ajax
+                }
+            });
+        </script>
+        }
 </div>
