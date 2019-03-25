@@ -54,7 +54,7 @@ namespace BobDeathmic.Controllers
             {
                 int result = Roll(4, 6, 1);
                 sum += result;
-                stats += result.ToString();
+                stats += result.ToString() + $" ({getBoni(result)})";
                 if(i != 5)
                 {
                     stats += ",";
@@ -67,6 +67,23 @@ namespace BobDeathmic.Controllers
                 _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = user.ChatUserName, Message = $"Du hast {stats} Stats ({sum}) für den Charakter gewürfelt." });
             }
             return RedirectToAction("Index");
+        }
+        private string getBoni(int stat)
+        {
+            int boni = 0;
+            int preparedStat = stat - 10;
+            if(preparedStat < 0)
+            {
+                //Negative Boni
+                boni = (int) Math.Round((double) preparedStat / 2,0);
+                return boni.ToString();
+            }
+            else
+            {
+                //Positive Boni
+                boni = preparedStat / 2;
+                return "+" + boni.ToString();
+            }
         }
         private int Roll(int numdies,int die)
         {
