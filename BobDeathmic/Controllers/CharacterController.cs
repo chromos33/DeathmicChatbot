@@ -73,7 +73,8 @@ namespace BobDeathmic.Controllers
             int total = 0;
             for(int i = 0; i<numdies;i++)
             {
-                total += random.Next(1,die);
+                //die+1 cause max value ist exclusive of that value
+                total += random.Next(1,die+1);
             }
             return total;
         }
@@ -82,7 +83,8 @@ namespace BobDeathmic.Controllers
             List<int> rolls = new List<int>(6);
             for (int i = 0; i < numdies; i++)
             {
-                rolls.Add(random.Next(1, die));
+                //die+1 cause max value ist exclusive of that value
+                rolls.Add(random.Next(1, die+1));
             }
             for(int i = 0; i < removelowestdies;i++)
             {
