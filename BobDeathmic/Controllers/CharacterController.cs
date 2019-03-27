@@ -40,7 +40,10 @@ namespace BobDeathmic.Controllers
         {
             int gold = Roll(numdies, die) * multiplikator;
             ChatUserModel user = await _userManager.GetUserAsync(this.User);
-            _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = GM, Message = $"{user.ChatUserName} hat {gold} gold für den Charakter gewürfelt." });
+            if (GM != user.ChatUserName)
+            {
+                _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = GM, Message = $"{user.ChatUserName} hat {gold} gold für den Charakter gewürfelt." });
+            }
             _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = user.ChatUserName, Message = $"Du hast {gold} gold für den Charakter gewürfelt." });
             return RedirectToAction("Index");
         }
@@ -61,11 +64,12 @@ namespace BobDeathmic.Controllers
                 }
             }
             ChatUserModel user = await _userManager.GetUserAsync(this.User);
-            _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = GM, Message = $"{user.ChatUserName} hat {stats} Stats ({sum}) für den Charakter gewürfelt " });
-            if(GM != user.ChatUserName)
+            if (GM != user.ChatUserName)
             {
-                _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = user.ChatUserName, Message = $"Du hast {stats} Stats ({sum}) für den Charakter gewürfelt." });
+                _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = GM, Message = $"{user.ChatUserName} hat {stats} Stats ({sum}) für den Charakter gewürfelt " });
             }
+            _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = user.ChatUserName, Message = $"Du hast {stats} Stats ({sum}) für den Charakter gewürfelt." });
+            
             return RedirectToAction("Index");
         }
         private string getBoni(int stat)
@@ -75,7 +79,7 @@ namespace BobDeathmic.Controllers
             if(preparedStat < 0)
             {
                 //Negative Boni
-                boni = (int) Math.Round((double) preparedStat / 2,0);
+                boni = (int) Math.Round(Math.Floor((double) preparedStat / 2),0);
                 return boni.ToString();
             }
             else
