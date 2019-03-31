@@ -58,7 +58,7 @@ namespace BobDeathmic.Services.Tasks
             Console.WriteLine("NotifyUsers");
             string address = _configuration.GetValue<string>("WebServerWebAddress");
             List<MutableTuple<string, string>> GroupedNotifications = new List<MutableTuple<string, string>>();
-            foreach (EventDate date in calendar.EventDates.Where(x => x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(4)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(1)).Date))
+            foreach (EventDate date in calendar.EventDates.Where(x => x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(5)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(2)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(1)).Date))
             {
                 foreach(AppointmentRequest request in date.Teilnahmen.Where(x => x.State == AppointmentRequestState.NotYetVoted))
                 {
