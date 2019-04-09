@@ -11,8 +11,10 @@ namespace BobDeathmic.ReactDataClasses.Events.Vote
         public string UserName { get; set; }
         public string AppointmentRequestID { get; set; }
         public AppointmentRequestState State { get; set; }
-        public DateTime Date { get; set; }
-        public DateTime Time { get; set; }
+        public string Date { get; set; }
+        public string Time { get; set; }
+        public bool canEdit { get; set; }
+
         public string[] States {
             get
             {

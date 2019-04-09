@@ -196,47 +196,30 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<JsonResult> GetEventDates(int ID)
         {
-            List<EventDate> EventDates = _context.EventDates.Include(x => x.Event).Include(x => x.Teilnahmen).ThenInclude(x => x.Owner).Where(x => x.Event.Id == ID).OrderBy(x => x.Date).ThenBy(x => x.StartTime).Take(6).ToList();
+            List<EventDate> EventDates = _context.EventDates.Include(x => x.Event).Include(x => x.Teilnahmen).ThenInclude(x => x.Owner).Where(x => x.Event.Id == ID).OrderBy(x => x.Date).ThenBy(x => x.StartTime).ToList();
             if (EventDates.Count() >0)
             {
                 VoteReactData ReactData = new VoteReactData();
-                ReactData.Header = new List<EventDateHeader>();
-                ReactData.User = new List<VoteChatUser>();
+                ReactData.Header = new List<EventDateData>();
                 ChatUserModel user = await _userManager.GetUserAsync(this.User);
                 foreach (EventDate EventDate in EventDates)
                 {
                     if(ReactData.Header.Where(x => x.Date == EventDate.Date.ToString("dd.MM.yy") && x.Time == EventDate.StartTime.ToString("HH:mm") + " - " + EventDate.StopTime.ToString("HH:mm")).Count() == 0)
                     {
-                        ReactData.Header.Add(new EventDateHeader { Date = EventDate.Date.ToString("dd.MM.yy"), Time = EventDate.StartTime.ToString("HH:mm") + " - " + EventDate.StopTime.ToString("HH:mm") });
-                        foreach (AppointmentRequest request in EventDate.Teilnahmen.OrderBy(x => x.EventDate.Date).ThenBy(x => x.EventDate.StartTime))
+                        EventDateData newData = new EventDateData { Requests = new List<VoteRequest>(), Date = EventDate.Date.ToString("dd.MM.yy"), Time = EventDate.StartTime.ToString("HH:mm") + " - " + EventDate.StopTime.ToString("HH:mm") };
+                        //
+                        foreach (AppointmentRequest request in EventDate.Teilnahmen.OrderBy(x => x.EventDate.Date).ThenBy(x => x.EventDate.StartTime).ThenBy(x => x.Owner.ChatUserName))
                         {
-                            if (ReactData.User.Where(x => x.Name.ToLower() == request.Owner.ChatUserName.ToLower()).Count() == 0)
-                            {
-                                var userdata = new VoteChatUser { key = request.Owner.ChatUserName, Name = request.Owner.ChatUserName };
-                                userdata.canEdit = request.Owner == user;
-                                userdata.Requests = new List<VoteRequest>();
-                                VoteRequest tmp = new VoteRequest();
-                                tmp.AppointmentRequestID = request.ID;
-                                tmp.UserName = request.Owner.ChatUserName;
-                                tmp.State = request.State;
-                                tmp.Date = request.EventDate.Date;
-                                tmp.Time = request.EventDate.StartTime;
-                                userdata.Requests.Add(tmp);
-                                ReactData.User.Add(userdata);
-
-                            }
-                            else
-                            {
-                                var userdata = ReactData.User.Where(x => x.Name.ToLower() == request.Owner.ChatUserName.ToLower()).FirstOrDefault();
-                                VoteRequest tmp = new VoteRequest();
-                                tmp.AppointmentRequestID = request.ID;
-                                tmp.UserName = request.Owner.ChatUserName;
-                                tmp.State = request.State;
-                                tmp.Date = request.EventDate.Date;
-                                tmp.Time = request.EventDate.StartTime;
-                                userdata.Requests.Add(tmp);
-                            }
+                            VoteRequest tmp = new VoteRequest();
+                            tmp.AppointmentRequestID = request.ID;
+                            tmp.UserName = request.Owner.ChatUserName;
+                            tmp.State = request.State;
+                            tmp.Date = request.EventDate.Date.ToString("dd.MM.yy");
+                            tmp.Time = request.EventDate.StartTime.ToString("HH:mm") + "-" + request.EventDate.StopTime.ToString("HH:mm");
+                            tmp.canEdit = request.Owner == user;
+                            newData.Requests.Add(tmp);
                         }
+                        ReactData.Header.Add(newData);
                     }
                 }
                 var json = Json(ReactData, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore });

@@ -58,7 +58,7 @@
                     }
                 });
                 return (
-                    <span data-state={this.state.State} className="requestNode">
+                    <span data-state={this.state.State} className="requestNode col-6 pt-2 pb-2">
                         <div>
                             <select key={this.props.key} value={this.state.State} onChange={this.handleOnChange} className={"chatUser_" + this.props.key}>
                                 {states}
@@ -72,7 +72,7 @@
             switch (this.state.State) {
                 case 0:
                     return (
-                        <span className="requestNode" data-state={this.state.State}>
+                        <span className="requestNode col-6 pt-2 pb-2" data-state={this.state.State}>
                             <div>
                                 <p className="mb-0">
                                     Noch nicht entschieden
@@ -82,7 +82,7 @@
                     );
                 case 1:
                     return (
-                        <span className="requestNode" data-state={this.state.State}>
+                        <span className="requestNode col-6 pt-2 pb-2" data-state={this.state.State}>
                             <div>
                                 <p className="mb-0">
                                     Ich kann
@@ -92,7 +92,7 @@
                     );
                 case 2:
                     return (
-                        <span className="requestNode" data-state={this.state.State}>
+                        <span className="requestNode col-6 pt-2 pb-2" data-state={this.state.State}>
                             <div>
                                 <p className="mb-0">
                                     Ich kann nicht
@@ -102,7 +102,7 @@
                     );
                 case 3:
                     return (
-                        <span className="requestNode" data-state={this.state.State}>
+                        <span className="requestNode col-6 pt-2 pb-2" data-state={this.state.State}>
                             <div>
                                 <p className="mb-0">
                                     Wenn es sein muss

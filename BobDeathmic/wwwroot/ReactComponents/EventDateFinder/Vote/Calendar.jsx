@@ -16,21 +16,14 @@
         });
     }
     render() {
-        if (this.state.data.Header !== undefined && this.state.data.Header.length > 0 && this.state.data.User !== undefined) {
+        if (this.state.data.Header !== undefined && this.state.data.Header.length > 0) {
             var tempthis = this;
             headerNodes = this.state.data.Header.map(function (Header) {
-                return <span key={Header.Date + Header.Time} className="voteHeader"><span className="date">{Header.Date}</span><br /><span className="time">{Header.Time}</span></span>;
-            });
-            userNodes = this.state.data.User.map(function (User) {
-                return <VoteMember key={User.Name} Name={User.Name} canEdit={User.canEdit} Requests={User.Requests} />;
+                return <EventDate key={Header.Date + Header.Time} Data={Header}/>;
             });
             return (
-                <div>
-                    <div className="headerNodes">
-                        <span className="voteHeader">&nbsp;</span>
-                        {headerNodes}
-                    </div>
-                    {userNodes}
+                <div className="EventDateContainer">
+                    {headerNodes}
                 </div>
             );
         }
