@@ -74,6 +74,7 @@ namespace BobDeathmic.Services.Tasks
             }
             foreach(MutableTuple<string,string> tuple in GroupedNotifications)
             {
+                
                 _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = tuple.First , Message = tuple.Second });
             }
         }
@@ -108,7 +109,7 @@ namespace BobDeathmic.Services.Tasks
                 {
                     EventDate eventdate = template.CreateEventDate(week);
                     eventdate.EventDateTemplateID = template.ID;
-                    if(calendar.EventDates.Where( x => x.Date == eventdate.Date && x.StartTime == eventdate.StartTime && x.StopTime == eventdate.StopTime).Count() == 0)
+                    if(calendar.EventDates.Where( x => x.Date == eventdate.Date).Count() == 0)
                     {
                         eventdate.Teilnahmen = calendar.GenerateAppointmentRequests(eventdate);
                         _context.EventDates.Add(eventdate);
