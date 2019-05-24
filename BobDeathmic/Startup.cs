@@ -78,8 +78,8 @@ namespace BobDeathmic
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddReact();
-            //services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName).AddChakraCore();
-            services.AddJsEngineSwitcher().AddJurassic();
+            services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName).AddChakraCore();
+            //services.AddJsEngineSwitcher().AddJurassic();
             services.AddMvc();
         }
 
@@ -99,6 +99,20 @@ namespace BobDeathmic
             }
             app.UseReact(config =>
             {
+                config.AddScript("~/ReactComponents/EventDatefinderList.jsx")
+                .AddScript("~/ReactComponents/Vote/Calendar")
+                .AddScript("~/ReactComponents/Vote/EventDate")
+                .AddScript("~/ReactComponents/Vote/StateSelect")
+                .AddScript("~/ReactComponents/OverView/Calendar")
+                .AddScript("~/ReactComponents/Edit_Create/ChatUserSelect")
+                .AddScript("~/ReactComponents/Edit_Create/EditEvent")
+                .AddScript("~/ReactComponents/Edit_Create/InvitedMemberList")
+                .AddScript("~/ReactComponents/Edit_Create/NameField")
+                .AddScript("~/ReactComponents/Edit_Create/Template")
+                .AddScript("~/ReactComponents/Edit_Create/TemplateList");
+                config.AllowJavaScriptPrecompilation = true;
+                config.SetLoadBabel(true);
+                config.SetReuseJavaScriptEngines(false);
                 // If you want to use server-side rendering of React components,
                 // add all the necessary JavaScript files here. This includes
                 // your components as well as all of their dependencies.
