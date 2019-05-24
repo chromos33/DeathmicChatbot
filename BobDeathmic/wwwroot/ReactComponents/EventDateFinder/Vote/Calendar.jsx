@@ -5,15 +5,13 @@
     }
     componentWillMount() {
         var thisreference = this;
-        $.ajax({
-            url: "/Events/GetEventDates/" + this.props.ID,
-            type: "GET",
-            data: {},
-            success: function (result) {
-                console.log(result);
-                thisreference.setState({ data: result });
-            }
-        });
+        const xhr = new XMLHttpRequest();
+        console.log("/Events/GetEventDates/" + this.props.ID);
+        xhr.open('GET', "/Events/GetEventDates/" + this.props.ID, true);
+        xhr.onload = function () {
+            thisreference.setState({ data: JSON.parse(xhr.responseText) });
+        };
+        xhr.send();
     }
     render() {
         if (this.state.data.Header !== undefined && this.state.data.Header.length > 0) {

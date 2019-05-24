@@ -19,10 +19,13 @@
     </div>
 </div>
 @*
+    //Dev use https://babeljs.io/repl to precompile scripts in jsx files
     <script src="@Url.Content("~/js/react.development.js")"></script>
     <script src="@Url.Content("~/js/react-dom.development.js")"></script>
+    <script src="@Url.Content("~/ReactComponents/EventDateFinder/OverView/OverView.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/EventDateFinder/OverView/Calendar.jsx")"></script>
 *@
 <script src="@Url.Content("~/js/react.production.min.js")"></script>
 <script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
-<script src="@Url.Content("~/ReactComponents/EventDateFinder/OverView/OverView.jsx")"></script>
-<script src="@Url.Content("~/ReactComponents/EventDateFinder/OverView/Calendar.jsx")"></script>
+
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/PreCompiled/CompiledOverView.js")"></script>

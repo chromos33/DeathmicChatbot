@@ -77,7 +77,7 @@
     render() {
         var tempthis = this;
         var Days = [{ Day: "Montag", Value: 1 }, { Day: "Dienstag", Value: 2 }, { Day: "Mittwoch", Value: 3 }, { Day: "Donnerstag", Value: 4 }, { Day: "Freitag", Value: 5 }, { Day: "Samstag", Value: 6 }, { Day: "Sonntag", Value: 7 }];
-        templateNodes = Days.map(function (Day) {
+        var templateNodes = Days.map(function (Day) {
             return (<div className="day" key={Day.Day + Day.Value}><input type="radio" onChange={tempthis.handleOnDaySelect} checked={tempthis.state.day === Day.Value} name={tempthis.state.name} value={Day.Value} /> <span>{Day.Day}</span></div>);
         });
         return (

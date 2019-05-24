@@ -52,7 +52,7 @@
         chatUserNodes = "";
         if (this.state.InvitedUsers.length > 0) {
             var tempthis = this;
-            chatUserNodes = this.state.InvitedUsers.map(function (chatUser) {
+            var chatUserNodes = this.state.InvitedUsers.map(function (chatUser) {
                 return (<div key={chatUser.key} className="col-12 userListItem">
                     <span>{chatUser.name}</span><span onClick={tempthis.handleOnRemoveClick} data-value={chatUser.name} className="button">remove</span>
                 </div>);

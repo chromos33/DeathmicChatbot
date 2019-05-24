@@ -99,23 +99,11 @@ namespace BobDeathmic
             }
             app.UseReact(config =>
             {
-                config.AddScript("~/ReactComponents/EventDatefinderList.jsx")
-                .AddScript("~/ReactComponents/Vote/Calendar")
-                .AddScript("~/ReactComponents/Vote/EventDate")
-                .AddScript("~/ReactComponents/Vote/StateSelect")
-                .AddScript("~/ReactComponents/OverView/Calendar")
-                .AddScript("~/ReactComponents/Edit_Create/ChatUserSelect")
-                .AddScript("~/ReactComponents/Edit_Create/EditEvent")
-                .AddScript("~/ReactComponents/Edit_Create/InvitedMemberList")
-                .AddScript("~/ReactComponents/Edit_Create/NameField")
-                .AddScript("~/ReactComponents/Edit_Create/Template")
-                .AddScript("~/ReactComponents/Edit_Create/TemplateList");
                 config.AllowJavaScriptPrecompilation = true;
-                config.SetLoadBabel(true);
-                config.SetReuseJavaScriptEngines(true);
-                config.SetStartEngines(1);
+                config.SetLoadBabel(false);
                 config.SetLoadReact(true);
-                config.SetMaxUsagesPerEngine(1);
+                config.UseServerSideRendering = false;
+                
 
                 // If you want to use server-side rendering of React components,
                 // add all the necessary JavaScript files here. This includes

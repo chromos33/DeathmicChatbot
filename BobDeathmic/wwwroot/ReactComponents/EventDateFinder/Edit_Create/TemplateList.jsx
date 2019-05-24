@@ -30,7 +30,7 @@
         });
     }
     handleAddTemplateClick(event) {
-        tempthis = this;
+        var tempthis = this;
         $.ajax({
             url: "/Events/AddTemplate/" + this.props.ID,
             type: "GET",
@@ -45,7 +45,7 @@
     render() {
         if (this.state.Templates.length > 0) {
             var tempthis = this;
-            templateNodes = this.state.Templates.map(function (template) {
+            var templateNodes = this.state.Templates.map(function (template) {
                 return <Template calendar={tempthis.props.ID} eventEmitter={tempthis.props.eventEmitter} key={template.key} name={template.key} day={template.Day} start={template.Start} stop={template.Stop} />;
             });
             return (

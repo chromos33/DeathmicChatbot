@@ -36,10 +36,9 @@
         this.setState({ selectedUser: event.target.value});
     }
     render() {
-        chatUserNodes = "";
         if (this.state.chatUsers.length > 0) {
-            chatUserNodes = this.state.chatUsers.map(function (chatUser) {
-                return <option key={chatUser.name} value={chatUser.name}>{chatUser.name}</option>
+            var chatUserNodes = this.state.chatUsers.map(function (chatUser) {
+                return <option key={chatUser.name} value={chatUser.name}>{chatUser.name}</option>;
             });
             return (
                 <div>
