@@ -112,7 +112,11 @@ namespace BobDeathmic
                 .AddScript("~/ReactComponents/Edit_Create/TemplateList");
                 config.AllowJavaScriptPrecompilation = true;
                 config.SetLoadBabel(true);
-                config.SetReuseJavaScriptEngines(false);
+                config.SetReuseJavaScriptEngines(true);
+                config.SetStartEngines(1);
+                config.SetLoadReact(true);
+                config.SetMaxUsagesPerEngine(1);
+
                 // If you want to use server-side rendering of React components,
                 // add all the necessary JavaScript files here. This includes
                 // your components as well as all of their dependencies.
