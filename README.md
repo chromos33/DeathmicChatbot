@@ -1,2 +1,1 @@
-Supercedes Bob2.0
-Switched to .NET Core
+TODO switch asp.net core mvc branch to master
