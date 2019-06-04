@@ -27,11 +27,13 @@ namespace BobDeathmic.Controllers
         }
         [TempData]
         public string StatusMessage { get; set; }
+        [Authorize(Roles = "User,Dev,Admin")]
         public IActionResult Index()
         {
             return View();
         }
         [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Subscriptions()
         {
             ChatUserModel usermodel = await _userManager.GetUserAsync(this.User);
@@ -60,6 +62,7 @@ namespace BobDeathmic.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> AddSubscription(Models.User.AddSubscriptionViewModel model)
         {
             if(!ModelState.IsValid)
@@ -120,6 +123,7 @@ namespace BobDeathmic.Controllers
         
 
         [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> DeleteUser()
         {
             return View();
@@ -135,6 +139,7 @@ namespace BobDeathmic.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
         public IActionResult ChangePassword()
         {
             var model = new Models.User.ChangePasswordViewModel { StatusMessage = StatusMessage };
@@ -142,6 +147,7 @@ namespace BobDeathmic.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> ChangePassword(Models.User.ChangePasswordViewModel model)
         {
             if (!ModelState.IsValid)

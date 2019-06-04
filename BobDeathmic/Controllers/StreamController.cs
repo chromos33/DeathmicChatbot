@@ -141,7 +141,7 @@ namespace BobDeathmic.Controllers
         {
             string address = _configuration.GetValue<string>("WebServerWebAddress")+ "/User/Subscriptions";
             DiscordWhisperArgs args = new DiscordWhisperArgs();
-            args.Message = $"Der Stream {stream.StreamName} wurde hinzugefügt. Du kannst ihn unter {address} abonieren";
+            args.Message = $"Der Stream {stream.StreamName} wurde hinzugefügt. Da kannst du für {address} ein Abonnement ausführen tun.";
             foreach (ChatUserModel user in _context.ChatUserModels)
             {
                 args.UserName = user.ChatUserName;
