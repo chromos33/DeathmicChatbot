@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using BobDeathmic.Args;
 using BobDeathmic.Data;
+using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
 using BobDeathmic.Models.StreamModels;
 using BobDeathmic.Models.StreamViewModels;
@@ -19,11 +21,13 @@ namespace BobDeathmic.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly IEventBus _eventBus;
 
-        public StreamController(ApplicationDbContext context, IConfiguration configuration)
+        public StreamController(ApplicationDbContext context, IConfiguration configuration, IEventBus eventBus)
         {
             _context = context;
             _configuration = configuration;
+            _eventBus = eventBus;
         }
         [Authorize(Roles = "User,Dev,Admin")]
         public IActionResult Index()
@@ -128,9 +132,22 @@ namespace BobDeathmic.Controllers
             {
                 _context.Add(stream);
                 await _context.SaveChangesAsync();
+                handleCreated(stream);
                 return RedirectToAction(nameof(Index));
             }
             return RedirectToAction(nameof(Verwaltung));
+        }
+        private async Task handleCreated(Stream stream)
+        {
+            string address = _configuration.GetValue<string>("WebServerWebAddress")+ "/User/Subscriptions";
+            DiscordWhisperArgs args = new DiscordWhisperArgs();
+            args.Message = $"Der Stream {stream.StreamName} wurde hinzugefügt. Du kannst ihn unter {address} abonieren";
+            foreach (ChatUserModel user in _context.ChatUserModels)
+            {
+                args.UserName = user.ChatUserName;
+                _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, args);
+            }
+            
         }
         [TempData]
         public string StatusMessage { get; set; }
