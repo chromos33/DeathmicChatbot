@@ -1,0 +1,112 @@
+﻿.userListItem
+{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+    padding-top:10px;
+    border-top:1px solid black;
+}
+.template:first-child
+{
+    margin-top:20px;
+}
+.template{
+    padding:20px;
+    position:relative;
+}
+.template:nth-child(odd) {
+    background: #272c2e !important;
+}
+.template .days
+{
+    display:flex;
+    justify-content:space-around;
+    margin-bottom:20px;
+}
+.template .days .day
+{
+    display:flex;
+    flex-direction:column;
+}
+.template .times
+{
+    display:flex;
+    justify-content:space-around;
+}
+.template .times .time
+{
+    display:flex;
+    justify-content:space-around;
+    flex-direction:column;
+    text-align:center;
+}
+.template .delete
+{
+    position:absolute;
+    left:0;
+    bottom:0;
+    opacity:0.6;
+    transition:0.5s ease all;
+}
+.template .delete:hover {
+    opacity: 1;
+}
+
+
+.date{
+    font-size:14px;
+    font-weight:bold;
+}
+.time {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.requestNode {
+    position: relative;
+}
+.requestNode:after
+{
+    position:absolute;
+    left:0;
+    top:0;
+    height:100%;
+    width:10px;
+    content:"";
+}
+.requestNode[data-state="1"]:after {
+    background:green;
+}
+.requestNode[data-state="2"]:after {
+    background: red;
+}
+.requestNode[data-state="3"]:after {
+    background: yellow;
+}
+.usernode {
+    background: #272c2e;
+    color: #BAC6D1;
+}
+.usernode:nth-child(even) {
+    background:transparent;
+}
+.EventDate
+{
+    flex:0 0 30%;
+    margin-left:20px;
+    margin-right:20px;
+    margin-bottom:50px;
+}
+.EventDateContainer
+{
+    display:flex;
+    justify-content:space-between;
+    flex-direction:row;
+    flex-wrap:wrap;
+}
+@media only screen and (max-width : 768px) {
+    .EventDate
+    {
+        flex:1 0 100%;
+    }
+}

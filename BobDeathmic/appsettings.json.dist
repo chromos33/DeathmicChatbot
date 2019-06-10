@@ -1,0 +1,44 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;PORT=3306;Database=DBNAME;User=USER;Password=PASSWORD$"
+  },
+  "Logging": {
+    "IncludeScopes": false,
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "Commands": [
+    {
+      "Name": "Help",
+      "Twitch": "false",
+      "Discord": "true"
+    },
+    {
+      "Name": "UpTime",
+      "Twitch": "false",
+      "Discord": "false"
+    },
+    {
+      "Name": "stream",
+      "Twitch": "true",
+      "Discord": "false"
+    },
+    {
+      "Name": "strawpoll",
+      "Twitch": "true",
+      "Discord": "false"
+    },
+    {
+      "Name": "game",
+      "Twitch": "true",
+      "Discord": "false"
+    },
+    {
+      "Name": "title",
+      "Twitch": "true",
+      "Discord": "false"
+    }
+  ],
+  "WebServerWebAddress": "LOCALEADDRESS"
+}

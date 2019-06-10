@@ -1,0 +1,21 @@
+﻿@model BobDeathmic.Models.GiveAwayModels.GiveAwayItem
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/Buttons.css" />
+<div class="breadcrumbs">
+    <span>GiveAway > Verwaltung > Löschen</span>
+</div>
+<div class="pa-35">
+    <h3 class="mb-20">Bist du dir sicher das du das Geschenk @Html.DisplayFor(model => model.Title) löschen willst?</h3>
+
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input style="float:left;" type="submit" value="Löschen" class="btn btn-default" />
+        <a class="btn" style="float:right;" asp-action="Index">Zurück</a>
+    </form>
+</div>

@@ -1,0 +1,18 @@
+﻿table tr:nth-child(odd) .rolecontainer {
+    border-radius: 9999px;
+    padding: 10px 10px;
+    background: #272c2e;
+}
+table tr:nth-child(even) .rolecontainer {
+    border-radius: 9999px;
+    padding: 10px 10px;
+    background: #485358;
+}
+.rolecontainer
+{
+    display:inline-block;
+}
+label
+{
+    margin-bottom:0;
+}

@@ -1,0 +1,16 @@
+﻿using BobDeathmic.Models.Events;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace BobDeathmic.ReactDataClasses.Events.Vote
+{
+    public class VoteChatUser
+    {
+        public List<VoteRequest> Requests { get; set; }
+        public bool canEdit { get; set; }
+        public string Name { get; set; }
+        public string key { get; set; }
+    }
+}

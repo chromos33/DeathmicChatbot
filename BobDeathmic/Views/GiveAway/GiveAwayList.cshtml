@@ -1,0 +1,39 @@
+﻿@model BobDeathmic.Models.ChatUserModel
+
+@{
+    ViewData["Title"] = "Status";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/table.css" />
+<link rel="stylesheet" href="~/css/Stream/Status.css" />
+<link rel="stylesheet" href="~/css/Buttons.css" />
+
+<div class="breadcrumbs mb-4">
+    <span>GiveAway</span>
+</div>
+<div class="pl-5">
+    <a class="button" asp-action="Create">Create</a>
+</div>
+
+<table class="table responsive">
+    <thead>
+        <tr>
+            <th>Spiel</th>
+            <th>Code</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OwnedItems)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.Key</td>
+                <td><a asp-action="Edit" asp-route-id="@item.Id">Edit</a></td>
+                <td><a asp-action="Delete" asp-route-id="@item.Id">Delete</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,68 @@
+﻿@model IEnumerable<BobDeathmic.Models.StreamCommand>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/table.css" />
+<link rel="stylesheet" href="~/css/Stream/Status.css" />
+<link rel="stylesheet" href="~/css/Buttons.css" />
+
+<div class="breadcrumbs">
+    <span>Streams > Commands</span>
+</div>
+<div class="pa-35">
+    <p>
+        <a class="btn" asp-action="Create">Neuen erstellen</a>
+    </p>
+    <table class="table responsive">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.response)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Mode)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.AutoInverval)
+                </th>
+                <th>
+                    Stream
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.response)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Mode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AutoInverval)
+                    </td>
+                    <td>
+                        @item.stream.StreamName
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

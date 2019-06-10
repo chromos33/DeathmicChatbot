@@ -1,0 +1,14 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using BobDeathmic.Models
+
+@inject SignInManager<ChatUserModel> SignInManager
+@inject UserManager<ChatUserModel> UserManager
+
+@if (!SignInManager.IsSignedIn(User))
+{
+<div class="menu">
+    <div class="menuitem">
+        <a asp-area="" asp-controller="Main" asp-action="Login">Log in</a>
+    </div>
+</div>
+}

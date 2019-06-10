@@ -1,0 +1,44 @@
+﻿
+@{
+    ViewData["Title"] = "Import";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="col-md-12 col-xs-12">
+    <h2>Import</h2>
+    <p>Immer zuerst Streams importieren dann User</p>
+</div>
+<div class="col-md-6 col-xs-12">
+    <h3>Stream</h3>
+    <form method="post" enctype="multipart/form-data" asp-controller="UploadStreams" asp-action="Index">
+        <div class="form-group">
+            <div class="col-md-10">
+                <p>Upload Stream.xml (Legacy Import only works on empty Streams Table):</p>
+                <input type="file" name="files" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-10">
+                <input type="submit" value="Upload" />
+            </div>
+        </div>
+    </form>
+</div>
+<div class="col-md-6 col-xs-12">
+    <h3>User</h3>
+
+    <form method="post" enctype="multipart/form-data" asp-controller="UploadUsers" asp-action="Index">
+        <div class="form-group">
+            <div class="col-md-10">
+                <p>Upload User.xml (Legacy Import only works on empty User Table):</p>
+                <input type="file" name="files" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-10">
+                <input type="submit" value="Upload" />
+            </div>
+        </div>
+    </form>
+</div>
+
+

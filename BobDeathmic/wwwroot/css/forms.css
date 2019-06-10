@@ -1,0 +1,25 @@
+﻿input {
+    background: transparent !important;
+    color: #BAC6D1 !important;
+}
+select
+{
+    background:transparent !important;
+    color: #BAC6D1 !important;
+    display:inline-block;
+    width:auto !important;
+}
+button
+{
+    display:inline-block;
+}
+option {
+    color: #BAC6D1 !important;
+    background:black;
+}
+select
+{
+    background:transparent;
+    border-radius:5px;
+    border:1px solid black;
+}

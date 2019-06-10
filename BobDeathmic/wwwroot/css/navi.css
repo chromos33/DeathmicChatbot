@@ -1,0 +1,95 @@
+﻿.mobile_nav_opener {
+    height: 20px;
+    width: 30px;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.mobile_nav_opener span {
+    width: 100%;
+    height: 4px;
+    background: white;
+    display: block;
+    position: absolute;
+}
+
+.mobile_nav_opener span:nth-child(1) {
+    top: 0;
+}
+
+.mobile_nav_opener span:nth-child(2) {
+    top: 8px;
+}
+
+.mobile_nav_opener span:nth-child(3) {
+    top: 16px;
+}
+.navigationcontainer {
+    padding: 20px 10px;
+    min-height: calc(100vh - 64px);
+    height: 100%;
+}
+
+.menuitem {
+    transition: all 0.5s linear;
+}
+
+.menuitem > a,
+.menuitem > .submenuopener {
+    cursor: pointer;
+    padding: 10px;
+    display: block;
+}
+
+.menuitem > .submenuopener i {
+    margin-left: 10px;
+    transform: translateY(2px);
+    transition: 0.5s ease all;
+    transform-origin: center;
+}
+
+.menuitem.open > .submenuopener i {
+    transform: translateY(2px) rotate(-90deg);
+}
+
+.menuitem > a:last-child,
+.menuitem > .submenuopener:last-child {
+    border-bottom: 0px solid white !important;
+}
+
+.menuitem a:hover,
+.menuitem .submenuopener:hover {
+    background: white;
+    color: black !important;
+}
+
+.submenu {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.5s ease;
+}
+
+.submenu > .heightgiver {
+    padding-left: 40px;
+}
+.navigationcontainer {
+    padding-bottom: 40px;
+}
+.logo {
+    height: 40px;
+    width: 40px;
+}
+@media only screen and (max-width : 768px) {
+    .navigationcontainer {
+        height: auto;
+        min-height: auto;
+    }
+    .mobile_overflowcontainer
+    {
+        overflow:hidden;
+        transition:0.5s ease all;
+    }
+}

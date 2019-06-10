@@ -1,0 +1,39 @@
+﻿@model int
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<link rel="stylesheet" href="~/css/forms.css" />
+<link rel="stylesheet" href="~/css/Buttons.css" />
+<link rel="stylesheet" href="~/css/React.css" />
+<script src="~/js/EventEmitter.min.js"></script>
+<div class="breadcrumbs">
+    <span>EventCalendar > Editieren</span>
+</div>
+<div class="pa-35">
+    <h2>Event Abstimmung</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-12" ID="reactcontent">
+
+        </div>
+    </div>
+</div>
+@*
+    //Use the jsx files on dev and comment out the Compiled Version
+    //Dev use https://babeljs.io/repl to precompile scripts in jsx files
+    <script src="@Url.Content("~/js/react.development.js")"></script>
+    <script src="@Url.Content("~/js/react-dom.development.js")"></script>
+    <script src="@Url.Content("~/ReactComponents/EventDateFinder/Vote/Calendar.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/EventDateFinder/Vote/EventDate.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/EventDateFinder/Vote/StateSelect.jsx")"></script>
+*@
+<script src="@Url.Content("~/js/react.production.min.js")"></script>
+<script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/PreCompiled/CompiledVote.js")"></script>
+
+<script>
+        document.addEventListener("DOMContentLoaded", function (event) {
+            var elem = React.createElement(Calendar, { ID: @Model});
+            ReactDOM.render(elem, document.getElementById('reactcontent'));
+        });
+</script>

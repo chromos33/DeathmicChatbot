@@ -1,0 +1,91 @@
+﻿@model List<ChatUserModel>
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<h2>Index</h2>
+<div class="breadcrumbs">
+    <span>D&D > Charakter</span>
+</div>
+<link rel="stylesheet" href="~/css/forms.css" />
+<link rel="stylesheet" href="~/css/Buttons.css" />
+
+<div class="pa-35">
+    <div class="row">
+        <div class="col-12 mb-5">
+            <h1>Gold</h1>
+            <form asp-controller="Character" class="RollGold" asp-action="RollGold" method="post">
+                <label>GM</label><br />
+                <select required name="GM">
+                    <option disabled selected> -- GM auswählen -- </option>
+                    @foreach (ChatUserModel user in Model)
+                    {
+                        <option>@user.ChatUserName</option>
+                    }
+                </select>
+                <br />
+                <table>
+                    <tr>
+                        <td>
+                            <label for="numdies">Würfelzahl</label><br />
+                            <input required name="numdies" type="number" />
+                        </td>
+                        <td>
+                            <label for="die">Würfel Seiten</label><br />
+                            <input required name="die" type="number" />
+                        </td>
+                        <td>
+                            <label for="multiplikator">Multiplikator</label><br />
+                            <input required name="multiplikator" type="number" value="10" />
+                        </td>
+                    </tr>
+                </table>
+                <button class="btn" asp-controller="Character" asp-action="RollGold">Gold Würfeln</button>
+            </form>
+        </div>
+        <div class="col-12 mb-5">
+            <h1>Character</h1>
+            <form asp-controller="Character" class="RollStats" asp-action="RollStats" method="post">
+                <label>GM</label><br />
+                <select required name="GM">
+                    <option disabled selected> -- GM auswählen -- </option>
+                    @foreach (ChatUserModel user in Model)
+                    {
+                        <option>@user.ChatUserName</option>
+                    }
+                </select>
+                <br />
+                <button class="btn" asp-controller="Character" asp-action="RollStats">Stats Würfeln</button>
+            </form>
+        </div>
+    </div>
+    @section Scripts {
+        <script> 
+            $(".RollGold").validate({
+
+                submitHandler: function (form) {
+                    $.ajax({
+                        type: $(form).attr('method'),
+                        url: $(form).attr('action') + "?isAjax=1",
+                        data: $(form).serialize(),
+                        success: function (data) {
+                        }
+                    });
+                    return false; // required to block normal submit since you used ajax
+                }
+            });
+            $(".RollStats").validate({
+
+                submitHandler: function (form) {
+                    $.ajax({
+                        type: $(form).attr('method'),
+                        url: $(form).attr('action') + "?isAjax=1",
+                        data: $(form).serialize(),
+                        success: function (data) {
+                        }
+                    });
+                    return false; // required to block normal submit since you used ajax
+                }
+            });
+        </script>
+        }
+</div>
