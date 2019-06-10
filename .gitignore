@@ -2,12 +2,23 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/BobDeathmic/bin/
-/BobDeathmic/obj
-/BobDeathmic/bin
-/BobDeathmic/bin/
-/BobDeathmic/bin/*
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Visual Studio 2015/2017/2019 cache/options directory
+.vs/
+
+# Bob
 /BobDeathmic/Migrations/*
 /BobDeathmic/appsettings.json
-/.vs
-/Bob
