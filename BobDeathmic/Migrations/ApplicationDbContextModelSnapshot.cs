@@ -14,7 +14,8 @@ namespace BobDeathmic.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.1-rtm-30846");
+                .HasAnnotation("ProductVersion", "2.2.2-servicing-10034")
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("BobDeathmic.Models.ChatUserModel", b =>
                 {
@@ -32,6 +33,8 @@ namespace BobDeathmic.Migrations
                         .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed");
+
+                    b.Property<string>("InitialPassword");
 
                     b.Property<bool>("LockoutEnabled");
 
@@ -68,16 +71,217 @@ namespace BobDeathmic.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("BobDeathmic.Models.Discord.RelayChannels", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("RelayChannels");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.DiscordBan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<ulong>("DiscordID");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DiscordBans");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.Events.AppointmentRequest", b =>
+                {
+                    b.Property<string>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("EventDateID");
+
+                    b.Property<string>("OwnerId");
+
+                    b.Property<int>("State");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("EventDateID");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("AppointmentRequests");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.Events.Event", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("AdminId");
+
+                    b.Property<string>("AdministratorID");
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.Events.EventDate", b =>
+                {
+                    b.Property<string>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CalendarId");
+
+                    b.Property<DateTime>("Date");
+
+                    b.Property<string>("EventDateTemplateID");
+
+                    b.Property<int?>("EventId");
+
+                    b.Property<DateTime>("StartTime");
+
+                    b.Property<DateTime>("StopTime");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("EventDates");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.Events.EventDateTemplate", b =>
+                {
+                    b.Property<string>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("Day");
+
+                    b.Property<int?>("EventId");
+
+                    b.Property<DateTime>("StartTime");
+
+                    b.Property<DateTime>("StopTime");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("EventDateTemplates");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.Events.ManyMany.ChatUserModel_Event", b =>
+                {
+                    b.Property<string>("ChatUserModel_EventID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CalendarID");
+
+                    b.Property<string>("ChatUserModelID");
+
+                    b.HasKey("ChatUserModel_EventID");
+
+                    b.HasIndex("CalendarID");
+
+                    b.HasIndex("ChatUserModelID");
+
+                    b.ToTable("ChatUserModel_Event");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.GiveAway.User_GiveAwayItem", b =>
+                {
+                    b.Property<string>("UserID");
+
+                    b.Property<string>("GiveAwayItemID");
+
+                    b.HasKey("UserID", "GiveAwayItemID");
+
+                    b.HasIndex("GiveAwayItemID");
+
+                    b.ToTable("User_GiveAway");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.GiveAwayModels.GiveAwayItem", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Key");
+
+                    b.Property<string>("Link")
+                        .IsRequired();
+
+                    b.Property<string>("OwnerID");
+
+                    b.Property<string>("ReceiverID");
+
+                    b.Property<string>("SteamID");
+
+                    b.Property<string>("Title")
+                        .IsRequired();
+
+                    b.Property<int>("Views");
+
+                    b.Property<bool>("current");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerID");
+
+                    b.HasIndex("ReceiverID");
+
+                    b.ToTable("GiveAwayItems");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.SecurityToken", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ClientID");
+
+                    b.Property<string>("RefreshToken");
+
+                    b.Property<string>("code");
+
+                    b.Property<string>("secret");
+
+                    b.Property<int>("service");
+
+                    b.Property<string>("token");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("SecurityTokens");
+                });
+
             modelBuilder.Entity("BobDeathmic.Models.Stream", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("AccessToken");
+
+                    b.Property<string>("ClientID");
+
                     b.Property<string>("DiscordRelayChannel");
 
                     b.Property<string>("Game");
 
-                    b.Property<int>("RelayState");
+                    b.Property<DateTime>("LastUpTime");
+
+                    b.Property<string>("OwnerId");
+
+                    b.Property<string>("RefreshToken");
+
+                    b.Property<string>("Secret");
 
                     b.Property<DateTime>("Started");
 
@@ -87,31 +291,45 @@ namespace BobDeathmic.Migrations
 
                     b.Property<int>("StreamState");
 
-                    b.HasKey("ID");
+                    b.Property<int>("Type");
 
-                    b.ToTable("StreamModels");
-                });
-
-            modelBuilder.Entity("BobDeathmic.Models.StreamProvider", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Name");
-
-                    b.Property<int?>("StreamID");
+                    b.Property<int>("UpTimeInterval");
 
                     b.Property<string>("Url");
 
                     b.Property<string>("UserID");
 
-                    b.Property<string>("UserName");
+                    b.HasKey("ID");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("StreamModels");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.StreamCommand", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AutoInverval");
+
+                    b.Property<DateTime>("LastExecution");
+
+                    b.Property<int>("Mode");
+
+                    b.Property<string>("name")
+                        .IsRequired();
+
+                    b.Property<string>("response")
+                        .IsRequired();
+
+                    b.Property<int>("streamID");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("StreamID");
+                    b.HasIndex("streamID");
 
-                    b.ToTable("StreamProviders");
+                    b.ToTable("StreamCommand");
                 });
 
             modelBuilder.Entity("BobDeathmic.Models.StreamSubscription", b =>
@@ -131,7 +349,7 @@ namespace BobDeathmic.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("StreamSubscription");
+                    b.ToTable("StreamSubscriptions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -241,22 +459,105 @@ namespace BobDeathmic.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("BobDeathmic.Models.StreamProvider", b =>
+            modelBuilder.Entity("BobDeathmic.Models.Events.AppointmentRequest", b =>
                 {
-                    b.HasOne("BobDeathmic.Models.Stream", "Stream")
-                        .WithMany("StreamProvider")
-                        .HasForeignKey("StreamID");
+                    b.HasOne("BobDeathmic.Models.Events.EventDate", "EventDate")
+                        .WithMany("Teilnahmen")
+                        .HasForeignKey("EventDateID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("BobDeathmic.Models.ChatUserModel", "Owner")
+                        .WithMany("AppointmentRequests")
+                        .HasForeignKey("OwnerId");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.Events.Event", b =>
+                {
+                    b.HasOne("BobDeathmic.Models.ChatUserModel", "Admin")
+                        .WithMany("AdministratedCalendars")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.Events.EventDate", b =>
+                {
+                    b.HasOne("BobDeathmic.Models.Events.Event", "Event")
+                        .WithMany("EventDates")
+                        .HasForeignKey("EventId");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.Events.EventDateTemplate", b =>
+                {
+                    b.HasOne("BobDeathmic.Models.Events.Event", "Event")
+                        .WithMany("EventDateTemplates")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.Events.ManyMany.ChatUserModel_Event", b =>
+                {
+                    b.HasOne("BobDeathmic.Models.Events.Event", "Calendar")
+                        .WithMany("Members")
+                        .HasForeignKey("CalendarID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("BobDeathmic.Models.ChatUserModel", "ChatUserModel")
+                        .WithMany("Calendars")
+                        .HasForeignKey("ChatUserModelID")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.GiveAway.User_GiveAwayItem", b =>
+                {
+                    b.HasOne("BobDeathmic.Models.GiveAwayModels.GiveAwayItem", "GiveAwayItem")
+                        .WithMany("Applicants")
+                        .HasForeignKey("GiveAwayItemID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("BobDeathmic.Models.ChatUserModel", "User")
+                        .WithMany("AppliedTo")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.GiveAwayModels.GiveAwayItem", b =>
+                {
+                    b.HasOne("BobDeathmic.Models.ChatUserModel", "Owner")
+                        .WithMany("OwnedItems")
+                        .HasForeignKey("OwnerID");
+
+                    b.HasOne("BobDeathmic.Models.ChatUserModel", "Receiver")
+                        .WithMany("ReceivedItems")
+                        .HasForeignKey("ReceiverID");
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.Stream", b =>
+                {
+                    b.HasOne("BobDeathmic.Models.ChatUserModel", "Owner")
+                        .WithMany("OwnedStreams")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("BobDeathmic.Models.StreamCommand", b =>
+                {
+                    b.HasOne("BobDeathmic.Models.Stream", "stream")
+                        .WithMany("Commands")
+                        .HasForeignKey("streamID")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("BobDeathmic.Models.StreamSubscription", b =>
                 {
                     b.HasOne("BobDeathmic.Models.Stream", "Stream")
-                        .WithMany()
-                        .HasForeignKey("StreamID");
+                        .WithMany("StreamSubscriptions")
+                        .HasForeignKey("StreamID")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("BobDeathmic.Models.ChatUserModel", "User")
                         .WithMany("StreamSubscriptions")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

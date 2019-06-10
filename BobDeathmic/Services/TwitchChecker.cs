@@ -165,9 +165,14 @@ namespace BobDeathmic.Services
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var Streams = _context.StreamModels.Where(s => !OnlineStreamIDs.Contains(s.UserID));
+                string[] RandomDiscordRelayChannels = {"stream_1","stream_2","stream_3"};
                 foreach (Models.Stream stream in Streams.Where(x => x.StreamState != StreamState.NotRunning && x.Type == StreamProviderTypes.Twitch))
                 {
                     stream.StreamState = StreamState.NotRunning;
+                    if(RandomDiscordRelayChannels.Contains(stream.DiscordRelayChannel))
+                    {
+                        stream.DiscordRelayChannel = "An";
+                    }
                     StreamEventArgs args = new StreamEventArgs();
                     args.stream = stream.StreamName;
                     args.state = stream.StreamState;
