@@ -245,11 +245,17 @@ namespace BobDeathmic.Services
                             inputargs["username"] = e.ChatMessage.Username;
                             inputargs["source"] = "twitch";
                             inputargs["channel"] = e.ChatMessage.Channel;
-                            string CommandResult = await command.ExecuteCommandIfApplicable(inputargs);
+                            inputargs["elevatedPermissions"] = (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster).ToString();
+                            string CommandResult = await command.ExecuteCommandIfApplicable(inputargs, _scopeFactory);
                             if (CommandResult != "")
                             {
                                 var twitchchannel = client.JoinedChannels.Where(channel => channel.Channel == e.ChatMessage.Channel).FirstOrDefault();
                                 client.SendMessage(twitchchannel, CommandResult);
+                            }
+                            string WhisperCommandResult = await command.ExecuteWhisperCommandIfApplicable(inputargs, _scopeFactory);
+                            if (WhisperCommandResult != "")
+                            {
+                                client.SendWhisper(e.ChatMessage.Username, WhisperCommandResult);
                             }
                             CommandEventType EventType = await command.EventToBeTriggered(inputargs);
                             switch (EventType)

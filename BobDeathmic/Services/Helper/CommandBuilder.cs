@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,16 @@ namespace BobDeathmic.Services.Helper
             if (CommandBuilder.CommandActiveInSource(source, "strawpoll"))
             {
                 BobDeathmic.Services.Helper.Commands.Strawpoll tmp = new Commands.Strawpoll();
+                Commands.Add(tmp);
+            }
+            if (CommandBuilder.CommandActiveInSource(source, "registerraffle"))
+            {
+                Commands.RandomChatUserRegisterCommand tmp = new Commands.RandomChatUserRegisterCommand();
+                Commands.Add(tmp);
+            }
+            if (CommandBuilder.CommandActiveInSource(source, "next"))
+            {
+                Commands.PickNextChatUserForNameCommand tmp = new Commands.PickNextChatUserForNameCommand();
                 Commands.Add(tmp);
             }
             /*

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,7 +24,12 @@ namespace BobDeathmic.Services.Helper.Commands
             return CommandEventType.None;   
         }
 
-        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args)
+        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
+            return "";
+        }
+
+        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
             return "";
         }
@@ -46,7 +52,12 @@ namespace BobDeathmic.Services.Helper.Commands
             return CommandEventType.None;
         }
 
-        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args)
+        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
+            return "";
+        }
+
+        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
             return "";
         }
@@ -69,7 +80,12 @@ namespace BobDeathmic.Services.Helper.Commands
             return CommandEventType.None;
         }
 
-        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args)
+        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
+            return "";
+        }
+
+        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
             return "";
         }

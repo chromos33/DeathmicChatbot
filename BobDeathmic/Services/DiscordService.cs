@@ -310,7 +310,8 @@ namespace BobDeathmic.Services
             List<string> discordChannels = new List<string>();
             foreach (var channel in client.Guilds.Single(g => g.Name.ToLower() == "deathmic").Channels)
             {
-                if (Regex.Match(channel.Name.ToLower(), @"stream_").Success)
+                string[] RandomDiscordRelayChannels = { "stream_1", "stream_2", "stream_3" };
+                if (Regex.Match(channel.Name.ToLower(), @"stream_").Success && !RandomDiscordRelayChannels.Contains(channel.Name))
                 {
                     discordChannels.Add(channel.Name);
                 }
@@ -392,7 +393,7 @@ namespace BobDeathmic.Services
                 inputargs["username"] = arg.Author.Username;
                 inputargs["source"] = "discord";
                 inputargs["channel"] = arg.Channel.Name;
-                commandresult = await command.ExecuteCommandIfApplicable(inputargs);
+                commandresult = await command.ExecuteCommandIfApplicable(inputargs, _scopeFactory);
                 if (commandresult != "")
                 {
                     arg.Channel.SendMessageAsync(commandresult);

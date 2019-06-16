@@ -1,0 +1,20 @@
+﻿@using BobDeathmic.Services.Helper;
+@model List<IfCommand>
+@{
+    ViewData["Title"] = "Status";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/table.css" />
+<link rel="stylesheet" href="~/css/Stream/Status.css" />
+
+<div class="breadcrumbs">
+    <span>Streams > Status</span>
+</div>
+<div class="pa-35">
+    @foreach(IfCommand command in Model)
+    {
+        <h1>@command.Trigger</h1>
+        <p>@command.Description</p>
+    }
+</div>
