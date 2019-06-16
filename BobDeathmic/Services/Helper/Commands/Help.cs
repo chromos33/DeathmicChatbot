@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace BobDeathmic.Services.Helper.Commands
             return CommandEventType.None;
         }
 
-        public async Task<string> ExecuteCommandIfApplicable(Dictionary<String, String> args)
+        public async Task<string> ExecuteCommandIfApplicable(Dictionary<String, String> args , IServiceScopeFactory scopeFactory)
         {
             if (args["message"].ToLower().StartsWith(Trigger))
             {
@@ -27,6 +28,12 @@ namespace BobDeathmic.Services.Helper.Commands
             }
             return "";
         }
+
+        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
+            return "";
+        }
+
         public void PopulateCommandList(string provider = "discord")
         {
             //Should ever only be called once (Per Help Command init)
