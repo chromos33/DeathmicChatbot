@@ -97,4 +97,101 @@ namespace BobDeathmic.Services.Helper.Commands
             return "";
         }
     }
+    public class PickNextRandChatUserForNameCommand : IfCommand
+    {
+        public string Trigger => "!nextrand";
+        public string alias => "!nextrand";
+        private Random rnd = new Random();
+
+        public string Description => "Outputs weighted random Member in List";
+
+        public string Category => "stream";
+
+        public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
+        {
+            return CommandEventType.None;
+        }
+
+        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
+            if (args["elevatedPermissions"] == "True" && (args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias)))
+            {
+                using (var scope = scopeFactory.CreateScope())
+                {
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    if (_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() > 0)
+                    {
+                        var users = _context.RandomChatUser.Where(x => x.Stream == args["channel"]);
+                        var count = users.Count();
+                        List<string> Names = new List<string>();
+                        foreach(RandomChatUser usertemplate in users)
+                        {
+                            for(int i = count; i > 0;i--)
+                            {
+                                Names.Add(usertemplate.ChatUser);
+                            }
+                            count--;
+                        }
+                        var nextuser = Names[rnd.Next(Names.Count() + 1)];
+                        try
+                        {
+                            _context.RandomChatUser.Remove(_context.RandomChatUser.Where(x => x.ChatUser == nextuser).First());
+                            _context.SaveChanges();
+                        }catch(Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                        }
+                        return nextuser;
+                    }
+                }
+            }
+            return "";
+        }
+
+        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
+            return "";
+        }
+    }
+    public class ListRandUsersInListCommand : IfCommand
+    {
+        public string Trigger => "!list";
+        public string alias => "!list";
+        private Random rnd = new Random();
+
+        public string Description => "Outputs List";
+
+        public string Category => "stream";
+
+        public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
+        {
+            return CommandEventType.None;
+        }
+
+        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
+            return "";
+        }
+
+        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
+            if ((args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias)))
+            {
+                using (var scope = scopeFactory.CreateScope())
+                {
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    if (_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() > 0)
+                    {
+                        string message = "Users in List: ";
+                        foreach(var user in _context.RandomChatUser.Where(x => x.Stream == args["channel"]).OrderBy(s => s.Sort))
+                        {
+                            message += user.ChatUser + Environment.NewLine;
+                        }
+                        return message;
+                    }
+                }
+            }
+            return "";
+        }
+    }
 }
