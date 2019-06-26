@@ -11,6 +11,7 @@ namespace BobDeathmic.Models
         public string Stream { get; set; }
         public int Sort { get; set; }
         public string ChatUser { get; set; }
+        public bool lastchecked { get; set; }
 
     }
 }

@@ -80,10 +80,16 @@ namespace BobDeathmic.Services.Helper.Commands
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var delete = _context.RandomChatUser.Where(x => x.Stream == args["channel"] && x.lastchecked).FirstOrDefault();
+                    if (delete != null)
+                    {
+                        _context.RandomChatUser.Remove(delete);
+                        _context.SaveChanges();
+                    }
                     if (_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() > 0)
                     {
                         var user = _context.RandomChatUser.Where(x => x.Stream == args["channel"]).OrderBy(s => s.Sort).First();
-                        _context.RandomChatUser.Remove(user);
+                        user.lastchecked = true;
                         _context.SaveChanges();
                         return user.ChatUser;
                     }
@@ -119,6 +125,12 @@ namespace BobDeathmic.Services.Helper.Commands
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var delete = _context.RandomChatUser.Where(x => x.Stream == args["channel"] && x.lastchecked).FirstOrDefault();
+                    if(delete != null)
+                    {
+                        _context.RandomChatUser.Remove(delete);
+                        _context.SaveChanges();
+                    }
                     if (_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() > 0)
                     {
                         var users = _context.RandomChatUser.Where(x => x.Stream == args["channel"]);
@@ -135,7 +147,7 @@ namespace BobDeathmic.Services.Helper.Commands
                         var nextuser = Names[rnd.Next(Names.Count() + 1)];
                         try
                         {
-                            _context.RandomChatUser.Remove(_context.RandomChatUser.Where(x => x.ChatUser == nextuser).First());
+                            _context.RandomChatUser.Where(x => x.ChatUser == nextuser).First().lastchecked = true;
                             _context.SaveChanges();
                         }catch(Exception ex)
                         {
@@ -189,6 +201,50 @@ namespace BobDeathmic.Services.Helper.Commands
                         }
                         return message;
                     }
+                }
+            }
+            return "";
+        }
+    }
+    public class SkipLastRandUserCommand : IfCommand
+    {
+        public string Trigger => "!skip";
+        public string alias => "!skip";
+        private Random rnd = new Random();
+
+        public string Description => "Skips last selected user";
+
+        public string Category => "stream";
+
+        public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
+        {
+            return CommandEventType.None;
+        }
+
+        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
+            return "";
+        }
+
+        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
+            if ((args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias)))
+            {
+                using (var scope = scopeFactory.CreateScope())
+                {
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    if (_context.RandomChatUser.Where(x => x.Stream == args["channel"] && x.lastchecked).Count() > 0)
+                    {
+                        var skippeduser = _context.RandomChatUser.Where(x => x.Stream == args["channel"] && x.lastchecked).FirstOrDefault();
+                        if(skippeduser != null)
+                        {
+                            _context.RandomChatUser.Remove(skippeduser);
+                            _context.RandomChatUser.Add(skippeduser);
+                            _context.SaveChanges();
+                            return "User skipped";
+                        }
+                    }
+                    return "No skippable user found";
                 }
             }
             return "";
