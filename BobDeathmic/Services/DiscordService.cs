@@ -166,8 +166,16 @@ namespace BobDeathmic.Services
         }
 
         private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
-        {            
-            client.Guilds.Single(g => g.Name.ToLower() == "deathmic")?.TextChannels.Single(c => c.Name.ToLower() == e.Target.ToLower())?.SendMessageAsync(e.Message);
+        {          
+            try
+            {
+                client.Guilds.Single(g => g.Name.ToLower() == "deathmic")?.TextChannels.Single(c => c.Name.ToLower() == e.Target.ToLower())?.SendMessageAsync(e.Message);
+            }
+            catch(InvalidOperationException)
+            {
+                //just an annoyance on start..
+            }
+            
         }
         private void InitCommands()
         {

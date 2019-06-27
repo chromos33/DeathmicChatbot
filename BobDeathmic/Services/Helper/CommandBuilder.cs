@@ -49,6 +49,21 @@ namespace BobDeathmic.Services.Helper
                 Commands.PickNextChatUserForNameCommand tmp = new Commands.PickNextChatUserForNameCommand();
                 Commands.Add(tmp);
             }
+            if (CommandBuilder.CommandActiveInSource(source, "nextrand"))
+            {
+                Commands.PickNextRandChatUserForNameCommand tmp = new Commands.PickNextRandChatUserForNameCommand();
+                Commands.Add(tmp);
+            }
+            if (CommandBuilder.CommandActiveInSource(source, "list"))
+            {
+                Commands.ListRandUsersInListCommand tmp = new Commands.ListRandUsersInListCommand();
+                Commands.Add(tmp);
+            }
+            if (CommandBuilder.CommandActiveInSource(source, "skip"))
+            {
+                Commands.SkipLastRandUserCommand tmp = new Commands.SkipLastRandUserCommand();
+                Commands.Add(tmp);
+            }
             /*
             if (CommandBuilder.CommandActiveInSource(source, "uptime"))
             {
