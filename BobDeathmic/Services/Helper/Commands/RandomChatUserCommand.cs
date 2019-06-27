@@ -105,8 +105,8 @@ namespace BobDeathmic.Services.Helper.Commands
     }
     public class PickNextRandChatUserForNameCommand : IfCommand
     {
-        public string Trigger => "!nextrand";
-        public string alias => "!nextrand";
+        public string Trigger => "!randnext";
+        public string alias => "!randnext";
         private Random rnd = new Random();
 
         public string Description => "Outputs weighted random Member in List";
@@ -133,6 +133,12 @@ namespace BobDeathmic.Services.Helper.Commands
                     }
                     if (_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() > 0)
                     {
+                        if(_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() == 1)
+                        {
+                            _context.RandomChatUser.Where(x => x.Stream == args["channel"]).FirstOrDefault().lastchecked = true;
+                            _context.SaveChanges();
+                            return _context.RandomChatUser.Where(x => x.Stream == args["channel"]).FirstOrDefault().ChatUser;
+                        }
                         var users = _context.RandomChatUser.Where(x => x.Stream == args["channel"]);
                         var count = users.Count();
                         List<string> Names = new List<string>();
@@ -155,6 +161,7 @@ namespace BobDeathmic.Services.Helper.Commands
                         }
                         return nextuser;
                     }
+                    return "Liste ist leer";
                 }
             }
             return "";
@@ -197,7 +204,7 @@ namespace BobDeathmic.Services.Helper.Commands
                         string message = "Users in List: ";
                         foreach(var user in _context.RandomChatUser.Where(x => x.Stream == args["channel"]).OrderBy(s => s.Sort))
                         {
-                            message += user.ChatUser + Environment.NewLine;
+                            message += user.ChatUser + "\n";
                         }
                         return message;
                     }
@@ -223,12 +230,7 @@ namespace BobDeathmic.Services.Helper.Commands
 
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
-            return "";
-        }
-
-        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
-        {
-            if ((args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias)))
+            if (args["elevatedPermissions"] == "True" && (args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias)))
             {
                 using (var scope = scopeFactory.CreateScope())
                 {
@@ -236,10 +238,22 @@ namespace BobDeathmic.Services.Helper.Commands
                     if (_context.RandomChatUser.Where(x => x.Stream == args["channel"] && x.lastchecked).Count() > 0)
                     {
                         var skippeduser = _context.RandomChatUser.Where(x => x.Stream == args["channel"] && x.lastchecked).FirstOrDefault();
-                        if(skippeduser != null)
+                        if (skippeduser != null)
                         {
                             _context.RandomChatUser.Remove(skippeduser);
-                            _context.RandomChatUser.Add(skippeduser);
+                            RandomChatUser tmp = new RandomChatUser();
+                            tmp.ChatUser = skippeduser.ChatUser;
+                            tmp.lastchecked = false;
+                            if (_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() == 0)
+                            {
+                                tmp.Sort = 1;
+                            }
+                            else
+                            {
+                                tmp.Sort = _context.RandomChatUser.Where(x => x.Stream == args["channel"]).Max(t => t.Sort) + 1;
+                            }
+                            tmp.Stream = skippeduser.Stream;
+                            _context.RandomChatUser.Add(tmp);
                             _context.SaveChanges();
                             return "User skipped";
                         }
@@ -247,6 +261,11 @@ namespace BobDeathmic.Services.Helper.Commands
                     return "No skippable user found";
                 }
             }
+            return "";
+        }
+
+        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
             return "";
         }
     }

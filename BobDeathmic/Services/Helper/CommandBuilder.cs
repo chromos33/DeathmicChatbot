@@ -59,6 +59,11 @@ namespace BobDeathmic.Services.Helper
                 Commands.ListRandUsersInListCommand tmp = new Commands.ListRandUsersInListCommand();
                 Commands.Add(tmp);
             }
+            if (CommandBuilder.CommandActiveInSource(source, "skip"))
+            {
+                Commands.SkipLastRandUserCommand tmp = new Commands.SkipLastRandUserCommand();
+                Commands.Add(tmp);
+            }
             /*
             if (CommandBuilder.CommandActiveInSource(source, "uptime"))
             {
