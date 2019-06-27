@@ -189,11 +189,6 @@ namespace BobDeathmic.Services.Helper.Commands
 
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
-            return "";
-        }
-
-        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
-        {
             if ((args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias)))
             {
                 using (var scope = scopeFactory.CreateScope())
@@ -202,7 +197,7 @@ namespace BobDeathmic.Services.Helper.Commands
                     if (_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() > 0)
                     {
                         string message = "Users in List: ";
-                        foreach(var user in _context.RandomChatUser.Where(x => x.Stream == args["channel"]).OrderBy(s => s.Sort))
+                        foreach (var user in _context.RandomChatUser.Where(x => x.Stream == args["channel"]).OrderBy(s => s.Sort))
                         {
                             message += user.ChatUser + "\n";
                         }
@@ -210,6 +205,11 @@ namespace BobDeathmic.Services.Helper.Commands
                     }
                 }
             }
+            return "";
+        }
+
+        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
+        {
             return "";
         }
     }
