@@ -113,5 +113,6 @@ namespace BobDeathmic.Data
         public DbSet<ChatUserModel_Event> ChatUserModel_Event { get; set; }
 
         public DbSet<RandomChatUser> RandomChatUser { get; set; }
+        public DbSet<Quote> Quotes { get; set; }
     }
 }
