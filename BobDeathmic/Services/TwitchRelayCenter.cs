@@ -98,6 +98,7 @@ namespace BobDeathmic.Services
             {
                 MessageQueues[stream.StreamName].Add(stream.UptimeMessage());
             }
+            _context.SaveChanges();
         }
         private void handleRelayStart(ApplicationDbContext _context)
         {
@@ -394,6 +395,15 @@ namespace BobDeathmic.Services
             if (client.IsConnected && client.JoinedChannels.Any(x => x.Channel == name))
             {
                 SendPriorityMessage(name, "Relay is leaving");
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var stream = _context.StreamModels.Where(x => x.StreamName.ToLower() == name.ToLower()).FirstOrDefault();
+                    if(stream != null)
+                    {
+                        _eventBus.TriggerEvent(EventType.TwitchMessageReceived, new TwitchMessageArgs { Message = $"Relay left ({stream.StreamName})", Target = stream.DiscordRelayChannel });
+                    }
+                }
                 client.LeaveChannel(name);
             }
 
@@ -413,16 +423,7 @@ namespace BobDeathmic.Services
                 }
             }
         }
-
-        private StreamEventArgs UpdateNotification(string relayChannel, StreamEventArgs e)
-        {
-            if (relayChannel != "")
-            {
-                e.Notification += $" Das Relay befindet sich in Channel {relayChannel}";
-            }
-            return e;
-        }
-
+        
         private void RelayMessageReceived(object sender, RelayMessageArgs e)
         {
             if (e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
