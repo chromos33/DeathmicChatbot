@@ -10,6 +10,6 @@ namespace BobDeathmic.ReactDataClasses.Events.Vote
     {
         public string Date { get; set; }
         public string Time { get; set; }
-        public List<VoteRequest> Requests {get;set;}
+        public List<VoteRequest> Requests { get; set; }
     }
 }

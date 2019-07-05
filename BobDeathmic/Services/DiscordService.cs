@@ -1,27 +1,27 @@
-﻿using BobDeathmic.Data;
+﻿using BobDeathmic.Args;
+using BobDeathmic.Data;
 using BobDeathmic.Eventbus;
+using BobDeathmic.Models;
+using BobDeathmic.Models.GiveAway;
+using BobDeathmic.Models.GiveAwayModels;
+using BobDeathmic.Services.Helper;
+using Discord;
+using Discord.WebSocket;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
-using BobDeathmic.Args;
-using System.Text.RegularExpressions;
-using BobDeathmic.Services.Helper;
-using Microsoft.AspNetCore.Identity;
-using BobDeathmic.Models;
-using Microsoft.Extensions.Configuration;
-using System.Security.Cryptography;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using System.Text;
-using System.Net;
-using Microsoft.EntityFrameworkCore;
-using System.Net.Http;
-using BobDeathmic.Models.GiveAwayModels;
-using BobDeathmic.Models.GiveAway;
 
 namespace BobDeathmic.Services
 {
@@ -43,59 +43,14 @@ namespace BobDeathmic.Services
             _eventBus = eventBus;
             _eventBus.TwitchMessageReceived += TwitchMessageReceived;
             _eventBus.PasswordRequestReceived += PasswordRequestReceived;
-            //Event for Streams that are not Piggy backed through Relay
-            _eventBus.StreamChanged += StreamChanged;
-            //Piggy backing through Relay
-            _eventBus.RelayPassed += RelayPassed;
-            _eventBus.GiveAwayMessage += GiveAwayMessage;
-            _eventBus.DiscordWhisperRequested += WhisperRequested;
+            _eventBus.DiscordMessageSendRequested += SendMessage;
         }
 
-        private void WhisperRequested(object sender, DiscordWhisperArgs e)
+        private void SendMessage(object sender, MessageArgs e)
         {
-            client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(x => x.Username.ToLower() == e.UserName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
+            //client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(x => x.Username.ToLower() == e.RecipientName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
         }
 
-        private void GiveAwayMessage(object sender, GiveAwayEventArgs e)
-        {
-            if(e.winner == null)
-            {
-                client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().TextChannels.Where(c => c.Name.ToLower() == e.channel.ToLower()).FirstOrDefault()?.SendMessageAsync(GetCurrentGiveAwayItem().Announcement());
-            }
-            else
-            {
-                client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().TextChannels.Where(c => c.Name.ToLower() == e.channel.ToLower()).FirstOrDefault()?.SendMessageAsync(GetCurrentGiveAwayItem().WinnerAnnouncment());
-            }
-            GiveAwayItem GetCurrentGiveAwayItem()
-            {
-                using (var scope = _scopeFactory.CreateScope())
-                {
-                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var GiveAwayItems = _context.GiveAwayItems.Include(x=> x.Receiver).Where(x => x.current);
-                    if (GiveAwayItems.Count() > 0)
-                    {
-                        return GiveAwayItems.FirstOrDefault();
-                    }
-                    return null;
-                } 
-            }
-        }
-
-        private void StreamChanged(object sender, StreamEventArgs e)
-        {
-            if (e.StreamType == Models.Enum.StreamProviderTypes.Mixer && e.state == Models.Enum.StreamState.Started)
-            {
-                NotifySubscriber(e);
-            }
-        }
-
-        private async void RelayPassed(object sender, StreamEventArgs e)
-        {
-            if(e.StreamType != Models.Enum.StreamProviderTypes.Mixer)
-            {
-                NotifySubscriber(e);
-            }
-        }
         private async void NotifySubscriber(StreamEventArgs e)
         {
             if (e.state == Models.Enum.StreamState.Started)
@@ -108,7 +63,7 @@ namespace BobDeathmic.Services
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower() && e.StreamType == sm.Type).FirstOrDefault();
-                    if(stream != null)
+                    if (stream != null)
                     {
                         List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
                         //var test = client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(u => !blocked.Contains(u.Id)).GroupBy(u => u.Username);
@@ -131,9 +86,10 @@ namespace BobDeathmic.Services
                                 {
                                     await user.SendMessageAsync(e.Notification);
                                     await Task.Delay(200);
-                                }catch(Discord.Net.HttpException ex)
+                                }
+                                catch (Discord.Net.HttpException ex)
                                 {
-                                    switch(ex.DiscordCode)
+                                    switch (ex.DiscordCode)
                                     {
                                         case 50007:
                                             //string message = $"Um Stream Nachrichten zu bekommen bitte BobDeathmic als Freund markieren. {Environment.NewLine} Um diese Nachricht zu deaktivieren einfach in das Webinterface (Link über !WebInterfaceLink) von Bob einloggen und in Benutzer > Subscriptions die Streams deaktivieren "+ user.Mention;
@@ -145,11 +101,11 @@ namespace BobDeathmic.Services
                                     }
 
                                 }
-                                catch(HttpRequestException ex)
+                                catch (HttpRequestException ex)
                                 {
                                     Console.WriteLine(ex.ToString());
                                 }
-                                
+
                             }
                         }
                     }
@@ -166,7 +122,7 @@ namespace BobDeathmic.Services
         }
 
         private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
-        {            
+        {
             client.Guilds.Single(g => g.Name.ToLower() == "deathmic")?.TextChannels.Single(c => c.Name.ToLower() == e.Target.ToLower())?.SendMessageAsync(e.Message);
         }
         private void InitCommands()
@@ -175,8 +131,8 @@ namespace BobDeathmic.Services
         }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / (DateTime.Now.Hour+1));
-            if(await ConnectToDiscord())
+            random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / (DateTime.Now.Hour + 1));
+            if (await ConnectToDiscord())
             {
                 InitCommands();
                 while (!stoppingToken.IsCancellationRequested)
@@ -205,7 +161,7 @@ namespace BobDeathmic.Services
                 await client.StartAsync();
                 InitializeEvents();
                 return true;
-                
+
             }
             return false;
         }
@@ -258,17 +214,17 @@ namespace BobDeathmic.Services
         {
             List<string> discordChannels = GetDiscordStreamChannels();
             List<string> savedChannels = GetSavedRelayChannels();
-                
-                
+
+
             List<string> channelsToBeAdded = discordChannels.Except(savedChannels).ToList();
             List<string> channelsToBeRemoved = savedChannels.Except(discordChannels).ToList();
-            if(channelsToBeAdded.Any())
+            if (channelsToBeAdded.Any())
             {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 AddChannelsInListToDB(channelsToBeAdded);
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
-            if(channelsToBeRemoved.Any())
+            if (channelsToBeRemoved.Any())
             {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 RemoveChannelsInListFromDB(channelsToBeRemoved);
@@ -342,7 +298,7 @@ namespace BobDeathmic.Services
         }
         private async Task MessageReceived(SocketMessage arg)
         {
-            if(arg.Author.Username != "BobDeathmic")
+            if (arg.Author.Username != "BobDeathmic")
             {
                 string commandresult = "";
                 if (arg.Content.StartsWith("!WebInterfaceLink", StringComparison.CurrentCulture) || arg.Content.StartsWith("!wil", StringComparison.CurrentCulture))
@@ -353,9 +309,9 @@ namespace BobDeathmic.Services
                 }
                 if (CommandList != null)
                 {
-                    commandresult = await ExecuteCommands(arg);                    
+                    commandresult = await ExecuteCommands(arg);
                 }
-                
+
                 if (commandresult == "")//Commands later on
                 {
                     RelayMessage(arg);
@@ -398,7 +354,7 @@ namespace BobDeathmic.Services
                     arg.Channel.SendMessageAsync(commandresult);
                 }
             }
-            if(arg.Content.StartsWith("!Gapply"))
+            if (arg.Content.StartsWith("!Gapply"))
             {
                 ApplyToGiveAway(arg);
             }
@@ -415,7 +371,7 @@ namespace BobDeathmic.Services
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var user = _context.ChatUserModels.Where(x => x.ChatUserName == arg.Author.Username).FirstOrDefault();
                 var remove = _context.User_GiveAway.Where(x => x.UserID == user.Id).FirstOrDefault();
-                if(remove != null)
+                if (remove != null)
                 {
                     _context.User_GiveAway.Remove(remove);
                     _context.SaveChanges();
@@ -435,7 +391,7 @@ namespace BobDeathmic.Services
                 var user = _context.ChatUserModels.Where(x => x.ChatUserName == arg.Author.Username).FirstOrDefault();
                 if (GiveAwayItem.Applicants.Where(x => x.UserID == user.Id).Count() == 0)
                 {
-                    
+
                     var item = _context.GiveAwayItems.Where(x => x.current).FirstOrDefault();
                     if (user != null && item != null)
                     {
@@ -469,8 +425,8 @@ namespace BobDeathmic.Services
         {
             if (arg.Channel.Name.StartsWith("stream_", StringComparison.CurrentCulture))
             {
-                Args.DiscordMessageArgs args = new Args.DiscordMessageArgs();
-                args.Source = arg.Channel.Name;
+                Args.RelayMessageArgs args = new Args.RelayMessageArgs();
+                args.SourceChannel = arg.Channel.Name;
                 args.Message = arg.Author.Username + ": " + arg.Content;
                 using (var scope = _scopeFactory.CreateScope())
                 {
@@ -478,11 +434,11 @@ namespace BobDeathmic.Services
                     var stream = _context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == arg.Channel.Name.ToLower()).FirstOrDefault();
                     if (stream != null)
                     {
-                        args.Target = stream.StreamName;
+                        args.TargetChannel = stream.StreamName;
                         args.StreamType = stream.Type;
                     }
                 }
-                _eventBus.TriggerEvent(EventType.DiscordMessageReceived, args);
+                _eventBus.TriggerEvent(EventType.RelayMessageReceived, args);
             }
         }
         #region AccountStuff
@@ -499,28 +455,28 @@ namespace BobDeathmic.Services
                 var Configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                 if (user == null)
                 {
-                    password = await GenerateUser(arg,cleanedname);
+                    password = await GenerateUser(arg, cleanedname);
                 }
                 else
                 {
-                    if(usermanager.CheckPasswordAsync(user, user.InitialPassword).Result)
+                    if (usermanager.CheckPasswordAsync(user, user.InitialPassword).Result)
                     {
                         password = user.InitialPassword;
                     }
                 }
                 string Message = "Adresse:";
                 Message += Configuration.GetValue<string>("WebServerWebAddress");
-                if(password != "")
+                if (password != "")
                 {
                     Message += Environment.NewLine + "UserName; " + cleanedname;
                     Message += Environment.NewLine + "Initiales Passwort: " + password;
                 }
                 arg.Author.SendMessageAsync(Message);
                 //IConfiguration
-                
+
             }
         }
-        private async Task<string> GenerateUser(SocketMessage arg,string cleanedname)
+        private async Task<string> GenerateUser(SocketMessage arg, string cleanedname)
         {
             using (var scope = _scopeFactory.CreateScope())
             {

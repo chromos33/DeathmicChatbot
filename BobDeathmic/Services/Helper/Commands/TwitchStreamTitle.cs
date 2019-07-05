@@ -20,7 +20,7 @@ namespace BobDeathmic.Services.Helper.Commands
             {
                 return CommandEventType.TwitchTitle;
             }
-            return CommandEventType.None;   
+            return CommandEventType.None;
         }
 
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args)

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using BobDeathmic.Args;
+﻿using BobDeathmic.Args;
 using BobDeathmic.Data;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
@@ -14,6 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace BobDeathmic.Controllers
 {
@@ -139,15 +139,15 @@ namespace BobDeathmic.Controllers
         }
         private async Task handleCreated(Stream stream)
         {
-            string address = _configuration.GetValue<string>("WebServerWebAddress")+ "/User/Subscriptions";
-            DiscordWhisperArgs args = new DiscordWhisperArgs();
+            string address = _configuration.GetValue<string>("WebServerWebAddress") + "/User/Subscriptions";
+            MessageArgs args = new MessageArgs();
             args.Message = $"Der Stream {stream.StreamName} wurde hinzugefügt. Da kannst du für {address} ein Abonnement ausführen tun.";
             foreach (ChatUserModel user in _context.ChatUserModels)
             {
-                args.UserName = user.ChatUserName;
-                _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, args);
+                args.RecipientName = user.ChatUserName;
+                _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, args);
             }
-            
+
         }
         [TempData]
         public string StatusMessage { get; set; }
@@ -198,7 +198,7 @@ namespace BobDeathmic.Controllers
             BobDeathmic.Models.StreamViewModels.StreamOAuthDataModel model = new Models.StreamViewModels.StreamOAuthDataModel();
             model.Id = stream.ID.ToString();
             string baseurl = _configuration.GetSection("WebServerWebAddress").Value;
-            model.RedirectLinkForTwitch= $"{baseurl}/Stream/TwitchReturnUrlAction";
+            model.RedirectLinkForTwitch = $"{baseurl}/Stream/TwitchReturnUrlAction";
             model.StatusMessage = StatusMessage;
             return View(model);
         }
@@ -234,7 +234,7 @@ namespace BobDeathmic.Controllers
         {
             var client = new HttpClient();
             Models.Stream stream = _context.StreamModels.Where(sm => state.Contains(sm.Secret)).FirstOrDefault();
-            if(stream != null)
+            if (stream != null)
             {
                 var baseUrl = _configuration.GetSection("WebServerWebAddress").Value;
                 string url = $"https://id.twitch.tv/oauth2/token?client_id={stream.ClientID}&client_secret={stream.Secret}&code={code}&grant_type=authorization_code&redirect_uri={baseUrl}/Stream/TwitchReturnUrlAction";
@@ -249,7 +249,7 @@ namespace BobDeathmic.Controllers
                 await _context.SaveChangesAsync();
                 StatusMessage = "Stream Oauth complete";
             }
-            
+
             return RedirectToAction(nameof(Verwaltung));
         }
         private bool StreamExists(int id)

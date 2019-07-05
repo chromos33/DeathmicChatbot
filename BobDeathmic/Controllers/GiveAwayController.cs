@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BobDeathmic.Args;
+﻿using BobDeathmic.Args;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
 using BobDeathmic.Models.Discord;
@@ -17,6 +13,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using MoreLinq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BobDeathmic.Controllers
 {
@@ -48,8 +48,8 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _manager.GetUserAsync(HttpContext.User);
-            user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include( x => x.OwnedItems).FirstOrDefault();
-            return View("GiveAwayList",user);
+            user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
+            return View("GiveAwayList", user);
         }
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Winnings()
@@ -61,7 +61,7 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Create()
         {
-            
+
             return View();
         }
 
@@ -94,7 +94,7 @@ namespace BobDeathmic.Controllers
             var user = await _manager.GetUserAsync(HttpContext.User);
             user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
             var item = _context.GiveAwayItems.Where(x => x.Id == id.ToString() && x.Owner == user).FirstOrDefault();
-            if(item != null)
+            if (item != null)
             {
                 return View(item);
             }
@@ -167,7 +167,7 @@ namespace BobDeathmic.Controllers
         private List<ChatUserModel> getApplicants(GiveAwayItem item)
         {
             List<ChatUserModel> result = new List<ChatUserModel>();
-            foreach(var applicant in  item.Applicants)
+            foreach (var applicant in item.Applicants)
             {
                 result.Add(_context.ChatUserModels.Where(u => u.Id == applicant.UserID).FirstOrDefault());
             }
@@ -177,7 +177,7 @@ namespace BobDeathmic.Controllers
         {
             await ResetCurrentItem();
             var GiveAwayItems = _context.GiveAwayItems.MinBy(g => g.Views).Where(x => !x.current && x.ReceiverID == null);
-            if(GiveAwayItems.Count() > 0)
+            if (GiveAwayItems.Count() > 0)
             {
                 var item = GiveAwayItems.ElementAt(random.Next(0, GiveAwayItems.Count() - 1));
                 item.current = true;
@@ -188,7 +188,7 @@ namespace BobDeathmic.Controllers
         private async Task ResetCurrentItem()
         {
             var item = _context.GiveAwayItems.Where(x => x.current).FirstOrDefault();
-            if(item != null)
+            if (item != null)
             {
                 item.current = false;
                 await _context.SaveChangesAsync();
@@ -214,7 +214,7 @@ namespace BobDeathmic.Controllers
             }
             foreach (RelayChannels channel in _context.RelayChannels)
             {
-                if(channel.Name == val && Channels.Count() > 0)
+                if (channel.Name == val && Channels.Count() > 0)
                 {
                     var temp = Channels[0];
                     Channels[0] = channel.Name;
@@ -233,7 +233,7 @@ namespace BobDeathmic.Controllers
             //Do Stuff
             await SetNextGiveAwayItem();
             _cache.Set("Channel", channel);
-            _eventBus.TriggerEvent(EventType.GiveAwayMessage,new GiveAwayEventArgs { channel = channel});
+            //_eventBus.TriggerEvent(EventType.GiveAwayMessage, new GiveAwayEventArgs { channel = channel });
             return RedirectToAction(nameof(Admin));
         }
 
@@ -258,13 +258,13 @@ namespace BobDeathmic.Controllers
                 tmpwinner = winner.User;
                 currentitem.ReceiverID = winner.UserID;
                 _context.SaveChanges();
-                _eventBus.TriggerEvent(EventType.GiveAwayMessage, new GiveAwayEventArgs { winner = winner.User, channel = channel });
+                //_eventBus.TriggerEvent(EventType.GiveAwayMessage, new GiveAwayEventArgs { winner = winner.User, channel = channel });
             }
             //Raffle again if Applicants and GiveAwayItems with same name > 0
             if (currentitem.Applicants.Count() > 1 && _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.Id != currentitem.Id && x.ReceiverID == null).Count() > 0)
             {
                 var newitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.Receiver == null).FirstOrDefault();
-                foreach(var user in currentitem.Applicants.Where(x => x.UserID != tmpwinner.Id).ToList())
+                foreach (var user in currentitem.Applicants.Where(x => x.UserID != tmpwinner.Id).ToList())
                 {
                     var m_n_relation = new Models.GiveAway.User_GiveAwayItem(user.User, newitem);
                     newitem.Applicants.Add(m_n_relation);

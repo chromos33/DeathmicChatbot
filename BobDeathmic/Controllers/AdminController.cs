@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml;
-using BobDeathmic.Models;
+﻿using BobDeathmic.Models;
 using BobDeathmic.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
@@ -18,6 +9,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Xml;
 
 namespace BobDeathmic.Controllers
 {
@@ -34,7 +34,7 @@ namespace BobDeathmic.Controllers
             _context = context;
             _serviceProvider = serviceProvider;
             _configuration = configuration;
-            random = new Random(DateTime.Now.Second*DateTime.Now.Millisecond/DateTime.Now.Hour);
+            random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / DateTime.Now.Hour);
         }
         [Authorize(Roles = "Dev,Admin")]
         public IActionResult Index()
@@ -56,9 +56,9 @@ namespace BobDeathmic.Controllers
             var filePath = Path.GetTempFileName();
             await SaveFileToLocalAsync(files, filePath);
             List<Legacy.internalStream> StreamList = ImportStreamList(filePath);
-            
-            
-            if(!_context.StreamModels.Any())
+
+
+            if (!_context.StreamModels.Any())
             {
                 foreach (var item in StreamList)
                 {
@@ -68,7 +68,7 @@ namespace BobDeathmic.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-        private async Task<Boolean> SaveFileToLocalAsync(List<IFormFile> files,string filePath)
+        private async Task<Boolean> SaveFileToLocalAsync(List<IFormFile> files, string filePath)
         {
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
@@ -76,7 +76,7 @@ namespace BobDeathmic.Controllers
             }
             return true;
         }
-        private  List<Legacy.internalStream> ImportStreamList(string filePath)
+        private List<Legacy.internalStream> ImportStreamList(string filePath)
         {
             FileStream fsFile = new FileStream(filePath, FileMode.Open);
             XmlReader xReader = XmlReader.Create(fsFile);
@@ -115,7 +115,7 @@ namespace BobDeathmic.Controllers
                 //TODO: remove filter
                 foreach (var oldUserModel in UserList)
                 {
-                    if(_context.ChatUserModels.Where(x => x.ChatUserName == oldUserModel.Name).Count() == 0)
+                    if (_context.ChatUserModels.Where(x => x.ChatUserName == oldUserModel.Name).Count() == 0)
                     {
                         ChatUserModel newUser = null;
                         try
@@ -128,20 +128,20 @@ namespace BobDeathmic.Controllers
                             await AddUserRoleAsync("user", newUser);
                             _context.SaveChanges();
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                         }
-                        
+
                     }
                 }
 
-                
+
             }
 
 
             // process uploaded files
             // Don't rely on or trust the FileName property without validation.
-            
+
             return View("Import");
         }
         private List<Legacy.User> ImportUserList(string filePath)
@@ -176,7 +176,7 @@ namespace BobDeathmic.Controllers
                 {
                     Models.StreamSubscription newSubscription = new Models.StreamSubscription();
                     newSubscription.Subscribed = (iStream.subscribed) ? Models.Enum.SubscriptionState.Subscribed : Models.Enum.SubscriptionState.Unsubscribed;
-     
+
                     Models.Stream connectionstream = _context.StreamModels.Where(stream => stream.StreamName.ToLower() == iStream.name.ToLower()).FirstOrDefault();
                     if (connectionstream != null)
                     {
@@ -192,10 +192,10 @@ namespace BobDeathmic.Controllers
             string password = "";
 
             password += User.ChatUserName.Substring(random.Next(0, User.ChatUserName.Length - 1));
-            foreach(Models.StreamSubscription subscription in User.StreamSubscriptions)
+            foreach (Models.StreamSubscription subscription in User.StreamSubscriptions)
             {
                 Models.Stream stream = subscription.Stream;
-                if(stream != null && stream.StreamName.Length > 0)
+                if (stream != null && stream.StreamName.Length > 0)
                 {
                     password += stream.StreamName.Substring(random.Next(0, stream.StreamName.Length - 1));
                 }
@@ -218,7 +218,7 @@ namespace BobDeathmic.Controllers
                 numBytesRequested: 256 / 8));
             return hashed;
         }
-        private async Task<IdentityResult> InsertUserAsync(string password,ChatUserModel User)
+        private async Task<IdentityResult> InsertUserAsync(string password, ChatUserModel User)
         {
             var UserManager = _serviceProvider.GetRequiredService<UserManager<Models.ChatUserModel>>();
             return await UserManager.CreateAsync(User, password);
@@ -226,7 +226,7 @@ namespace BobDeathmic.Controllers
         private async Task InitializeRoles()
         {
             string[] Roles = { "Dev", "Admin", "User" };
-            foreach(string role in Roles)
+            foreach (string role in Roles)
             {
                 await CreateRoleAsync(role);
             }
@@ -234,14 +234,14 @@ namespace BobDeathmic.Controllers
         private async Task<bool> CreateRoleAsync(string role)
         {
             var RoleManager = _serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            if(!await RoleManager.RoleExistsAsync(role))
+            if (!await RoleManager.RoleExistsAsync(role))
             {
                 IdentityResult result = await RoleManager.CreateAsync(new IdentityRole(role));
                 return result.Succeeded;
             }
             return true;
         }
-        private async Task<bool> AddUserRoleAsync(string role,ChatUserModel user)
+        private async Task<bool> AddUserRoleAsync(string role, ChatUserModel user)
         {
             var userManager = _serviceProvider.GetRequiredService<UserManager<Models.ChatUserModel>>();
             var result = await userManager.AddToRoleAsync(user, role);
@@ -251,14 +251,14 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "Dev")]
         public IActionResult SecurityTokens()
         {
-            ViewData["TokenTypes"] = new List<TokenType> { TokenType.Twitch,TokenType.Discord,TokenType.Mixer };
+            ViewData["TokenTypes"] = new List<TokenType> { TokenType.Twitch, TokenType.Discord, TokenType.Mixer };
             return View();
         }
         [HttpPost]
         [Authorize(Roles = "Dev")]
         public async Task<IActionResult> AddSecurityToken([Bind("ClientID,secret,service")] Models.SecurityToken token)
         {
-            switch(token.service)
+            switch (token.service)
             {
                 case TokenType.Twitch:
                     return await AquireTwitchToken(token);
@@ -309,7 +309,7 @@ namespace BobDeathmic.Controllers
             var client = new HttpClient();
             string baseUrl = _configuration.GetValue<string>("WebServerWebAddress");
             string url = $"https://id.twitch.tv/oauth2/token?client_id={savedtoken.ClientID}&client_secret={savedtoken.secret}&code={code}&grant_type=authorization_code&redirect_uri={baseUrl}/Admin/TwitchReturnUrlAction";
-            var response = await client.PostAsync(url, new StringContent("", System.Text.Encoding.UTF8,"text/plain"));
+            var response = await client.PostAsync(url, new StringContent("", System.Text.Encoding.UTF8, "text/plain"));
             var responsestring = await response.Content.ReadAsStringAsync();
             JSONObjects.TwitchAuthToken authtoken = JsonConvert.DeserializeObject<JSONObjects.TwitchAuthToken>(responsestring);
             savedtoken.token = authtoken.access_token;

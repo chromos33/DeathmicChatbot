@@ -1,23 +1,23 @@
-﻿using System;
+﻿using BobDeathmic.Data;
+using BobDeathmic.Eventbus;
+using BobDeathmic.Models;
+using BobDeathmic.Models.AccountViewModels;
+using BobDeathmic.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using BobDeathmic.Models;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
-using BobDeathmic.Models.AccountViewModels;
-using Microsoft.Extensions.Logging;
-using BobDeathmic.Services;
-using static BobDeathmic.Controllers.UserController;
-using BobDeathmic.Eventbus;
-using BobDeathmic.Data;
 using System.Security.Cryptography;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Threading.Tasks;
+using static BobDeathmic.Controllers.UserController;
 
 namespace BobDeathmic.Controllers
 {
@@ -27,7 +27,7 @@ namespace BobDeathmic.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Subscriptions","User");
+                return RedirectToAction("Subscriptions", "User");
             }
             //return View();
             return RedirectToAction("Login");
@@ -85,7 +85,7 @@ namespace BobDeathmic.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    if(returnUrl != null)
+                    if (returnUrl != null)
                     {
                         return Redirect(returnUrl);
                     }
@@ -93,7 +93,7 @@ namespace BobDeathmic.Controllers
                     {
                         return RedirectToAction("Subscriptions", "User");
                     }
-                    
+
                 }
                 if (result.IsLockedOut)
                 {
@@ -134,7 +134,7 @@ namespace BobDeathmic.Controllers
         {
             return View();
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RequestPasswort(Models.User.RequestPasswordViewModel model)
@@ -145,19 +145,19 @@ namespace BobDeathmic.Controllers
             }
             var user = _dbcontext.ChatUserModels.Where(cu => cu.ChatUserName.ToLower() == model.UserName.ToLower() || cu.UserName.ToLower() == model.UserName.ToLower()).FirstOrDefault();
 
-            if(user != null)
+            if (user != null)
             {
                 string password = GeneratePassword();
                 //var result = await _userManager.ResetPasswordAsync(user, await _userManager.GeneratePasswordResetTokenAsync(user), password);
                 var result2 = await _userManager.RemovePasswordAsync(user);
-                if(result2.Succeeded)
+                if (result2.Succeeded)
                 {
                     result2 = await _userManager.AddPasswordAsync(user, password);
-                    if(result2.Succeeded)
+                    if (result2.Succeeded)
                     {
                         _eventBus.TriggerEvent(EventType.PasswordRequestReceived, new Args.PasswordRequestArgs { UserName = user.ChatUserName, TempPassword = password });
                     }
-                    
+
                 }
             }
             return RedirectToAction(nameof(Login));

@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace BobDeathmic.Args
 {
-    public class DiscordWhisperArgs
+    public class MessageArgs
     {
-        public string UserName { get; set; }
+        public string RecipientName { get; set; }
         public string Message { get; set; }
     }
 }

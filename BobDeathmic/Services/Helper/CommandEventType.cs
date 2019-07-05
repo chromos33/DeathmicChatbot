@@ -7,8 +7,8 @@ namespace BobDeathmic.Services.Helper.Commands
 {
     public enum CommandEventType
     {
-        TwitchTitle=1,
-        Strawpoll=2,
-        None=0
+        TwitchTitle = 1,
+        Strawpoll = 2,
+        None = 0
     }
 }

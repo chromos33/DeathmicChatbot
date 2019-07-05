@@ -23,7 +23,7 @@ namespace BobDeathmic.Models.Events
             Clone.StartTime = StartTime;
             Clone.StopTime = StopTime;
             TimeSpan add = new TimeSpan();
-            DateTime today = DateTime.Today.Add(new TimeSpan(1, StartTime.Hour, StartTime.Minute,0));
+            DateTime today = DateTime.Today.Add(new TimeSpan(1, StartTime.Hour, StartTime.Minute, 0));
 
             // The (... + 7) % 7 ensures we end up with a value in the range [0, 6]
             int daysUntilTargetDay = (((int)Day - (int)today.DayOfWeek + 7) % 7) + Pos * 7;
