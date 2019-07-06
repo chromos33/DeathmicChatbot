@@ -111,5 +111,7 @@ namespace BobDeathmic.Data
         public DbSet<EventDateTemplate> EventDateTemplates { get; set; }
         public DbSet<EventDate> EventDates { get; set; }
         public DbSet<ChatUserModel_Event> ChatUserModel_Event { get; set; }
+
+        public DbSet<RandomChatUser> RandomChatUser { get; set; }
     }
 }
