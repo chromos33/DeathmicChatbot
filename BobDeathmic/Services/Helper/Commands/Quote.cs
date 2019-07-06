@@ -13,7 +13,7 @@ namespace BobDeathmic.Services.Helper.Commands
     public class QuoteCommand : IfCommand
     {
         public string Trigger => "!quote";
-        public string Description => "Add a quote to the current streamer's quote database.";
+        public string Description => "Add a quote to the current streamer's quote database. !quote [add/delete] [quote/id]";
         public string Category => "stream";
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
