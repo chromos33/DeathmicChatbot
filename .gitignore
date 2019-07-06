@@ -22,3 +22,6 @@ bld/
 # Bob
 /BobDeathmic/Migrations/*
 /BobDeathmic/appsettings.json
+
+# IDEA based IDE settings
+.idea/
