@@ -11,7 +11,7 @@ namespace BobDeathmic.Models.Events
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        
+
         public List<EventDateTemplate> EventDateTemplates { get; set; }
         public List<ChatUserModel_Event> Members { get; set; }
 
@@ -31,7 +31,7 @@ namespace BobDeathmic.Models.Events
         public List<ChatUserModel> getMembers()
         {
             List<ChatUserModel> Users = new List<ChatUserModel>();
-            foreach(ChatUserModel_Event member in Members)
+            foreach (ChatUserModel_Event member in Members)
             {
                 Users.Add(member.ChatUserModel);
             }
@@ -40,7 +40,7 @@ namespace BobDeathmic.Models.Events
         public List<AppointmentRequest> GenerateAppointmentRequests(EventDate eventDate)
         {
             List<AppointmentRequest> tmp = new List<AppointmentRequest>();
-            foreach(ChatUserModel_Event MemberRelation in Members)
+            foreach (ChatUserModel_Event MemberRelation in Members)
             {
                 tmp.Add(new AppointmentRequest { Owner = MemberRelation.ChatUserModel, EventDate = eventDate });
             }

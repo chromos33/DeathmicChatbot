@@ -29,7 +29,7 @@ namespace BobDeathmic.Services.Tasks
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            if(_context != null)
+            if (_context != null)
             {
                 var ApplicableCalendars = _context.Events.Include(x => x.EventDateTemplates).Include(x => x.EventDates).ThenInclude(x => x.Teilnahmen).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Members.Count() > 0 && x.EventDateTemplates.Count() > 0);
                 RemovePassedEventDates();
@@ -49,7 +49,7 @@ namespace BobDeathmic.Services.Tasks
             var NotifiableEventDates = calendar.EventDates.Where(x => x.Teilnahmen.Where(y => y.State == AppointmentRequestState.Available || y.State == AppointmentRequestState.IfNeedBe).Count() == x.Teilnahmen.Count());
             foreach (EventDate date in NotifiableEventDates)
             {
-                _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = calendar.Admin.ChatUserName, Message = date.AdminNotification(calendar.Name) });
+                _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs { RecipientName = calendar.Admin.ChatUserName, Message = date.AdminNotification(calendar.Name) });
             }
         }
 
@@ -60,9 +60,9 @@ namespace BobDeathmic.Services.Tasks
             List<MutableTuple<string, string>> GroupedNotifications = new List<MutableTuple<string, string>>();
             foreach (EventDate date in calendar.EventDates.Where(x => x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(5)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(2)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(1)).Date))
             {
-                foreach(AppointmentRequest request in date.Teilnahmen.Where(x => x.State == AppointmentRequestState.NotYetVoted))
+                foreach (AppointmentRequest request in date.Teilnahmen.Where(x => x.State == AppointmentRequestState.NotYetVoted))
                 {
-                    if(GroupedNotifications.Where(x => x.First == request.Owner.UserName).Count() == 0)
+                    if (GroupedNotifications.Where(x => x.First == request.Owner.UserName).Count() == 0)
                     {
                         GroupedNotifications.Add(new MutableTuple<string, string>(request.Owner.UserName, $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Event.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmen. {address}/Events/VoteOnCalendar/{calendar.Id}"));
                     }
@@ -72,10 +72,10 @@ namespace BobDeathmic.Services.Tasks
                     }
                 }
             }
-            foreach(MutableTuple<string,string> tuple in GroupedNotifications)
+            foreach (MutableTuple<string, string> tuple in GroupedNotifications)
             {
-                
-                _eventBus.TriggerEvent(EventType.DiscordWhisperRequested, new DiscordWhisperArgs { UserName = tuple.First , Message = tuple.Second });
+
+                _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs { RecipientName = tuple.First, Message = tuple.Second });
             }
         }
 
@@ -83,13 +83,13 @@ namespace BobDeathmic.Services.Tasks
         {
             Console.WriteLine("RemovePassedEventDates");
             var EventDatesToRemove = _context.EventDates.Where(x => x.Date < DateTime.Now);
-            foreach(EventDate remove in EventDatesToRemove)
+            foreach (EventDate remove in EventDatesToRemove)
             {
                 _context.EventDates.Remove(remove);
 
             }
             _context.SaveChanges();
-            foreach(Event calendar in _context.Events)
+            foreach (Event calendar in _context.Events)
             {
                 var EventDatesInCalendarToRemove = calendar.EventDates.Where(x => x.Date < DateTime.Now);
                 foreach (EventDate remove in EventDatesInCalendarToRemove)
@@ -103,13 +103,13 @@ namespace BobDeathmic.Services.Tasks
         {
             Console.WriteLine("AddEventDatesOnCalendar");
             // Next 2 weeks
-            for (int week = 0; week < 2;week++ )
+            for (int week = 0; week < 2; week++)
             {
-                foreach(EventDateTemplate template in calendar.EventDateTemplates)
+                foreach (EventDateTemplate template in calendar.EventDateTemplates)
                 {
                     EventDate eventdate = template.CreateEventDate(week);
                     eventdate.EventDateTemplateID = template.ID;
-                    if(calendar.EventDates.Where( x => x.Date == eventdate.Date).Count() == 0)
+                    if (calendar.EventDates.Where(x => x.Date == eventdate.Date).Count() == 0)
                     {
                         eventdate.Teilnahmen = calendar.GenerateAppointmentRequests(eventdate);
                         _context.EventDates.Add(eventdate);
@@ -124,11 +124,11 @@ namespace BobDeathmic.Services.Tasks
             foreach (EventDate update in calendar.EventDates)
             {
                 var template = _context.EventDateTemplates.Where(x => x.ID == update.EventDateTemplateID).FirstOrDefault();
-                if(template != null)
+                if (template != null)
                 {
                     update.StartTime = template.StartTime;
                     update.StopTime = template.StopTime;
-                    update.Date =  DateTime.ParseExact(update.Date.ToString("dd-MM-yyyy") + " " + update.StartTime.ToString("HH:mm"), "dd-MM-yyyy HH:mm",
+                    update.Date = DateTime.ParseExact(update.Date.ToString("dd-MM-yyyy") + " " + update.StartTime.ToString("HH:mm"), "dd-MM-yyyy HH:mm",
                                     System.Globalization.CultureInfo.InvariantCulture);
                 }
             }

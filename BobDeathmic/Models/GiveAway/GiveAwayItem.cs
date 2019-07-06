@@ -26,7 +26,7 @@ namespace BobDeathmic.Models.GiveAwayModels
         public ChatUserModel Receiver { get; set; }
 
         public List<User_GiveAwayItem> Applicants { get; set; }
-        
+
         public string Announcement()
         {
             return "GiveAway für " + Title + " mit !Gapply teilnehmen";

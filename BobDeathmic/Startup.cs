@@ -1,25 +1,25 @@
-﻿using System;
+﻿using BobDeathmic.Data;
+using BobDeathmic.Eventbus;
+using BobDeathmic.Models;
+using BobDeathmic.Services;
+using BobDeathmic.Services.Helper;
+using BobDeathmic.Services.Tasks;
+using JavaScriptEngineSwitcher.ChakraCore;
+using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
+using JavaScriptEngineSwitcher.Jurassic;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using React.AspNet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using BobDeathmic.Data;
-using BobDeathmic.Models;
-using BobDeathmic.Services;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
-using BobDeathmic.Eventbus;
-using Microsoft.AspNetCore.Http;
-using JavaScriptEngineSwitcher.Jurassic;
-using JavaScriptEngineSwitcher.ChakraCore;
-using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
-using React.AspNet;
-using BobDeathmic.Services.Helper;
-using BobDeathmic.Services.Tasks;
 
 namespace BobDeathmic
 {
@@ -36,11 +36,11 @@ namespace BobDeathmic
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseMySql(Configuration.GetConnectionString("DefaultConnection"),mysqlOptions => {
+                options.UseMySql(Configuration.GetConnectionString("DefaultConnection"), mysqlOptions =>
+                {
                     mysqlOptions.ServerVersion(new Version(10, 3, 8), ServerType.MariaDb);
                 })
                 );
-
             services.AddIdentity<ChatUserModel, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -66,8 +66,8 @@ namespace BobDeathmic
             services.AddMemoryCache();
             services.AddSingleton<IEventBus, EventBusLocal>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchChecker>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.MixerChecker>();
-            
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.MixerChecker>();
+
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.DiscordService>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchRelayCenter>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchAPICalls>();
@@ -84,7 +84,7 @@ namespace BobDeathmic
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        
+
         public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env, IServiceProvider services)
         {
             if (env.IsDevelopment())
@@ -103,7 +103,7 @@ namespace BobDeathmic
                 config.SetLoadBabel(false);
                 config.SetLoadReact(true);
                 config.UseServerSideRendering = false;
-                
+
 
                 // If you want to use server-side rendering of React components,
                 // add all the necessary JavaScript files here. This includes

@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using System.Diagnostics.Contracts;
 
 namespace BobDeathmic.Models
 {
@@ -23,8 +23,8 @@ namespace BobDeathmic.Models
                 {
                     return;
                 }
-                var usermanager = serviceProvider.GetRequiredService <UserManager<ChatUserModel>>();
-                
+                var usermanager = serviceProvider.GetRequiredService<UserManager<ChatUserModel>>();
+
                 var dev = new ChatUserModel { UserName = "Dev", ChatUserName = "Dev" };
                 await usermanager.CreateAsync(dev, "SetupPassword");
                 await Models.SeedData.CreateOrAddUserRoles("Dev", "Dev", serviceProvider);

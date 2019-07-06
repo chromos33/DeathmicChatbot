@@ -66,7 +66,7 @@ namespace BobDeathmic.Services
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
-                if(stream != null && stream.ClientID != "" && stream.AccessToken != "")
+                if (stream != null && stream.ClientID != "" && stream.AccessToken != "")
                 {
                     TwitchAPI api = new TwitchAPI();
                     api.Settings.ClientId = stream.ClientID;
@@ -76,7 +76,7 @@ namespace BobDeathmic.Services
                         if (e.Game != "" && e.Title != "")
                         {
                             await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title, game: e.Game);
-                            
+
                         }
                         if (e.Game != "" && e.Title == "")
                         {
@@ -86,13 +86,14 @@ namespace BobDeathmic.Services
                         {
                             var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title);
                         }
-                        
-                    }catch(Exception ex) when (ex is TwitchLib.Api.Core.Exceptions.InvalidCredentialException || ex is TwitchLib.Api.Core.Exceptions.BadScopeException)
+
+                    }
+                    catch (Exception ex) when (ex is TwitchLib.Api.Core.Exceptions.InvalidCredentialException || ex is TwitchLib.Api.Core.Exceptions.BadScopeException)
                     {
-                        
+
                         api.Settings.AccessToken = await RefreshToken(stream.StreamName);
 
-                        if(api.Settings.AccessToken != "")
+                        if (api.Settings.AccessToken != "")
                         {
                             if (e.Game != "" && e.Title != "")
                             {
@@ -108,7 +109,7 @@ namespace BobDeathmic.Services
                             }
                         }
                     }
-                    _eventBus.TriggerEvent(EventType.DiscordMessageReceived, new Args.DiscordMessageArgs() { Source = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, Target = stream.StreamName, Message = "Stream Updated" });
+                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = "Stream Updated" });
                 }
             }
             return;
