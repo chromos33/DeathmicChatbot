@@ -51,6 +51,11 @@ namespace BobDeathmic.Controllers
             return View(model);
         }
         [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> QuoteList()
+        {
+            return View(_context.Quotes.ToList());
+        }
+        [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)

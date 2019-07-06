@@ -12,7 +12,7 @@ namespace BobDeathmic.Models
 
         public override string ToString()
         {
-            return $"\"{Text}\" - {Streamer}, {Created:MMMM YYYY} (ID {Id})";
+            return $"\"{Text}\" - {Streamer}, {Created:MMMM yyyy} (ID {Id})";
         }
     }
 }
