@@ -90,6 +90,7 @@ namespace BobDeathmic.Services
                 handleRelayStart(_context);
                 handleRelayEnd(_context);
                 handleUpTime(_context);
+                handleConnectionUpkeep(_context);
             }
         }
         private void handleUpTime(ApplicationDbContext _context)
@@ -100,13 +101,23 @@ namespace BobDeathmic.Services
             }
             _context.SaveChanges();
         }
+        private void handleConnectionUpkeep(ApplicationDbContext _context)
+        {
+            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.Running && MessageQueues.Keys.Contains(x.StreamName) && x.DiscordRelayChannel != "Aus"))
+            {
+                if (client.JoinedChannels.Where(x => x.Channel.ToLower() == stream.StreamName.ToLower()).Count() == 0)
+                {
+                    JoinChannel(stream.StreamName);
+                }
+            }
+        }
         private void handleRelayStart(ApplicationDbContext _context)
         {
-            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.Running && !MessageQueues.Keys.Contains(x.StreamName)))
+            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.Running && !MessageQueues.Keys.Contains(x.StreamName) && x.DiscordRelayChannel != "Aus"))
             {
                 AddMessageQueue(stream.StreamName);
                 JoinChannel(stream.StreamName);
-            }
+            } 
         }
         private void handleRelayEnd(ApplicationDbContext _context)
         {
