@@ -15,12 +15,13 @@ namespace BobDeathmic.ReactDataClasses.Events.Vote
         public string Time { get; set; }
         public bool canEdit { get; set; }
 
-        public string[] States {
+        public string[] States
+        {
             get
             {
-                return new string[] { "NotYetVoted","Available","NotAvailable","IfNeedBe"};
+                return new string[] { "NotYetVoted", "Available", "NotAvailable", "IfNeedBe" };
             }
         }
-        
+
     }
 }

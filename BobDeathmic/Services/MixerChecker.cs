@@ -26,7 +26,7 @@ namespace BobDeathmic.Services
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            
+
             _timer = new System.Timers.Timer(10000);
             _timer.Elapsed += (sender, args) => CheckOnlineStreams();
             _timer.Start();
@@ -58,16 +58,16 @@ namespace BobDeathmic.Services
                             var response = await client.GetAsync(RequestLink);
                             var responsestring = await response.Content.ReadAsStringAsync();
                             JSONObjects.MixerChannelInfo streamInfo = JsonConvert.DeserializeObject<JSONObjects.MixerChannelInfo>(responsestring);
-                            if(streamInfo.online)
+                            if (streamInfo.online)
                             {
-                                if(stream.StreamState == StreamState.NotRunning)
+                                if (stream.StreamState == StreamState.NotRunning)
                                 {
                                     SetStreamOnline();
                                     StreamStarted();
                                     void SetStreamOnline()
                                     {
                                         stream.Started = DateTime.Now;
-                                        if(streamInfo.type != null)
+                                        if (streamInfo.type != null)
                                         {
                                             stream.Game = streamInfo.type.name;
                                         }
@@ -76,7 +76,7 @@ namespace BobDeathmic.Services
                                             stream.Game = "Undefined";
                                         }
                                         stream.StreamState = StreamState.Started;
-                                        
+
                                         stream.Url = $"https://mixer.com/{stream.StreamName}";
                                     }
                                     void StreamStarted()
@@ -89,7 +89,7 @@ namespace BobDeathmic.Services
                                         args.StreamType = StreamProviderTypes.Mixer;
                                         //replace with real state when/if relay integrated
                                         args.relayactive = RelayState.NotActivated;
-                                        _eventBus.TriggerEvent(EventType.StreamChanged, args);
+                                        //_eventBus.TriggerEvent(EventType.StreamChanged, args);
                                     }
                                 }
                                 else
@@ -120,7 +120,7 @@ namespace BobDeathmic.Services
                     _inProgress = false;
                 }
             }
-            
+
 
         }
         public override Task StopAsync(CancellationToken cancellationToken)

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BobDeathmic.Services;
+﻿using BobDeathmic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BobDeathmic.Controllers
 {
@@ -30,12 +30,13 @@ namespace BobDeathmic.Controllers
         public async Task<string> StartDiscord()
         {
             try
-            { 
-                await _microservices.Where(ms=>ms.GetType() == typeof(DiscordService)).FirstOrDefault()?.StartAsync(new System.Threading.CancellationToken(false));
-            }catch(Exception ex)
+            {
+                await _microservices.Where(ms => ms.GetType() == typeof(DiscordService)).FirstOrDefault()?.StartAsync(new System.Threading.CancellationToken(false));
+            }
+            catch (Exception ex)
             {
             }
-            
+
             return "Started";
         }
         [Authorize(Roles = "Dev,Admin")]
@@ -90,6 +91,6 @@ namespace BobDeathmic.Controllers
             }
             return "Restart";
         }
-        
+
     }
 }

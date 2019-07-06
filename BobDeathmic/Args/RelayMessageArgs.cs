@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 
 namespace BobDeathmic.Args
 {
-    public class DiscordMessageArgs
+    public class RelayMessageArgs: MessageArgs
     {
-        public string Message { get; set; }
-        public string Source { get; set; }
-        public string Target { get; set; }
+        public string SourceChannel { get; set; }
+        public string TargetChannel { get; set; }
         public Models.Enum.StreamProviderTypes StreamType { get; set; }
     }
 }

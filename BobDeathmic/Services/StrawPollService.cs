@@ -1,16 +1,16 @@
 ﻿using BobDeathmic.Args;
+using BobDeathmic.Data;
 using BobDeathmic.Eventbus;
+using BobDeathmic.JSONObjects;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net.Http;
-using BobDeathmic.JSONObjects;
-using Newtonsoft.Json;
-using BobDeathmic.Data;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace BobDeathmic.Services
 {
@@ -36,8 +36,8 @@ namespace BobDeathmic.Services
 
         private async void StrawPollRequested(object sender, StrawPollRequestEventArgs e)
         {
-            
-            
+
+
             var questionRegex = Regex.Match(e.Message, @"q=\'(.*?)\'");
             var optionsRegex = Regex.Match(e.Message, @"o=\'(.*?)\'");
             var multiRegex = Regex.Match(e.Message, @"m=\'(.*?)\'");
@@ -45,13 +45,13 @@ namespace BobDeathmic.Services
             string question = "";
             List<string> Options = new List<string>();
             bool multi = false;
-            if(questionRegex.Success && optionsRegex.Success)
+            if (questionRegex.Success && optionsRegex.Success)
             {
-                Options = optionsRegex.Value.Replace("o='","").Replace("'","").Split('|').ToList();
+                Options = optionsRegex.Value.Replace("o='", "").Replace("'", "").Split('|').ToList();
                 question = questionRegex.Value.Replace("q='", "").Replace("'", "");
                 if (multiRegex.Success)
                 {
-                    switch(multiRegex.Value)
+                    switch (multiRegex.Value)
                     {
                         case "true":
                         case "j":
@@ -70,7 +70,7 @@ namespace BobDeathmic.Services
                     Options.Add(parameters[i]);
                 }
             }
-            if(Options.Count() > 1)
+            if (Options.Count() > 1)
             {
                 values = new StrawPollPostData { title = question, options = Options.ToArray(), multi = multi };
                 var response = await client.PostAsJsonAsync("https://www.strawpoll.me/api/v2/polls", values);
@@ -81,7 +81,7 @@ namespace BobDeathmic.Services
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
-                    _eventBus.TriggerEvent(EventType.DiscordMessageReceived, new Args.DiscordMessageArgs() { Source = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, Target = stream.StreamName, Message = StrawPollData.Url() });
+                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = StrawPollData.Url() });
                 }
             }
             else
@@ -91,10 +91,10 @@ namespace BobDeathmic.Services
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
-                    _eventBus.TriggerEvent(EventType.DiscordMessageReceived, new Args.DiscordMessageArgs() { Source = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, Target = stream.StreamName, Message = "You need at least 2 Options" });
+                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = "You need at least 2 Options" });
                 }
             }
-            
+
         }
     }
 }

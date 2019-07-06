@@ -1,16 +1,16 @@
-﻿using System;
+﻿using BobDeathmic.Data;
+using BobDeathmic.Models;
+using BobDeathmic.Models.User;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using BobDeathmic.Models;
-using BobDeathmic.Data;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Authorization;
-using BobDeathmic.Models.User;
+using System.Threading.Tasks;
 
 namespace BobDeathmic.Controllers
 {
@@ -42,12 +42,12 @@ namespace BobDeathmic.Controllers
             foreach (var stream in _context.StreamModels)
             {
                 bool add = true;
-                
-                if(streamsubs != null && streamsubs.Where(ss => ss.Stream.StreamName == stream.StreamName && ss.Stream.Type == stream.Type).Count() > 0)
+
+                if (streamsubs != null && streamsubs.Where(ss => ss.Stream.StreamName == stream.StreamName && ss.Stream.Type == stream.Type).Count() > 0)
                 {
                     add = false;
                 }
-                if(add)
+                if (add)
                 {
                     FilteredStreams.Add(stream);
                 }
@@ -65,7 +65,7 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> AddSubscription(Models.User.AddSubscriptionViewModel model)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View(model);
             }
@@ -73,7 +73,7 @@ namespace BobDeathmic.Controllers
             ChatUserModel user = await _userManager.GetUserAsync(this.User);
             if (stream != null)
             {
-                if(user.StreamSubscriptions == null)
+                if (user.StreamSubscriptions == null)
                 {
                     user.StreamSubscriptions = new List<StreamSubscription>();
                 }
@@ -82,7 +82,7 @@ namespace BobDeathmic.Controllers
                 newsub.User = user;
                 newsub.Subscribed = Models.Enum.SubscriptionState.Subscribed;
                 _context.StreamSubscriptions.Add(newsub);
-                
+
                 user.StreamSubscriptions.Add(newsub);
                 await _context.SaveChangesAsync();
             }
@@ -91,20 +91,20 @@ namespace BobDeathmic.Controllers
         }
         public async Task<string> ChangeSubscription(int? id)
         {
-            
-            if(id == null)
+
+            if (id == null)
             {
                 return "error";
                 //return NotFound();
             }
-            
+
             StreamSubscription sub = _context.StreamSubscriptions.Where(ss => ss.ID == id).FirstOrDefault();
-            
+
             DateTime start = DateTime.Now;
             string @return = "error";
             if (sub != null)
             {
-                switch(sub.Subscribed)
+                switch (sub.Subscribed)
                 {
                     case Models.Enum.SubscriptionState.Subscribed:
                         sub.Subscribed = Models.Enum.SubscriptionState.Unsubscribed;
@@ -120,7 +120,7 @@ namespace BobDeathmic.Controllers
             return @return;
             //return RedirectToAction(nameof(Subscriptions));
         }
-        
+
 
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]

@@ -127,14 +127,14 @@ namespace BobDeathmic.Services
                 if (StreamNameList.Any())
                 {
                     var userdata = await api.Helix.Users.GetUsersAsync(logins: StreamNameList);
-                
+
                     foreach (var user in userdata.Users)
                     {
                         Models.Stream stream = Streams.Where(x => x.StreamName.ToLower() == user.Login.ToLower()).FirstOrDefault();
                         stream.UserID = user.Id;
                     }
                     _context.SaveChanges();
-                
+
                 }
             }
         }
@@ -152,35 +152,29 @@ namespace BobDeathmic.Services
                         return await api.Helix.Streams.GetStreamsAsync(userIds: StreamIdList);
                     }
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
             }
-            
+
             return null;
         }
+        string[] RandomDiscordRelayChannels = { "stream_1", "stream_2", "stream_3" };
         private async Task SetStreamsOffline(List<string> OnlineStreamIDs)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var Streams = _context.StreamModels.Where(s => !OnlineStreamIDs.Contains(s.UserID));
-                string[] RandomDiscordRelayChannels = {"stream_1","stream_2","stream_3"};
+                
                 foreach (Models.Stream stream in Streams.Where(x => x.StreamState != StreamState.NotRunning && x.Type == StreamProviderTypes.Twitch))
                 {
                     stream.StreamState = StreamState.NotRunning;
-                    if(RandomDiscordRelayChannels.Contains(stream.DiscordRelayChannel))
+                    if (RandomDiscordRelayChannels.Contains(stream.DiscordRelayChannel))
                     {
                         stream.DiscordRelayChannel = "An";
                     }
-                    StreamEventArgs args = new StreamEventArgs();
-                    args.stream = stream.StreamName;
-                    args.state = stream.StreamState;
-                    args.link = "";
-                    args.state = StreamState.NotRunning;
-                    args.relayactive = stream.RelayState();
-                    args.StreamType = StreamProviderTypes.Twitch;
-                    _eventBus.TriggerEvent(EventType.StreamChanged, args);
                 }
                 _context.SaveChanges();
             }
@@ -190,44 +184,46 @@ namespace BobDeathmic.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var Streams = _context.StreamModels.Where(s => OnlineStreamIDs.Contains(s.UserID) && s.Type == StreamProviderTypes.Twitch);
+                var Streams = _context.StreamModels.Where(s => OnlineStreamIDs.Contains(s.UserID) && s.Type == StreamProviderTypes.Twitch).Include(x => x.StreamSubscriptions).ThenInclude(y => y.User);
+                Boolean write = false;
                 foreach (Models.Stream stream in Streams)
                 {
-                    StreamEventArgs args = new StreamEventArgs();
-                    args.stream = stream.StreamName;
-                    args.StreamType = StreamProviderTypes.Twitch;
                     TwitchLib.Api.Helix.Models.Streams.Stream streamdata = StreamsData.Streams.Single(sd => sd.UserId == stream.UserID);
-                    args.link = stream.Url = GetStreamUrl(stream);
-                    args.game = streamdata.Title;
                     if (stream.StreamState == StreamState.NotRunning)
                     {
-                        stream.StreamState = StreamState.Started;
-                        stream.Started = streamdata.StartedAt.ToLocalTime();
-                        args.Notification = stream.StreamStartedMessage(streamdata.Title);
-                        args.state = StreamState.Started;
-                    }
-                    else
-                    {
                         stream.StreamState = StreamState.Running;
-                        args.Notification = "";
-                        args.state = StreamState.Running;
+                        stream.Started = streamdata.StartedAt.ToLocalTime();
+                        write = true;
+                        if(stream.DiscordRelayChannel == "An")
+                        {
+                            stream.DiscordRelayChannel = getRandomRelayChannel();
+                        }
+                        foreach(string username in stream.GetActiveSubscribers())
+                        {
+                            _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs() { Message = stream.StreamStartedMessage(streamdata.Title, GetStreamUrl(stream)), RecipientName = username });
+                        }
                     }
-                    args.relayactive = stream.RelayState();
-                    if (TriggerUpTime(stream))
-                    {
-                        args.PostUpTime = true;
-                        args.Uptime = GetUpTime(stream);
-                        stream.LastUpTime = DateTime.Now;
-                    }
-                    _eventBus.TriggerEvent(EventType.StreamChanged, args);
 
                 }
-                _context.SaveChanges();
+                if (write)
+                {
+                    _context.SaveChanges();
+                }
+                
+            }
+        }
+        private string getRandomRelayChannel()
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                string[] occupiedchannels = _context.StreamModels.Where(x => RandomDiscordRelayChannels.Contains(x.DiscordRelayChannel)).Select(x => x.DiscordRelayChannel).ToArray();
+                return RandomDiscordRelayChannels.Except(occupiedchannels).FirstOrDefault();
             }
         }
         private string GetStreamUrl(Models.Stream stream)
         {
-            if(string.IsNullOrEmpty(stream.Url))
+            if (string.IsNullOrEmpty(stream.Url))
             {
                 stream.Url = "https://www.twitch.tv/" + stream.StreamName;
             }

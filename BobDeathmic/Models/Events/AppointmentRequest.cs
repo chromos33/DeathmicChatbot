@@ -16,7 +16,7 @@ namespace BobDeathmic.Models.Events
         {
             State = 0;
         }
-        public AppointmentRequest(ChatUserModel Owner,EventDate EventDate)
+        public AppointmentRequest(ChatUserModel Owner, EventDate EventDate)
         {
             this.EventDate = EventDate;
             this.Owner = Owner;
