@@ -8,16 +8,13 @@ namespace BobDeathmic.Eventbus
 {
     public interface IEventBus
     {
-        event EventHandler<StreamEventArgs> StreamChanged;
-        event EventHandler<DiscordMessageArgs> DiscordMessageReceived;
+        event EventHandler<RelayMessageArgs> RelayMessageReceived;
         event EventHandler<TwitchMessageArgs> TwitchMessageReceived;
         event EventHandler<PasswordRequestArgs> PasswordRequestReceived;
         event EventHandler<StreamTitleChangeArgs> StreamTitleChangeRequested;
         event EventHandler<StreamTitleChangeArgs> StreamTitleChanged;
-        event EventHandler<StreamEventArgs> RelayPassed;
-        event EventHandler<GiveAwayEventArgs> GiveAwayMessage;
         event EventHandler<StrawPollRequestEventArgs> StrawPollRequested;
-        event EventHandler<DiscordWhisperArgs> DiscordWhisperRequested;
+        event EventHandler<MessageArgs> DiscordMessageSendRequested;
         void TriggerEvent(EventType @event, dynamic EventData);
     }
 }

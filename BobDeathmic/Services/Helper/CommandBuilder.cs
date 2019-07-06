@@ -12,7 +12,7 @@ namespace BobDeathmic.Services.Helper
         public static List<IfCommand> BuildCommands(string source, bool excludeHelp = false)
         {
             List<IfCommand> Commands = new List<IfCommand>();
-            
+
             if (!excludeHelp && CommandBuilder.CommandActiveInSource(source, "Help"))
             {
                 Commands.Help tmp = new Commands.Help();

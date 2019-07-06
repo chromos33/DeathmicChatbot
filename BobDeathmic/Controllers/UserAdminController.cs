@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BobDeathmic.Models;
+﻿using BobDeathmic.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BobDeathmic.Controllers
 {
@@ -26,7 +26,7 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> Index()
         {
             List<Models.User.UserRolesViewModel> UserList = new List<Models.User.UserRolesViewModel>();
-            foreach(ChatUserModel user in _context.Users)
+            foreach (ChatUserModel user in _context.Users)
             {
                 Models.User.UserRolesViewModel newUserRolesModel = new Models.User.UserRolesViewModel();
                 newUserRolesModel.User = user;
@@ -36,18 +36,18 @@ namespace BobDeathmic.Controllers
             ViewData["PossibleRoles"] = new String[] { "Admin", "User" };
             return View(UserList);
         }
-        public async Task<bool> SaveUserRoles(string UserId,int isAdmin)
+        public async Task<bool> SaveUserRoles(string UserId, int isAdmin)
         {
             var user = _context.ChatUserModels.Where(cum => cum.Id == UserId).FirstOrDefault();
             IdentityResult result = null;
-            if(isAdmin == 1)
+            if (isAdmin == 1)
             {
                 result = await _userManager.AddToRoleAsync(user, "Admin");
             }
             else
             {
                 result = await _userManager.RemoveFromRoleAsync(user, "Admin");
-            }          
+            }
             return result.Succeeded;
         }
     }

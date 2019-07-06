@@ -1,14 +1,14 @@
-﻿using System;
+﻿using BobDeathmic.Models;
+using BobDeathmic.Models.Events;
+using BobDeathmic.Models.Events.ManyMany;
+using BobDeathmic.Models.GiveAway;
+using BobDeathmic.Models.GiveAwayModels;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using BobDeathmic.Models;
-using BobDeathmic.Models.GiveAwayModels;
-using BobDeathmic.Models.GiveAway;
-using BobDeathmic.Models.Events;
-using BobDeathmic.Models.Events.ManyMany;
 
 namespace BobDeathmic.Data
 {
@@ -94,7 +94,7 @@ namespace BobDeathmic.Data
                 .HasOne(x => x.Owner)
                 .WithMany(x => x.AppointmentRequests)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-            
+
         }
         //a foreign key constraint fails (`bobcoreef`.`appointmentrequests`, CONSTRAINT `FK_AppointmentRequests_EventDates_EventDateID` FOREIGN KEY (`EventDateID`) REFERENCES `eventdates` (`ID`)) ---
         public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
@@ -107,7 +107,7 @@ namespace BobDeathmic.Data
         public DbSet<GiveAwayItem> GiveAwayItems { get; set; }
         public DbSet<User_GiveAwayItem> User_GiveAway { get; set; }
         public DbSet<Event> Events { get; set; }
-        public DbSet<AppointmentRequest> AppointmentRequests {get;set;}
+        public DbSet<AppointmentRequest> AppointmentRequests { get; set; }
         public DbSet<EventDateTemplate> EventDateTemplates { get; set; }
         public DbSet<EventDate> EventDates { get; set; }
         public DbSet<ChatUserModel_Event> ChatUserModel_Event { get; set; }

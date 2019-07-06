@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -21,7 +22,6 @@ using TwitchLib.Client.Enums;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Extensions;
 using TwitchLib.Client.Models;
-using System.Diagnostics.Contracts;
 using TwitchLib.Communication.Events;
 
 namespace BobDeathmic.Services
@@ -30,12 +30,13 @@ namespace BobDeathmic.Services
     {
         private readonly IEventBus _eventBus;
         private TwitchClient client;
-        
+
         //MessageQueue
         private Dictionary<string, List<string>> MessageQueues;
         private readonly IServiceScopeFactory _scopeFactory;
         private System.Timers.Timer _MessageTimer;
         private System.Timers.Timer _AutoCommandTimer;
+        private System.Timers.Timer _RelayCheckTimer;
         private readonly IConfiguration _configuration;
         private List<IfCommand> CommandList;
         private Random random;
@@ -53,20 +54,67 @@ namespace BobDeathmic.Services
             _eventBus = eventBus;
             CommandList = CommandBuilder.BuildCommands("twitch");
             random = new Random();
-
         }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await InitTwitchClient();
             InitRelayBusEvents();
+            InitMessageQueue();
             _MessageTimer = new System.Timers.Timer(50);
             _MessageTimer.Elapsed += (sender, args) => SendMessages();
             _MessageTimer.Start();
+            _RelayCheckTimer = new System.Timers.Timer(5000);
+            _RelayCheckTimer.Elapsed += CheckRelays;
+            _RelayCheckTimer.Start();
             while (!stoppingToken.IsCancellationRequested)
             {
                 await Task.Delay(5000, stoppingToken);
             }
             return;
+        }
+
+        private async void CheckRelays(object sender, ElapsedEventArgs e)
+        {
+
+            while (ConnectionChangeInProgress)
+            {
+                await Task.Delay(5000);
+            }
+            if (!client.IsConnected)
+            {
+                await Connect();
+            }
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                handleRelayStart(_context);
+                handleRelayEnd(_context);
+                handleUpTime(_context);
+            }
+        }
+        private void handleUpTime(ApplicationDbContext _context)
+        {
+            foreach(var stream in _context.StreamModels.Where(x => x.UpTimeQueued() && MessageQueues.Keys.Contains(x.StreamName)))
+            {
+                MessageQueues[stream.StreamName].Add(stream.UptimeMessage());
+            }
+            _context.SaveChanges();
+        }
+        private void handleRelayStart(ApplicationDbContext _context)
+        {
+            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.Running && !MessageQueues.Keys.Contains(x.StreamName)))
+            {
+                AddMessageQueue(stream.StreamName);
+                JoinChannel(stream.StreamName);
+            }
+        }
+        private void handleRelayEnd(ApplicationDbContext _context)
+        {
+            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.NotRunning && MessageQueues.Keys.Contains(x.StreamName)))
+            {
+                RemoveMessageQueue(stream.StreamName);
+                LeaveChannel(stream.StreamName);
+            }
         }
         private void SendMessages()
         {
@@ -81,6 +129,21 @@ namespace BobDeathmic.Services
                     }
                 }
             }
+        }
+        private void SendPriorityMessage(string channel,string message)
+        {
+            try
+            {
+                _MessageTimer.Stop();
+                client.SendMessage(channel, message);
+            }catch(Exception ex)
+            {
+                //don't care
+            }finally
+            {
+                _MessageTimer.Start();
+            }
+            
         }
 
         private async Task InitTwitchClient()
@@ -98,19 +161,16 @@ namespace BobDeathmic.Services
 
         private void InitRelayBusEvents()
         {
-            _eventBus.StreamChanged += StreamChanged;
-            _eventBus.DiscordMessageReceived += DiscordMessageReceived;
+            _eventBus.RelayMessageReceived += RelayMessageReceived;
         }
         private bool ConnectionChangeInProgress;
         private async Task Connect()
         {
-            if(!ConnectionChangeInProgress)
+            if (!ConnectionChangeInProgress)
             {
                 ConnectionChangeInProgress = true;
-                //client.Initialize(await GetTwitchCredentials());
                 client.Connect();
             }
-            
         }
         #region EventHandler
         #region TwitchClientEvents
@@ -123,7 +183,7 @@ namespace BobDeathmic.Services
                 _AutoCommandTimer = new System.Timers.Timer(TimeSpan.FromMinutes(1).TotalMilliseconds);
                 _AutoCommandTimer.Elapsed += (autocommandsender, args) => ExecuteAutoCommands();
             }
-            if(!_AutoCommandTimer.Enabled)
+            if (!_AutoCommandTimer.Enabled)
             {
                 _AutoCommandTimer.Start();
             }
@@ -131,12 +191,12 @@ namespace BobDeathmic.Services
 
         private void ExecuteAutoCommands()
         {
-            if(MessageQueues.Count() > 0)
+            if (MessageQueues.Count() > 0)
             {
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    foreach(var messageQueue in MessageQueues)
+                    foreach (var messageQueue in MessageQueues)
                     {
                         var commands = _context.StreamCommand.Include(sc => sc.stream).Where(sc => sc.Mode == StreamCommandMode.Auto && sc.stream.StreamName == messageQueue.Key && sc.AutoInverval > 0 && (DateTime.Now - sc.LastExecution).Minutes > sc.AutoInverval);
                         foreach (StreamCommand command in commands)
@@ -148,7 +208,7 @@ namespace BobDeathmic.Services
                         foreach (StreamCommand command in commands)
                         {
                             string[] Zitate = command.response.Split("|");
-                            messageQueue.Value.Add(Zitate[random.Next(Zitate.Count()-1)]);
+                            messageQueue.Value.Add(Zitate[random.Next(Zitate.Count() - 1)]);
                             command.LastExecution = DateTime.Now;
                         }
                     }
@@ -177,7 +237,7 @@ namespace BobDeathmic.Services
             ConnectionChangeInProgress = false;
         }
 
-        
+
 
         private void ChannelJoined(object sender, OnJoinedChannelArgs e)
         {
@@ -204,17 +264,17 @@ namespace BobDeathmic.Services
         }
         private async void MessageReceived(object sender, OnMessageReceivedArgs e)
         {
-            if(!e.ChatMessage.IsMe)
+            if (!e.ChatMessage.IsMe)
             {
                 using (var scope = _scopeFactory.CreateScope())
                 {
-                    if(MessageQueues.ContainsKey(e.ChatMessage.Channel.ToLower()))
+                    if (MessageQueues.ContainsKey(e.ChatMessage.Channel.ToLower()))
                     {
                         string message = GetManualCommandResponse(e.ChatMessage.Channel, e.ChatMessage.Message);
-                        if(message != "")
+                        if (message != "")
                         {
                             MessageQueues[e.ChatMessage.Channel].Add(message);
-                        }   
+                        }
                     }
                 }
                 if (!e.ChatMessage.Message.StartsWith("!", StringComparison.CurrentCulture))
@@ -272,22 +332,22 @@ namespace BobDeathmic.Services
                                     if (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
                                     {
 
-                                        _eventBus.TriggerEvent(Eventbus.EventType.StreamTitleChangeRequested, PrepareStreamTitleChange(e.ChatMessage.Channel,e.ChatMessage.Message));
+                                        _eventBus.TriggerEvent(Eventbus.EventType.StreamTitleChangeRequested, PrepareStreamTitleChange(e.ChatMessage.Channel, e.ChatMessage.Message));
                                     }
                                     break;
                             }
                         }
                     }
                 }
-                
+
             }
         }
-        private StreamTitleChangeArgs PrepareStreamTitleChange(string StreamName,string Message)
+        private StreamTitleChangeArgs PrepareStreamTitleChange(string StreamName, string Message)
         {
             var arg = new StreamTitleChangeArgs();
             arg.StreamName = StreamName;
             arg.Type = Models.Enum.StreamProviderTypes.Twitch;
-            if(Message.StartsWith("!stream"))
+            if (Message.StartsWith("!stream"))
             {
                 var questionRegex = Regex.Match(Message, @"game=\'(.*?)\'");
                 var GameRegex = Regex.Match(Message, @"game=\'(.*?)\'");
@@ -307,12 +367,12 @@ namespace BobDeathmic.Services
             }
             else
             {
-                if(Message.StartsWith("!game"))
+                if (Message.StartsWith("!game"))
                 {
-                    arg.Game = Message.Replace("!game ","");
+                    arg.Game = Message.Replace("!game ", "");
                     arg.Title = "";
                 }
-                if(Message.StartsWith("!title"))
+                if (Message.StartsWith("!title"))
                 {
                     arg.Title = Message.Replace("!title ", "");
                     arg.Game = "";
@@ -320,82 +380,48 @@ namespace BobDeathmic.Services
             }
             return arg;
         }
-        private string GetManualCommandResponse(string streamname,string message)
+        private string GetManualCommandResponse(string streamname, string message)
         {
 
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var command =  _context.StreamCommand.Include(sc => sc.stream).Where(sc => sc.Mode == StreamCommandMode.Manual && sc.stream.StreamName == streamname && message.Contains(sc.name)).FirstOrDefault();
-                if(command != null)
+                var command = _context.StreamCommand.Include(sc => sc.stream).Where(sc => sc.Mode == StreamCommandMode.Manual && sc.stream.StreamName == streamname && message.Contains(sc.name)).FirstOrDefault();
+                if (command != null)
                 {
                     return command.response;
                 }
-                return "";  
+                return "";
             }
         }
         #endregion
         #region RelayBus Events
-        private async void StreamChanged(object sender, StreamEventArgs e)
+        private void LeaveChannel(string name)
         {
-            StreamEventArgs args = e;
-            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch && e.relayactive == Models.Enum.RelayState.Activated)
+            if (client.IsConnected && client.JoinedChannels.Any(x => x.Channel == name))
             {
-                if (args.state == Models.Enum.StreamState.NotRunning)
+                SendPriorityMessage(name, "Relay is leaving");
+                using (var scope = _scopeFactory.CreateScope())
                 {
-                    if(MessageQueues != null)
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var stream = _context.StreamModels.Where(x => x.StreamName.ToLower() == name.ToLower()).FirstOrDefault();
+                    if(stream != null)
                     {
-                        RemoveMessageQueue(args);
-                        LeaveChannel(args);
-                    } 
-                }
-                else
-                {
-                    while (ConnectionChangeInProgress)
-                    {
-                        await Task.Delay(5000);
-                    }
-                    if (!client.IsConnected)
-                    {
-                        await Connect();
-                    }
-                    AddMessageQueue(args);
-                    JoinChannel(args);
-                    if(args.relayactive == Models.Enum.RelayState.Activated)
-                    {
-                        string relayChannel = await SetRelayChannel(args);
-                        args = UpdateNotification(relayChannel, args);
-                    }
-                    if (e.PostUpTime)
-                    {
-                        string UpTimeMessage = $"Stream läuft seit {e.Uptime.Hours} Stunden und {e.Uptime.Minutes} Minuten";
-                        MessageQueues[e.stream].Add(UpTimeMessage);
+                        _eventBus.TriggerEvent(EventType.TwitchMessageReceived, new TwitchMessageArgs { Message = $"Relay left ({stream.StreamName})", Target = stream.DiscordRelayChannel });
                     }
                 }
+                client.LeaveChannel(name);
             }
-            if(e.StreamType == Models.Enum.StreamProviderTypes.Twitch && e.state == Models.Enum.StreamState.Started)
-            {
-                _eventBus.TriggerEvent(EventType.RelayPassed, args);
-            }
-            
+
         }
 
-        private void LeaveChannel(StreamEventArgs args)
+        private void JoinChannel(string name)
         {
-            if(client.IsConnected && client.JoinedChannels.Any(x => x.Channel == args.stream))
-            {
-                client.LeaveChannel(args.stream);
-            }
-            
-        }
-
-        private void JoinChannel(StreamEventArgs args)
-        {
-            if(client.IsConnected && client.JoinedChannels.Where(x => x.Channel == args.stream).Count() == 0)
+            if (client.IsConnected && client.JoinedChannels.Where(x => x.Channel == name).Count() == 0)
             {
                 try
                 {
-                    client.JoinChannel(args.stream.ToLower());
+                    client.JoinChannel(name.ToLower());
                 }
                 catch (Exception ex)
                 {
@@ -403,63 +429,35 @@ namespace BobDeathmic.Services
                 }
             }
         }
-
-        private StreamEventArgs UpdateNotification(string relayChannel,StreamEventArgs e)
-        {
-            if(relayChannel != "")
-            {
-                e.Notification += $" Das Relay befindet sich in Channel {relayChannel}";
-            }
-            return e;
-        }
-
-        private async Task<string> SetRelayChannel(StreamEventArgs e)
-        {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower()).FirstOrDefault();
-                if (stream != null && stream.DiscordRelayChannel == "An")
-                {
-                    foreach (var RelayChannel in _context.RelayChannels.Where(rc => Regex.Match(rc.Name.ToLower(), @"stream_\d+").Success))
-                    {
-                        if (_context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == RelayChannel.Name.ToLower()).Count() == 0)
-                        {
-                            stream.DiscordRelayChannel = RelayChannel.Name;
-                            await _context.SaveChangesAsync();
-                            return RelayChannel.Name;
-                        }
-                    }
-                }
-            }
-            return "";
-        }
-
-        private void DiscordMessageReceived(object sender, DiscordMessageArgs e)
+        
+        private void RelayMessageReceived(object sender, RelayMessageArgs e)
         {
             if (e.StreamType == Models.Enum.StreamProviderTypes.Twitch)
             {
-                MessageQueues[e.Target].Add(e.Message);
+                MessageQueues[e.TargetChannel].Add(e.Message);
             }
         }
         #endregion
         #endregion
-        private void AddMessageQueue(StreamEventArgs e)
+        private void InitMessageQueue()
         {
-            if(MessageQueues == null)
+            if (MessageQueues == null)
             {
                 MessageQueues = new Dictionary<string, List<string>>();
             }
-            if(!MessageQueues.ContainsKey(e.stream))
+        }
+        private void AddMessageQueue(string name)
+        {
+            if (!MessageQueues.ContainsKey(name))
             {
-                MessageQueues.Add(e.stream,new List<string>());
+                MessageQueues.Add(name, new List<string>());
             }
         }
-        private void RemoveMessageQueue(StreamEventArgs args)
+        private void RemoveMessageQueue(string name)
         {
-            if(MessageQueues.ContainsKey(args.stream))
+            if (MessageQueues.ContainsKey(name))
             {
-                MessageQueues.Remove(args.stream);
+                MessageQueues.Remove(name);
             }
         }
         private async Task<ConnectionCredentials> GetTwitchCredentials()
