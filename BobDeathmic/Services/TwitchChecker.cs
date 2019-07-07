@@ -201,6 +201,7 @@ namespace BobDeathmic.Services
                         foreach(string username in stream.GetActiveSubscribers())
                         {
                             _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs() { Message = stream.StreamStartedMessage(streamdata.Title, GetStreamUrl(stream)), RecipientName = username });
+                            await Task.Delay(100);
                         }
                     }
 

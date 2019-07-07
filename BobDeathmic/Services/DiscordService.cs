@@ -48,7 +48,13 @@ namespace BobDeathmic.Services
 
         private void SendMessage(object sender, MessageArgs e)
         {
-            //client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(x => x.Username.ToLower() == e.RecipientName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
+            try
+            {
+                client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(x => x.Username.ToLower() == e.RecipientName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
+            }catch(Exception)
+            {
+
+            }
         }
 
         private async void NotifySubscriber(StreamEventArgs e)
