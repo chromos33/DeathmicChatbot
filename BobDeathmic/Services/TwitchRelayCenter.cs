@@ -7,6 +7,7 @@ using BobDeathmic.Services.Helper.Commands;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -113,7 +114,7 @@ namespace BobDeathmic.Services
         }
         private void handleRelayStart(ApplicationDbContext _context)
         {
-            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.Running && !MessageQueues.Keys.Contains(x.StreamName) && x.DiscordRelayChannel != "Aus"))
+            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.Running && !MessageQueues.Keys.Contains(x.StreamName) && (x.DiscordRelayChannel != "Aus" && x.DiscordRelayChannel != "" && x.DiscordRelayChannel != null )))
             {
                 AddMessageQueue(stream.StreamName);
                 JoinChannel(stream.StreamName);
@@ -121,13 +122,13 @@ namespace BobDeathmic.Services
         }
         private void handleRelayEnd(ApplicationDbContext _context)
         {
-            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.NotRunning && MessageQueues.Keys.Contains(x.StreamName)))
+            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.NotRunning && MessageQueues.Keys.Contains(x.StreamName) && x.DiscordRelayChannel != "Aus"))
             {
                 RemoveMessageQueue(stream.StreamName);
                 LeaveChannel(stream.StreamName);
             }
         }
-        private void SendMessages()
+        private async Task SendMessages()
         {
             if (MessageQueues != null && client != null && client.IsConnected)
             {
@@ -135,6 +136,7 @@ namespace BobDeathmic.Services
                 {
                     foreach (var MessageQueue in MessageQueues.Where(mq => mq.Value.Count > 0))
                     {
+                        await Task.Delay(100);
                         client.SendMessage(MessageQueue.Key, MessageQueue.Value.First());
                         MessageQueue.Value.RemoveAt(0);
                     }
@@ -272,6 +274,7 @@ namespace BobDeathmic.Services
         }
         private void ChannelLeft(object sender, OnLeftChannelArgs e)
         {
+            Console.WriteLine("test");
         }
         private async void MessageReceived(object sender, OnMessageReceivedArgs e)
         {
@@ -393,17 +396,25 @@ namespace BobDeathmic.Services
         }
         private string GetManualCommandResponse(string streamname, string message)
         {
-
-            using (var scope = _scopeFactory.CreateScope())
+            try
             {
-                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var command = _context.StreamCommand.Include(sc => sc.stream).Where(sc => sc.Mode == StreamCommandMode.Manual && sc.stream.StreamName == streamname && message.Contains(sc.name)).FirstOrDefault();
-                if (command != null)
+                using (var scope = _scopeFactory.CreateScope())
                 {
-                    return command.response;
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var command = _context.StreamCommand.Include(sc => sc.stream).Where(sc => sc.Mode == StreamCommandMode.Manual && sc.stream.StreamName == streamname && message.Contains(sc.name)).FirstOrDefault();
+                    if (command != null)
+                    {
+                        return command.response;
+                    }
+                    return "";
                 }
+            }catch(MySqlException e)
+            {
+                var test = streamname;
+                var test2 = message;
                 return "";
             }
+            
         }
         #endregion
         #region RelayBus Events

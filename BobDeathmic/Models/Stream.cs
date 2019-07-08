@@ -55,6 +55,7 @@ namespace BobDeathmic.Models
         }
         public string UptimeMessage()
         {
+            LastUpTime = DateTime.Now;
             return $"Stream läuft seit {DateTime.Now.Subtract(Started).Hours} Stunden und {DateTime.Now.Subtract(Started).Minutes} Minuten";
         }
         public bool UpTimeQueued()
