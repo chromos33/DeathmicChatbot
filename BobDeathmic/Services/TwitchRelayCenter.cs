@@ -104,7 +104,7 @@ namespace BobDeathmic.Services
         }
         private void handleConnectionUpkeep(ApplicationDbContext _context)
         {
-            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.Running && MessageQueues.Keys.Contains(x.StreamName) && x.DiscordRelayChannel != "Aus"))
+            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.Running && MessageQueues.Keys.Contains(x.StreamName.ToLower()) && x.DiscordRelayChannel != "Aus"))
             {
                 if (client.JoinedChannels.Where(x => x.Channel.ToLower() == stream.StreamName.ToLower()).Count() == 0)
                 {
@@ -114,7 +114,7 @@ namespace BobDeathmic.Services
         }
         private void handleRelayStart(ApplicationDbContext _context)
         {
-            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.Running && !MessageQueues.Keys.Contains(x.StreamName) && (x.DiscordRelayChannel != "Aus" && x.DiscordRelayChannel != "" && x.DiscordRelayChannel != null )))
+            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.Running && !MessageQueues.Keys.Contains(x.StreamName.ToLower()) && (x.DiscordRelayChannel != "Aus" && x.DiscordRelayChannel != "" && x.DiscordRelayChannel != null )))
             {
                 AddMessageQueue(stream.StreamName);
                 JoinChannel(stream.StreamName);
@@ -122,7 +122,7 @@ namespace BobDeathmic.Services
         }
         private void handleRelayEnd(ApplicationDbContext _context)
         {
-            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.NotRunning && MessageQueues.Keys.Contains(x.StreamName) && x.DiscordRelayChannel != "Aus"))
+            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == Models.Enum.StreamState.NotRunning && MessageQueues.Keys.Contains(x.StreamName.ToLower()) && x.DiscordRelayChannel != "Aus"))
             {
                 RemoveMessageQueue(stream.StreamName);
                 LeaveChannel(stream.StreamName);
