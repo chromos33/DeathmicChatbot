@@ -6,6 +6,7 @@ using BobDeathmic.Models.Events;
 using BobDeathmic.Services.Helper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,30 +17,35 @@ namespace BobDeathmic.Services.Tasks
 {
     public class EventCalendarTask : IScheduledTask
     {
-        public string Schedule => "0 18 * * *";
-        private readonly ApplicationDbContext _context;
+        public string Schedule => "* * * * *";
+        private readonly IServiceScopeFactory _scopeFactory;
         private IEventBus _eventBus;
         private IConfiguration _configuration;
-        public EventCalendarTask(ApplicationDbContext context, IEventBus eventBus, IConfiguration Configuration)
+        public EventCalendarTask(IServiceScopeFactory scopeFactory, IEventBus eventBus, IConfiguration Configuration)
         {
-            _context = context;
+            _scopeFactory = scopeFactory;
             _eventBus = eventBus;
             _configuration = Configuration;
         }
 
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            if (_context != null)
+            using (var scope = _scopeFactory.CreateScope())
             {
-                var ApplicableCalendars = _context.Events.Include(x => x.EventDateTemplates).Include(x => x.EventDates).ThenInclude(x => x.Teilnahmen).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Members.Count() > 0 && x.EventDateTemplates.Count() > 0);
-                RemovePassedEventDates();
-                foreach (Event calendar in ApplicableCalendars)
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                if (_context != null)
                 {
-                    AddEventDatesOnCalendar(calendar);
-                    UpdateEventDates(calendar);
-                    _context.SaveChanges();
-                    NotifyUsers(calendar);
-                    NotifyAdmin(calendar);
+
+                    var ApplicableCalendars = _context.Events.Include(x => x.EventDateTemplates).Include(x => x.EventDates).ThenInclude(x => x.Teilnahmen).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Members.Count() > 0 && x.EventDateTemplates.Count() > 0);
+                    RemovePassedEventDates();
+                    foreach (Event calendar in ApplicableCalendars)
+                    {
+                        AddEventDatesOnCalendar(calendar);
+                        UpdateEventDates(calendar);
+                        _context.SaveChanges();
+                        NotifyUsers(calendar);
+                        NotifyAdmin(calendar);
+                    }
                 }
             }
         }
@@ -55,7 +61,6 @@ namespace BobDeathmic.Services.Tasks
 
         private void NotifyUsers(Event calendar)
         {
-            Console.WriteLine("NotifyUsers");
             string address = _configuration.GetValue<string>("WebServerWebAddress");
             List<MutableTuple<string, string>> GroupedNotifications = new List<MutableTuple<string, string>>();
             foreach (EventDate date in calendar.EventDates.Where(x => x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(5)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(2)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(1)).Date))
@@ -75,64 +80,77 @@ namespace BobDeathmic.Services.Tasks
             foreach (MutableTuple<string, string> tuple in GroupedNotifications)
             {
 
-                _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs { RecipientName = tuple.First, Message = tuple.Second });
+                //_eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs { RecipientName = tuple.First, Message = tuple.Second });
             }
         }
 
         private void RemovePassedEventDates()
         {
-            Console.WriteLine("RemovePassedEventDates");
-            var EventDatesToRemove = _context.EventDates.Where(x => x.Date < DateTime.Now);
-            foreach (EventDate remove in EventDatesToRemove)
+            using (var scope = _scopeFactory.CreateScope())
             {
-                _context.EventDates.Remove(remove);
-
-            }
-            _context.SaveChanges();
-            foreach (Event calendar in _context.Events)
-            {
-                var EventDatesInCalendarToRemove = calendar.EventDates.Where(x => x.Date < DateTime.Now);
-                foreach (EventDate remove in EventDatesInCalendarToRemove)
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var EventDatesToRemove = _context.EventDates.Where(x => x.Date < DateTime.Now);
+                foreach (EventDate remove in EventDatesToRemove)
                 {
-                    calendar.EventDates.Remove(remove);
+                    _context.EventDates.Remove(remove);
+
                 }
+                _context.SaveChanges();
+                foreach (Event calendar in _context.Events)
+                {
+                    var EventDatesInCalendarToRemove = calendar.EventDates.Where(x => x.Date < DateTime.Now);
+                    foreach (EventDate remove in EventDatesInCalendarToRemove)
+                    {
+                        calendar.EventDates.Remove(remove);
+                    }
+                }
+                _context.SaveChanges();
             }
-            _context.SaveChanges();
+            
         }
         private void AddEventDatesOnCalendar(Event calendar)
         {
-            Console.WriteLine("AddEventDatesOnCalendar");
-            // Next 2 weeks
-            for (int week = 0; week < 2; week++)
+            using (var scope = _scopeFactory.CreateScope())
             {
-                foreach (EventDateTemplate template in calendar.EventDateTemplates)
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                // Next 2 weeks
+                for (int week = 0; week < 2; week++)
                 {
-                    EventDate eventdate = template.CreateEventDate(week);
-                    eventdate.EventDateTemplateID = template.ID;
-                    if (calendar.EventDates.Where(x => x.Date == eventdate.Date).Count() == 0)
+                    foreach (EventDateTemplate template in calendar.EventDateTemplates)
                     {
-                        eventdate.Teilnahmen = calendar.GenerateAppointmentRequests(eventdate);
-                        _context.EventDates.Add(eventdate);
-                        calendar.EventDates.Add(eventdate);
+                        EventDate eventdate = template.CreateEventDate(week);
+                        eventdate.EventDateTemplateID = template.ID;
+                        if (calendar.EventDates.Where(x => x.Date == eventdate.Date).Count() == 0)
+                        {
+                            eventdate.Teilnahmen = calendar.GenerateAppointmentRequests(eventdate);
+                            _context.EventDates.Add(eventdate);
+                            calendar.EventDates.Add(eventdate);
+                        }
                     }
                 }
+                _context.SaveChanges();
             }
-            _context.SaveChanges();
+
+            
         }
         private void UpdateEventDates(Event calendar)
         {
-            foreach (EventDate update in calendar.EventDates)
+            using (var scope = _scopeFactory.CreateScope())
             {
-                var template = _context.EventDateTemplates.Where(x => x.ID == update.EventDateTemplateID).FirstOrDefault();
-                if (template != null)
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                foreach (EventDate update in calendar.EventDates)
                 {
-                    update.StartTime = template.StartTime;
-                    update.StopTime = template.StopTime;
-                    update.Date = DateTime.ParseExact(update.Date.ToString("dd-MM-yyyy") + " " + update.StartTime.ToString("HH:mm"), "dd-MM-yyyy HH:mm",
-                                    System.Globalization.CultureInfo.InvariantCulture);
+                    var template = _context.EventDateTemplates.Where(x => x.ID == update.EventDateTemplateID).FirstOrDefault();
+                    if (template != null)
+                    {
+                        update.StartTime = template.StartTime;
+                        update.StopTime = template.StopTime;
+                        update.Date = DateTime.ParseExact(update.Date.ToString("dd-MM-yyyy") + " " + update.StartTime.ToString("HH:mm"), "dd-MM-yyyy HH:mm",
+                                        System.Globalization.CultureInfo.InvariantCulture);
+                    }
                 }
-            }
-            _context.SaveChanges();
+                _context.SaveChanges();
+            } 
         }
     }
 }
