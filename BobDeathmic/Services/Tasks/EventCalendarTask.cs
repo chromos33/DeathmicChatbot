@@ -17,7 +17,7 @@ namespace BobDeathmic.Services.Tasks
 {
     public class EventCalendarTask : IScheduledTask
     {
-        public string Schedule => "* * * * *";
+        public string Schedule => "0 18 * * *";
         private readonly IServiceScopeFactory _scopeFactory;
         private IEventBus _eventBus;
         private IConfiguration _configuration;
@@ -80,7 +80,7 @@ namespace BobDeathmic.Services.Tasks
             foreach (MutableTuple<string, string> tuple in GroupedNotifications)
             {
 
-                //_eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs { RecipientName = tuple.First, Message = tuple.Second });
+                _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs { RecipientName = tuple.First, Message = tuple.Second });
             }
         }
 
