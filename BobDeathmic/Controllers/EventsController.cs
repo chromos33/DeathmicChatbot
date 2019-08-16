@@ -143,15 +143,15 @@ namespace BobDeathmic.Controllers
         }
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task UpdateRequestState(string requestID, string state)
+        public async Task<int> UpdateRequestState(string requestID, string state)
         {
             var Request = _context.AppointmentRequests.Where(x => x.ID == requestID).FirstOrDefault();
             if (Request != null)
             {
                 Request.State = (AppointmentRequestState)Enum.Parse(typeof(AppointmentRequestState), state);
-                _context.SaveChanges();
+                return _context.SaveChanges();
             }
-
+            return 0;
         }
         [HttpPost]
         [Authorize(Roles = "User,Dev,Admin")]

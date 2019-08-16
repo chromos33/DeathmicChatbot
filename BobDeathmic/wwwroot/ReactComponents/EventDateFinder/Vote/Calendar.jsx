@@ -16,7 +16,7 @@
     render() {
         if (this.state.data.Header !== undefined && this.state.data.Header.length > 0) {
             var tempthis = this;
-            headerNodes = this.state.data.Header.map(function (Header) {
+            var headerNodes = this.state.data.Header.map(function (Header) {
                 return <EventDate key={Header.Date + Header.Time} Data={Header}/>;
             });
             return (

@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-function _instanceof(left, right) { if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) { return right[Symbol.hasInstance](left); } else { return left instanceof right; } }
+function _instanceof(left, right) { if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) { return !!right[Symbol.hasInstance](left); } else { return left instanceof right; } }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -42,17 +42,17 @@ var Calendar =
             key: "componentWillMount",
             value: function componentWillMount() {
                 var thisreference = this;
-                $.ajax({
-                    url: "/Events/GetEventDates/" + this.props.ID,
-                    type: "GET",
-                    data: {},
-                    success: function success(result) {
-                        console.log(result);
-                        thisreference.setState({
-                            data: result
-                        });
-                    }
-                });
+                var xhr = new XMLHttpRequest();
+                console.log("/Events/GetEventDates/" + this.props.ID);
+                xhr.open('GET', "/Events/GetEventDates/" + this.props.ID, true);
+
+                xhr.onload = function () {
+                    thisreference.setState({
+                        data: JSON.parse(xhr.responseText)
+                    });
+                };
+
+                xhr.send();
             }
         }, {
             key: "render",
@@ -101,11 +101,10 @@ var EventDate =
                 var key = 0;
                 var requestnodes = this.state.Data.Requests.map(function (request) {
                     key++;
-                    console.log(request);
                     return React.createElement("div", {
                         className: "row usernode mr-0 ml-0"
                     }, React.createElement("span", {
-                        className: "col-6 pt-2 pb-2"
+                        className: "col-6 pt-0 pb-0 pl-0 pr-0"
                     }, request.UserName), React.createElement(StateSelect, {
                         key: key,
                         canEdit: request.canEdit,
@@ -156,17 +155,39 @@ var StateSelect =
             _this3.state = {
                 possibleStates: props.possibleStates,
                 State: props.state
-            };
-            _this3.handleOnChange = _this3.handleOnChange.bind(_assertThisInitialized(_this3));
+            }; //this.handleOnChange = this.handleOnChange.bind(this);
+
+            _this3.handleClick = _this3.handleClick.bind(_assertThisInitialized(_this3));
             return _this3;
         }
 
         _createClass(StateSelect, [{
-            key: "handleOnChange",
-            value: function handleOnChange(event) {
-                this.setState({
-                    State: event.target.value
+            key: "handleClick",
+            value: function handleClick(event) {
+                event.target.classList.add("processing");
+                var thisreference = this;
+                var tmpevent = event;
+                var element = event.target;
+                $.ajax({
+                    url: "/Events/UpdateRequestState/",
+                    type: "GET",
+                    data: {
+                        requestID: thisreference.props.requestID,
+                        state: tmpevent.target.getAttribute("data-value")
+                    },
+                    success: function success(result) {
+                        if (result > 0) {
+                            thisreference.setState({
+                                State: parseInt(element.getAttribute("data-value"))
+                            });
+                        }
+
+                        element.classList.remove("processing");
+                    }
                 });
+            }
+            /*handleOnChange(event) {
+                this.setState({ State: event.target.value });
                 var thisreference = this;
                 var tmpevent = event;
                 $.ajax({
@@ -176,9 +197,11 @@ var StateSelect =
                         requestID: thisreference.props.requestID,
                         state: event.target.value
                     },
-                    success: function success(result) { }
+                    success: function (result) {
+                    }
                 });
-            }
+            }*/
+
         }, {
             key: "render",
             value: function render() {
@@ -189,95 +212,162 @@ var StateSelect =
                         var states = this.state.possibleStates.map(function (state) {
                             if (state === "NotYetVoted") {
                                 if (tmpthis.state.State === 0) {
-                                    return React.createElement("option", {
-                                        value: "0"
-                                    }, "Noch nicht entschieden");
+                                    return React.createElement("span", {
+                                        className: "voteoption active",
+                                        "data-value": "0",
+                                        key: tmpthis.props.key
+                                    }, React.createElement("i", {
+                                        className: "fas fa-minus"
+                                    }));
                                 } else {
-                                    return React.createElement("option", {
-                                        value: "0"
-                                    }, "Noch nicht entschieden");
+                                    return React.createElement("span", {
+                                        className: "voteoption",
+                                        "data-value": "0",
+                                        onClick: tmpthis.handleClick,
+                                        key: tmpthis.props.key
+                                    }, React.createElement("i", {
+                                        className: "fas fa-minus"
+                                    }), React.createElement("span", {
+                                        className: "lds-dual-ring"
+                                    }));
                                 }
                             }
 
                             if (state === "Available") {
                                 if (tmpthis.state.State === 1) {
-                                    return React.createElement("option", {
-                                        value: "1"
-                                    }, "Ich kann");
+                                    return React.createElement("span", {
+                                        className: "voteoption greenbg active",
+                                        "data-value": "1",
+                                        key: tmpthis.props.key
+                                    }, React.createElement("i", {
+                                        className: "fas fa-check"
+                                    }), React.createElement("span", {
+                                        className: "lds-dual-ring"
+                                    }));
                                 } else {
-                                    return React.createElement("option", {
-                                        value: "1"
-                                    }, "Ich kann");
+                                    return React.createElement("span", {
+                                        className: "voteoption greenbg",
+                                        "data-value": "1",
+                                        onClick: tmpthis.handleClick,
+                                        key: tmpthis.props.key
+                                    }, React.createElement("i", {
+                                        className: "fas fa-check"
+                                    }), React.createElement("span", {
+                                        className: "lds-dual-ring"
+                                    }));
                                 }
                             }
 
                             if (state === "NotAvailable") {
                                 if (tmpthis.state.State === 2) {
-                                    return React.createElement("option", {
-                                        value: "2"
-                                    }, "Ich kann nicht");
+                                    return React.createElement("span", {
+                                        className: "voteoption redbg active",
+                                        "data-value": "2",
+                                        key: tmpthis.props.key
+                                    }, React.createElement("i", {
+                                        className: "fas fa-times"
+                                    }), React.createElement("span", {
+                                        className: "lds-dual-ring"
+                                    }));
                                 } else {
-                                    return React.createElement("option", {
-                                        value: "2"
-                                    }, "Ich kann nicht");
+                                    return React.createElement("span", {
+                                        className: "voteoption redbg",
+                                        "data-value": "2",
+                                        onClick: tmpthis.handleClick,
+                                        key: tmpthis.props.key
+                                    }, React.createElement("i", {
+                                        className: "fas fa-times"
+                                    }), React.createElement("span", {
+                                        className: "lds-dual-ring"
+                                    }));
                                 }
                             }
 
                             if (state === "IfNeedBe") {
                                 if (tmpthis.state.State === 3) {
-                                    return React.createElement("option", {
-                                        value: "3"
-                                    }, "Wenn es sein muss");
+                                    return React.createElement("span", {
+                                        className: "voteoption yellowbg active",
+                                        "data-value": "3",
+                                        key: tmpthis.props.key
+                                    }, React.createElement("i", {
+                                        className: "fas fa-question"
+                                    }), React.createElement("span", {
+                                        className: "lds-dual-ring"
+                                    }));
                                 } else {
-                                    return React.createElement("option", {
-                                        value: "3"
-                                    }, "Wenn es sein muss");
+                                    return React.createElement("span", {
+                                        className: "voteoption yellowbg",
+                                        "data-value": "3",
+                                        onClick: tmpthis.handleClick,
+                                        key: tmpthis.props.key
+                                    }, React.createElement("i", {
+                                        className: "fas fa-question"
+                                    }), React.createElement("span", {
+                                        className: "lds-dual-ring"
+                                    }));
                                 }
                             }
                         });
                         return React.createElement("span", {
                             "data-state": this.state.State,
-                            className: "requestNode col-6 pt-2 pb-2"
-                        }, React.createElement("div", null, React.createElement("select", {
-                            key: this.props.key,
-                            value: this.state.State,
-                            onChange: this.handleOnChange,
-                            className: "chatUser_" + this.props.key
-                        }, states)));
+                            className: "requestNode col-6 pt-0 pb-0 pr-0 pl-0"
+                        }, React.createElement("div", {
+                            className: "d-flex"
+                        }, states));
                     }
                 } else {
                     switch (this.state.State) {
                         case 0:
                             return React.createElement("span", {
-                                className: "requestNode col-6 pt-2 pb-2",
+                                className: "requestNode col-6 pt-0 pb-0 pr-0 pl-0",
                                 "data-state": this.state.State
-                            }, React.createElement("div", null, React.createElement("p", {
-                                className: "mb-0"
-                            }, "Noch nicht entschieden")));
+                            }, React.createElement("div", {
+                                className: "d-flex"
+                            }, React.createElement("span", {
+                                className: "voteoption voteoptionforeign",
+                                key: tmpthis.props.key
+                            }, React.createElement("i", {
+                                className: "fas fa-minus"
+                            }))));
 
                         case 1:
                             return React.createElement("span", {
-                                className: "requestNode col-6 pt-2 pb-2",
+                                className: "requestNode col-6 pt-0 pb-0 pr-0 pl-0",
                                 "data-state": this.state.State
-                            }, React.createElement("div", null, React.createElement("p", {
-                                className: "mb-0"
-                            }, "Ich kann")));
+                            }, React.createElement("div", {
+                                className: "d-flex"
+                            }, React.createElement("span", {
+                                className: "voteoption greenbg voteoptionforeign",
+                                key: tmpthis.props.key
+                            }, React.createElement("i", {
+                                className: "fas fa-check"
+                            }))));
 
                         case 2:
                             return React.createElement("span", {
-                                className: "requestNode col-6 pt-2 pb-2",
+                                className: "requestNode col-6 pt-0 pb-0 pr-0 pl-0",
                                 "data-state": this.state.State
-                            }, React.createElement("div", null, React.createElement("p", {
-                                className: "mb-0"
-                            }, "Ich kann nicht")));
+                            }, React.createElement("div", {
+                                className: "d-flex"
+                            }, React.createElement("span", {
+                                className: "voteoption redbg voteoptionforeign",
+                                key: tmpthis.props.key
+                            }, React.createElement("i", {
+                                className: "fas fa-times"
+                            }))));
 
                         case 3:
                             return React.createElement("span", {
-                                className: "requestNode col-6 pt-2 pb-2",
+                                className: "requestNode col-6 pt-0 pb-0 pr-0 pl-0",
                                 "data-state": this.state.State
-                            }, React.createElement("div", null, React.createElement("p", {
-                                className: "mb-0"
-                            }, "Wenn es sein muss")));
+                            }, React.createElement("div", {
+                                className: "d-flex"
+                            }, React.createElement("span", {
+                                className: "voteoption yellowbg voteoptionforeign",
+                                key: tmpthis.props.key
+                            }, React.createElement("i", {
+                                className: "fas fa-question"
+                            }))));
                     }
                 }
 

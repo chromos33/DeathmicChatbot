@@ -8,10 +8,9 @@
         var key = 0;
         var requestnodes = this.state.Data.Requests.map(function (request) {
             key++;
-            console.log(request);
             return (
                 <div className="row usernode mr-0 ml-0">
-                    <span className="col-6 pt-2 pb-2">{request.UserName}</span>
+                    <span className="col-6 pt-0 pb-0 pl-0 pr-0">{request.UserName}</span>
                     <StateSelect key={key} canEdit={request.canEdit} requestID={request.AppointmentRequestID} possibleStates={request.States} state={request.State} />
                 </div>
                 );

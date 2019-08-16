@@ -2,9 +2,31 @@
     constructor(props) {
         super(props);
         this.state = { possibleStates: props.possibleStates, State: props.state};
-        this.handleOnChange = this.handleOnChange.bind(this);
+        //this.handleOnChange = this.handleOnChange.bind(this);
+        this.handleClick = this.handleClick.bind(this);
     }
-    handleOnChange(event) {
+    handleClick(event) {
+        event.target.classList.add("processing");
+        var thisreference = this;
+        var tmpevent = event;
+        var element = event.target;
+        $.ajax({
+            url: "/Events/UpdateRequestState/",
+            type: "GET",
+            data: {
+                requestID: thisreference.props.requestID,
+                state: tmpevent.target.getAttribute("data-value")
+            },
+            success: function (result) {
+                if (result > 0) {
+                    thisreference.setState({ State: parseInt(element.getAttribute("data-value") )});
+                }
+                element.classList.remove("processing");
+               
+            }
+        });
+    }
+    /*handleOnChange(event) {
         this.setState({ State: event.target.value });
         var thisreference = this;
         var tmpevent = event;
@@ -18,51 +40,74 @@
             success: function (result) {
             }
         });
-    }
+    }*/
     render() {
         var tmpthis = this;
         if (this.props.canEdit) {
+            
             if (this.state.possibleStates.length > 0) {
                 var states = this.state.possibleStates.map(function (state) {
                     if (state === "NotYetVoted") {
                         if (tmpthis.state.State === 0) {
-                            return <option value="0">Noch nicht entschieden</option>;
+                            return (<span className="voteoption active" data-value="0" key={tmpthis.props.key}>
+                                <i className="fas fa-minus" />
+                            </span>);
                         }
                         else {
-                            return <option value="0">Noch nicht entschieden</option>;
+                            return (<span className="voteoption" data-value="0" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                                <i className="fas fa-minus" />
+                                <span className="lds-dual-ring" />
+                            </span>);
                         }
                     }
                     if (state === "Available") {
+                        
                         if (tmpthis.state.State === 1) {
-                            return <option value="1">Ich kann</option>;
+                            return (<span className="voteoption greenbg active" data-value="1" key={tmpthis.props.key}>
+                                <i className="fas fa-check" />
+                                <span className="lds-dual-ring"/>
+                            </span>);
                         }
                         else {
-                            return <option value="1">Ich kann</option>;
+                            return (<span className="voteoption greenbg" data-value="1" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                                <i className="fas fa-check" />
+                                <span className="lds-dual-ring" />
+                            </span>);
                         }
                     }
                     if (state === "NotAvailable") {
                         if (tmpthis.state.State === 2) {
-                            return <option value="2">Ich kann nicht</option>;
+                            return (<span className="voteoption redbg active" data-value="2" key={tmpthis.props.key}>
+                                <i className="fas fa-times" />
+                                <span className="lds-dual-ring" />
+                            </span>);
                         }
                         else {
-                            return <option value="2">Ich kann nicht</option>;
+                            return (<span className="voteoption redbg" data-value="2" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                                <i className="fas fa-times" />
+                                <span className="lds-dual-ring" />
+                            </span>);
                         }
                     }
                     if (state === "IfNeedBe") {
                         if (tmpthis.state.State === 3) {
-                            return <option value="3">Wenn es sein muss</option>;
+                            return (<span className="voteoption yellowbg active" data-value="3" key={tmpthis.props.key}>
+                                <i className="fas fa-question" />
+                                <span className="lds-dual-ring" />
+                            </span>);
                         }
                         else {
-                            return <option value="3">Wenn es sein muss</option>;
+                            return (<span className="voteoption yellowbg" data-value="3" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                                <i className="fas fa-question" />
+                                <span className="lds-dual-ring" />
+                            </span>);
                         }
                     }
                 });
                 return (
-                    <span data-state={this.state.State} className="requestNode col-6 pt-2 pb-2">
-                        <div>
-                            <select key={this.props.key} value={this.state.State} onChange={this.handleOnChange} className={"chatUser_" + this.props.key}>
-                                {states}
-                            </select>
+                    <span data-state={this.state.State} className="requestNode col-6 pt-0 pb-0 pr-0 pl-0">
+                        <div className="d-flex">
+                            {states}
                         </div>
                     </span>
                 );
@@ -72,41 +117,41 @@
             switch (this.state.State) {
                 case 0:
                     return (
-                        <span className="requestNode col-6 pt-2 pb-2" data-state={this.state.State}>
-                            <div>
-                                <p className="mb-0">
-                                    Noch nicht entschieden
-                                </p>
+                        <span className="requestNode col-6 pt-0 pb-0 pr-0 pl-0" data-state={this.state.State}>
+                            <div className="d-flex">
+                                <span className="voteoption voteoptionforeign" key={tmpthis.props.key}>
+                                    <i className="fas fa-minus" />
+                                </span>
                             </div>
                         </span>
                     );
                 case 1:
                     return (
-                        <span className="requestNode col-6 pt-2 pb-2" data-state={this.state.State}>
-                            <div>
-                                <p className="mb-0">
-                                    Ich kann
-                                </p>
+                        <span className="requestNode col-6 pt-0 pb-0 pr-0 pl-0" data-state={this.state.State}>
+                            <div className="d-flex">
+                                <span className="voteoption greenbg voteoptionforeign" key={tmpthis.props.key}>
+                                    <i className="fas fa-check" />
+                                </span>
                             </div>
                         </span>
                     );
                 case 2:
                     return (
-                        <span className="requestNode col-6 pt-2 pb-2" data-state={this.state.State}>
-                            <div>
-                                <p className="mb-0">
-                                    Ich kann nicht
-                                </p>
+                        <span className="requestNode col-6 pt-0 pb-0 pr-0 pl-0" data-state={this.state.State}>
+                            <div className="d-flex">
+                                <span className="voteoption redbg voteoptionforeign" key={tmpthis.props.key}>
+                                    <i className="fas fa-times" />
+                                </span>
                             </div>
                         </span>
                     );
                 case 3:
                     return (
-                        <span className="requestNode col-6 pt-2 pb-2" data-state={this.state.State}>
-                            <div>
-                                <p className="mb-0">
-                                    Wenn es sein muss
-                                </p>
+                        <span className="requestNode col-6 pt-0 pb-0 pr-0 pl-0" data-state={this.state.State}>
+                            <div className="d-flex">
+                                <span className="voteoption yellowbg voteoptionforeign" key={tmpthis.props.key}>
+                                    <i className="fas fa-question" />
+                                </span>
                             </div>
                         </span>
                     );
