@@ -154,7 +154,8 @@ var StateSelect =
             _this3 = _possibleConstructorReturn(this, _getPrototypeOf(StateSelect).call(this, props));
             _this3.state = {
                 possibleStates: props.possibleStates,
-                State: props.state
+                State: props.state,
+                RetryCount: 0
             }; //this.handleOnChange = this.handleOnChange.bind(this);
 
             _this3.handleClick = _this3.handleClick.bind(_assertThisInitialized(_this3));
@@ -168,18 +169,37 @@ var StateSelect =
                 var thisreference = this;
                 var tmpevent = event;
                 var element = event.target;
+                thisreference.SyncStateToServer(thisreference.props.requestID, tmpevent.target.getAttribute("data-value"), element);
+            }
+        }, {
+            key: "SyncStateToServer",
+            value: function SyncStateToServer(ID, State, element) {
+                var thisreference = this;
                 $.ajax({
                     url: "/Events/UpdateRequestState/",
                     type: "GET",
                     data: {
-                        requestID: thisreference.props.requestID,
-                        state: tmpevent.target.getAttribute("data-value")
+                        requestID: ID,
+                        state: State
                     },
                     success: function success(result) {
                         if (result > 0) {
                             thisreference.setState({
                                 State: parseInt(element.getAttribute("data-value"))
                             });
+                        } else {
+                            if (thisreference.state.RetryCount === 3) {
+                                confirm("Einer deiner Abstimmungen will grade wohl nicht. Später nochmal probieren");
+                                thisreference.setState({
+                                    RetryCount: 0
+                                });
+                            } else {
+                                var newcount = thisreference.state.RetryCount + 1;
+                                thisreference.setState({
+                                    RetryCount: newcount
+                                });
+                                thisreference.SyncStateToServer(ID, State, element);
+                            }
                         }
 
                         element.classList.remove("processing");
