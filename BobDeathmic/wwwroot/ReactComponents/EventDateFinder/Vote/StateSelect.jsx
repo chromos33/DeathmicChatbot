@@ -1,7 +1,7 @@
 ﻿class StateSelect extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { possibleStates: props.possibleStates, State: props.state};
+        this.state = { possibleStates: props.possibleStates, State: props.state, RetryCount: 0};
         //this.handleOnChange = this.handleOnChange.bind(this);
         this.handleClick = this.handleClick.bind(this);
     }
@@ -10,19 +10,37 @@
         var thisreference = this;
         var tmpevent = event;
         var element = event.target;
+        thisreference.SyncStateToServer(thisreference.props.requestID, tmpevent.target.getAttribute("data-value"), element);
+        
+    }
+    SyncStateToServer(ID, State, element) {
+        var thisreference = this;
         $.ajax({
             url: "/Events/UpdateRequestState/",
             type: "GET",
             data: {
-                requestID: thisreference.props.requestID,
-                state: tmpevent.target.getAttribute("data-value")
+                requestID: ID,
+                state: State
             },
             success: function (result) {
                 if (result > 0) {
-                    thisreference.setState({ State: parseInt(element.getAttribute("data-value") )});
+                    thisreference.setState({ State: parseInt(element.getAttribute("data-value")) });
+                }
+                else {
+                    if (thisreference.state.RetryCount === 3) {
+                        confirm("Einer deiner Abstimmungen will grade wohl nicht. Später nochmal probieren");
+                        thisreference.setState({ RetryCount: 0 });
+                    }
+                    else {
+                        var newcount = thisreference.state.RetryCount + 1;
+                        thisreference.setState({ RetryCount: newcount });
+                        thisreference.SyncStateToServer(ID, State, element);
+                    }
+                    
+                    
                 }
                 element.classList.remove("processing");
-               
+
             }
         });
     }
