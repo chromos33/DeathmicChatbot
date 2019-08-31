@@ -1,14 +1,20 @@
-﻿.btn,
-button,
-.button
+﻿.clearbuttonstyle
 {
-    background: #272c2e !important;
-    font-size:16px !important;
-    line-height:16px !important;
-    padding:10px 20px !important;
+    background:none;
+    border:none;
     cursor:pointer;
-    display:inline-block;
 }
+.btn,
+button,
+.button {
+    background: #272c2e !important;
+    font-size: 16px !important;
+    line-height: 16px !important;
+    padding: 10px 20px !important;
+    cursor: pointer;
+    display: inline-block;
+}
+
 .delete {
     background: #f41f1f;
     font-size: 16px !important;
@@ -16,5 +22,5 @@ button,
     padding: 10px 20px !important;
     cursor: pointer;
     display: inline-block;
-    color:white;
+    color: white;
 }

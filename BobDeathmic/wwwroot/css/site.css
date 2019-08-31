@@ -1,20 +1,36 @@
 ﻿body {
-    background: #485358;
-   
+    min-height:100vh;
+    padding-bottom:30px;
+    position:relative;
 }
-    
-button
-{
-    padding:5px;
-    background:black;
-    color:white;
-    border-radius:3px;
+footer {
+    position: absolute;
+    bottom: 0;
+    height: 50px;
+    background-color: #272c2e;
+    width: 100%;
+    padding: 10px 20px;
+    justify-content: space-between;
+}
+.body {
+    background: #485358;
+    min-height: calc(100vh - 95px - 50px);
+}
+body {
+    background: #485358;
 }
 
-.bg_dark
-{
-    background:#272c2e;
+button {
+    padding: 5px;
+    background: black;
+    color: white;
+    border-radius: 3px;
 }
+
+.bg_dark {
+    background-color: #272c2e;
+}
+
 .breadcrumbs {
     padding-top: 12px;
     padding-left: 6px;
