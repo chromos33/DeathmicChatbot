@@ -17,156 +17,264 @@
 
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row pt-10 pb-10 bg_dark">
-            <div class="col-12 col-md-1">
-                <a asp-area="" asp-controller="Main" asp-action="Index"><img src="~/images/BobDeathmicLogo.png" class="logo" /></a>
-
-                <span class="mobile_nav_opener d-block d-md-none">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </span>
+    <header>
+        <a asp-area="" asp-controller="Main" asp-action="Index"><img src="~/images/BobDeathmicLogo.png" class="logo" /></a>
+        @if (User.IsInRole("User") || User.IsInRole("Admin") || User.IsInRole("Dev"))
+        {
+            <div class="navigation">
+                <span class="navi_item" data-subnavtarget="User"><i class="fas fa-user"></i><span class="d-none ml-2 d-sm-inline">Benutzer</span></span>
+                <span class="navi_item" data-subnavtarget="Streams"><i class="fas fa-film"></i><span class="d-none ml-2 d-sm-inline">Streams</span></span>
+                <span class="navi_item" data-subnavtarget="Events"><i class="fas fa-dice"></i><span class="d-none ml-2 d-sm-inline">Events</span></span>
+                <span class="navi_item" data-subnavtarget="GiveAway"><i class="fas fa-gift"></i><span class="d-none ml-2 d-sm-inline">GiveAway</span></span>
+                <a class="navi_item" asp-area="" asp-controller="Help" asp-action="Index"><i class="fas fa-question"></i><span class="d-none ml-2 d-sm-inline">Hilfe</span></a>
+                @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
+                {
+                    <a asp-area="" class="navi_item" asp-controller="Services" asp-action="ServiceControls"><i class="fas fa-cogs"></i><span class="d-none ml-2 d-sm-inline">Dienste</span></a>
+                    <span class="navi_item" data-subnavtarget="Admin"><i class="fas fa-screwdriver"></i><span class="d-none ml-2 d-sm-inline">Admin</span></span>
+                }
             </div>
-            <div class="col-12 col-md-2 offset-md-9" style="text-align:left;">
-                @await Html.PartialAsync("_LoginPartial")
-                @await Html.PartialAsync("_LogoutPartial")
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12 col-sm-12 col-md-4 col-lg-2 bg_dark navi">
-                <div class="mobile_overflowcontainer">
-                    <div class="navigationcontainer relative">
-                        <a href="~/Datenschutz.html" style="position:absolute;left:0;bottom:0;">Datenschutz</a>
-                        <!-- TODO: on Production can just Check for User current Seed does not asign everyone the User Role  -->
-
-                        @if (User.IsInRole("User") || User.IsInRole("Admin") || User.IsInRole("Dev"))
-                        {
-                        <div class="menu">
-                            <div class="menuitem">
-                                <span class="submenuopener">Streams<i class="fa fa-chevron-down"></i></span>
-                                <div class="submenu">
-                                    <div class="heightgiver">
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Stream" asp-action="Status">Status</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Stream" asp-action="Verwaltung">Verwaltung</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Stream" asp-action="Create"><i class="fa fa-plus"></i> Hinzufügen</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="StreamCommands" asp-action="Index">Commands</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Stream" asp-action="QuoteList">Quotes</a>
-                                        </div>
-                                    </div>
-                                </div>
+        }
+    </header>
+    @if (User.IsInRole("User") || User.IsInRole("Admin") || User.IsInRole("Dev"))
+    {
+        <div class="subnavigation container-fluid">
+            <div class="navi_submenu row" data-subnav="User">
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="User" asp-action="Subscriptions">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"><i class="fab fa-affiliatetheme"></i></span>
                             </div>
-                            <div class="menuitem">
-                                <span class="submenuopener">GiveAway<i class="fa fa-chevron-down"></i></span>
-                                <div class="submenu">
-                                    <div class="heightgiver">
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="GiveAway" asp-action="Index">Meine Geschenke</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="GiveAway" asp-action="Winnings">Gewonne Geschenke</a>
-                                        </div>
-                                        @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
-                                        {
-                                            <div class="menuitem">
-                                                <a asp-area="" asp-controller="GiveAway" asp-action="Admin">Admin</a>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="menuitem">
-                                <a asp-area="" asp-controller="Services" asp-action="ServiceControls">Dienste</a>
-                            </div>
-                            @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
-                            {
-                                <div class="menuitem">
-                                    <span class="submenuopener">Admin<i class="fa fa-chevron-down"></i></span>
-                                    <div class="submenu">
-                                        <div class="heightgiver">
-                                            @if (User.IsInRole("Dev"))
-                                            {
-                                                <div class="menuitem">
-
-                                                    <a asp-area="" asp-controller="Admin" asp-action="Import">Import</a>
-
-                                                </div>
-                                                <div class="menuitem">
-                                                    <a asp-area="" asp-controller="Admin" asp-action="SecurityTokens">Tokens</a>
-                                                </div>
-                                                <div class="menuitem">
-                                                    <a asp-area="" asp-controller="UserAdmin" asp-action="Index">User Manager</a>
-                                                </div>
-                                            }
-                                            <div class="menuitem">
-                                                <a asp-area="" asp-controller="DiscordBans" asp-action="Index">Discord Bans</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                            <div class="menuitem">
-                                <span class="submenuopener">Benutzer <i class="fa fa-chevron-down"></i></span>
-                                <div class="submenu">
-                                    <div class="heightgiver">
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="User" asp-action="Subscriptions">Subscriptions</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="User" asp-action="ChangePassword">Passwort ändern</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="User" asp-action="DeleteUser">Nutzer löschen</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="menuitem">
-                                <span class="submenuopener">P&P <i class="fa fa-chevron-down"></i></span>
-                                <div class="submenu">
-                                    <div class="heightgiver">
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Events" asp-action="Index">Event Kalendar</a>
-                                        </div>
-                                        <div class="menuitem">
-                                            <a asp-area="" asp-controller="Character" asp-action="Index">Character Rollen</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="menuitem">
-                                <a asp-area="" asp-controller="Help" asp-action="Index">Hilfe</a>
-                            </div>
+                            Subscriptions
                         </div>
-                        }
-                        <div class="navi_footer">
+                    </a>
+                </div>
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="User" asp-action="ChangePassword">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"><i class="fas fa-key"></i></span>
+                            </div>
+                            Passwort ändern
+                        </div>
+                    </a>
+                </div>
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="User" asp-action="DeleteUser">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"><i class="fas fa-user-minus"></i></span>
+                            </div>
+                            Nutzer löschen
 
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
-            <div class="col-12 col-sm-12 col-md-8 col-lg-10 pa-0">
-                @RenderBody()
+            <div class="navi_submenu row" data-subnav="Streams">
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="Stream" asp-action="Status">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"><i class="fas fa-signal"></i></span>
+                            </div>
+                            Status
+                        </div>
+                    </a>
+                </div>
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="Stream" asp-action="Verwaltung">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"><i class="fas fa-users-cog"></i></span>
+                            </div>
+                            Verwaltung
+                        </div>
+                    </a>
+                </div>
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="Stream" asp-action="Create">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"><i class="fa fa-plus"></i></span>
+                            </div>
+                            Hinzufügen
+                        </div>
+                    </a>
+                </div>
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="StreamCommands" asp-action="Index">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"><i class="fas fa-comments"></i></span>
+                            </div>
+                            Commands
+                        </div>
+                    </a>
+                </div>
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="StreamCommands" asp-action="Index">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"><i class="fas fa-comments"></i></span>
+                            </div>
+                            Commands
+                        </div>
+                    </a>
+                </div>
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="Stream" asp-action="QuoteList">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"><i class="fas fa-quote-right"></i></span>
+                            </div>
+                            Quotes
+                        </div>
+                    </a>
+                </div>
             </div>
+            <div class="navi_submenu row" data-subnav="Events">
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="Events" asp-action="Index">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"><i class="fas fa-calendar-alt"></i></span>
+                            </div>
+                            Event Kalendar
+                        </div>
+                    </a>
+                </div>
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="Character" asp-action="Index">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"><i class="fas fa-user-cog"></i></span>
+                            </div>
+                            Character Rollen
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="navi_submenu row" data-subnav="GiveAway">
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="GiveAway" asp-action="Index">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"></span>
+                            </div>
+                            Meine Geschenke
+                        </div>
+                    </a>
+                </div>
+                <div class="menuitem col-12 col-sm-6 col-md-4">
+                    <a asp-area="" asp-controller="GiveAway" asp-action="Winnings">
+                        <div class="navi-card">
+                            <div>
+                                <span class="d-inline-block nav_circle"></span>
+                            </div>
+                            Gewonne Geschenke
+                        </div>
+                    </a>
+                </div>
+                @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
+                {
+                    <div class="menuitem col-12 col-sm-6 col-md-4">
+                        <a asp-area="" asp-controller="GiveAway" asp-action="Admin">
+                            <div class="navi-card">
+                                <div>
+                                    <span class="d-inline-block nav_circle"></span>
+                                </div>
+                                Admin
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+            @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
+            {
+                <div class="navi_submenu row" data-subnav="Admin">
+                    <div class="menuitem col-12 col-sm-6 col-md-4">
+                        <a asp-area="" asp-controller="Admin" asp-action="Import">
+                            <div class="navi-card">
+                                <div>
+                                    <span class="d-inline-block nav_circle"></span>
+                                </div>
+                                Import
+                            </div>
+                        </a>
+                    </div>
+                    <div class="menuitem col-12 col-sm-6 col-md-4">
+                        <a asp-area="" asp-controller="Admin" asp-action="SecurityTokens">
+                            <div class="navi-card">
+                                <div>
+                                    <span class="d-inline-block nav_circle"></span>
+                                </div>
+                                Tokens
+                            </div>
+                        </a>
+                    </div>
+                    <div class="menuitem col-12 col-sm-6 col-md-4">
+                        <a asp-area="" asp-controller="UserAdmin" asp-action="Index">
+                            <div class="navi-card">
+                                <div>
+                                    <span class="d-inline-block nav_circle"></span>
+                                </div>
+                                User Manager
+                            </div>
+                        </a>
+                    </div>
+                    <div class="menuitem col-12 col-sm-6 col-md-4">
+                        <a asp-area="" asp-controller="DiscordBans" asp-action="Index">
+                            <div class="navi-card">
+                                <div>
+                                    <span class="d-inline-block nav_circle"></span>
+                                </div>
+                                Discord Bans
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            }
         </div>
+    }
+    <div class="body">
+        @RenderBody()
     </div>
 
-    <script src="~/lib/jquery/dist/jquery.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/responsivetables.js" asp-append-version="true"></script>
-    <script src="~/js/jquery.validate.min.js" asp-append-version="true"></script>
+    <footer class="d-flex">
+        @await Html.PartialAsync("_LoginPartial")
+        @await Html.PartialAsync("_LogoutPartial")
+        <a href="~/Datenschutz.html">Datenschutz</a>
+    </footer>
+    <script>
+        document.querySelectorAll(".navi_item").forEach((navitem) => { navitem.addEventListener("click", handleSubMenuClick) });
+        function handleSubMenuClick(e) {
+            var region = e.target.getAttribute("data-subnavtarget");
+            if (region == null) {
+                region = e.target.closest(".navi_item").getAttribute("data-subnavtarget");
+            }
+            if (region != null) {
+                
+                var height = 0;
+                if (document.querySelector(".navi_submenu[data-subnav='" + region + "']").classList.contains("open")) {
+                    document.querySelectorAll(".navi_item").forEach((navitem) => { navitem.classList.remove("active")});
+                    document.querySelectorAll(".navi_submenu").forEach((submenu) => { submenu.classList.remove("open")});
+                    document.querySelector(".subnavigation").style.height = "0px";
+                }
+                else {
+                    document.querySelectorAll(".navi_item").forEach((navitem) => { navitem.classList.remove("active")});
+                    document.querySelectorAll(".navi_submenu").forEach((submenu) => { submenu.classList.remove("open") });
+                    document.querySelector(".navi_item[data-subnavtarget='" + region + "']").classList.add("active");
+                    document.querySelector(".navi_submenu[data-subnav='" + region + "']").classList.add("open");
+                    height = document.querySelector(".navi_submenu[data-subnav='" + region + "']").clientHeight;
+                    document.querySelector(".subnavigation").style.height = height+"px";
+                }
+            }
+            
+        }
+    </script>
+        @RenderSection("Scripts", required: false)
 
-    @RenderSection("Scripts", required: false)
 
-</body>
+    </body>
 </html>
