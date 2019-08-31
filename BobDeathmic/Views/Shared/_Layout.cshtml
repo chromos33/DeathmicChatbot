@@ -244,27 +244,32 @@
                 region = e.target.closest(".navi_item").getAttribute("data-subnavtarget");
             }
             if (region != null) {
-                
+
                 var height = 0;
                 if (document.querySelector(".navi_submenu[data-subnav='" + region + "']").classList.contains("open")) {
-                    document.querySelectorAll(".navi_item").forEach((navitem) => { navitem.classList.remove("active")});
-                    document.querySelectorAll(".navi_submenu").forEach((submenu) => { submenu.classList.remove("open")});
+                    document.querySelectorAll(".navi_item").forEach((navitem) => { navitem.classList.remove("active") });
+                    document.querySelectorAll(".navi_submenu").forEach((submenu) => { submenu.classList.remove("open") });
                     document.querySelector(".subnavigation").style.height = "0px";
                 }
                 else {
-                    document.querySelectorAll(".navi_item").forEach((navitem) => { navitem.classList.remove("active")});
+                    document.querySelectorAll(".navi_item").forEach((navitem) => { navitem.classList.remove("active") });
                     document.querySelectorAll(".navi_submenu").forEach((submenu) => { submenu.classList.remove("open") });
                     document.querySelector(".navi_item[data-subnavtarget='" + region + "']").classList.add("active");
                     document.querySelector(".navi_submenu[data-subnav='" + region + "']").classList.add("open");
                     height = document.querySelector(".navi_submenu[data-subnav='" + region + "']").clientHeight;
-                    document.querySelector(".subnavigation").style.height = height+"px";
+                    document.querySelector(".subnavigation").style.height = height + "px";
                 }
             }
-            
+
         }
     </script>
-        @RenderSection("Scripts", required: false)
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/responsivetables.js" asp-append-version="true"></script>
+    <script src="~/js/jquery.validate.min.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
 
 
-    </body>
+</body>
 </html>
