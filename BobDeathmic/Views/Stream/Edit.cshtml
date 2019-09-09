@@ -88,6 +88,7 @@
                         }
                         @foreach (var relaychannel in Model.RelayChannels)
                         {
+
                             @if (Model.SelectedRelayChannel != null && relaychannel.Name == Model.SelectedRelayChannel)
                             {
                                 <option selected="selected">@relaychannel.Name</option>

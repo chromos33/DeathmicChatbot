@@ -27,7 +27,6 @@ namespace BobDeathmic.Services
 {
     public interface IDiscordService
     {
-
     }
     public class DiscordService : BackgroundService, IDiscordService
     {
@@ -51,7 +50,8 @@ namespace BobDeathmic.Services
             try
             {
                 client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(x => x.Username.ToLower() == e.RecipientName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
-            }catch(Exception)
+            }
+            catch (Exception)
             {
 
             }
@@ -128,12 +128,12 @@ namespace BobDeathmic.Services
         }
 
         private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
-        {          
+        {
             try
             {
                 client.Guilds.Single(g => g.Name.ToLower() == "deathmic")?.TextChannels.Single(c => c.Name.ToLower() == e.Target.ToLower())?.SendMessageAsync(e.Message);
             }
-            catch(InvalidOperationException)
+            catch (InvalidOperationException)
             {
                 //just an annoyance on start..
             }
@@ -168,7 +168,7 @@ namespace BobDeathmic.Services
             discordConfig.LargeThreshold = 250;
             client = new DiscordSocketClient(discordConfig);
             string token = GetDiscordToken();
-            if (token != "")
+            if (token != string.Empty)
             {
                 await client.LoginAsync(TokenType.Bot, token);
                 await client.StartAsync();
@@ -191,7 +191,7 @@ namespace BobDeathmic.Services
         {
             using (var scope = _scopeFactory.CreateScope())
             {
-                var token = "";
+                var token = string.Empty;
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var tokens = _context.SecurityTokens.Where(st => st.service == Models.Enum.TokenType.Discord).FirstOrDefault();
                 if (tokens != null)
@@ -314,7 +314,7 @@ namespace BobDeathmic.Services
         {
             if (arg.Author.Username != "BobDeathmic")
             {
-                string commandresult = "";
+                string commandresult = string.Empty;
                 if (arg.Content.StartsWith("!WebInterfaceLink", StringComparison.CurrentCulture) || arg.Content.StartsWith("!wil", StringComparison.CurrentCulture))
                 {
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -326,7 +326,7 @@ namespace BobDeathmic.Services
                     commandresult = await ExecuteCommands(arg);
                 }
 
-                if (commandresult == "")//Commands later on
+                if (commandresult == string.Empty)//Commands later on
                 {
                     RelayMessage(arg);
                 }
@@ -354,7 +354,7 @@ namespace BobDeathmic.Services
         }
         private async Task<string> ExecuteCommands(SocketMessage arg)
         {
-            string commandresult = "";
+            string commandresult = string.Empty;
             foreach (IfCommand command in CommandList)
             {
                 Dictionary<String, String> inputargs = new Dictionary<string, string>();
@@ -363,7 +363,7 @@ namespace BobDeathmic.Services
                 inputargs["source"] = "discord";
                 inputargs["channel"] = arg.Channel.Name;
                 commandresult = await command.ExecuteCommandIfApplicable(inputargs, _scopeFactory);
-                if (commandresult != "")
+                if (commandresult != string.Empty)
                 {
                     arg.Channel.SendMessageAsync(commandresult);
                 }
@@ -462,10 +462,10 @@ namespace BobDeathmic.Services
             {
 
                 var usermanager = scope.ServiceProvider.GetRequiredService<UserManager<ChatUserModel>>();
-                string cleanedname = Regex.Replace(arg.Author.Username.Replace(" ", "").Replace("/", "").Replace("\\", ""), @"[\[\]\\\^\$\.\|\?\*\+\(\)\{\}%,;><!@#&\-\+]", "");
+                string cleanedname = Regex.Replace(arg.Author.Username.Replace(" ", string.Empty).Replace("/", string.Empty).Replace("\\", string.Empty), @"[\[\]\\\^\$\.\|\?\*\+\(\)\{\}%,;><!@#&\-\+]", string.Empty);
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var user = _context.ChatUserModels.Where(cm => cm.UserName.ToLower() == cleanedname.ToLower()).FirstOrDefault();
-                string password = "";
+                string password = string.Empty;
                 var Configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                 if (user == null)
                 {
@@ -480,7 +480,7 @@ namespace BobDeathmic.Services
                 }
                 string Message = "Adresse:";
                 Message += Configuration.GetValue<string>("WebServerWebAddress");
-                if (password != "")
+                if (password != string.Empty)
                 {
                     Message += Environment.NewLine + "UserName; " + cleanedname;
                     Message += Environment.NewLine + "Initiales Passwort: " + password;
@@ -495,7 +495,7 @@ namespace BobDeathmic.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 Models.ChatUserModel newUser = new Models.ChatUserModel();
-                string password = "";
+                string password = string.Empty;
                 newUser.UserName = cleanedname;
                 newUser.ChatUserName = arg.Author.Username;
                 password += arg.Author.Username.Substring(random.Next(0, arg.Author.Username.Length - 1));
@@ -526,7 +526,7 @@ namespace BobDeathmic.Services
 
                 newUser.InitialPassword = hashed;
                 var usermanager = scope.ServiceProvider.GetRequiredService<UserManager<ChatUserModel>>();
-                var result = await usermanager.CreateAsync(newUser, hashed);
+                _ = await usermanager.CreateAsync(newUser, hashed);
                 await CreateOrAddUserRoles("User", newUser.UserName);
                 return hashed;
             }
@@ -540,13 +540,12 @@ namespace BobDeathmic.Services
                     var RoleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                     var UserManager = scope.ServiceProvider.GetRequiredService<UserManager<Models.ChatUserModel>>();
 
-                    IdentityResult roleResult;
                     //Adding Admin Role
                     var roleCheck = await RoleManager.RoleExistsAsync(role);
                     if (!roleCheck)
                     {
                         //create the roles and seed them to the database
-                        roleResult = await RoleManager.CreateAsync(new IdentityRole(role));
+                        _ = await RoleManager.CreateAsync(new IdentityRole(role));
                     }
                     //Assign Admin role to the main User here we have given our newly registered 
                     //login id for Admin management
