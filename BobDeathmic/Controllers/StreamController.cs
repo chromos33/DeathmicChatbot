@@ -94,8 +94,17 @@ namespace BobDeathmic.Controllers
             {
                 try
                 {
-                    _context.Update(stream);
-                    await _context.SaveChangesAsync();
+                    var _stream = _context.StreamModels.Where(x => x.ID == stream.ID).FirstOrDefault();
+                    if(_stream != null)
+                    {
+                        stream.AccessToken = _stream.AccessToken;
+                        stream.ClientID = _stream.ClientID;
+                        stream.LastUpTime = _stream.LastUpTime;
+                        stream.RefreshToken = _stream.RefreshToken;
+                        stream.Secret = _stream.Secret;
+                        _context.Update(stream);
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {

@@ -274,7 +274,7 @@ namespace BobDeathmic.Services
         }
         private void ChannelLeft(object sender, OnLeftChannelArgs e)
         {
-            Console.WriteLine("test");
+            
         }
         private async void MessageReceived(object sender, OnMessageReceivedArgs e)
         {

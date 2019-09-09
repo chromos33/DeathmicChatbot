@@ -65,7 +65,7 @@ namespace BobDeathmic.Services.Helper.Commands
     public class Title : IfCommand
     {
         public string Trigger => "!title";
-        public string alias => "!title";
+        public string alias => "!titel";
 
         public string Description => "Ändert den Stream Titel";
 

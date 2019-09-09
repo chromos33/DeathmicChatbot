@@ -66,25 +66,51 @@ namespace BobDeathmic.Services
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
-                if (stream != null && stream.ClientID != "" && stream.AccessToken != "")
+                if (stream != null && stream.ClientID != null && stream.ClientID != "" && stream.AccessToken != null && stream.AccessToken != "")
                 {
                     TwitchAPI api = new TwitchAPI();
                     api.Settings.ClientId = stream.ClientID;
                     api.Settings.AccessToken = stream.AccessToken;
+                    string message = "";
                     try
                     {
                         if (e.Game != "" && e.Title != "")
                         {
-                            await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title, game: e.Game);
+                            var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title, game: e.Game);
+                            if (test.Game == e.Game && test.Status == e.Title)
+                            {
+                                message = "Stream Updated";
+                            }
+                            else
+                            {
+                                message = "Error while updating";
+                            }
 
                         }
                         if (e.Game != "" && e.Title == "")
                         {
                             var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, game: e.Game);
+                            //Does not actually work as request just returns the entered game irrelevant of actual change (always returns true)
+                            if(test.Game == e.Game)
+                            {
+                                message = "Game Updated";
+                            }
+                            else
+                            {
+                                message = "Twitch game mismatch";
+                            }
                         }
                         if (e.Game == "" && e.Title != "")
                         {
                             var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title);
+                            if (test.Status == e.Title)
+                            {
+                                message = "Title Updated";
+                            }
+                            else
+                            {
+                                message = "Title not Updated";
+                            }
                         }
 
                     }
@@ -109,7 +135,11 @@ namespace BobDeathmic.Services
                             }
                         }
                     }
-                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = "Stream Updated" });
+                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = message });
+                }
+                else
+                {
+                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = "Stream can't be updated no Authorization key detected." });
                 }
             }
             return;
