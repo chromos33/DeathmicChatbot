@@ -33,6 +33,7 @@ namespace BobDeathmic.Models
 
         public String[] GetActiveSubscribers()
         {
+            //If you read this you probably forgot to "Include" either StreamSubscriptions or User in your EF Query
             return StreamSubscriptions.Where(x => x.Subscribed == SubscriptionState.Subscribed).Select(x => x.User.ChatUserName).ToArray();
         }
         public List<string> EnumStreamTypes()
@@ -41,6 +42,7 @@ namespace BobDeathmic.Models
 
             EnumTypes.Add("Twitch");
             EnumTypes.Add("Mixer");
+            EnumTypes.Add("DLive");
 
             return EnumTypes;
         }
@@ -50,6 +52,7 @@ namespace BobDeathmic.Models
 
             EnumTypes.Add("Twitch");
             EnumTypes.Add("Mixer");
+            EnumTypes.Add("DLive");
 
             return EnumTypes;
         }

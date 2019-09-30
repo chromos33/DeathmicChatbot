@@ -66,6 +66,7 @@ namespace BobDeathmic
             services.AddMemoryCache();
             services.AddSingleton<IEventBus, EventBusLocal>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchChecker>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.DLiveChecker>();
             //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.MixerChecker>();
 
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.DiscordService>();
