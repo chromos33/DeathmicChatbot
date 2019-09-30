@@ -8,7 +8,8 @@ namespace BobDeathmic.Models.Enum
     public enum StreamProviderTypes
     {
         Twitch = 1,
-        Mixer = 2
+        Mixer = 2,
+        DLive = 3
 
     }
 }
