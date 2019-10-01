@@ -73,7 +73,7 @@ namespace BobDeathmic.Services.Tasks
                     }
                     else
                     {
-                        GroupedNotifications.Where(x => x.First == request.Owner.UserName).FirstOrDefault().Second += Environment.NewLine + $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalendar {request.EventDate.Event.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmen. {address}/Events/VoteOnCalendar/{calendar.Id}";
+                        GroupedNotifications.Where(x => x.First == request.Owner.UserName).FirstOrDefault().Second += Environment.NewLine + $"Freundliche Errinnerung {request.Owner.UserName} du musst im Kalender {request.EventDate.Event.Name} für den {request.EventDate.Date.ToString("dd.MM.yyyy HH:mm")} abstimmen. {address}/Events/VoteOnCalendar/{calendar.Id}";
                     }
                 }
             }
