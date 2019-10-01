@@ -46,11 +46,8 @@ namespace BobDeathmic.Services
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     HttpClient client = new HttpClient();
                     string baseurl = "https://graphigo.prd.dlive.tv/";
-                    IQueryable<Models.Stream> GetStreams()
-                    {
-                        return _context.StreamModels.Where(x => x.Type == StreamProviderTypes.DLive).Include(x => x.StreamSubscriptions).ThenInclude(x => x.User);
-                    }
-                    foreach (Models.Stream stream in GetStreams())
+                    var Streams = _context.StreamModels.Where(x => x.Type == StreamProviderTypes.DLive).Include(x => x.StreamSubscriptions).ThenInclude(x => x.User);
+                    foreach (Models.Stream stream in Streams)
                     {
                         var content = new StringContent("{\"query\":\"{ userByDisplayName(displayname: \\\""+stream.StreamName+"\\\") {livestream{id}}}\"}", Encoding.UTF8, "application/json");
                         var response = await client.PostAsync(baseurl, content);
@@ -59,7 +56,7 @@ namespace BobDeathmic.Services
                         if(streamInfo.data.userByDisplayName.livestream != null)
                         {
                             SetStreamOnline();
-                            StreamStarted();
+                            await StreamStarted();
                             void SetStreamOnline()
                             {
                                 stream.Started = DateTime.Now;
@@ -71,11 +68,15 @@ namespace BobDeathmic.Services
                                 {
                                     stream.Game = "Undefined";
                                 }
-                                stream.StreamState = StreamState.Started;
+                                if(stream.StreamState == StreamState.NotRunning)
+                                {
+                                    stream.StreamState = StreamState.Started;
+                                }
+                                
 
                                 stream.Url = $"https://dlive.tv/{stream.StreamName}";
                             }
-                            async void StreamStarted()
+                            async Task StreamStarted()
                             {
                                 if(stream.StreamState == StreamState.Started)
                                 {
@@ -85,6 +86,7 @@ namespace BobDeathmic.Services
                                         await Task.Delay(100);
                                     }
                                     stream.StreamState = StreamState.Running;
+                                    _context.SaveChanges();
                                 }
                             }
                         }
