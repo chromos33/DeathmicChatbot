@@ -49,73 +49,18 @@ namespace BobDeathmic.Services
         {
             try
             {
-                client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(x => x.Username.ToLower() == e.RecipientName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
+                if(e.RecipientName != null && e.RecipientName != "")
+                {
+                    client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(x => x.Username.ToLower() == e.RecipientName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
+                }
+                if(e.channelName != null && e.channelName != "")
+                {
+                    client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().TextChannels.Where(c => c.Name.ToLower() == e.channelName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
+                }
             }
             catch (Exception)
             {
 
-            }
-        }
-
-        private async void NotifySubscriber(StreamEventArgs e)
-        {
-            if (e.state == Models.Enum.StreamState.Started)
-            {
-                while (client.ConnectionState != ConnectionState.Connected)
-                {
-                    await Task.Delay(5000);
-                }
-                using (var scope = _scopeFactory.CreateScope())
-                {
-                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower() && e.StreamType == sm.Type).FirstOrDefault();
-                    if (stream != null)
-                    {
-                        List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
-                        //var test = client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(u => !blocked.Contains(u.Id)).GroupBy(u => u.Username);
-                        foreach (var user in client.Guilds.Single(g => g.Name.ToLower() == "deathmic").Users.Where(u => !blocked.Contains(u.Id)))
-                        {
-                            ChatUserModel dbUser = null;
-                            try
-                            {
-                                dbUser = _context.ChatUserModels.Include(chatuser => chatuser.StreamSubscriptions).Where(x => x.UserName == user.Username).FirstOrDefault();
-                            }
-                            catch (Exception)
-                            {
-                                _context.DiscordBans.Add(new DiscordBan() { DiscordID = user.Id });
-                                await _context.SaveChangesAsync();
-                                //ignore temporarily
-                            }
-                            if (dbUser != null && dbUser.IsSubscribed(stream.StreamName))
-                            {
-                                try
-                                {
-                                    await user.SendMessageAsync(e.Notification);
-                                    await Task.Delay(200);
-                                }
-                                catch (Discord.Net.HttpException ex)
-                                {
-                                    switch (ex.DiscordCode)
-                                    {
-                                        case 50007:
-                                            //string message = $"Um Stream Nachrichten zu bekommen bitte BobDeathmic als Freund markieren. {Environment.NewLine} Um diese Nachricht zu deaktivieren einfach in das Webinterface (Link über !WebInterfaceLink) von Bob einloggen und in Benutzer > Subscriptions die Streams deaktivieren "+ user.Mention;
-                                            //client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.TextChannels.Where(x => x.Name.ToLower() == "botspam").FirstOrDefault()?.SendMessageAsync(message);
-                                            break;
-                                        default:
-                                            Console.WriteLine(ex.ToString());
-                                            break;
-                                    }
-
-                                }
-                                catch (HttpRequestException ex)
-                                {
-                                    Console.WriteLine(ex.ToString());
-                                }
-
-                            }
-                        }
-                    }
-                }
             }
         }
 

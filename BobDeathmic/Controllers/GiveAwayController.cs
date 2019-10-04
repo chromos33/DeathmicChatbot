@@ -247,20 +247,23 @@ namespace BobDeathmic.Controllers
         }
         private void doRaffle(string channel)
         {
-            var currentitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.current).FirstOrDefault();
+            var currentitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).ThenInclude(x => x.ReceivedItems).Where(x => x.current).FirstOrDefault();
             List<ChatUserModel> Applicants = null;
             ChatUserModel tmpwinner = null;
             if (currentitem != null && currentitem.Applicants.Count() > 0)
             {
-                int test = random.Next(currentitem.Applicants.Count());
-                var winner = currentitem.Applicants[test];
+                int min = getLeastGiveAwayCount(currentitem.Applicants);
+                var elligableUsers = currentitem.Applicants.Where(x => x.User.ReceivedItems.Count() == min);
+                
+                int winnerindex = random.Next(elligableUsers.Count());
+                var winner = elligableUsers.ToArray()[winnerindex];
                 currentitem.Receiver = winner.User;
                 tmpwinner = winner.User;
                 currentitem.ReceiverID = winner.UserID;
                 _context.SaveChanges();
+                _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs {Message = "Gewonnen hat " + winner.User.ChatUserName, channelName = channel });
                 //_eventBus.TriggerEvent(EventType.GiveAwayMessage, new GiveAwayEventArgs { winner = winner.User, channel = channel });
             }
-            //Raffle again if Applicants and GiveAwayItems with same name > 0
             if (currentitem.Applicants.Count() > 1 && _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.Id != currentitem.Id && x.ReceiverID == null).Count() > 0)
             {
                 var newitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.Receiver == null).FirstOrDefault();
@@ -275,6 +278,22 @@ namespace BobDeathmic.Controllers
                 _context.SaveChanges();
                 doRaffle(channel);
             }
+        }
+        private int getLeastGiveAwayCount(List<Models.GiveAway.User_GiveAwayItem> items)
+        {
+            int value = 99999;
+            foreach(var item in items)
+            {
+                if(value > item.User.ReceivedItems.Count())
+                {
+                    value = item.User.ReceivedItems.Count();
+                }
+            }
+            if(value == 99999)
+            {
+                return 0;
+            }
+            return value;
         }
 
     }
