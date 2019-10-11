@@ -8,8 +8,8 @@ namespace BobDeathmic.Models.ViewModels
 {
     public class GiveAwayAdminViewModel
     {
-        public GiveAwayItem Item;
+        public string Item;
         public List<String> Channels;
-        public List<ChatUserModel> Applicants;
+        public List<string> Applicants;
     }
 }

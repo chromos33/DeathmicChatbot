@@ -5,57 +5,35 @@
 <div class="breadcrumbs">
     <span>Weihnachtsgeschenk > Admin</span>
 </div>
-    <div class="pa-35" style="display:flex;justify-content:space-between;">
-        <span>
-            <span>Output Channel:</span>
-            <select class="channelselection">
-                @foreach (String channel in Model.Channels)
-                {
-                    <option>@channel</option>
-                }
-            </select>
-        </span>
-        <a asp-action="NextItem" class="button nextitem">Nächstes Item</a>
-        <a asp-action="Raffle" class="button raffle">Verlosen</a>
-    </div>
-    <div class="GiveAwayPreviewContainer pa-35">
-        @if (Model.Item != null)
-        {
-            <h1 class="mb-4">@Model.Item.Title</h1>
-            <a target="_blank" href="@Model.Item.Link" class="button">Zur Vorschau</a>
-            <div class="applicants mt-4">
-                <h2>Teilnehmer</h2>
-                <table>
-                    @foreach (ChatUserModel item in Model.Applicants)
-                    {
-                        <tr><td>@item.UserName</td></tr>
-                    }
-                </table>
-            </div>
-        }
+<div class="pa-35">
+    <h2>GiveAway Admin</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-4" ID="reactcontent">
+
         </div>
-    @section Scripts {
-        <script>
-            var lockrefresh = false;
-            jQuery(".nextitem, .raffle").mouseenter(function () { lockrefresh = true; })
-            jQuery(".nextitem, .raffle").mouseleave(function () { lockrefresh = false; })
-            var link = jQuery(".nextitem").attr("href");
-            var rafflelink = jQuery(".raffle").attr("href");
-            var channel = jQuery(".channelselection").find(":selected").text();
-            jQuery(".nextitem").attr("href", link + "?channel=" + channel);
-            jQuery(".raffle").attr("href", rafflelink + "?channel=" + channel);
-            jQuery(document).ready(function () {
-                jQuery(".channelselection").on("change", function () {
-                    var channel = jQuery(".channelselection").find(":selected").text();
-                    jQuery(".nextitem").attr("href", link + "?channel=" + channel);
-                    jQuery(".raffle").attr("href", rafflelink + "?channel=" + channel);
-                })
-            });
-            setTimeout(function () {
-                if (!lockrefresh) {
-                    location.reload();
-                }
-            }, 10000);
-            
-        </script>
-    }
+    </div>
+</div>
+
+    //Use the jsx files on dev and comment out the Compiled Version
+    //Dev use https://babeljs.io/repl to precompile scripts in jsx files
+    <script src="@Url.Content("~/js/react.development.js")"></script>
+    <script src="@Url.Content("~/js/react-dom.development.js")"></script>
+    <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/UI.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/CurrentItemInfo.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/NextItemAction.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/RaffleAction.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/ParticipantList.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/ChannelSelector.jsx")"></script>
+
+@*
+    <script src="@Url.Content("~/js/react.production.min.js")"></script>
+    <script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
+*@
+
+<script>
+    document.addEventListener("DOMContentLoaded", function (event) {
+        var elem = React.createElement(UI, {});
+        ReactDOM.render(elem, document.getElementById('reactcontent'));
+    });
+</script>
