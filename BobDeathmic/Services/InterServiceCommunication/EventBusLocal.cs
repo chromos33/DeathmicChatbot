@@ -16,18 +16,6 @@ namespace BobDeathmic.Eventbus
         public event EventHandler<RelayMessageArgs> RelayMessageReceived;
         public event EventHandler<StrawPollRequestEventArgs> StrawPollRequested;
 
-
-
-
-
-
-
-        
-        
-
-
-        
-
         public void TriggerEvent(EventType @event, dynamic EventData)
         {
             switch (@event)
