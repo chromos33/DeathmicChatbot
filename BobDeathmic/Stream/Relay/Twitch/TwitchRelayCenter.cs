@@ -1,9 +1,10 @@
 ﻿using BobDeathmic.Args;
+using BobDeathmic.ChatCommands.Setup;
 using BobDeathmic.Data;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
+using BobDeathmic.Services;
 using BobDeathmic.Services.Helper;
-using BobDeathmic.Services.Helper.Commands;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +26,7 @@ using TwitchLib.Client.Extensions;
 using TwitchLib.Client.Models;
 using TwitchLib.Communication.Events;
 
-namespace BobDeathmic.Services
+namespace BobDeathmic.Stream.Relay.Twitch
 {
     public class TwitchRelayCenter : BackgroundService
     {

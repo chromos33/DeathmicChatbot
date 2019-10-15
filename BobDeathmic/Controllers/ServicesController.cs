@@ -1,4 +1,5 @@
 ﻿using BobDeathmic.Services;
+using BobDeathmic.Stream.Relay.Twitch;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,11 +1,10 @@
-﻿using BobDeathmic.Services.Helper.Commands;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Services.Helper
+namespace BobDeathmic.ChatCommands.Setup
 {
     public interface IfCommand
     {

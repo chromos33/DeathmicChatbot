@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Services.Helper
+namespace BobDeathmic.ChatCommands.Setup
 {
     public class AppConfig
     {

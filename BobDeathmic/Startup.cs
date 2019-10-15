@@ -3,7 +3,6 @@ using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
 using BobDeathmic.Services;
 using BobDeathmic.Services.Helper;
-using BobDeathmic.Services.Tasks;
 using JavaScriptEngineSwitcher.ChakraCore;
 using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using JavaScriptEngineSwitcher.Jurassic;
@@ -20,6 +19,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic.Cron.Setup;
+using BobDeathmic.Cron;
+using BobDeathmic.Stream.Relay.Twitch;
 
 namespace BobDeathmic
 {
@@ -65,15 +67,15 @@ namespace BobDeathmic
             // Add application services.
             services.AddMemoryCache();
             services.AddSingleton<IEventBus, EventBusLocal>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchChecker>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.DLiveChecker>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchChecker>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DLiveChecker>();
             //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.MixerChecker>();
 
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.DiscordService>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchRelayCenter>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.TwitchAPICalls>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.StrawPollService>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.SchedulerHostService>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DiscordService>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchRelayCenter>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchAPICalls>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, StrawPollService>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, SchedulerHostService>();
 
             services.AddSingleton<IScheduledTask, EventCalendarTask>();
 

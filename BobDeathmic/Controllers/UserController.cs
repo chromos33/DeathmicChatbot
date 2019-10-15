@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using BobDeathmic.Models;
 
 namespace BobDeathmic.Controllers
 {
@@ -38,7 +39,7 @@ namespace BobDeathmic.Controllers
         {
             ChatUserModel usermodel = await _userManager.GetUserAsync(this.User);
             List<StreamSubscription> streamsubs = _context.StreamSubscriptions.Include(ss => ss.User).Include(ss => ss.Stream).Where(ss => ss.User == usermodel).ToList();
-            List<Stream> FilteredStreams = new List<Stream>();
+            List<Models.Stream> FilteredStreams = new List<Models.Stream>();
             foreach (var stream in _context.StreamModels)
             {
                 bool add = true;

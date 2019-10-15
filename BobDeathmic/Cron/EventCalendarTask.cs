@@ -13,7 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Services.Tasks
+namespace BobDeathmic.Cron
 {
     public class EventCalendarTask : IScheduledTask
     {

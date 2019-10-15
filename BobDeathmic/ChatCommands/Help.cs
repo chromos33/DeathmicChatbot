@@ -1,10 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using BobDeathmic.ChatCommands.Setup;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Services.Helper.Commands
+namespace BobDeathmic.ChatCommands
 {
     public class Help : IfCommand
     {
@@ -20,26 +21,26 @@ namespace BobDeathmic.Services.Helper.Commands
             return CommandEventType.None;
         }
 
-        public async Task<string> ExecuteCommandIfApplicable(Dictionary<String, String> args , IServiceScopeFactory scopeFactory)
+        public async Task<string> ExecuteCommandIfApplicable(Dictionary<String, String> args, IServiceScopeFactory scopeFactory)
         {
             if (args["message"].ToLower().StartsWith(Trigger))
             {
                 return sCommandMessage;
             }
-            return "";
+            return string.Empty;
         }
 
         public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
-            return "";
+            return string.Empty;
         }
 
         public void PopulateCommandList(string provider = "discord")
         {
             //Should ever only be called once (Per Help Command init)
-            if (sCommandMessage == "" || sCommandMessage == null)
+            if (sCommandMessage == string.Empty || sCommandMessage == null)
             {
-                string currentCategory = "";
+                string currentCategory = string.Empty;
                 sCommandMessage = "Viele Befehle haben einen help parameter (!befehl help)" + Environment.NewLine;
 
                 //Manual Implementation. Would otherwise need redundant rework of Commands all holding reference to UserManager ...
@@ -47,7 +48,7 @@ namespace BobDeathmic.Services.Helper.Commands
                 sCommandMessage += Environment.NewLine;
                 sCommandMessage += $"[WebInterface]{Environment.NewLine}";
                 sCommandMessage += "!WebInterfaceLink (!wil) : Gibt den Link zum Webinterface zurück" + Environment.NewLine;
-                foreach (IfCommand tempcommand in Services.Helper.CommandBuilder.BuildCommands(provider, true))
+                foreach (IfCommand tempcommand in CommandBuilder.BuildCommands(provider, true))
                 {
                     if (currentCategory != tempcommand.Category)
                     {

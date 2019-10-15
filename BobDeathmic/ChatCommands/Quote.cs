@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic.ChatCommands.Setup;
 using BobDeathmic.Data;
 using BobDeathmic.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MoreLinq;
 
-namespace BobDeathmic.Services.Helper.Commands
+namespace BobDeathmic.ChatCommands
 {
     public class QuoteCommand : IfCommand
     {

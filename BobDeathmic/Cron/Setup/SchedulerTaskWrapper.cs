@@ -1,7 +1,7 @@
 ﻿using BobDeathmic.Services.Helper;
 using System;
 
-namespace BobDeathmic.Services
+namespace BobDeathmic.Cron.Setup
 {
     internal class SchedulerTaskWrapper
     {

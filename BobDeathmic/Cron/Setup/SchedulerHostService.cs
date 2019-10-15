@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Services
+namespace BobDeathmic.Cron.Setup
 {
     public class SchedulerHostService : HostedService
     {

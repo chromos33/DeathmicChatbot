@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic.ChatCommands.Setup;
 using BobDeathmic.Services.Helper;
-using BobDeathmic.Services.Helper.Commands;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BobDeathmic.Controllers
@@ -12,7 +12,7 @@ namespace BobDeathmic.Controllers
     {
         public IActionResult Index()
         {
-            return View("Index", Services.Helper.CommandBuilder.BuildCommands("twitch", true));
+            return View("Index", CommandBuilder.BuildCommands("twitch", true));
         }
     }
 }

@@ -33,15 +33,15 @@ namespace BobDeathmic.Data
                 .HasMany(u => u.OwnedStreams)
                 .WithOne(s => s.Owner)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<Stream>()
+            builder.Entity<Models.Stream>()
                 .HasMany(s => s.StreamSubscriptions)
                 .WithOne(ss => ss.Stream)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<Stream>()
+            builder.Entity<Models.Stream>()
                 .HasMany(s => s.Commands)
                 .WithOne(sc => sc.stream)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<Stream>().HasOne(s => s.Owner).WithMany(u => u.OwnedStreams);
+            builder.Entity<Models.Stream>().HasOne(s => s.Owner).WithMany(u => u.OwnedStreams);
 
             builder.Entity<GiveAwayItem>()
                 .HasOne(gai => gai.Owner)

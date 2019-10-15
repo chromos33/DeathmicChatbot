@@ -83,7 +83,7 @@ namespace BobDeathmic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,StreamName,Game,UserID,Url,Type,Started,Stopped,DiscordRelayChannel,UpTimeInterval")] Stream stream)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,StreamName,Game,UserID,Url,Type,Started,Stopped,DiscordRelayChannel,UpTimeInterval")] Models.Stream stream)
         {
             if (id != stream.ID)
             {
@@ -127,7 +127,7 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Create()
         {
-            ViewData["StreamTypes"] = Stream.StaticEnumStreamTypes();
+            ViewData["StreamTypes"] = Models.Stream.StaticEnumStreamTypes();
             var relaychannels = await _context.RelayChannels.ToListAsync();
             ViewData["RelayChannels"] = relaychannels;
             ViewData["SelectedRelayChannel"] = "Aus";
@@ -140,7 +140,7 @@ namespace BobDeathmic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Create([Bind("ID,StreamName,Game,UserID,Url,Type,AccessToken,Secret,ClientID,Started,Stopped,StreamState,DiscordRelayChannel,UpTimeInterval,LastUpTime")] Stream stream)
+        public async Task<IActionResult> Create([Bind("ID,StreamName,Game,UserID,Url,Type,AccessToken,Secret,ClientID,Started,Stopped,StreamState,DiscordRelayChannel,UpTimeInterval,LastUpTime")] Models.Stream stream)
         {
             if (ModelState.IsValid)
             {
@@ -151,7 +151,7 @@ namespace BobDeathmic.Controllers
             }
             return RedirectToAction(nameof(Verwaltung));
         }
-        private async Task handleCreated(Stream stream)
+        private async Task handleCreated(Models.Stream stream)
         {
             string address = _configuration.GetValue<string>("WebServerWebAddress") + "/User/Subscriptions";
             MessageArgs args = new MessageArgs();

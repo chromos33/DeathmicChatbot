@@ -4,8 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic.ChatCommands.Setup;
 
-namespace BobDeathmic.Services.Helper
+namespace BobDeathmic.ChatCommands.Setup
 {
     public class CommandBuilder
     {
@@ -15,58 +16,58 @@ namespace BobDeathmic.Services.Helper
 
             if (!excludeHelp && CommandBuilder.CommandActiveInSource(source, "Help"))
             {
-                Commands.Help tmp = new Commands.Help();
+                Help tmp = new Help();
                 tmp.PopulateCommandList(source);
                 Commands.Add(tmp);
             }
             if (CommandBuilder.CommandActiveInSource(source, "stream"))
             {
-                BobDeathmic.Services.Helper.Commands.TwitchStreamTitle tmp = new Commands.TwitchStreamTitle();
+                TwitchStreamTitle tmp = new TwitchStreamTitle();
                 Commands.Add(tmp);
             }
             if (CommandBuilder.CommandActiveInSource(source, "game"))
             {
-                BobDeathmic.Services.Helper.Commands.Game tmp = new Commands.Game();
+                Game tmp = new Game();
                 Commands.Add(tmp);
             }
             if (CommandBuilder.CommandActiveInSource(source, "title"))
             {
-                BobDeathmic.Services.Helper.Commands.Title tmp = new Commands.Title();
+                Title tmp = new Title();
                 Commands.Add(tmp);
             }
             if (CommandBuilder.CommandActiveInSource(source, "strawpoll"))
             {
-                BobDeathmic.Services.Helper.Commands.Strawpoll tmp = new Commands.Strawpoll();
+                Strawpoll tmp = new Strawpoll();
                 Commands.Add(tmp);
             }
             if (CommandBuilder.CommandActiveInSource(source, "registerraffle"))
             {
-                Commands.RandomChatUserRegisterCommand tmp = new Commands.RandomChatUserRegisterCommand();
+                RandomChatUserRegisterCommand tmp = new RandomChatUserRegisterCommand();
                 Commands.Add(tmp);
             }
             if (CommandBuilder.CommandActiveInSource(source, "next"))
             {
-                Commands.PickNextChatUserForNameCommand tmp = new Commands.PickNextChatUserForNameCommand();
+                PickNextChatUserForNameCommand tmp = new PickNextChatUserForNameCommand();
                 Commands.Add(tmp);
             }
             if (CommandBuilder.CommandActiveInSource(source, "nextrand"))
             {
-                Commands.PickNextRandChatUserForNameCommand tmp = new Commands.PickNextRandChatUserForNameCommand();
+                PickNextRandChatUserForNameCommand tmp = new PickNextRandChatUserForNameCommand();
                 Commands.Add(tmp);
             }
             if (CommandBuilder.CommandActiveInSource(source, "list"))
             {
-                Commands.ListRandUsersInListCommand tmp = new Commands.ListRandUsersInListCommand();
+                ListRandUsersInListCommand tmp = new ListRandUsersInListCommand();
                 Commands.Add(tmp);
             }
             if (CommandBuilder.CommandActiveInSource(source, "skip"))
             {
-                Commands.SkipLastRandUserCommand tmp = new Commands.SkipLastRandUserCommand();
+                SkipLastRandUserCommand tmp = new SkipLastRandUserCommand();
                 Commands.Add(tmp);
             }
             if (CommandBuilder.CommandActiveInSource(source, "quote"))
             {
-                Commands.QuoteCommand tmp = new Commands.QuoteCommand();
+                QuoteCommand tmp = new QuoteCommand();
                 Commands.Add(tmp);
             }
             /*
