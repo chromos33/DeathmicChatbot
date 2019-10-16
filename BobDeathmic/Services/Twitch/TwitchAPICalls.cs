@@ -1,5 +1,7 @@
 ﻿using BobDeathmic.Args;
 using BobDeathmic.Data;
+using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.Eventbus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,7 +42,7 @@ namespace BobDeathmic.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(streamname) && sm.Type == Models.Enum.StreamProviderTypes.Twitch).FirstOrDefault();
+                Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(streamname) && sm.Type == StreamProviderTypes.Twitch).FirstOrDefault();
                 if (stream != null && stream.RefreshToken != null && stream.RefreshToken != "")
                 {
                     var httpclient = new HttpClient();
@@ -65,7 +67,7 @@ namespace BobDeathmic.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
+                Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
                 if (stream != null && stream.ClientID != null && stream.ClientID != "" && stream.AccessToken != null && stream.AccessToken != "")
                 {
                     TwitchAPI api = new TwitchAPI();
@@ -135,11 +137,11 @@ namespace BobDeathmic.Services
                             }
                         }
                     }
-                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = message });
+                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = message });
                 }
                 else
                 {
-                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = "Stream can't be updated no Authorization key detected." });
+                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = "Stream can't be updated no Authorization key detected." });
                 }
             }
             return;

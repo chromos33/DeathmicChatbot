@@ -2,7 +2,6 @@
 using BobDeathmic.Data;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
-using BobDeathmic.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,9 +12,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TwitchLib.Api;
+using BobDeathmic.Services;
+using BobDeathmic;
+using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Data.Enums.Stream;
 using TwitchLib.Api.Helix.Models.Streams;
 
-namespace BobDeathmic.Services
+namespace BobDeathmic.Services.Streams.Checker.Twitch
 {
     public class TwitchChecker : BackgroundService
     {
@@ -44,7 +47,7 @@ namespace BobDeathmic.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                Models.SecurityToken data = null;
+                SecurityToken data = null;
                 while (data == null)
                 {
                     data = _context.SecurityTokens.Where(securitykey => securitykey.service == TokenType.Twitch).FirstOrDefault();
@@ -69,7 +72,7 @@ namespace BobDeathmic.Services
                 await Task.Delay(5000, stoppingToken);
             }
         }
-        public bool TriggerUpTime(Models.Stream stream)
+        public bool TriggerUpTime(Data.DBModels.StreamModels.Stream stream)
         {
             if (stream.UpTimeInterval > 0)
             {
@@ -85,7 +88,7 @@ namespace BobDeathmic.Services
             }
             return false;
         }
-        public TimeSpan GetUpTime(Models.Stream stream)
+        public TimeSpan GetUpTime(Data.DBModels.StreamModels.Stream stream)
         {
             return DateTime.Now - stream.Started;
         }
@@ -130,7 +133,7 @@ namespace BobDeathmic.Services
 
                     foreach (var user in userdata.Users)
                     {
-                        Models.Stream stream = Streams.Where(x => x.StreamName.ToLower() == user.Login.ToLower()).FirstOrDefault();
+                        Data.DBModels.StreamModels.Stream stream = Streams.Where(x => x.StreamName.ToLower() == user.Login.ToLower()).FirstOrDefault();
                         stream.UserID = user.Id;
                     }
                     _context.SaveChanges();
@@ -168,7 +171,7 @@ namespace BobDeathmic.Services
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var Streams = _context.StreamModels.Where(s => !OnlineStreamIDs.Contains(s.UserID));
                 
-                foreach (Models.Stream stream in Streams.Where(x => x.StreamState != StreamState.NotRunning && x.Type == StreamProviderTypes.Twitch))
+                foreach (Data.DBModels.StreamModels.Stream stream in Streams.Where(x => x.StreamState != StreamState.NotRunning && x.Type == StreamProviderTypes.Twitch))
                 {
                     stream.StreamState = StreamState.NotRunning;
                     if (RandomDiscordRelayChannels.Contains(stream.DiscordRelayChannel))
@@ -186,7 +189,7 @@ namespace BobDeathmic.Services
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var Streams = _context.StreamModels.Where(s => OnlineStreamIDs.Contains(s.UserID) && s.Type == StreamProviderTypes.Twitch).Include(x => x.StreamSubscriptions).ThenInclude(y => y.User);
                 Boolean write = false;
-                foreach (Models.Stream stream in Streams)
+                foreach (Data.DBModels.StreamModels.Stream stream in Streams)
                 {
                     TwitchLib.Api.Helix.Models.Streams.Stream streamdata = StreamsData.Streams.Single(sd => sd.UserId == stream.UserID);
                     if (stream.StreamState == StreamState.NotRunning)
@@ -222,7 +225,7 @@ namespace BobDeathmic.Services
                 return RandomDiscordRelayChannels.Except(occupiedchannels).FirstOrDefault();
             }
         }
-        private string GetStreamUrl(Models.Stream stream)
+        private string GetStreamUrl(Data.DBModels.StreamModels.Stream stream)
         {
             if (string.IsNullOrEmpty(stream.Url))
             {

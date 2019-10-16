@@ -1,13 +1,18 @@
-﻿using BobDeathmic.Args;
+﻿using BobDeathmic;
+using BobDeathmic.Args;
 using BobDeathmic.ChatCommands.Setup;
 using BobDeathmic.Data;
+using BobDeathmic.Data.DBModels.GiveAway.manymany;
+using BobDeathmic.Data.DBModels.Relay;
+using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
-using BobDeathmic.Models.GiveAway;
-using BobDeathmic.Models.GiveAwayModels;
 using BobDeathmic.Services;
 using BobDeathmic.Services.Helper;
 using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Identity;
@@ -25,7 +30,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Services
+namespace BobDeathmic.Services.Discords
 {
     public interface IDiscordService
     {
@@ -61,7 +66,7 @@ namespace BobDeathmic.Services
 
         private async void NotifySubscriber(StreamEventArgs e)
         {
-            if (e.state == Models.Enum.StreamState.Started)
+            if (e.state == StreamState.Started)
             {
                 while (client.ConnectionState != ConnectionState.Connected)
                 {
@@ -70,7 +75,7 @@ namespace BobDeathmic.Services
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower() && e.StreamType == sm.Type).FirstOrDefault();
+                    Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower() && e.StreamType == sm.Type).FirstOrDefault();
                     if (stream != null)
                     {
                         List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
@@ -95,7 +100,7 @@ namespace BobDeathmic.Services
                                     await user.SendMessageAsync(e.Notification);
                                     await Task.Delay(200);
                                 }
-                                catch (Discord.Net.HttpException ex)
+                                catch (HttpException ex)
                                 {
                                     switch (ex.DiscordCode)
                                     {
@@ -172,7 +177,7 @@ namespace BobDeathmic.Services
             string token = GetDiscordToken();
             if (token != string.Empty)
             {
-                await client.LoginAsync(TokenType.Bot, token);
+                await client.LoginAsync(Discord.TokenType.Bot, token);
                 await client.StartAsync();
                 InitializeEvents();
                 return true;
@@ -195,7 +200,7 @@ namespace BobDeathmic.Services
             {
                 var token = string.Empty;
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var tokens = _context.SecurityTokens.Where(st => st.service == Models.Enum.TokenType.Discord).FirstOrDefault();
+                var tokens = _context.SecurityTokens.Where(st => st.service == Data.Enums.Stream.TokenType.Discord).FirstOrDefault();
                 if (tokens != null)
                 {
                     if (tokens.token == null)
@@ -258,7 +263,7 @@ namespace BobDeathmic.Services
                 _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 foreach (var channel in channelsToBeAdded)
                 {
-                    _context.RelayChannels.Add(new Models.Discord.RelayChannels { Name = channel });
+                    _context.RelayChannels.Add(new RelayChannels { Name = channel });
                 }
                 await _context.SaveChangesAsync();
             }
@@ -359,7 +364,7 @@ namespace BobDeathmic.Services
             string commandresult = string.Empty;
             foreach (IfCommand command in CommandList)
             {
-                Dictionary<String, String> inputargs = new Dictionary<string, string>();
+                Dictionary<string, string> inputargs = new Dictionary<string, string>();
                 inputargs["message"] = arg.Content;
                 inputargs["username"] = arg.Author.Username;
                 inputargs["source"] = "discord";
@@ -441,7 +446,7 @@ namespace BobDeathmic.Services
         {
             if (arg.Channel.Name.StartsWith("stream_", StringComparison.CurrentCulture))
             {
-                Args.RelayMessageArgs args = new Args.RelayMessageArgs();
+                RelayMessageArgs args = new RelayMessageArgs();
                 args.SourceChannel = arg.Channel.Name;
                 args.Message = arg.Author.Username + ": " + arg.Content;
                 using (var scope = _scopeFactory.CreateScope())
@@ -496,18 +501,18 @@ namespace BobDeathmic.Services
         {
             using (var scope = _scopeFactory.CreateScope())
             {
-                Models.ChatUserModel newUser = new Models.ChatUserModel();
+                ChatUserModel newUser = new ChatUserModel();
                 string password = string.Empty;
                 newUser.UserName = cleanedname;
                 newUser.ChatUserName = arg.Author.Username;
                 password += arg.Author.Username.Substring(random.Next(0, arg.Author.Username.Length - 1));
-                newUser.StreamSubscriptions = new List<Models.StreamSubscription>();
+                newUser.StreamSubscriptions = new List<StreamSubscription>();
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 foreach (var Stream in _context.StreamModels.Where(x => x.StreamName != null))
                 {
                     password += Stream.StreamName.Substring(random.Next(0, Stream.StreamName.Length - 1));
-                    Models.StreamSubscription newSubscription = new Models.StreamSubscription();
-                    newSubscription.Subscribed = Models.Enum.SubscriptionState.Subscribed;
+                    StreamSubscription newSubscription = new StreamSubscription();
+                    newSubscription.Subscribed = SubscriptionState.Subscribed;
                     newSubscription.Stream = Stream;
                     newSubscription.User = newUser;
                     newUser.StreamSubscriptions.Add(newSubscription);
@@ -540,7 +545,7 @@ namespace BobDeathmic.Services
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var RoleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                    var UserManager = scope.ServiceProvider.GetRequiredService<UserManager<Models.ChatUserModel>>();
+                    var UserManager = scope.ServiceProvider.GetRequiredService<UserManager<ChatUserModel>>();
 
                     //Adding Admin Role
                     var roleCheck = await RoleManager.RoleExistsAsync(role);
@@ -551,7 +556,7 @@ namespace BobDeathmic.Services
                     }
                     //Assign Admin role to the main User here we have given our newly registered 
                     //login id for Admin management
-                    Models.ChatUserModel user = await UserManager.FindByNameAsync(name);
+                    ChatUserModel user = await UserManager.FindByNameAsync(name);
                     await UserManager.AddToRoleAsync(user, role);
                 }
             }

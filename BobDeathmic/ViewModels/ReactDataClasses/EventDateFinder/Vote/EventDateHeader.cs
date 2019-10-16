@@ -3,8 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic;
 
-namespace BobDeathmic.ReactDataClasses.Events.Vote
+namespace BobDeathmic.ViewModels.ReactDataClasses.EventDateFinder.Vote
 {
     public class EventDateData
     {

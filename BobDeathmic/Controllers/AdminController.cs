@@ -1,5 +1,6 @@
-﻿using BobDeathmic.Models;
-using BobDeathmic.Models.Enum;
+﻿using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Data.Enums.Stream;
+using BobDeathmic.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
@@ -58,7 +59,7 @@ namespace BobDeathmic.Controllers
         }
         [HttpPost]
         [Authorize(Roles = "Dev")]
-        public async Task<IActionResult> AddSecurityToken([Bind("ClientID,secret,service")] Models.SecurityToken token)
+        public async Task<IActionResult> AddSecurityToken([Bind("ClientID,secret,service")] SecurityToken token)
         {
             switch (token.service)
             {
@@ -106,7 +107,7 @@ namespace BobDeathmic.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> TwitchReturnUrlAction(string code, string scope, string state)
         {
-            var savedtoken = _context.SecurityTokens.Where(st => st.service == BobDeathmic.Models.Enum.TokenType.Twitch).FirstOrDefault();
+            var savedtoken = _context.SecurityTokens.Where(st => st.service == TokenType.Twitch).FirstOrDefault();
             savedtoken.code = code;
             var client = new HttpClient();
             string baseUrl = _configuration.GetValue<string>("WebServerWebAddress");

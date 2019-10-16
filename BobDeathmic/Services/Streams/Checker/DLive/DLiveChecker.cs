@@ -1,7 +1,8 @@
 ﻿using BobDeathmic.Args;
 using BobDeathmic.Data;
+using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.Eventbus;
-using BobDeathmic.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -47,7 +48,7 @@ namespace BobDeathmic.Services
                     HttpClient client = new HttpClient();
                     string baseurl = "https://graphigo.prd.dlive.tv/";
                     var Streams = _context.StreamModels.Where(x => x.Type == StreamProviderTypes.DLive).Include(x => x.StreamSubscriptions).ThenInclude(x => x.User);
-                    foreach (Models.Stream stream in Streams)
+                    foreach (Stream stream in Streams)
                     {
                         var content = new StringContent("{\"query\":\"{ userByDisplayName(displayname: \\\""+stream.StreamName+"\\\") {livestream{id}}}\"}", Encoding.UTF8, "application/json");
                         var response = await client.PostAsync(baseurl, content);

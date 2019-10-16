@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BobDeathmic.Data.Enums.Relay;
+using BobDeathmic.Data.Enums.Stream;
+using System;
 
 namespace BobDeathmic.Args
 {
@@ -8,11 +10,11 @@ namespace BobDeathmic.Args
         public string game;
         //state 1:started;2:running;3:stopped;
         //TODO: Change state to Database.Classes.StreamState
-        public Models.Enum.StreamState state;
+        public StreamState state;
         public string link;
         public string Notification;
-        public Models.Enum.RelayState relayactive;
-        public Models.Enum.StreamProviderTypes StreamType;
+        public RelayState relayactive;
+        public StreamProviderTypes StreamType;
         public bool PostUpTime;
         public TimeSpan Uptime;
     }

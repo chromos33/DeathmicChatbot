@@ -1,8 +1,10 @@
 ﻿using BobDeathmic.Data;
+using BobDeathmic.Data.DBModels.User;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
-using BobDeathmic.Models.AccountViewModels;
 using BobDeathmic.Services;
+using BobDeathmic.ViewModels;
+using BobDeathmic.ViewModels.User;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
@@ -137,7 +139,7 @@ namespace BobDeathmic.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RequestPasswort(Models.User.RequestPasswordViewModel model)
+        public async Task<IActionResult> RequestPasswort(RequestPasswordViewModel model)
         {
             if (!ModelState.IsValid)
             {

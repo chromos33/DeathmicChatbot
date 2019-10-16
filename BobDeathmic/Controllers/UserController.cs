@@ -1,6 +1,5 @@
 ﻿using BobDeathmic.Data;
 using BobDeathmic.Models;
-using BobDeathmic.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +11,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using BobDeathmic.Models;
+using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Data.Enums.Stream;
+using BobDeathmic.ViewModels.User;
 
 namespace BobDeathmic.Controllers
 {
@@ -39,7 +42,7 @@ namespace BobDeathmic.Controllers
         {
             ChatUserModel usermodel = await _userManager.GetUserAsync(this.User);
             List<StreamSubscription> streamsubs = _context.StreamSubscriptions.Include(ss => ss.User).Include(ss => ss.Stream).Where(ss => ss.User == usermodel).ToList();
-            List<Models.Stream> FilteredStreams = new List<Models.Stream>();
+            List<Stream> FilteredStreams = new List<Stream>();
             foreach (var stream in _context.StreamModels)
             {
                 bool add = true;
@@ -64,7 +67,7 @@ namespace BobDeathmic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> AddSubscription(Models.User.AddSubscriptionViewModel model)
+        public async Task<IActionResult> AddSubscription(AddSubscriptionViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -81,7 +84,7 @@ namespace BobDeathmic.Controllers
                 StreamSubscription newsub = new StreamSubscription();
                 newsub.Stream = stream;
                 newsub.User = user;
-                newsub.Subscribed = Models.Enum.SubscriptionState.Subscribed;
+                newsub.Subscribed = SubscriptionState.Subscribed;
                 _context.StreamSubscriptions.Add(newsub);
 
                 user.StreamSubscriptions.Add(newsub);
@@ -107,12 +110,12 @@ namespace BobDeathmic.Controllers
             {
                 switch (sub.Subscribed)
                 {
-                    case Models.Enum.SubscriptionState.Subscribed:
-                        sub.Subscribed = Models.Enum.SubscriptionState.Unsubscribed;
+                    case SubscriptionState.Subscribed:
+                        sub.Subscribed = SubscriptionState.Unsubscribed;
                         @return = "false";
                         break;
-                    case Models.Enum.SubscriptionState.Unsubscribed:
-                        sub.Subscribed = Models.Enum.SubscriptionState.Subscribed;
+                    case SubscriptionState.Unsubscribed:
+                        sub.Subscribed = SubscriptionState.Subscribed;
                         @return = "true";
                         break;
                 }
@@ -143,13 +146,13 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public IActionResult ChangePassword()
         {
-            var model = new Models.User.ChangePasswordViewModel { StatusMessage = StatusMessage };
+            var model = new ChangePasswordViewModel { StatusMessage = StatusMessage };
             return View(model);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> ChangePassword(Models.User.ChangePasswordViewModel model)
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             if (!ModelState.IsValid)
             {

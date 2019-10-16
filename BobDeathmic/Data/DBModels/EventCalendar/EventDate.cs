@@ -1,9 +1,13 @@
-﻿using System;
+﻿using BobDeathmic.Data.DBModels.EventCalendar;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic.Models.Events;
+using BobDeathmic;
+using BobDeathmic.Models;
 
-namespace BobDeathmic.Models.Events
+namespace BobDeathmic.Data.DBModels.EventCalendar
 {
     //Wird in der Abstimmung generiert für z.b. 14 Tage im Vorraus und dann jeden Tag wird das älteste bzw "15 te" gelöscht
     public class EventDate

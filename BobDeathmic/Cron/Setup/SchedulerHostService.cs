@@ -1,4 +1,5 @@
-﻿using BobDeathmic.Services.Helper;
+﻿using BobDeathmic.Cron.Setup;
+using BobDeathmic.Services.Helper;
 using Microsoft.Extensions.Hosting;
 using NCrontab;
 using System;

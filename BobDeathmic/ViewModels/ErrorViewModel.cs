@@ -1,6 +1,6 @@
 using System;
 
-namespace BobDeathmic.Models
+namespace BobDeathmic.ViewModels
 {
     public class ErrorViewModel
     {

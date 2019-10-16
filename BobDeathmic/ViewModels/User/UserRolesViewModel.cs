@@ -1,9 +1,10 @@
-﻿using System;
+﻿using BobDeathmic.Data.DBModels.User;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models.User
+namespace BobDeathmic.ViewModels.User
 {
     public class UserRolesViewModel
     {

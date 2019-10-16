@@ -1,9 +1,14 @@
-﻿using System;
+﻿using BobDeathmic;
+using BobDeathmic.Data.DBModels.EventCalendar;
+using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Models;
+using BobDeathmic.Models.Events;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models.Events
+namespace BobDeathmic.Data.DBModels.EventCalendar
 {
     //Missing counter relation to ChatUserModel
     public class AppointmentRequest

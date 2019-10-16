@@ -1,7 +1,10 @@
-﻿using BobDeathmic.Models.Events;
-using BobDeathmic.Models.Events.ManyMany;
-using BobDeathmic.Models.GiveAway;
-using BobDeathmic.Models.GiveAwayModels;
+﻿using BobDeathmic.Data.DBModels.EventCalendar;
+using BobDeathmic.Data.DBModels.EventCalendar.manymany;
+using BobDeathmic.Data.DBModels.GiveAway;
+using BobDeathmic.Data.DBModels.GiveAway.manymany;
+using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Data.Enums.Stream;
+using BobDeathmic.Models.Events;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -9,7 +12,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models
+namespace BobDeathmic.Data.DBModels.User
 {
     // Add profile data for application users by adding properties to the ChatUserModel class
     public class ChatUserModel : IdentityUser
@@ -31,7 +34,7 @@ namespace BobDeathmic.Models
 
         public bool IsSubscribed(string streamname)
         {
-            if (StreamSubscriptions != null && StreamSubscriptions.Where(ss => ss.Stream != null && ss.Stream.StreamName.ToLower() == streamname.ToLower() && ss.Subscribed == Enum.SubscriptionState.Subscribed).FirstOrDefault() != null)
+            if (StreamSubscriptions != null && StreamSubscriptions.Where(ss => ss.Stream != null && ss.Stream.StreamName.ToLower() == streamname.ToLower() && ss.Subscribed == SubscriptionState.Subscribed).FirstOrDefault() != null)
             {
                 return true;
             }

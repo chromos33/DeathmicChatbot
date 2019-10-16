@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models.StreamViewModels
+namespace BobDeathmic.ViewModels.StreamModels
 {
     public class StreamOAuthDataModel
     {

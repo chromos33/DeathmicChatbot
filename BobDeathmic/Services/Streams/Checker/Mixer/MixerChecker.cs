@@ -1,7 +1,9 @@
 ﻿using BobDeathmic.Args;
 using BobDeathmic.Data;
+using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Data.Enums.Relay;
+using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.Eventbus;
-using BobDeathmic.Models.Enum;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
@@ -48,11 +50,11 @@ namespace BobDeathmic.Services
                         var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                         HttpClient client = new HttpClient();
                         string baseUrl = "https://mixer.com/api/v1/channels/";
-                        IQueryable<Models.Stream> GetStreams()
+                        IQueryable<Stream> GetStreams()
                         {
                             return _context.StreamModels.Where(x => x.Type == StreamProviderTypes.Mixer);
                         }
-                        foreach (Models.Stream stream in GetStreams())
+                        foreach (Stream stream in GetStreams())
                         {
                             string RequestLink = baseUrl + stream.StreamName;
                             var response = await client.GetAsync(RequestLink);

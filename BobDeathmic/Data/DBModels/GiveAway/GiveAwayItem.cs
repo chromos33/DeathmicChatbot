@@ -1,11 +1,13 @@
-﻿using BobDeathmic.Models.GiveAway;
+﻿using BobDeathmic.Data.DBModels.GiveAway.manymany;
+using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models.GiveAwayModels
+namespace BobDeathmic.Data.DBModels.GiveAway
 {
     public class GiveAwayItem
     {

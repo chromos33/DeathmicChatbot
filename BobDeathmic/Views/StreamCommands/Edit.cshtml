@@ -1,5 +1,6 @@
-﻿@model BobDeathmic.Models.StreamCommand
-
+﻿@model BobDeathmic.Data.DBModels.StreamModels.StreamCommand
+@using BobDeathmic.ChatCommands.Setup
+@using BobDeathmic.Data.DBModels.StreamModels
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -64,23 +65,22 @@
 
 @section Scripts {
     <script>
-            ToggleAutoInterval(jQuery("#Mode").find(":selected").val());
-            jQuery("#Mode").on("change", function () {
-                ToggleAutoInterval(jQuery(this).find(":selected").val());
-            })
-            function ToggleAutoInterval(state) {
-                switch(state)
-                {
-                    case "Auto":
-                        jQuery(".autointervalctn").show();
+        ToggleAutoInterval(jQuery("#Mode").find(":selected").val());
+        jQuery("#Mode").on("change", function () {
+            ToggleAutoInterval(jQuery(this).find(":selected").val());
+        })
+        function ToggleAutoInterval(state) {
+            switch (state) {
+                case "Auto":
+                    jQuery(".autointervalctn").show();
                     break;
-                    case "Manual":
-                        jQuery(".autointervalctn").hide();
+                case "Manual":
+                    jQuery(".autointervalctn").hide();
                     break;
-
-                }
 
             }
+
+        }
     </script>
 
 }

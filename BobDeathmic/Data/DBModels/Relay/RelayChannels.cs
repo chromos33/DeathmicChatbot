@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models.Discord
+namespace BobDeathmic.Data.DBModels.Relay
 {
     public class RelayChannels
     {

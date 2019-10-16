@@ -1,9 +1,12 @@
-﻿using System;
+﻿using BobDeathmic;
+using BobDeathmic.Data.DBModels.Commands;
+using BobDeathmic.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models
+namespace BobDeathmic.Data.DBModels.Commands
 {
     public class RandomChatUser
     {

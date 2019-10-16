@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BobDeathmic.ChatCommands.Setup;
 using BobDeathmic.Data;
+using BobDeathmic.Data.DBModels.Quote;
 using BobDeathmic.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

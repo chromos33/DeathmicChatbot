@@ -1,10 +1,12 @@
-﻿using BobDeathmic.Models.Enum;
+﻿using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Data.Enums.Relay;
+using BobDeathmic.Data.Enums.Stream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models
+namespace BobDeathmic.Data.DBModels.StreamModels
 {
     public class Stream
     {
@@ -80,9 +82,9 @@ namespace BobDeathmic.Models
         {
             if (DiscordRelayChannel != "Aus" && DiscordRelayChannel != "")
             {
-                return Enum.RelayState.Activated;
+                return Enums.Relay.RelayState.Activated;
             }
-            return Enum.RelayState.NotActivated;
+            return Enums.Relay.RelayState.NotActivated;
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using BobDeathmic.Models;
-using BobDeathmic.Models.GiveAwayModels;
+﻿using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

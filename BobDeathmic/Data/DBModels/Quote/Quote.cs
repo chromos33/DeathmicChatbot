@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace BobDeathmic.Models
+namespace BobDeathmic.Data.DBModels.Quote
 {
     public class Quote
     {

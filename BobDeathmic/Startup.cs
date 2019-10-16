@@ -3,6 +3,7 @@ using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
 using BobDeathmic.Services;
 using BobDeathmic.Services.Helper;
+using BobDeathmic.Services.Streams.Checker.Twitch;
 using JavaScriptEngineSwitcher.ChakraCore;
 using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using JavaScriptEngineSwitcher.Jurassic;
@@ -21,7 +22,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using BobDeathmic.Cron.Setup;
 using BobDeathmic.Cron;
-using BobDeathmic.Stream.Relay.Twitch;
+using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Services.Discords;
+using BobDeathmic.Services.Streams.Relay.Twitch;
 
 namespace BobDeathmic
 {

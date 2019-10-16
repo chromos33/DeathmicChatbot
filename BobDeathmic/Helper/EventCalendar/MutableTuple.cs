@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic.Helper;
+using BobDeathmic;
 
-namespace BobDeathmic.Helper
+namespace BobDeathmic.Helper.EventCalendar
 {
     public class MutableTuple<T1, T2>
     {

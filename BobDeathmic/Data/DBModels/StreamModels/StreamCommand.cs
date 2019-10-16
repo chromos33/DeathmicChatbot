@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models
+namespace BobDeathmic.Data.DBModels.StreamModels
 {
     public class StreamCommand
     {

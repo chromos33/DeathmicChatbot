@@ -1,10 +1,10 @@
-﻿using BobDeathmic.Models.Enum;
+﻿using BobDeathmic.Data.Enums.Stream;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models
+namespace BobDeathmic.Data.DBModels.StreamModels
 {
     public class SecurityToken
     {

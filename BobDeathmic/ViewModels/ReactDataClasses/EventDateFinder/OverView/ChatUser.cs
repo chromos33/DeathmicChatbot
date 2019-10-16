@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic;
 
-namespace BobDeathmic.ReactDataClasses.Events.OverView
+namespace BobDeathmic.ViewModels.ReactDataClasses.EventDateFinder.OverView
 {
     public class ChatUser
     {

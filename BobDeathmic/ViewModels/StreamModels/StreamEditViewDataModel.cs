@@ -1,10 +1,11 @@
-﻿using BobDeathmic.Models.Discord;
+﻿using BobDeathmic.Data.DBModels.Relay;
+using BobDeathmic.Data.DBModels.StreamModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models.StreamModels
+namespace BobDeathmic.ViewModels.StreamModels
 {
     public class StreamEditViewDataModel
     {

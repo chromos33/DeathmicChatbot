@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using BobDeathmic.Data.DBModels.User;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,7 @@ namespace BobDeathmic.Models
 
                 var dev = new ChatUserModel { UserName = "Dev", ChatUserName = "Dev" };
                 await usermanager.CreateAsync(dev, "SetupPassword");
-                await Models.SeedData.CreateOrAddUserRoles("Dev", "Dev", serviceProvider);
+                await SeedData.CreateOrAddUserRoles("Dev", "Dev", serviceProvider);
 
             }
             return;
@@ -38,7 +39,7 @@ namespace BobDeathmic.Models
             try
             {
                 var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                var UserManager = serviceProvider.GetRequiredService<UserManager<Models.ChatUserModel>>();
+                var UserManager = serviceProvider.GetRequiredService<UserManager<ChatUserModel>>();
 
                 IdentityResult roleResult;
                 //Adding Admin Role
@@ -50,7 +51,7 @@ namespace BobDeathmic.Models
                 }
                 //Assign Admin role to the main User here we have given our newly registered 
                 //login id for Admin management
-                Models.ChatUserModel user = await UserManager.FindByNameAsync(name);
+                ChatUserModel user = await UserManager.FindByNameAsync(name);
                 await UserManager.AddToRoleAsync(user, role);
             }
             catch (Exception)

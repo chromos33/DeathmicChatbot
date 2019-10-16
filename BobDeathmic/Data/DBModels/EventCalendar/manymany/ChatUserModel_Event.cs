@@ -1,10 +1,15 @@
-﻿using System;
+﻿using BobDeathmic;
+using BobDeathmic.Data.DBModels.EventCalendar.manymany;
+using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Models;
+using BobDeathmic.Models.Events;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BobDeathmic.Models.Events.ManyMany
+namespace BobDeathmic.Data.DBModels.EventCalendar.manymany
 {
     public class ChatUserModel_Event
     {

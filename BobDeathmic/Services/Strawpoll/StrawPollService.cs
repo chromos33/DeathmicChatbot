@@ -1,5 +1,7 @@
 ﻿using BobDeathmic.Args;
 using BobDeathmic.Data;
+using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.Eventbus;
 using BobDeathmic.JSONObjects;
 using Microsoft.Extensions.DependencyInjection;
@@ -80,8 +82,8 @@ namespace BobDeathmic.Services
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
-                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = StrawPollData.Url() });
+                    Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
+                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = StrawPollData.Url() });
                 }
             }
             else
@@ -90,8 +92,8 @@ namespace BobDeathmic.Services
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    Models.Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
-                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = Models.Enum.StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = "You need at least 2 Options" });
+                    Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
+                    _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = "You need at least 2 Options" });
                 }
             }
 

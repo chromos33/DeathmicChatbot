@@ -1,9 +1,13 @@
-﻿using System;
+﻿using BobDeathmic.Data.DBModels.EventCalendar;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic.Models.Events;
+using BobDeathmic;
+using BobDeathmic.Models;
 
-namespace BobDeathmic.Models.Events
+namespace BobDeathmic.Data.DBModels.EventCalendar
 {
     //Template aus dem EventDates generiert werden
     //TODO Rename is confusing cause in reality it is a EventDateTemplate

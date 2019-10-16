@@ -1,4 +1,6 @@
-﻿using BobDeathmic.Models.Events.ManyMany;
+﻿using BobDeathmic.Data.DBModels.EventCalendar;
+using BobDeathmic.Data.DBModels.EventCalendar.manymany;
+using BobDeathmic.Data.DBModels.User;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;

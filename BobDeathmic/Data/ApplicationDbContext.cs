@@ -1,8 +1,14 @@
-﻿using BobDeathmic.Models;
+﻿using BobDeathmic.Data.DBModels.Commands;
+using BobDeathmic.Data.DBModels.EventCalendar;
+using BobDeathmic.Data.DBModels.EventCalendar.manymany;
+using BobDeathmic.Data.DBModels.GiveAway;
+using BobDeathmic.Data.DBModels.GiveAway.manymany;
+using BobDeathmic.Data.DBModels.Quote;
+using BobDeathmic.Data.DBModels.Relay;
+using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Models;
 using BobDeathmic.Models.Events;
-using BobDeathmic.Models.Events.ManyMany;
-using BobDeathmic.Models.GiveAway;
-using BobDeathmic.Models.GiveAwayModels;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -33,15 +39,15 @@ namespace BobDeathmic.Data
                 .HasMany(u => u.OwnedStreams)
                 .WithOne(s => s.Owner)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<Models.Stream>()
+            builder.Entity<Stream>()
                 .HasMany(s => s.StreamSubscriptions)
                 .WithOne(ss => ss.Stream)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<Models.Stream>()
+            builder.Entity<Stream>()
                 .HasMany(s => s.Commands)
                 .WithOne(sc => sc.stream)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<Models.Stream>().HasOne(s => s.Owner).WithMany(u => u.OwnedStreams);
+            builder.Entity<Stream>().HasOne(s => s.Owner).WithMany(u => u.OwnedStreams);
 
             builder.Entity<GiveAwayItem>()
                 .HasOne(gai => gai.Owner)
@@ -97,13 +103,13 @@ namespace BobDeathmic.Data
 
         }
         //a foreign key constraint fails (`bobcoreef`.`appointmentrequests`, CONSTRAINT `FK_AppointmentRequests_EventDates_EventDateID` FOREIGN KEY (`EventDateID`) REFERENCES `eventdates` (`ID`)) ---
-        public DbSet<Models.ChatUserModel> ChatUserModels { get; set; }
-        public DbSet<Models.Stream> StreamModels { get; set; }
+        public DbSet<ChatUserModel> ChatUserModels { get; set; }
+        public DbSet<Stream> StreamModels { get; set; }
         public DbSet<StreamSubscription> StreamSubscriptions { get; set; }
         public DbSet<SecurityToken> SecurityTokens { get; set; }
-        public DbSet<Models.Discord.RelayChannels> RelayChannels { get; set; }
-        public DbSet<Models.DiscordBan> DiscordBans { get; set; }
-        public DbSet<BobDeathmic.Models.StreamCommand> StreamCommand { get; set; }
+        public DbSet<RelayChannels> RelayChannels { get; set; }
+        public DbSet<DiscordBan> DiscordBans { get; set; }
+        public DbSet<StreamCommand> StreamCommand { get; set; }
         public DbSet<GiveAwayItem> GiveAwayItems { get; set; }
         public DbSet<User_GiveAwayItem> User_GiveAway { get; set; }
         public DbSet<Event> Events { get; set; }

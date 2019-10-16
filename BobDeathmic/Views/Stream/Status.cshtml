@@ -1,4 +1,4 @@
-﻿@model BobDeathmic.Models.StreamViewModels.StreamListDataModel
+﻿@model BobDeathmic.ViewModels.StreamModels.StreamListDataModel
 
 @{
     ViewData["Title"] = "Status";
@@ -24,7 +24,7 @@
         {
             <tr>
                 <td><a href="@Html.DisplayFor(modelItem => item.Url)">@Html.DisplayFor(modelItem => item.StreamName)</a></td>
-                @if (item.StreamState == BobDeathmic.Models.Enum.StreamState.Running)
+                @if (item.StreamState == BobDeathmic.Data.Enums.Stream.StreamState.Running)
                 {
                     <td><i class="fas fa-check-circle font_green"></i></td>
 
