@@ -14,5 +14,21 @@ namespace BobDeathmic.Data.DBModels.StreamModels
         public Stream Stream { get; set; }
         public SubscriptionState Subscribed { get; set; }
         public ChatUserModel User { get; set; }
+
+        public StreamSubscription()
+        {
+
+        }
+        public StreamSubscription(Stream stream,SubscriptionState state)
+        {
+            Stream = stream;
+            Subscribed = state;
+        }
+        public StreamSubscription(ChatUserModel user, Stream stream, SubscriptionState state)
+        {
+            Stream = stream;
+            Subscribed = state;
+            User = user;
+        }
     }
 }

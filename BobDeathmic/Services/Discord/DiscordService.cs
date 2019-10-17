@@ -324,9 +324,7 @@ namespace BobDeathmic.Services.Discords
                 string commandresult = string.Empty;
                 if (arg.Content.StartsWith("!WebInterfaceLink", StringComparison.CurrentCulture) || arg.Content.StartsWith("!wil", StringComparison.CurrentCulture))
                 {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     SendWebInterfaceLink(arg);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 }
                 if (CommandList != null)
                 {
@@ -347,15 +345,12 @@ namespace BobDeathmic.Services.Discords
                 List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
                 if (!blocked.Contains(arg.Author.Id))
                 {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    GetUserLogin(arg);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    string message = await GetUserLogin(arg);
+                    arg.Author.SendMessageAsync(message);
                 }
                 else
                 {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    arg.Author.SendMessageAsync($"Bitte Discord Namen ändern und an einen Admin wenden und folgenden Wert mitteilen {arg.Author.Id}");
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    await arg.Author.SendMessageAsync($"Bitte Discord Namen ändern und an einen Admin wenden und folgenden Wert mitteilen {arg.Author.Id}");
                 }
             }
         }
@@ -463,79 +458,39 @@ namespace BobDeathmic.Services.Discords
             }
         }
         #region AccountStuff
-        private async Task GetUserLogin(SocketMessage arg)
+        private async Task<string> GetUserLogin(SocketMessage arg)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
-
                 var usermanager = scope.ServiceProvider.GetRequiredService<UserManager<ChatUserModel>>();
-                string cleanedname = Regex.Replace(arg.Author.Username.Replace(" ", string.Empty).Replace("/", string.Empty).Replace("\\", string.Empty), @"[\[\]\\\^\$\.\|\?\*\+\(\)\{\}%,;><!@#&\-\+]", string.Empty);
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var user = _context.ChatUserModels.Where(cm => cm.UserName.ToLower() == cleanedname.ToLower()).FirstOrDefault();
-                string password = string.Empty;
+                var user = _context.ChatUserModels.Where(cm => cm.ChatUserName.ToLower() == arg.Author.Username.ToLower()).FirstOrDefault();
                 var Configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                 if (user == null)
                 {
-                    password = await GenerateUser(arg, cleanedname);
-                }
-                else
-                {
-                    if (usermanager.CheckPasswordAsync(user, user.InitialPassword).Result)
-                    {
-                        password = user.InitialPassword;
-                    }
+                    user = await GenerateUser(arg);
                 }
                 string Message = "Adresse:";
                 Message += Configuration.GetValue<string>("WebServerWebAddress");
-                if (password != string.Empty)
+                if (usermanager.CheckPasswordAsync(user, user.InitialPassword).Result)
                 {
-                    Message += Environment.NewLine + "UserName; " + cleanedname;
-                    Message += Environment.NewLine + "Initiales Passwort: " + password;
+                    Message += Environment.NewLine + "UserName; " + user.UserName;
+                    Message += Environment.NewLine + "Initiales Passwort: " + user.InitialPassword;
                 }
-                arg.Author.SendMessageAsync(Message);
-                //IConfiguration
-
+                return Message;
             }
         }
-        private async Task<string> GenerateUser(SocketMessage arg, string cleanedname)
+        private async Task<ChatUserModel> GenerateUser(SocketMessage arg)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
-                ChatUserModel newUser = new ChatUserModel();
-                string password = string.Empty;
-                newUser.UserName = cleanedname;
-                newUser.ChatUserName = arg.Author.Username;
-                password += arg.Author.Username.Substring(random.Next(0, arg.Author.Username.Length - 1));
-                newUser.StreamSubscriptions = new List<StreamSubscription>();
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                foreach (var Stream in _context.StreamModels.Where(x => x.StreamName != null))
-                {
-                    password += Stream.StreamName.Substring(random.Next(0, Stream.StreamName.Length - 1));
-                    StreamSubscription newSubscription = new StreamSubscription();
-                    newSubscription.Subscribed = SubscriptionState.Subscribed;
-                    newSubscription.Stream = Stream;
-                    newSubscription.User = newUser;
-                    newUser.StreamSubscriptions.Add(newSubscription);
-                }
-                password += random.Next();
-                byte[] salt = new byte[128 / 8];
-                using (var rng = RandomNumberGenerator.Create())
-                {
-                    rng.GetBytes(salt);
-                }
-                string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                    password: password,
-                    salt: salt,
-                    prf: KeyDerivationPrf.HMACSHA1,
-                    iterationCount: 10000,
-                    numBytesRequested: 256 / 8));
-
-
-                newUser.InitialPassword = hashed;
+                ChatUserModel newUser = new ChatUserModel(arg.Author.Username, _context.StreamModels.Where(x => x.StreamName != null));
+                newUser.SetInitialPassword();
                 var usermanager = scope.ServiceProvider.GetRequiredService<UserManager<ChatUserModel>>();
-                _ = await usermanager.CreateAsync(newUser, hashed);
+                _ = await usermanager.CreateAsync(newUser, newUser.InitialPassword);
                 await CreateOrAddUserRoles("User", newUser.UserName);
-                return hashed;
+                return newUser;
             }
         }
         private async Task CreateOrAddUserRoles(string role, string name)
@@ -562,8 +517,6 @@ namespace BobDeathmic.Services.Discords
             }
             catch (Exception)
             {
-                Console.WriteLine(name);
-                Console.WriteLine(role);
             }
 
         }

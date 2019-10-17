@@ -33,6 +33,16 @@ namespace BobDeathmic.Data.DBModels.StreamModels
         public DateTime LastUpTime { get; set; }
         public List<StreamCommand> Commands { get; set; }
 
+        public Stream()
+        {
+
+        }
+        public Stream(string name)
+        {
+            StreamName = name;
+        }
+
+
         public String[] GetActiveSubscribers()
         {
             //If you read this you probably forgot to "Include" either StreamSubscriptions or User in your EF Query
