@@ -37,6 +37,8 @@ namespace BobDeathmic.Data.DBModels.User
 
         public ChatUserModel(): this(new List<Stream>())
         {}
+        public ChatUserModel(string username) : this(username, new List<Stream>())
+        {}
         public ChatUserModel(IEnumerable<Stream> Streams): this(String.Empty,Streams)
         {}
         public ChatUserModel(string username,IEnumerable<Stream> Streams)
@@ -76,7 +78,7 @@ namespace BobDeathmic.Data.DBModels.User
         }
         private string cleanedUserName(string username)
         {
-            return Regex.Replace(username.Replace(" ", string.Empty).Replace("/", string.Empty).Replace("\\", string.Empty), @"[\[\]\\\^\$\.\|\?\*\+\(\)\{\}%,;><!@#&\-\+]", string.Empty);
+            return Regex.Replace(username.Replace(" ", string.Empty).Replace("/", string.Empty).Replace("\\", string.Empty), @"[\[\]\\\^\$\.\|\?\'\*\+\(\)\{\}%,;><!@#&\-\+]", string.Empty);
         }
 
         public bool IsSubscribed(string streamname)

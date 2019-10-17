@@ -39,5 +39,14 @@ namespace BobDeathmic.Tests.Data.DBModels.User
 
             Assert.That(() => model.IsSubscribed(streamName), Throws.ArgumentException);
         }
+        [Test]
+        [TestCase("Test|UserName","TestUserName")]
+        [TestCase("Test'fülk","Testfülk")]
+        public void ChatUserModel_InputUserName_HasCorrectlyCleanedUserName(string UserName,string expectedResult)
+        {
+            ChatUserModel model = new ChatUserModel(UserName);
+
+            Assert.That(model.UserName, Is.EqualTo(expectedResult));
+        }
     }
 }

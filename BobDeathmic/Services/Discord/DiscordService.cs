@@ -488,7 +488,7 @@ namespace BobDeathmic.Services.Discords
                 ChatUserModel newUser = new ChatUserModel(arg.Author.Username, _context.StreamModels.Where(x => x.StreamName != null));
                 newUser.SetInitialPassword();
                 var usermanager = scope.ServiceProvider.GetRequiredService<UserManager<ChatUserModel>>();
-                _ = await usermanager.CreateAsync(newUser, newUser.InitialPassword);
+                await usermanager.CreateAsync(newUser, newUser.InitialPassword);
                 await CreateOrAddUserRoles("User", newUser.UserName);
                 return newUser;
             }
@@ -502,15 +502,11 @@ namespace BobDeathmic.Services.Discords
                     var RoleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                     var UserManager = scope.ServiceProvider.GetRequiredService<UserManager<ChatUserModel>>();
 
-                    //Adding Admin Role
                     var roleCheck = await RoleManager.RoleExistsAsync(role);
                     if (!roleCheck)
                     {
-                        //create the roles and seed them to the database
-                        _ = await RoleManager.CreateAsync(new IdentityRole(role));
+                        await RoleManager.CreateAsync(new IdentityRole(role));
                     }
-                    //Assign Admin role to the main User here we have given our newly registered 
-                    //login id for Admin management
                     ChatUserModel user = await UserManager.FindByNameAsync(name);
                     await UserManager.AddToRoleAsync(user, role);
                 }
@@ -518,7 +514,6 @@ namespace BobDeathmic.Services.Discords
             catch (Exception)
             {
             }
-
         }
         #endregion
     }
