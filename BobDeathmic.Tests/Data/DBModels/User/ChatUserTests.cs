@@ -48,5 +48,6 @@ namespace BobDeathmic.Tests.Data.DBModels.User
 
             Assert.That(model.UserName, Is.EqualTo(expectedResult));
         }
+        //TODO Write Test the ensures SetInitialPassword sets an Initial Password
     }
 }

@@ -64,68 +64,6 @@ namespace BobDeathmic.Services.Discords
             }
         }
 
-        private async void NotifySubscriber(StreamEventArgs e)
-        {
-            if (e.state == StreamState.Started)
-            {
-                while (client.ConnectionState != ConnectionState.Connected)
-                {
-                    await Task.Delay(5000);
-                }
-                using (var scope = _scopeFactory.CreateScope())
-                {
-                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.stream.ToLower() && e.StreamType == sm.Type).FirstOrDefault();
-                    if (stream != null)
-                    {
-                        List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
-                        //var test = client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(u => !blocked.Contains(u.Id)).GroupBy(u => u.Username);
-                        foreach (var user in client.Guilds.Single(g => g.Name.ToLower() == "deathmic").Users.Where(u => !blocked.Contains(u.Id)))
-                        {
-                            ChatUserModel dbUser = null;
-                            try
-                            {
-                                dbUser = _context.ChatUserModels.Include(chatuser => chatuser.StreamSubscriptions).Where(x => x.UserName == user.Username).FirstOrDefault();
-                            }
-                            catch (Exception)
-                            {
-                                _context.DiscordBans.Add(new DiscordBan() { DiscordID = user.Id });
-                                await _context.SaveChangesAsync();
-                                //ignore temporarily
-                            }
-                            if (dbUser != null && dbUser.IsSubscribed(stream.StreamName))
-                            {
-                                try
-                                {
-                                    await user.SendMessageAsync(e.Notification);
-                                    await Task.Delay(200);
-                                }
-                                catch (HttpException ex)
-                                {
-                                    switch (ex.DiscordCode)
-                                    {
-                                        case 50007:
-                                            //string message = $"Um Stream Nachrichten zu bekommen bitte BobDeathmic als Freund markieren. {Environment.NewLine} Um diese Nachricht zu deaktivieren einfach in das Webinterface (Link über !WebInterfaceLink) von Bob einloggen und in Benutzer > Subscriptions die Streams deaktivieren "+ user.Mention;
-                                            //client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.TextChannels.Where(x => x.Name.ToLower() == "botspam").FirstOrDefault()?.SendMessageAsync(message);
-                                            break;
-                                        default:
-                                            Console.WriteLine(ex.ToString());
-                                            break;
-                                    }
-
-                                }
-                                catch (HttpRequestException ex)
-                                {
-                                    Console.WriteLine(ex.ToString());
-                                }
-
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         private void PasswordRequestReceived(object sender, PasswordRequestArgs e)
         {
             var server = client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault();
@@ -251,16 +189,11 @@ namespace BobDeathmic.Services.Discords
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             }
         }
-        private bool ChangeDetected(List<string> List)
-        {
-            return List.Any();
-        }
         private async Task AddChannelsInListToDB(List<string> channelsToBeAdded)
         {
-            ApplicationDbContext _context = null;
             using (var scope = _scopeFactory.CreateScope())
             {
-                _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                ApplicationDbContext _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 foreach (var channel in channelsToBeAdded)
                 {
                     _context.RelayChannels.Add(new RelayChannels { Name = channel });
@@ -270,10 +203,9 @@ namespace BobDeathmic.Services.Discords
         }
         private async Task RemoveChannelsInListFromDB(List<string> channelsToBeRemoved)
         {
-            ApplicationDbContext _context = null;
             using (var scope = _scopeFactory.CreateScope())
             {
-                _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                ApplicationDbContext _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 foreach (var channel in channelsToBeRemoved)
                 {
                     _context.RelayChannels.Remove(_context.RelayChannels.Where(rc => rc.Name == channel).FirstOrDefault());
