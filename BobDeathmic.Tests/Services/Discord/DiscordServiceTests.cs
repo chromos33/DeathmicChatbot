@@ -29,6 +29,7 @@ namespace BobDeathmic.Tests.Services.Discord
             using (var context = new ApplicationDbContext(options))
             {
                 context.ChatUserModels.Add(new ChatUserModel());
+                context.SecurityTokens.Add(new BobDeathmic.Data.DBModels.StreamModels.SecurityToken { ClientID = "Test", token = "Token" });
 
                 context.SaveChanges();
             }
@@ -42,13 +43,12 @@ namespace BobDeathmic.Tests.Services.Discord
             Dservice = new DiscordService(scopefactory, eventbus);
 
         }
-
-        /* for Setup Testing
         [Test]
-        public async Task TestDB()
+        public async Task StopAsync_DService_IsInactive()
         {
-            Assert.That(() => Dservice.temptest(),Is.EqualTo(true));
+            await Dservice.StopAsync(new System.Threading.CancellationToken());
+
+            Assert.That(Dservice.Active, Is.False);
         }
-        */
     }
 }

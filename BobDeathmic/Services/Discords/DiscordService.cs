@@ -39,9 +39,10 @@ namespace BobDeathmic.Services.Discords
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private IEventBus _eventBus;
-        DiscordSocketClient client;
-        List<IfCommand> CommandList;
+        private DiscordSocketClient _client;
+        private List<IfCommand> _commandList;
         private Random random;
+        private RelayChannelManager _channelmanager;
 
         public DiscordService(IServiceScopeFactory scopeFactory, IEventBus eventBus)
         {
@@ -50,23 +51,26 @@ namespace BobDeathmic.Services.Discords
             _eventBus.TwitchMessageReceived += TwitchMessageReceived;
             _eventBus.PasswordRequestReceived += PasswordRequestReceived;
             _eventBus.DiscordMessageSendRequested += SendMessage;
+            SetupClient();
+        }
+        private void SetupClient()
+        {
+            var discordConfig = new DiscordSocketConfig { MessageCacheSize = 100 };
+            discordConfig.AlwaysDownloadUsers = true;
+            discordConfig.LargeThreshold = 250;
+            _client = new DiscordSocketClient(discordConfig);
+            _commandList = CommandBuilder.BuildCommands("discord");
         }
 
         private void SendMessage(object sender, MessageArgs e)
         {
-            try
-            {
-                client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault().Users.Where(x => x.Username.ToLower() == e.RecipientName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
-            }
-            catch (Exception)
-            {
+                _client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.Users.Where(x => x.Username.ToLower() == e.RecipientName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
 
-            }
         }
 
         private void PasswordRequestReceived(object sender, PasswordRequestArgs e)
         {
-            var server = client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault();
+            var server = _client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault();
             var users = server?.Users.Where(u => u.Username.ToLower() == e.UserName.ToLower() && u.Status != UserStatus.Offline);
             var user = users.FirstOrDefault();
             user?.SendMessageAsync("Dein neues Passwort ist: " + e.TempPassword);
@@ -76,23 +80,18 @@ namespace BobDeathmic.Services.Discords
         {
             try
             {
-                client.Guilds.Single(g => g.Name.ToLower() == "deathmic")?.TextChannels.Single(c => c.Name.ToLower() == e.Target.ToLower())?.SendMessageAsync(e.Message);
+                _client.Guilds.Single(g => g.Name.ToLower() == "deathmic")?.TextChannels.Single(c => c.Name.ToLower() == e.Target.ToLower())?.SendMessageAsync(e.Message);
             }
             catch (InvalidOperationException)
             {
                 //just an annoyance on start..
             }
         }
-        private void InitCommands()
-        {
-            CommandList = CommandBuilder.BuildCommands("discord");
-        }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / (DateTime.Now.Hour + 1));
             if (await ConnectToDiscord())
             {
-                InitCommands();
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     await Task.Delay(5000, stoppingToken);
@@ -103,35 +102,75 @@ namespace BobDeathmic.Services.Discords
         public async override Task StopAsync(CancellationToken cancellationToken)
         {
             await base.StopAsync(cancellationToken);
-            await client.StopAsync();
+            await _client.StopAsync();
             Dispose();
         }
-        protected async Task<bool> ConnectToDiscord()
+        private async Task<bool> ConnectToDiscord()
         {
-            var discordConfig = new DiscordSocketConfig { MessageCacheSize = 100 };
-            discordConfig.AlwaysDownloadUsers = true;
-            discordConfig.LargeThreshold = 250;
-            client = new DiscordSocketClient(discordConfig);
             string token = GetDiscordToken();
             if (token != string.Empty)
             {
-                await client.LoginAsync(Discord.TokenType.Bot, token);
-                await client.StartAsync();
+                await _client.LoginAsync(Discord.TokenType.Bot, token);
+                await _client.StartAsync();
                 InitializeEvents();
                 return true;
 
             }
             return false;
         }
+        private async Task ChannelJoined(SocketGuild arg)
+        {
+            _channelmanager = new RelayChannelManager(arg.Channels.Select(x => x.Name).ToList(),new string[]{ "stream_1", "stream_2", "stream_3" });
+        }
         private void InitializeEvents()
         {
-            client.MessageReceived += MessageReceived;
-            client.Ready += ClientConnected;
-            client.Disconnected += ClientDisconnected;
-            client.UserJoined += ClientJoined;
-            client.ChannelCreated += ChannelChanged;
-            client.ChannelDestroyed += ChannelChanged;
+            _client.MessageReceived += MessageReceived;
+            _client.UserJoined += ClientJoined;
+            _client.ChannelCreated += ChannelCreated;
+            _client.ChannelDestroyed += ChannelDestroyed;
+            _client.JoinedGuild += ChannelJoined;
+            
         }
+
+        private async Task ChannelDestroyed(SocketChannel arg)
+        {
+            if(arg.GetType() == typeof(SocketTextChannel))
+            {
+                SocketTextChannel destroyedchannel = (SocketTextChannel)arg;
+                if(_channelmanager.RemoveChannel(destroyedchannel.Name))
+                {
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        var channel = _context.RelayChannels.Where(x => x.Name.ToLower() == destroyedchannel.Name.ToLower()).FirstOrDefault();
+                        if(channel != null)
+                        {
+                            _context.RelayChannels.Remove(channel);
+                            _context.SaveChanges();
+                        }
+                        
+                    }
+                }
+            }
+        }
+
+        private async Task ChannelCreated(SocketChannel arg)
+        {
+            if (arg.GetType() == typeof(SocketTextChannel))
+            {
+                SocketTextChannel createdchannel = (SocketTextChannel)arg;
+                if (_channelmanager.RemoveChannel(createdchannel.Name))
+                {
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        _context.RelayChannels.Add(new RelayChannels(createdchannel.Name));
+                        _context.SaveChanges();
+                    }
+                }
+            }
+        }
+
         private string GetDiscordToken()
         {
             using (var scope = _scopeFactory.CreateScope())
@@ -155,99 +194,9 @@ namespace BobDeathmic.Services.Discords
             }
         }
 
-        private async Task ChannelChanged(SocketChannel arg)
-        {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            UpdateRelayChannels();
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-        }
-
         private async Task ClientJoined(SocketGuildUser arg)
         {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             arg.SendMessageAsync("Um Bot Notifications/Features nutzen zu können müsst ihr euch über den Befehl \"!WebInterfaceLink\" beim Bot registrieren");
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-        }
-        private async Task UpdateRelayChannels()
-        {
-            List<string> discordChannels = GetDiscordStreamChannels();
-            List<string> savedChannels = GetSavedRelayChannels();
-
-
-            List<string> channelsToBeAdded = discordChannels.Except(savedChannels).ToList();
-            List<string> channelsToBeRemoved = savedChannels.Except(discordChannels).ToList();
-            if (channelsToBeAdded.Any())
-            {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                AddChannelsInListToDB(channelsToBeAdded);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            }
-            if (channelsToBeRemoved.Any())
-            {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                RemoveChannelsInListFromDB(channelsToBeRemoved);
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            }
-        }
-        private async Task AddChannelsInListToDB(List<string> channelsToBeAdded)
-        {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                ApplicationDbContext _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                foreach (var channel in channelsToBeAdded)
-                {
-                    _context.RelayChannels.Add(new RelayChannels { Name = channel });
-                }
-                await _context.SaveChangesAsync();
-            }
-        }
-        private async Task RemoveChannelsInListFromDB(List<string> channelsToBeRemoved)
-        {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                ApplicationDbContext _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                foreach (var channel in channelsToBeRemoved)
-                {
-                    _context.RelayChannels.Remove(_context.RelayChannels.Where(rc => rc.Name == channel).FirstOrDefault());
-                }
-                await _context.SaveChangesAsync();
-            }
-        }
-        private List<string> GetDiscordStreamChannels()
-        {
-            List<string> discordChannels = new List<string>();
-            foreach (var channel in client.Guilds.Single(g => g.Name.ToLower() == "deathmic").Channels)
-            {
-                string[] RandomDiscordRelayChannels = { "stream_1", "stream_2", "stream_3" };
-                if (Regex.Match(channel.Name.ToLower(), @"stream_").Success && !RandomDiscordRelayChannels.Contains(channel.Name))
-                {
-                    discordChannels.Add(channel.Name);
-                }
-            }
-            return discordChannels;
-        }
-        private List<string> GetSavedRelayChannels()
-        {
-            List<string> savedChannels = new List<string>();
-            ApplicationDbContext _context = null;
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                foreach (var channel in _context.RelayChannels)
-                {
-                    savedChannels.Add(channel.Name);
-                }
-            }
-            return savedChannels;
-        }
-
-        private async Task ClientDisconnected(Exception arg)
-        {
-        }
-
-        private async Task ClientConnected()
-        {
-            await UpdateRelayChannels();
         }
         private async Task MessageReceived(SocketMessage arg)
         {
@@ -258,7 +207,7 @@ namespace BobDeathmic.Services.Discords
                 {
                     SendWebInterfaceLink(arg);
                 }
-                if (CommandList != null)
+                if (_commandList != null)
                 {
                     commandresult = await ExecuteCommands(arg);
                 }
@@ -289,7 +238,7 @@ namespace BobDeathmic.Services.Discords
         private async Task<string> ExecuteCommands(SocketMessage arg)
         {
             string commandresult = string.Empty;
-            foreach (IfCommand command in CommandList)
+            foreach (IfCommand command in _commandList)
             {
                 Dictionary<string, string> inputargs = new Dictionary<string, string>();
                 inputargs["message"] = arg.Content;

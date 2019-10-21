@@ -9,5 +9,14 @@ namespace BobDeathmic.Data.DBModels.Relay
     {
         public int ID { get; set; }
         public string Name { get; set; }
+
+        public RelayChannels()
+        {
+
+        }
+        public RelayChannels(string name)
+        {
+            Name = name;
+        }
     }
 }
