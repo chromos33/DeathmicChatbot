@@ -72,7 +72,7 @@
                             </span>);
                         }
                         else {
-                            return (<span className="voteoption" data-value="0" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                            return (<span className="voteoption" data-value="0" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
                                 <i className="fas fa-minus" />
                                 <span className="lds-dual-ring" />
                             </span>);
@@ -87,7 +87,7 @@
                             </span>);
                         }
                         else {
-                            return (<span className="voteoption greenbg" data-value="1" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                            return (<span className="voteoption greenbg" data-value="1" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
                                 <i className="fas fa-check" />
                                 <span className="lds-dual-ring" />
                             </span>);
@@ -101,7 +101,7 @@
                             </span>);
                         }
                         else {
-                            return (<span className="voteoption redbg" data-value="2" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                            return (<span className="voteoption redbg" data-value="2" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
                                 <i className="fas fa-times" />
                                 <span className="lds-dual-ring" />
                             </span>);
@@ -115,7 +115,7 @@
                             </span>);
                         }
                         else {
-                            return (<span className="voteoption yellowbg" data-value="3" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                            return (<span className="voteoption yellowbg" data-value="3" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
                                 <i className="fas fa-question" />
                                 <span className="lds-dual-ring" />
                             </span>);

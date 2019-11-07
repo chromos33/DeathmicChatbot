@@ -30,6 +30,7 @@ using BobDeathmic;
 using BobDeathmic.Services;
 using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Services.Commands;
 
 namespace BobDeathmic.Services.Streams.Relay.Twitch
 {
@@ -45,8 +46,10 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
         private System.Timers.Timer _AutoCommandTimer;
         private System.Timers.Timer _RelayCheckTimer;
         private readonly IConfiguration _configuration;
+        //TODO once CommandService Finished Remove next line
         private List<IfCommand> CommandList;
         private Random random;
+        private ICommandService commandService;
 
 
         public async override Task StopAsync(CancellationToken cancellationToken)
@@ -54,12 +57,13 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
             await base.StopAsync(cancellationToken);
             client.Disconnect();
         }
-        public TwitchRelayCenter(IServiceScopeFactory scopeFactory, IEventBus eventBus, IConfiguration configuration)
+        public TwitchRelayCenter(IServiceScopeFactory scopeFactory, IEventBus eventBus, IConfiguration configuration, ICommandService commandService)
         {
             _configuration = configuration;
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
-            CommandList = CommandBuilder.BuildCommands("twitch");
+            this.commandService = commandService;
+            //CommandList = CommandBuilder.BuildCommands("twitch");
             random = new Random();
         }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -316,16 +320,23 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                 }
                 else
                 {
+                    ChatCommands.Args.ChatCommandArguments inputargs = new ChatCommands.Args.ChatCommandArguments()
+                    {
+                        Message = e.ChatMessage.Message,
+                        Sender = e.ChatMessage.Username,
+                        ChannelName = e.ChatMessage.Channel,
+                        elevatedPermissions = (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster),
+                        Type = Data.Enums.ChatType.Twitch
+                    };
+                    commandService.handleCommand(inputargs,Data.Enums.ChatType.Twitch,e.ChatMessage.Username);
+                    /*
                     if (CommandList != null)
                     {
                         foreach (IfCommand command in CommandList)
                         {
-                            Dictionary<String, String> inputargs = new Dictionary<string, string>();
-                            inputargs["message"] = e.ChatMessage.Message;
-                            inputargs["username"] = e.ChatMessage.Username;
-                            inputargs["source"] = "twitch";
-                            inputargs["channel"] = e.ChatMessage.Channel;
-                            inputargs["elevatedPermissions"] = (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster).ToString();
+                            
+
+                            
                             string CommandResult = await command.ExecuteCommandIfApplicable(inputargs, _scopeFactory);
                             if (CommandResult != "")
                             {
@@ -352,54 +363,19 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                                     if (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
                                     {
 
-                                        _eventBus.TriggerEvent(Eventbus.EventType.StreamTitleChangeRequested, PrepareStreamTitleChange(e.ChatMessage.Channel, e.ChatMessage.Message));
+                                        //_eventBus.TriggerEvent(Eventbus.EventType.StreamTitleChangeRequested, PrepareStreamTitleChange(e.ChatMessage.Channel, e.ChatMessage.Message));
                                     }
                                     break;
                             }
+                            
                         }
-                    }
+                    }*/
                 }
 
             }
         }
-        private StreamTitleChangeArgs PrepareStreamTitleChange(string StreamName, string Message)
-        {
-            var arg = new StreamTitleChangeArgs();
-            arg.StreamName = StreamName;
-            arg.Type = StreamProviderTypes.Twitch;
-            if (Message.StartsWith("!stream"))
-            {
-                var questionRegex = Regex.Match(Message, @"game=\'(.*?)\'");
-                var GameRegex = Regex.Match(Message, @"game=\'(.*?)\'");
-                string Game = "";
-                if (GameRegex.Success)
-                {
-                    Game = GameRegex.Value;
-                }
-                var TitleRegex = Regex.Match(Message, @"title=\'(.*?)\'");
-                string Title = "";
-                if (TitleRegex.Success)
-                {
-                    Title = TitleRegex.Value;
-                }
-                arg.Game = Game;
-                arg.Title = Title;
-            }
-            else
-            {
-                if (Message.StartsWith("!game"))
-                {
-                    arg.Game = Message.Replace("!game ", "");
-                    arg.Title = "";
-                }
-                if (Message.StartsWith("!title"))
-                {
-                    arg.Title = Message.Replace("!title ", "");
-                    arg.Game = "";
-                }
-            }
-            return arg;
-        }
+        //TODO: Remove when  CommandService Fully Operational
+        
         private string GetManualCommandResponse(string streamname, string message)
         {
             try

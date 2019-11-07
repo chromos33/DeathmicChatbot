@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic.ChatCommands.Args;
 using BobDeathmic.ChatCommands.Setup;
 using BobDeathmic.Data;
 using BobDeathmic.Data.DBModels.Commands;
+using BobDeathmic.Data.Enums;
 using BobDeathmic.Models;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,14 +15,24 @@ namespace BobDeathmic.ChatCommands
     public class RandomChatUserRegisterCommand : IfCommand
     {
         public string Trigger => "!registerraffle";
-        public string alias => "!registername";
+        public string Alias => "!registername";
         public string Description => "Registers User To Raffle";
 
         public string Category => "stream";
 
+        public bool ChatSupported(ChatType chat)
+        {
+            return chat == ChatType.Twitch;
+        }
+
         public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
         {
             return CommandEventType.None;
+        }
+
+        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
@@ -30,7 +42,7 @@ namespace BobDeathmic.ChatCommands
 
         public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
-            if(args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias))
+            if(args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(Alias))
             {
                 using (var scope = scopeFactory.CreateScope())
                 {
@@ -60,24 +72,37 @@ namespace BobDeathmic.ChatCommands
             }
             return "";
         }
+        public bool isCommand(string str)
+        {
+            return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
+        }
     }
     public class PickNextChatUserForNameCommand : IfCommand
     {
         public string Trigger => "!next";
-        public string alias => "!next";
+        public string Alias => "!next";
 
         public string Description => "Outputs next Member in List";
 
         public string Category => "stream";
 
+        public bool ChatSupported(ChatType chat)
+        {
+            return chat == ChatType.Twitch;
+        }
         public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
         {
             return CommandEventType.None;
         }
 
+        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
-            if (args["elevatedPermissions"] == "True" && (args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias)))
+            if (args["elevatedPermissions"] == "True" && (args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(Alias)))
             {
                 using (var scope = scopeFactory.CreateScope())
                 {
@@ -104,17 +129,25 @@ namespace BobDeathmic.ChatCommands
         {
             return "";
         }
+        public bool isCommand(string str)
+        {
+            return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
+        }
     }
     public class PickNextRandChatUserForNameCommand : IfCommand
     {
         public string Trigger => "!randnext";
-        public string alias => "!randnext";
+        public string Alias => "!randnext";
         private Random rnd = new Random();
 
         public string Description => "Outputs weighted random Member in List";
 
         public string Category => "stream";
 
+        public bool ChatSupported(ChatType chat)
+        {
+            return chat == ChatType.Twitch;
+        }
         public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
         {
             return CommandEventType.None;
@@ -122,7 +155,7 @@ namespace BobDeathmic.ChatCommands
 
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
-            if (args["elevatedPermissions"] == "True" && (args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias)))
+            if (args["elevatedPermissions"] == "True" && (args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(Alias)))
             {
                 using (var scope = scopeFactory.CreateScope())
                 {
@@ -173,17 +206,30 @@ namespace BobDeathmic.ChatCommands
         {
             return "";
         }
+
+        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        {
+            throw new NotImplementedException();
+        }
+        public bool isCommand(string str)
+        {
+            return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
+        }
     }
     public class ListRandUsersInListCommand : IfCommand
     {
         public string Trigger => "!list";
-        public string alias => "!list";
+        public string Alias => "!list";
         private Random rnd = new Random();
 
         public string Description => "Outputs List";
 
         public string Category => "stream";
 
+        public bool ChatSupported(ChatType chat)
+        {
+            return chat == ChatType.Twitch;
+        }
         public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
         {
             return CommandEventType.None;
@@ -191,7 +237,7 @@ namespace BobDeathmic.ChatCommands
 
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
-            if ((args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias)))
+            if ((args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(Alias)))
             {
                 using (var scope = scopeFactory.CreateScope())
                 {
@@ -214,17 +260,30 @@ namespace BobDeathmic.ChatCommands
         {
             return "";
         }
+
+        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        {
+            throw new NotImplementedException();
+        }
+        public bool isCommand(string str)
+        {
+            return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
+        }
     }
     public class SkipLastRandUserCommand : IfCommand
     {
         public string Trigger => "!skip";
-        public string alias => "!skip";
+        public string Alias => "!skip";
         private Random rnd = new Random();
 
         public string Description => "Skips last selected user";
 
         public string Category => "stream";
 
+        public bool ChatSupported(ChatType chat)
+        {
+            return chat == ChatType.Twitch;
+        }
         public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
         {
             return CommandEventType.None;
@@ -232,7 +291,7 @@ namespace BobDeathmic.ChatCommands
 
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
-            if (args["elevatedPermissions"] == "True" && (args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(alias)))
+            if (args["elevatedPermissions"] == "True" && (args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(Alias)))
             {
                 using (var scope = scopeFactory.CreateScope())
                 {
@@ -269,6 +328,15 @@ namespace BobDeathmic.ChatCommands
         public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
             return "";
+        }
+
+        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        {
+            throw new NotImplementedException();
+        }
+        public bool isCommand(string str)
+        {
+            return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
         }
     }
 }

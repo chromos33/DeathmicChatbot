@@ -9,7 +9,8 @@ namespace BobDeathmic.Data.Enums.Stream
     {
         Twitch = 1,
         Mixer = 2,
-        DLive = 3
+        DLive = 3,
+        None = 4
 
     }
 }

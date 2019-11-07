@@ -15,6 +15,7 @@ namespace BobDeathmic.Eventbus
         event EventHandler<StreamTitleChangeArgs> StreamTitleChanged;
         event EventHandler<StrawPollRequestEventArgs> StrawPollRequested;
         event EventHandler<MessageArgs> DiscordMessageSendRequested;
+        event EventHandler<CommandResponseArgs> CommandResponseReceived;
         void TriggerEvent(EventType @event, dynamic EventData);
     }
 }

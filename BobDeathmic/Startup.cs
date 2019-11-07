@@ -106,7 +106,7 @@ namespace BobDeathmic
             app.UseReact(config =>
             {
                 config.AllowJavaScriptPrecompilation = true;
-                config.SetLoadBabel(false);
+                config.SetLoadBabel(true);
                 config.SetLoadReact(true);
                 config.UseServerSideRendering = false;
 

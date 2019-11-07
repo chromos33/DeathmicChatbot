@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BobDeathmic.ChatCommands.Args;
 using BobDeathmic.ChatCommands.Setup;
 using BobDeathmic.Data;
 using BobDeathmic.Data.DBModels.Quote;
+using BobDeathmic.Data.Enums;
 using BobDeathmic.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +19,9 @@ namespace BobDeathmic.ChatCommands
         public string Trigger => "!quote";
         public string Description => "Add a quote to the current streamer's quote database. !quote [add/delete] [quote/id]";
         public string Category => "stream";
+
+        public string Alias => "";
+
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
             if (!args["message"].ToLower().StartsWith(Trigger) || args["source"] != "twitch")
@@ -129,6 +134,20 @@ namespace BobDeathmic.ChatCommands
         public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
         {
             return CommandEventType.None;
+        }
+
+        public bool ChatSupported(ChatType chat)
+        {
+            return chat == ChatType.Twitch;
+        }
+        public bool isCommand(string str)
+        {
+            return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
+        }
+
+        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -10,6 +10,7 @@ using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
 using BobDeathmic.Services;
+using BobDeathmic.Services.Commands;
 using BobDeathmic.Services.Helper;
 using Discord;
 using Discord.Net;
@@ -42,15 +43,16 @@ namespace BobDeathmic.Services.Discords
         private DiscordSocketClient _client;
         private List<IfCommand> _commandList;
         private Random random;
-        private RelayChannelManager _channelmanager;
+        private ICommandService commandService;
 
-        public DiscordService(IServiceScopeFactory scopeFactory, IEventBus eventBus)
+        public DiscordService(IServiceScopeFactory scopeFactory, IEventBus eventBus,ICommandService commandService)
         {
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
             _eventBus.TwitchMessageReceived += TwitchMessageReceived;
             _eventBus.PasswordRequestReceived += PasswordRequestReceived;
             _eventBus.DiscordMessageSendRequested += SendMessage;
+            this.commandService = commandService;
             SetupClient();
         }
         private void SetupClient()
@@ -59,13 +61,11 @@ namespace BobDeathmic.Services.Discords
             discordConfig.AlwaysDownloadUsers = true;
             discordConfig.LargeThreshold = 250;
             _client = new DiscordSocketClient(discordConfig);
-            _commandList = CommandBuilder.BuildCommands("discord");
         }
 
         private void SendMessage(object sender, MessageArgs e)
         {
-                _client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.Users.Where(x => x.Username.ToLower() == e.RecipientName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
-
+            _client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.Users.Where(x => x.Username.ToLower() == e.RecipientName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
         }
 
         private void PasswordRequestReceived(object sender, PasswordRequestArgs e)
@@ -118,17 +118,12 @@ namespace BobDeathmic.Services.Discords
             }
             return false;
         }
-        private async Task ChannelJoined(SocketGuild arg)
-        {
-            _channelmanager = new RelayChannelManager(arg.Channels.Select(x => x.Name).ToList(),new string[]{ "stream_1", "stream_2", "stream_3" });
-        }
         private void InitializeEvents()
         {
             _client.MessageReceived += MessageReceived;
             _client.UserJoined += ClientJoined;
             _client.ChannelCreated += ChannelCreated;
             _client.ChannelDestroyed += ChannelDestroyed;
-            _client.JoinedGuild += ChannelJoined;
             
         }
 
@@ -137,36 +132,43 @@ namespace BobDeathmic.Services.Discords
             if(arg.GetType() == typeof(SocketTextChannel))
             {
                 SocketTextChannel destroyedchannel = (SocketTextChannel)arg;
-                if(_channelmanager.RemoveChannel(destroyedchannel.Name))
+                RemoveRelayChannel(destroyedchannel.Name);
+            }
+        }
+        public void RemoveRelayChannel(string name)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var channel = _context.RelayChannels.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+                if (channel != null)
                 {
-                    using (var scope = _scopeFactory.CreateScope())
-                    {
-                        var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                        var channel = _context.RelayChannels.Where(x => x.Name.ToLower() == destroyedchannel.Name.ToLower()).FirstOrDefault();
-                        if(channel != null)
-                        {
-                            _context.RelayChannels.Remove(channel);
-                            _context.SaveChanges();
-                        }
-                        
-                    }
+                    _context.RelayChannels.Remove(channel);
+                    _context.SaveChanges();
                 }
             }
         }
 
+        
+
+
         private async Task ChannelCreated(SocketChannel arg)
         {
-            if (arg.GetType() == typeof(SocketTextChannel))
+            if (arg.GetType() == typeof(SocketTextChannel) && Regex.Match(((SocketTextChannel) arg).Name.ToLower(), @"stream_").Success)
             {
                 SocketTextChannel createdchannel = (SocketTextChannel)arg;
-                if (_channelmanager.RemoveChannel(createdchannel.Name))
+                AddRelayChannel(createdchannel.Name);
+            }
+        }
+        public void AddRelayChannel(string name)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                if (_context.RelayChannels.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault() == null)
                 {
-                    using (var scope = _scopeFactory.CreateScope())
-                    {
-                        var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                        _context.RelayChannels.Add(new RelayChannels(createdchannel.Name));
-                        _context.SaveChanges();
-                    }
+                    _context.RelayChannels.Add(new RelayChannels(name.ToLower()));
+                    _context.SaveChanges();
                 }
             }
         }
@@ -207,15 +209,15 @@ namespace BobDeathmic.Services.Discords
                 {
                     SendWebInterfaceLink(arg);
                 }
-                if (_commandList != null)
-                {
-                    commandresult = await ExecuteCommands(arg);
-                }
-
-                if (commandresult == string.Empty)//Commands later on
-                {
-                    RelayMessage(arg);
-                }
+                ChatCommands.Args.ChatCommandArguments inputargs = new ChatCommands.Args.ChatCommandArguments() { 
+                    Message = arg.Content,
+                    ChannelName = arg.Channel.Name,
+                    elevatedPermissions = false,
+                    Sender = arg.Author.Username,
+                    Type = Data.Enums.ChatType.Discord
+                };
+                commandService.handleCommand(inputargs, Data.Enums.ChatType.Discord,arg.Author.Username);
+                RelayMessage(arg);
             }
         }
         private async Task SendWebInterfaceLink(SocketMessage arg)
@@ -322,22 +324,18 @@ namespace BobDeathmic.Services.Discords
         {
             if (arg.Channel.Name.StartsWith("stream_", StringComparison.CurrentCulture))
             {
-                RelayMessageArgs args = new RelayMessageArgs();
-                args.SourceChannel = arg.Channel.Name;
-                args.Message = arg.Author.Username + ": " + arg.Content;
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     var stream = _context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == arg.Channel.Name.ToLower()).FirstOrDefault();
                     if (stream != null)
                     {
-                        args.TargetChannel = stream.StreamName;
-                        args.StreamType = stream.Type;
+                        _eventBus.TriggerEvent(EventType.RelayMessageReceived, new RelayMessageArgs(arg.Channel.Name, stream.StreamName, stream.Type, arg.Author.Username + ": " + arg.Content));
                     }
                 }
-                _eventBus.TriggerEvent(EventType.RelayMessageReceived, args);
             }
         }
+
         #region AccountStuff
         private async Task<string> GetUserLogin(SocketMessage arg)
         {

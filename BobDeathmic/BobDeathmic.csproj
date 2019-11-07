@@ -46,6 +46,7 @@
 
 
   <ItemGroup>
+    <Folder Include="ChatCommands\Enums\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

@@ -15,6 +15,7 @@ namespace BobDeathmic.Eventbus
         public event EventHandler<TwitchMessageArgs> TwitchMessageReceived;
         public event EventHandler<RelayMessageArgs> RelayMessageReceived;
         public event EventHandler<StrawPollRequestEventArgs> StrawPollRequested;
+        public event EventHandler<CommandResponseArgs> CommandResponseReceived;
 
         public void TriggerEvent(EventType @event, dynamic EventData)
         {
@@ -41,6 +42,9 @@ namespace BobDeathmic.Eventbus
                 case EventType.DiscordMessageSendRequested:
                     DiscordMessageSendRequested(this, EventData);
                     break;
+                case EventType.CommandResponseReceived:
+                    CommandResponseReceived(this, EventData);
+                    break;
             }
         }
     }
@@ -52,6 +56,7 @@ namespace BobDeathmic.Eventbus
         StreamTitleChangeRequested = 5,
         StreamTitleChanged = 6,
         StrawPollRequested = 9,
-        DiscordMessageSendRequested = 10
+        DiscordMessageSendRequested = 10,
+        CommandResponseReceived = 11
     }
 }

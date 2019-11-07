@@ -1,4 +1,6 @@
-﻿using BobDeathmic.ChatCommands.Setup;
+﻿using BobDeathmic.ChatCommands.Args;
+using BobDeathmic.ChatCommands.Setup;
+using BobDeathmic.Data.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -14,18 +16,30 @@ namespace BobDeathmic.ChatCommands
         public string Description { get { return "Listet Commands auf"; } }
 
         public string Category { get { return "General"; } }
-        private string sCommandMessage { get; set; }
 
+        public string Alias => "!help";
+
+        private List<IfCommand> Commands;
+
+        public bool ChatSupported(ChatType chat)
+        {
+            return true;
+        }
+        public Help(List<IfCommand> Commands)
+        {
+            this.Commands = Commands;
+        }
         public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
         {
             return CommandEventType.None;
         }
 
-        public async Task<string> ExecuteCommandIfApplicable(Dictionary<String, String> args, IServiceScopeFactory scopeFactory)
+        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
             if (args["message"].ToLower().StartsWith(Trigger))
             {
-                return sCommandMessage;
+                ChatType type = getChatType(args["type"]);
+                return getHelp(type);
             }
             return string.Empty;
         }
@@ -35,31 +49,54 @@ namespace BobDeathmic.ChatCommands
             return string.Empty;
         }
 
-        public void PopulateCommandList(string provider = "discord")
+        private ChatType getChatType(string input)
         {
-            //Should ever only be called once (Per Help Command init)
-            if (sCommandMessage == string.Empty || sCommandMessage == null)
+            switch(input)
             {
-                string currentCategory = string.Empty;
-                sCommandMessage = "Viele Befehle haben einen help parameter (!befehl help)" + Environment.NewLine;
-
-                //Manual Implementation. Would otherwise need redundant rework of Commands all holding reference to UserManager ...
-                sCommandMessage += Environment.NewLine;
-                sCommandMessage += Environment.NewLine;
-                sCommandMessage += $"[WebInterface]{Environment.NewLine}";
-                sCommandMessage += "!WebInterfaceLink (!wil) : Gibt den Link zum Webinterface zurück" + Environment.NewLine;
-                foreach (IfCommand tempcommand in CommandBuilder.BuildCommands(provider, true))
-                {
-                    if (currentCategory != tempcommand.Category)
-                    {
-                        sCommandMessage += Environment.NewLine;
-                        sCommandMessage += Environment.NewLine;
-                        currentCategory = tempcommand.Category;
-                        sCommandMessage += $"[{tempcommand.Category}]{Environment.NewLine}";
-                    }
-                    sCommandMessage += tempcommand.Trigger + " : " + tempcommand.Description + Environment.NewLine;
-                }
+                case "twitch":
+                    return ChatType.Twitch;
+                case "discord":
+                    return ChatType.Discord;
             }
+            return ChatType.NotImplemented;
+        }
+
+        public string getHelp(ChatType type)
+        {
+            string currentCategory = string.Empty;
+            string sCommandMessage = "Viele Befehle haben einen help parameter (!Befehl help)" + Environment.NewLine;
+
+            //Manual Implementation. Would otherwise need redundant rework of Commands all holding reference to UserManager ...
+            sCommandMessage += Environment.NewLine;
+            sCommandMessage += Environment.NewLine;
+            sCommandMessage += $"[WebInterface]{Environment.NewLine}";
+            sCommandMessage += "!WebInterfaceLink (!wil) : Gibt den Link zum Webinterface zurück" + Environment.NewLine;
+            foreach (IfCommand command in Commands.Where(x => x.ChatSupported(type)))
+            {
+                if (currentCategory != command.Category)
+                {
+                    sCommandMessage += Environment.NewLine;
+                    sCommandMessage += Environment.NewLine;
+                    currentCategory = command.Category;
+                    sCommandMessage += $"[{command.Category}]{Environment.NewLine}";
+                }
+                sCommandMessage += command.Trigger + " : " + command.Description + Environment.NewLine;
+            }
+            return sCommandMessage;
+        }
+
+        public ChatCommandOutput execute(Dictionary<string, string> message, IServiceScopeFactory scopefactory)
+        {
+            throw new NotImplementedException();
+        }
+        public bool isCommand(string str)
+        {
+            return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
+        }
+
+        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        {
+            throw new NotImplementedException();
         }
     }
 }
