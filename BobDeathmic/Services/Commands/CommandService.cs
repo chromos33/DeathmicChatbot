@@ -38,7 +38,7 @@ namespace BobDeathmic.Services.Commands
             //Commands.Add(new TwitchStreamTitle());
             Commands.Add(new Game());
             Commands.Add(new Title());
-            //Commands.Add(new Strawpoll());
+            Commands.Add(new Strawpoll());
             //Commands.Add(new RandomChatUserRegisterCommand());
             //Commands.Add(new PickNextRandChatUserForNameCommand());
             //Commands.Add(new PickNextChatUserForNameCommand());

@@ -38,43 +38,9 @@ namespace BobDeathmic.Services
 
         private async void StrawPollRequested(object sender, StrawPollRequestEventArgs e)
         {
-
-
-            var questionRegex = Regex.Match(e.Message, @"q=\'(.*?)\'");
-            var optionsRegex = Regex.Match(e.Message, @"o=\'(.*?)\'");
-            var multiRegex = Regex.Match(e.Message, @"m=\'(.*?)\'");
-            StrawPollPostData values = null;
-            string question = "";
-            List<string> Options = new List<string>();
-            bool multi = false;
-            if (questionRegex.Success && optionsRegex.Success)
+            if (e.Question.Count() > 1)
             {
-                Options = optionsRegex.Value.Replace("o='", "").Replace("'", "").Split('|').ToList();
-                question = questionRegex.Value.Replace("q='", "").Replace("'", "");
-                if (multiRegex.Success)
-                {
-                    switch (multiRegex.Value)
-                    {
-                        case "true":
-                        case "j":
-                            multi = true;
-                            break;
-                    }
-                }
-            }
-            else
-            {
-                // for the forgetfull
-                string[] parameters = e.Message.Replace("!strawpoll ", "").Split('|');
-                question = parameters[0];
-                for (var i = 1; i < parameters.Count(); i++)
-                {
-                    Options.Add(parameters[i]);
-                }
-            }
-            if (Options.Count() > 1)
-            {
-                values = new StrawPollPostData { title = question, options = Options.ToArray(), multi = multi };
+                var values = new StrawPollPostData { title = e.Question, options = e.Answers, multi = e.multiple };
                 var response = await client.PostAsJsonAsync("https://www.strawpoll.me/api/v2/polls", values);
 
                 var responseString = await response.Content.ReadAsStringAsync();
@@ -96,7 +62,6 @@ namespace BobDeathmic.Services
                     _eventBus.TriggerEvent(EventType.RelayMessageReceived, new Args.RelayMessageArgs() { SourceChannel = stream.DiscordRelayChannel, StreamType = StreamProviderTypes.Twitch, TargetChannel = stream.StreamName, Message = "You need at least 2 Options" });
                 }
             }
-
         }
     }
 }

@@ -86,6 +86,10 @@ namespace BobDeathmic.ChatCommands
 
         public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
         {
+            if (!args.elevatedPermissions)
+            {
+                return null;
+            }
             return new ChatCommandOutput()
             {
                 ExecuteEvent = true,
@@ -133,6 +137,10 @@ namespace BobDeathmic.ChatCommands
 
         public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
         {
+            if(!args.elevatedPermissions)
+            {
+                return null;
+            }
             return new ChatCommandOutput()
             {
                 ExecuteEvent = true,
