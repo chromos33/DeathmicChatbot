@@ -1,8 +1,10 @@
 ﻿using BobDeathmic.Args;
 using BobDeathmic.ChatCommands.Args;
+using BobDeathmic.Data;
 using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Services.Commands;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using NUnit.Framework;
@@ -98,5 +100,173 @@ namespace BobDeathmic.Tests.Services.Commands
             Assert.AreEqual("deathmic", receivedEventsArgs.StreamName);
             Assert.AreEqual(StreamProviderTypes.Twitch, receivedEventsArgs.Type);
         }
-    }//_eventBus.TriggerEvent(Eventbus.EventType.StrawPollRequested, new StrawPollRequestEventArgs { StreamName = e.ChatMessage.Channel, Type = StreamProviderTypes.Twitch, Message = e.ChatMessage.Message });
+        [Test]
+        public async Task handleCommand_RegisterRaffle_CommandResponseReceivedEventTriggered()
+        {
+            DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: "Test")
+                .Options;
+            IServiceScope scope = Substitute.For<IServiceScope>();
+            scope.ServiceProvider.GetService(typeof(ApplicationDbContext)).ReturnsForAnyArgs(new ApplicationDbContext(options));
+
+            IServiceScopeFactory scopefactory = Substitute.For<IServiceScopeFactory>();
+            scopefactory.CreateScope().ReturnsForAnyArgs(scope);
+
+            IEventBus eventbus = new EventBusLocal();
+            CommandResponseArgs receivedEventsArgs = null;
+            //eventbus.TriggerEvent(EventType.).For
+            CommandService service = new CommandService(scopefactory, eventbus);
+            eventbus.CommandResponseReceived += delegate (object sender, CommandResponseArgs e)
+            {
+                receivedEventsArgs = e;
+            };
+            ChatCommandArguments args = new ChatCommandArguments()
+            {
+                Message = "!registerraffle",
+                Sender = "chromos33",
+                ChannelName = "deathmic",
+                Type = BobDeathmic.Data.Enums.ChatType.Twitch,
+                elevatedPermissions = true
+            };
+            await service.handleCommand(args, BobDeathmic.Data.Enums.ChatType.Twitch, "deathmic");
+
+            Assert.AreNotEqual(null, receivedEventsArgs);
+            Assert.AreEqual("chromos33", receivedEventsArgs.Sender);
+            Assert.AreEqual("You were added.", receivedEventsArgs.Message);
+        }
+        [Test]
+        public async Task handleCommand_PickNext_CommandResponseReceivedEventTriggered()
+        {
+            DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: "Test")
+                .Options;
+            IServiceScope scope = Substitute.For<IServiceScope>();
+            scope.ServiceProvider.GetService(typeof(ApplicationDbContext)).ReturnsForAnyArgs(new ApplicationDbContext(options));
+
+            IServiceScopeFactory scopefactory = Substitute.For<IServiceScopeFactory>();
+            scopefactory.CreateScope().ReturnsForAnyArgs(scope);
+
+            IEventBus eventbus = new EventBusLocal();
+            CommandResponseArgs receivedEventsArgs = null;
+            //eventbus.TriggerEvent(EventType.).For
+            CommandService service = new CommandService(scopefactory, eventbus);
+            eventbus.CommandResponseReceived += delegate (object sender, CommandResponseArgs e)
+            {
+                receivedEventsArgs = e;
+            };
+            ChatCommandArguments args = new ChatCommandArguments()
+            {
+                Message = "!next",
+                Sender = "chromos33",
+                ChannelName = "deathmic",
+                Type = BobDeathmic.Data.Enums.ChatType.Twitch,
+                elevatedPermissions = true
+            };
+            await service.handleCommand(args, BobDeathmic.Data.Enums.ChatType.Twitch, "deathmic");
+
+            Assert.AreNotEqual(null, receivedEventsArgs);
+            Assert.AreEqual("chromos33", receivedEventsArgs.Sender);
+        }
+        [Test]
+        public async Task handleCommand_PickNextRand_CommandResponseReceivedEventTriggered()
+        {
+            DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: "Test")
+                .Options;
+            IServiceScope scope = Substitute.For<IServiceScope>();
+            scope.ServiceProvider.GetService(typeof(ApplicationDbContext)).ReturnsForAnyArgs(new ApplicationDbContext(options));
+
+            IServiceScopeFactory scopefactory = Substitute.For<IServiceScopeFactory>();
+            scopefactory.CreateScope().ReturnsForAnyArgs(scope);
+
+            IEventBus eventbus = new EventBusLocal();
+            CommandResponseArgs receivedEventsArgs = null;
+            //eventbus.TriggerEvent(EventType.).For
+            CommandService service = new CommandService(scopefactory, eventbus);
+            eventbus.CommandResponseReceived += delegate (object sender, CommandResponseArgs e)
+            {
+                receivedEventsArgs = e;
+            };
+            ChatCommandArguments args = new ChatCommandArguments()
+            {
+                Message = "!randnext",
+                Sender = "chromos33",
+                ChannelName = "deathmic",
+                Type = BobDeathmic.Data.Enums.ChatType.Twitch,
+                elevatedPermissions = true
+            };
+            await service.handleCommand(args, BobDeathmic.Data.Enums.ChatType.Twitch, "deathmic");
+
+            Assert.AreNotEqual(null, receivedEventsArgs);
+            Assert.AreEqual("chromos33", receivedEventsArgs.Sender);
+        }
+        [Test]
+        public async Task handleCommand_SkipLast_CommandResponseReceivedEventTriggered()
+        {
+            DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: "Test")
+                .Options;
+            IServiceScope scope = Substitute.For<IServiceScope>();
+            scope.ServiceProvider.GetService(typeof(ApplicationDbContext)).ReturnsForAnyArgs(new ApplicationDbContext(options));
+
+            IServiceScopeFactory scopefactory = Substitute.For<IServiceScopeFactory>();
+            scopefactory.CreateScope().ReturnsForAnyArgs(scope);
+
+            IEventBus eventbus = new EventBusLocal();
+            CommandResponseArgs receivedEventsArgs = null;
+            //eventbus.TriggerEvent(EventType.).For
+            CommandService service = new CommandService(scopefactory, eventbus);
+            eventbus.CommandResponseReceived += delegate (object sender, CommandResponseArgs e)
+            {
+                receivedEventsArgs = e;
+            };
+            ChatCommandArguments args = new ChatCommandArguments()
+            {
+                Message = "!skip",
+                Sender = "chromos33",
+                ChannelName = "deathmic",
+                Type = BobDeathmic.Data.Enums.ChatType.Twitch,
+                elevatedPermissions = true
+            };
+            await service.handleCommand(args, BobDeathmic.Data.Enums.ChatType.Twitch, "deathmic");
+
+            Assert.AreNotEqual(null, receivedEventsArgs);
+            Assert.AreEqual("chromos33", receivedEventsArgs.Sender);
+            Assert.AreEqual("No skippable user found", receivedEventsArgs.Message);
+        }
+        [Test]
+        public async Task handleCommand_ListRandUsers_CommandResponseReceivedEventTriggered()
+        {
+            DbContextOptions<ApplicationDbContext> options = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(databaseName: "Test")
+                .Options;
+            IServiceScope scope = Substitute.For<IServiceScope>();
+            scope.ServiceProvider.GetService(typeof(ApplicationDbContext)).ReturnsForAnyArgs(new ApplicationDbContext(options));
+
+            IServiceScopeFactory scopefactory = Substitute.For<IServiceScopeFactory>();
+            scopefactory.CreateScope().ReturnsForAnyArgs(scope);
+
+            IEventBus eventbus = new EventBusLocal();
+            CommandResponseArgs receivedEventsArgs = null;
+            //eventbus.TriggerEvent(EventType.).For
+            CommandService service = new CommandService(scopefactory, eventbus);
+            eventbus.CommandResponseReceived += delegate (object sender, CommandResponseArgs e)
+            {
+                receivedEventsArgs = e;
+            };
+            ChatCommandArguments args = new ChatCommandArguments()
+            {
+                Message = "!list",
+                Sender = "chromos33",
+                ChannelName = "deathmic",
+                Type = BobDeathmic.Data.Enums.ChatType.Twitch,
+                elevatedPermissions = true
+            };
+            await service.handleCommand(args, BobDeathmic.Data.Enums.ChatType.Twitch, "deathmic");
+
+            Assert.AreNotEqual(null, receivedEventsArgs);
+            Assert.AreEqual("chromos33", receivedEventsArgs.Sender);
+            Assert.AreEqual("No User found/in List", receivedEventsArgs.Message);
+        }
+    }
 }

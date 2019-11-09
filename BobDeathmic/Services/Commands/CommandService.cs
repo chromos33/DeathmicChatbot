@@ -35,15 +35,15 @@ namespace BobDeathmic.Services.Commands
         private void initCommands()
         {
             Commands = new List<IfCommand>();
-            //Commands.Add(new TwitchStreamTitle());
+            Commands.Add(new TwitchStreamTitle());
             Commands.Add(new Game());
             Commands.Add(new Title());
             Commands.Add(new Strawpoll());
-            //Commands.Add(new RandomChatUserRegisterCommand());
-            //Commands.Add(new PickNextRandChatUserForNameCommand());
-            //Commands.Add(new PickNextChatUserForNameCommand());
-            //Commands.Add(new ListRandUsersInListCommand());
-            //Commands.Add(new SkipLastRandUserCommand());
+            Commands.Add(new RandomChatUserRegisterCommand());
+            Commands.Add(new PickNextRandChatUserForNameCommand());
+            Commands.Add(new PickNextChatUserForNameCommand());
+            Commands.Add(new ListRandUsersInListCommand());
+            Commands.Add(new SkipLastRandUserCommand());
             //Commands.Add(new QuoteCommand());
             //Commands.Add(new Help(Commands));
             
