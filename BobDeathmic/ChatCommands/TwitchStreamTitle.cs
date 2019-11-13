@@ -35,7 +35,7 @@ namespace BobDeathmic.ChatCommands
             return CommandEventType.None;
         }
 
-        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
         {
             return null;
             /*
@@ -84,7 +84,7 @@ namespace BobDeathmic.ChatCommands
             return CommandEventType.None;
         }
 
-        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
         {
             if (!args.elevatedPermissions)
             {
@@ -135,7 +135,7 @@ namespace BobDeathmic.ChatCommands
             return CommandEventType.None;
         }
 
-        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
         {
             if(!args.elevatedPermissions)
             {

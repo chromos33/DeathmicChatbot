@@ -24,7 +24,8 @@ namespace BobDeathmic.ChatCommands
 
         public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
         {
-            if (!args["message"].ToLower().StartsWith(Trigger) || args["source"] != "twitch")
+            return "";
+            /*if (!args["message"].ToLower().StartsWith(Trigger) || args["source"] != "twitch")
             {
                 return string.Empty;
             }
@@ -71,7 +72,7 @@ namespace BobDeathmic.ChatCommands
                             return $"'{saMessageSplit[2]}' is not a quote ID.";
                         }
 
-                        return await DeleteQuoteFromStreamer(args["channel"], iQuoteId, context)
+                        return DeleteQuoteFromStreamer(args["channel"], iQuoteId, context)
                             ? "Quote deleted."
                             : $"Quote ID {iQuoteId} not found.";
 
@@ -82,9 +83,9 @@ namespace BobDeathmic.ChatCommands
                             return $"'{saMessageSplit[1]}' is not a quote ID.";
                         }
 
-                        return await GetQuoteFromStreamer(args["channel"], iQuoteId, context);
+                        return GetQuoteFromStreamer(args["channel"], iQuoteId, context);
                 }
-            }
+            }*/
         }
 
         private async Task<bool> DeleteQuoteFromStreamer(string sStreamer, int iQuoteId, ApplicationDbContext context)
@@ -95,7 +96,7 @@ namespace BobDeathmic.ChatCommands
             {
                 return false;
             }
-            
+
             context.Quotes.Remove(quote);
             await context.SaveChangesAsync();
             return true;
@@ -145,9 +146,83 @@ namespace BobDeathmic.ChatCommands
             return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
         }
 
-        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
         {
-            throw new NotImplementedException();
+            ChatCommandOutput output = new ChatCommandOutput();
+            output.ExecuteEvent = false;
+            output.Type = Eventbus.EventType.CommandResponseReceived;
+            output.EventData = new ChatCommandArguments()
+            {
+                ChannelName = args.ChannelName,
+                elevatedPermissions = args.elevatedPermissions,
+                Sender = args.Sender,
+                Type = args.Type
+            };
+            if (!args.Message.ToLower().StartsWith(Trigger) || args.Type != ChatType.Twitch)
+            {
+                return output;
+            }
+
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+                var saMessageSplit = args.Message.Split(" ");
+
+                // !quote without any arguments prints a random quote of the current streamer.
+                if (saMessageSplit.Length == 1)
+                {
+                    output.EventData.Message = GetRandomQuoteFromStreamer(args.ChannelName, context);
+                    return output;
+                }
+
+                // Non mods can only print quotes, not add or delete.
+                if (!args.elevatedPermissions)
+                {
+                    return output;
+                }
+
+                int iQuoteId;
+
+                switch (saMessageSplit[1].ToLower())
+                {
+                    case "add":
+                        if (saMessageSplit.Length == 2)
+                        {
+                            output.EventData.Message = "Usage: !quote add <add funny quote here>";
+                        }
+                        else
+                        {
+                            iQuoteId = await AddQuoteToStreamer(args.ChannelName, string.Join(" ", saMessageSplit.Skip(2)), context);
+                            output.EventData.Message = GetQuoteFromStreamer(args.ChannelName, iQuoteId, context);
+                        }
+                        break;
+                    case "delete":
+                        if (saMessageSplit.Length == 2)
+                        {
+                            output.EventData.Message = "Usage: !quote delete <quote ID here>";
+                        }
+
+                        if (!int.TryParse(saMessageSplit[2], out iQuoteId))
+                        {
+                            output.EventData.Message = $"'{saMessageSplit[2]}' is not a quote ID.";
+                        }
+
+                        output.EventData.Message = await DeleteQuoteFromStreamer(args.ChannelName, iQuoteId, context)
+                            ? "Quote deleted."
+                            : $"Quote ID {iQuoteId} not found.";
+                        break;
+                    default:
+                        if (!int.TryParse(saMessageSplit[1], out iQuoteId))
+                        {
+                            output.EventData.Message = $"'{saMessageSplit[1]}' is not a quote ID.";
+                        }
+
+                        output.EventData.Message = GetQuoteFromStreamer(args.ChannelName, iQuoteId, context);
+                        break;
+                }
+                return output;
+            }
         }
     }
 }

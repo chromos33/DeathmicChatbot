@@ -22,7 +22,7 @@ namespace BobDeathmic.ChatCommands.Setup
         Task<string> ExecuteCommandIfApplicable(Dictionary<String, String> args, IServiceScopeFactory scopeFactory);
         Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory);
         Task<CommandEventType> EventToBeTriggered(Dictionary<String, String> args);
-        ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory);
+        Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopefactory);
         bool isCommand(string message);
     }
 }

@@ -31,7 +31,7 @@ namespace BobDeathmic.ChatCommands
             return CommandEventType.None;
         }
 
-        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
         {
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = true;
@@ -126,7 +126,7 @@ namespace BobDeathmic.ChatCommands
             return CommandEventType.None;
         }
 
-        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
         {
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = false;
@@ -265,7 +265,7 @@ namespace BobDeathmic.ChatCommands
             return "";
         }
 
-        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
         {
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = false;
@@ -373,7 +373,7 @@ namespace BobDeathmic.ChatCommands
             return "";
         }
 
-        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
         {
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = false;
@@ -463,7 +463,7 @@ namespace BobDeathmic.ChatCommands
             return "";
         }
 
-        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
         {
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = false;
