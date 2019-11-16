@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace BobDeathmic.ChatCommands
 {
-    public class Strawpoll : IfCommand
+    public class Strawpoll : ICommand
     {
         public string Trigger => "!strawpoll";
         public string Alias => "!straw";
@@ -37,7 +37,7 @@ namespace BobDeathmic.ChatCommands
             return CommandEventType.None;
         }
 
-        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandInputArgs args, IServiceScopeFactory scopefactory)
         {
             if(args.elevatedPermissions)
             {
@@ -79,6 +79,7 @@ namespace BobDeathmic.ChatCommands
         {
             return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
         }
+
         private StrawPollRequestEventArgs extractStrawpollData(string message)
         {
             var questionRegex = Regex.Match(message, @"q=\'(.*?)\'");

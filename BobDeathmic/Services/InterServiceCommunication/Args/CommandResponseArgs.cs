@@ -10,13 +10,15 @@ namespace BobDeathmic.Eventbus
         public EventType EventType { get; set; }
 
         public string Sender { get; set; }
-        public CommandResponseArgs(ChatType chat,string message,MessageType messageType,EventType eventType,string sender)
+        public string Channel { get; set; }
+        public CommandResponseArgs(ChatType chat,string message,MessageType messageType,EventType eventType,string sender,string channel)
         {
             Chat = chat;
             Message = message;
             MessageType = messageType;
             EventType = eventType;
             Sender = sender;
+            Channel = channel;
         }
     }
     public enum MessageType

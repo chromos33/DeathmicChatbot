@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace BobDeathmic.ChatCommands
 {
-    public class TwitchStreamTitle : IfCommand
+    public class TwitchStreamTitle : ICommand
     {
         public string Trigger => "!stream";
         public string Alias => "!cst";
@@ -35,7 +35,7 @@ namespace BobDeathmic.ChatCommands
             return CommandEventType.None;
         }
 
-        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandInputArgs args, IServiceScopeFactory scopefactory)
         {
             return null;
             /*
@@ -61,7 +61,7 @@ namespace BobDeathmic.ChatCommands
             return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
         }
     }
-    public class Game : IfCommand
+    public class Game : ICommand
     {
         public string Trigger => "!game";
         public string Alias => "!game";
@@ -84,7 +84,7 @@ namespace BobDeathmic.ChatCommands
             return CommandEventType.None;
         }
 
-        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandInputArgs args, IServiceScopeFactory scopefactory)
         {
             if (!args.elevatedPermissions)
             {
@@ -112,7 +112,7 @@ namespace BobDeathmic.ChatCommands
             return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
         }
     }
-    public class Title : IfCommand
+    public class Title : ICommand
     {
         public string Trigger => "!title";
         public string Alias => "!titel";
@@ -135,7 +135,7 @@ namespace BobDeathmic.ChatCommands
             return CommandEventType.None;
         }
 
-        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandInputArgs args, IServiceScopeFactory scopefactory)
         {
             if(!args.elevatedPermissions)
             {

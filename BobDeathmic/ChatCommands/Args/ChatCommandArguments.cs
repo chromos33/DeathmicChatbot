@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BobDeathmic.ChatCommands.Args
 {
-    public class ChatCommandArguments
+    public class ChatCommandInputArgs
     {
         public string Message { get; set; }
         public string Sender { get; set; }

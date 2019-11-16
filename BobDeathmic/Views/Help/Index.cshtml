@@ -1,5 +1,5 @@
 ﻿@using BobDeathmic.ChatCommands.Setup;
-@model List<IfCommand>
+@model List<ICommand>
 @{
     ViewData["Title"] = "Status";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -12,7 +12,7 @@
     <span>Streams > Status</span>
 </div>
 <div class="pa-35">
-    @foreach(IfCommand command in Model)
+    @foreach(ICommand command in Model)
     {
         <h1>@command.Trigger</h1>
         <p>@command.Description</p>

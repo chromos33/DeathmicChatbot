@@ -14,7 +14,7 @@ namespace BobDeathmic.Services.Commands
 {
     public class CommandService : BackgroundService,ICommandService
     {
-        private List<IfCommand> Commands;
+        private List<ICommand> Commands;
         private IServiceScopeFactory scopefactory;
         private IEventBus eventBus;
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -34,7 +34,7 @@ namespace BobDeathmic.Services.Commands
 
         private void initCommands()
         {
-            Commands = new List<IfCommand>();
+            Commands = new List<ICommand>();
             Commands.Add(new TwitchStreamTitle());
             Commands.Add(new Game());
             Commands.Add(new Title());
@@ -44,19 +44,21 @@ namespace BobDeathmic.Services.Commands
             Commands.Add(new PickNextChatUserForNameCommand());
             Commands.Add(new ListRandUsersInListCommand());
             Commands.Add(new SkipLastRandUserCommand());
-            //Commands.Add(new QuoteCommand());
-            //Commands.Add(new Help(Commands));
+            Commands.Add(new QuoteCommand());
+            Commands.Add(new GiveAwayApply());
+            Commands.Add(new GiveAwayCease());
+            Commands.Add(new Help(Commands));
             
         }
-        public List<IfCommand> GetCommands(ChatType type)
+        public List<ICommand> GetCommands(ChatType type)
         {
             return Commands.Where(x => x.ChatSupported(type) && x.GetType() != typeof(Help)).ToList();
         }
-        public async Task handleCommand(ChatCommandArguments args, ChatType chatType, string sender)
+        public async Task handleCommand(ChatCommandInputArgs args, ChatType chatType, string sender)
         {
-            foreach(IfCommand command in Commands.Where(x => x.ChatSupported(chatType) && x.isCommand(args.Message)))
+            foreach(ICommand command in Commands.Where(x => x.ChatSupported(chatType) && x.isCommand(args.Message)))
             {
-                ChatCommandOutput output = command.execute(args, scopefactory);
+                ChatCommandOutput output = await command.execute(args, scopefactory);
                 if(output.ExecuteEvent)
                 {
                     eventBus.TriggerEvent(output.Type, output.EventData);

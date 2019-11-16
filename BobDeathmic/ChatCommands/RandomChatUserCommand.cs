@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BobDeathmic.ChatCommands
 {
-    public class RandomChatUserRegisterCommand : IfCommand
+    public class RandomChatUserRegisterCommand : ICommand
     {
         public string Trigger => "!registerraffle";
         public string Alias => "!registername";
@@ -31,7 +31,7 @@ namespace BobDeathmic.ChatCommands
             return CommandEventType.None;
         }
 
-        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandInputArgs args, IServiceScopeFactory scopefactory)
         {
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = true;
@@ -62,7 +62,7 @@ namespace BobDeathmic.ChatCommands
                     message = "Already in the List";
                 }
             }
-            output.EventData = new CommandResponseArgs(args.Type, message, MessageType.PrivateMessage, EventType.CommandResponseReceived, args.Sender);
+            output.EventData = new CommandResponseArgs(args.Type, message, MessageType.PrivateMessage, EventType.CommandResponseReceived, args.Sender,args.ChannelName);
             return output;
         }
 
@@ -108,7 +108,7 @@ namespace BobDeathmic.ChatCommands
             return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
         }
     }
-    public class PickNextChatUserForNameCommand : IfCommand
+    public class PickNextChatUserForNameCommand : ICommand
     {
         public string Trigger => "!next";
         public string Alias => "!next";
@@ -126,7 +126,7 @@ namespace BobDeathmic.ChatCommands
             return CommandEventType.None;
         }
 
-        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandInputArgs args, IServiceScopeFactory scopeFactory)
         {
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = false;
@@ -152,7 +152,7 @@ namespace BobDeathmic.ChatCommands
                         message = user.ChatUser;
                     }
                 }
-                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender);
+                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender,args.ChannelName);
 
             }
             return output;
@@ -192,7 +192,7 @@ namespace BobDeathmic.ChatCommands
             return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
         }
     }
-    public class PickNextRandChatUserForNameCommand : IfCommand
+    public class PickNextRandChatUserForNameCommand : ICommand
     {
         public string Trigger => "!randnext";
         public string Alias => "!randnext";
@@ -265,7 +265,7 @@ namespace BobDeathmic.ChatCommands
             return "";
         }
 
-        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandInputArgs args, IServiceScopeFactory scopeFactory)
         {
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = false;
@@ -319,7 +319,7 @@ namespace BobDeathmic.ChatCommands
                         
                     }
                 }
-                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender);
+                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender, args.ChannelName);
             }
             return output;
         }
@@ -328,7 +328,7 @@ namespace BobDeathmic.ChatCommands
             return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
         }
     }
-    public class ListRandUsersInListCommand : IfCommand
+    public class ListRandUsersInListCommand : ICommand
     {
         public string Trigger => "!list";
         public string Alias => "!list";
@@ -373,7 +373,7 @@ namespace BobDeathmic.ChatCommands
             return "";
         }
 
-        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandInputArgs args, IServiceScopeFactory scopeFactory)
         {
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = false;
@@ -394,7 +394,7 @@ namespace BobDeathmic.ChatCommands
                         }
                     }
                 }
-                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender);
+                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender, args.ChannelName);
             }
             return output;
         }
@@ -403,7 +403,7 @@ namespace BobDeathmic.ChatCommands
             return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
         }
     }
-    public class SkipLastRandUserCommand : IfCommand
+    public class SkipLastRandUserCommand : ICommand
     {
         public string Trigger => "!skip";
         public string Alias => "!skip";
@@ -417,53 +417,7 @@ namespace BobDeathmic.ChatCommands
         {
             return chat == ChatType.Twitch;
         }
-        public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
-        {
-            return CommandEventType.None;
-        }
-
-        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
-        {
-            if (args["elevatedPermissions"] == "True" && (args["message"].ToLower().StartsWith(Trigger) || args["message"].ToLower().StartsWith(Alias)))
-            {
-                using (var scope = scopeFactory.CreateScope())
-                {
-                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    if (_context.RandomChatUser.Where(x => x.Stream == args["channel"] && x.lastchecked).Count() > 0)
-                    {
-                        var skippeduser = _context.RandomChatUser.Where(x => x.Stream == args["channel"] && x.lastchecked).FirstOrDefault();
-                        if (skippeduser != null)
-                        {
-                            _context.RandomChatUser.Remove(skippeduser);
-                            RandomChatUser tmp = new RandomChatUser();
-                            tmp.ChatUser = skippeduser.ChatUser;
-                            tmp.lastchecked = false;
-                            if (_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() == 0)
-                            {
-                                tmp.Sort = 1;
-                            }
-                            else
-                            {
-                                tmp.Sort = _context.RandomChatUser.Where(x => x.Stream == args["channel"]).Max(t => t.Sort) + 1;
-                            }
-                            tmp.Stream = skippeduser.Stream;
-                            _context.RandomChatUser.Add(tmp);
-                            _context.SaveChanges();
-                            return "User skipped";
-                        }
-                    }
-                    return "No skippable user found";
-                }
-            }
-            return "";
-        }
-
-        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
-        {
-            return "";
-        }
-
-        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandInputArgs args, IServiceScopeFactory scopeFactory)
         {
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = false;
@@ -499,7 +453,7 @@ namespace BobDeathmic.ChatCommands
                         }
                     }
                 }
-                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender);
+                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender, args.ChannelName);
             }
             return output;
         }

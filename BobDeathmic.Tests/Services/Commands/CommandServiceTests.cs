@@ -30,7 +30,7 @@ namespace BobDeathmic.Tests.Services.Commands
             {
                 receivedEventsArg = e;
             };
-            ChatCommandArguments args = new ChatCommandArguments()
+            ChatCommandInputArgs args = new ChatCommandInputArgs()
             {
                 Message = "!game neuer spiele titel",
                 Sender = "chromos33",
@@ -57,7 +57,7 @@ namespace BobDeathmic.Tests.Services.Commands
             {
                 receivedEventsArgs=e;
             };
-            ChatCommandArguments args = new ChatCommandArguments()
+            ChatCommandInputArgs args = new ChatCommandInputArgs()
             {
                 Message = "!title neuer spiele titel",
                 Sender = "chromos33",
@@ -84,7 +84,7 @@ namespace BobDeathmic.Tests.Services.Commands
             {
                 receivedEventsArgs = e;
             };
-            ChatCommandArguments args = new ChatCommandArguments()
+            ChatCommandInputArgs args = new ChatCommandInputArgs()
             {
                 Message = "!strawpoll Tolle Frage hier? | antwort 1 | antwort2",
                 Sender = "chromos33",
@@ -120,7 +120,7 @@ namespace BobDeathmic.Tests.Services.Commands
             {
                 receivedEventsArgs = e;
             };
-            ChatCommandArguments args = new ChatCommandArguments()
+            ChatCommandInputArgs args = new ChatCommandInputArgs()
             {
                 Message = "!registerraffle",
                 Sender = "chromos33",
@@ -154,7 +154,7 @@ namespace BobDeathmic.Tests.Services.Commands
             {
                 receivedEventsArgs = e;
             };
-            ChatCommandArguments args = new ChatCommandArguments()
+            ChatCommandInputArgs args = new ChatCommandInputArgs()
             {
                 Message = "!next",
                 Sender = "chromos33",
@@ -187,7 +187,7 @@ namespace BobDeathmic.Tests.Services.Commands
             {
                 receivedEventsArgs = e;
             };
-            ChatCommandArguments args = new ChatCommandArguments()
+            ChatCommandInputArgs args = new ChatCommandInputArgs()
             {
                 Message = "!randnext",
                 Sender = "chromos33",
@@ -220,7 +220,7 @@ namespace BobDeathmic.Tests.Services.Commands
             {
                 receivedEventsArgs = e;
             };
-            ChatCommandArguments args = new ChatCommandArguments()
+            ChatCommandInputArgs args = new ChatCommandInputArgs()
             {
                 Message = "!skip",
                 Sender = "chromos33",
@@ -254,7 +254,7 @@ namespace BobDeathmic.Tests.Services.Commands
             {
                 receivedEventsArgs = e;
             };
-            ChatCommandArguments args = new ChatCommandArguments()
+            ChatCommandInputArgs args = new ChatCommandInputArgs()
             {
                 Message = "!list",
                 Sender = "chromos33",

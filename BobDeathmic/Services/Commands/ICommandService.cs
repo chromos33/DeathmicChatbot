@@ -10,7 +10,7 @@ namespace BobDeathmic.Services.Commands
 {
     public interface ICommandService
     {
-        List<IfCommand> GetCommands(ChatType type);
-        Task handleCommand(ChatCommandArguments args, ChatType chatType, string sender);
+        List<ICommand> GetCommands(ChatType type);
+        Task handleCommand(ChatCommandInputArgs args, ChatType chatType, string sender);
     }
 }

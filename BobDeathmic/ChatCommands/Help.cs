@@ -1,6 +1,7 @@
 ﻿using BobDeathmic.ChatCommands.Args;
 using BobDeathmic.ChatCommands.Setup;
 using BobDeathmic.Data.Enums;
+using BobDeathmic.Eventbus;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BobDeathmic.ChatCommands
 {
-    public class Help : IfCommand
+    public class Help : ICommand
     {
         public string Trigger { get { return "!help"; } }
 
@@ -19,34 +20,15 @@ namespace BobDeathmic.ChatCommands
 
         public string Alias => "!help";
 
-        private List<IfCommand> Commands;
+        private List<ICommand> Commands;
 
         public bool ChatSupported(ChatType chat)
         {
             return true;
         }
-        public Help(List<IfCommand> Commands)
+        public Help(List<ICommand> Commands)
         {
             this.Commands = Commands;
-        }
-        public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
-        {
-            return CommandEventType.None;
-        }
-
-        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
-        {
-            if (args["message"].ToLower().StartsWith(Trigger))
-            {
-                ChatType type = getChatType(args["type"]);
-                return getHelp(type);
-            }
-            return string.Empty;
-        }
-
-        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
-        {
-            return string.Empty;
         }
 
         private ChatType getChatType(string input)
@@ -66,12 +48,12 @@ namespace BobDeathmic.ChatCommands
             string currentCategory = string.Empty;
             string sCommandMessage = "Viele Befehle haben einen help parameter (!Befehl help)" + Environment.NewLine;
 
-            //Manual Implementation. Would otherwise need redundant rework of Commands all holding reference to UserManager ...
+            sCommandMessage += "Dev";
             sCommandMessage += Environment.NewLine;
             sCommandMessage += Environment.NewLine;
             sCommandMessage += $"[WebInterface]{Environment.NewLine}";
             sCommandMessage += "!WebInterfaceLink (!wil) : Gibt den Link zum Webinterface zurück" + Environment.NewLine;
-            foreach (IfCommand command in Commands.Where(x => x.ChatSupported(type)))
+            foreach (ICommand command in Commands.Where(x => x.ChatSupported(type)))
             {
                 if (currentCategory != command.Category)
                 {
@@ -84,19 +66,25 @@ namespace BobDeathmic.ChatCommands
             }
             return sCommandMessage;
         }
-
-        public ChatCommandOutput execute(Dictionary<string, string> message, IServiceScopeFactory scopefactory)
-        {
-            throw new NotImplementedException();
-        }
         public bool isCommand(string str)
         {
             return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
         }
 
-        public ChatCommandOutput execute(ChatCommandArguments args, IServiceScopeFactory scopefactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandInputArgs args, IServiceScopeFactory scopefactory)
         {
-            throw new NotImplementedException();
+            ChatCommandOutput output = new ChatCommandOutput();
+            output.ExecuteEvent = true;
+            output.Type = Eventbus.EventType.CommandResponseReceived;
+            output.EventData = new CommandResponseArgs(
+                args.Type,
+                getHelp(args.Type),
+                MessageType.PrivateMessage,
+                EventType.CommandResponseReceived,
+                args.Sender,
+                args.ChannelName
+              );
+            return output;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace BobDeathmic.Services.Discords
         private readonly IServiceScopeFactory _scopeFactory;
         private IEventBus _eventBus;
         private DiscordSocketClient _client;
-        private List<IfCommand> _commandList;
+        private List<ICommand> _commandList;
         private Random random;
         private ICommandService commandService;
 
@@ -52,6 +52,7 @@ namespace BobDeathmic.Services.Discords
             _eventBus.TwitchMessageReceived += TwitchMessageReceived;
             _eventBus.PasswordRequestReceived += PasswordRequestReceived;
             _eventBus.DiscordMessageSendRequested += SendMessage;
+            _eventBus.CommandResponseReceived += handleCommandResponse;
             this.commandService = commandService;
             SetupClient();
         }
@@ -63,29 +64,12 @@ namespace BobDeathmic.Services.Discords
             _client = new DiscordSocketClient(discordConfig);
         }
 
-        private void SendMessage(object sender, MessageArgs e)
-        {
-            _client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.Users.Where(x => x.Username.ToLower() == e.RecipientName.ToLower()).FirstOrDefault()?.SendMessageAsync(e.Message);
-        }
-
         private void PasswordRequestReceived(object sender, PasswordRequestArgs e)
         {
             var server = _client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault();
             var users = server?.Users.Where(u => u.Username.ToLower() == e.UserName.ToLower() && u.Status != UserStatus.Offline);
             var user = users.FirstOrDefault();
             user?.SendMessageAsync("Dein neues Passwort ist: " + e.TempPassword);
-        }
-
-        private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
-        {
-            try
-            {
-                _client.Guilds.Single(g => g.Name.ToLower() == "deathmic")?.TextChannels.Single(c => c.Name.ToLower() == e.Target.ToLower())?.SendMessageAsync(e.Message);
-            }
-            catch (InvalidOperationException)
-            {
-                //just an annoyance on start..
-            }
         }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -209,7 +193,7 @@ namespace BobDeathmic.Services.Discords
                 {
                     SendWebInterfaceLink(arg);
                 }
-                ChatCommands.Args.ChatCommandArguments inputargs = new ChatCommands.Args.ChatCommandArguments() { 
+                ChatCommands.Args.ChatCommandInputArgs inputargs = new ChatCommands.Args.ChatCommandInputArgs() { 
                     Message = arg.Content,
                     ChannelName = arg.Channel.Name,
                     elevatedPermissions = false,
@@ -235,89 +219,6 @@ namespace BobDeathmic.Services.Discords
                 {
                     await arg.Author.SendMessageAsync($"Bitte Discord Namen ändern und an einen Admin wenden und folgenden Wert mitteilen {arg.Author.Id}");
                 }
-            }
-        }
-        private async Task<string> ExecuteCommands(SocketMessage arg)
-        {
-            string commandresult = string.Empty;
-            foreach (IfCommand command in _commandList)
-            {
-                Dictionary<string, string> inputargs = new Dictionary<string, string>();
-                inputargs["message"] = arg.Content;
-                inputargs["username"] = arg.Author.Username;
-                inputargs["source"] = "discord";
-                inputargs["channel"] = arg.Channel.Name;
-                commandresult = await command.ExecuteCommandIfApplicable(inputargs, _scopeFactory);
-                if (commandresult != string.Empty)
-                {
-                    arg.Channel.SendMessageAsync(commandresult);
-                }
-            }
-            if (arg.Content.StartsWith("!Gapply"))
-            {
-                ApplyToGiveAway(arg);
-            }
-            if (arg.Content.StartsWith("!Gcease"))
-            {
-                CeaseApplication(arg);
-            }
-            return commandresult;
-        }
-        private void CeaseApplication(SocketMessage arg)
-        {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var user = _context.ChatUserModels.Where(x => x.ChatUserName == arg.Author.Username).FirstOrDefault();
-                var remove = _context.User_GiveAway.Where(x => x.UserID == user.Id).FirstOrDefault();
-                if (remove != null)
-                {
-                    _context.User_GiveAway.Remove(remove);
-                    _context.SaveChanges();
-                }
-            }
-        }
-        private void ApplyToGiveAway(SocketMessage arg)
-        {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var GiveAwayItem = _context.GiveAwayItems.Include(x => x.Applicants).Where(x => x.current).FirstOrDefault();
-                if (GiveAwayItem.Applicants == null)
-                {
-                    GiveAwayItem.Applicants = new List<User_GiveAwayItem>();
-                }
-                var user = _context.ChatUserModels.Where(x => x.ChatUserName == arg.Author.Username).FirstOrDefault();
-                if (GiveAwayItem.Applicants.Where(x => x.UserID == user.Id).Count() == 0)
-                {
-
-                    var item = _context.GiveAwayItems.Where(x => x.current).FirstOrDefault();
-                    if (user != null && item != null)
-                    {
-                        User_GiveAwayItem relation = new User_GiveAwayItem(user, item);
-                        relation.User = user;
-                        if (user.AppliedTo == null)
-                        {
-                            user.AppliedTo = new List<User_GiveAwayItem>();
-                        }
-                        if (item.Applicants == null)
-                        {
-                            item.Applicants = new List<User_GiveAwayItem>();
-                        }
-                        user.AppliedTo.Add(relation);
-                        item.Applicants.Add(relation);
-                        arg.Author.SendMessageAsync("Teilnahme erfolgreich");
-                    }
-                    else
-                    {
-                        arg.Author.SendMessageAsync("Gibt nichs zum teilnehmen");
-                    }
-                }
-                else
-                {
-                    arg.Author.SendMessageAsync("Nimmst schon teil.");
-                }
-                _context.SaveChanges();
             }
         }
         private void RelayMessage(SocketMessage arg)
@@ -392,6 +293,44 @@ namespace BobDeathmic.Services.Discords
             }
             catch (Exception)
             {
+            }
+        }
+        private void SendMessage(object sender, MessageArgs e)
+        {
+            SendPrivateMessage(e.RecipientName.ToLower(), e.Message);
+        }
+        private void TwitchMessageReceived(object sender, TwitchMessageArgs e)
+        {
+            try
+            {
+                SendChannelMessage(e.Target.ToLower(), e.Message);
+            }
+            catch (InvalidOperationException)
+            {
+                //just an annoyance on start..
+            }
+        }
+        private void SendChannelMessage(string channel,string message)
+        {
+            _client.Guilds.Single(g => g.Name.ToLower() == "deathmic")?.TextChannels.Single(c => c.Name.ToLower() == channel.ToLower())?.SendMessageAsync(message);
+        }
+        private void SendPrivateMessage(string username,string message)
+        {
+            _client.Guilds.Where(g => g.Name.ToLower() == "deathmic").FirstOrDefault()?.Users.Where(x => x.Username.ToLower() == username.ToLower()).FirstOrDefault()?.SendMessageAsync(message);
+        }
+        void handleCommandResponse(object sender, CommandResponseArgs e)
+        {
+            if(e.Chat == Data.Enums.ChatType.Discord)
+            {
+                switch(e.MessageType)
+                {
+                    case Eventbus.MessageType.ChannelMessage:
+                        SendChannelMessage(e.Channel, e.Message);
+                        break;
+                    case Eventbus.MessageType.PrivateMessage:
+                        SendPrivateMessage(e.Sender, e.Message);
+                        break;
+                }
             }
         }
         #endregion

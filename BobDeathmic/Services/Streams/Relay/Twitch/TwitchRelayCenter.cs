@@ -47,7 +47,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
         private System.Timers.Timer _RelayCheckTimer;
         private readonly IConfiguration _configuration;
         //TODO once CommandService Finished Remove next line
-        private List<IfCommand> CommandList;
+        private List<ICommand> CommandList;
         private Random random;
         private ICommandService commandService;
 
@@ -320,7 +320,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                 }
                 else
                 {
-                    ChatCommands.Args.ChatCommandArguments inputargs = new ChatCommands.Args.ChatCommandArguments()
+                    ChatCommands.Args.ChatCommandInputArgs inputargs = new ChatCommands.Args.ChatCommandInputArgs()
                     {
                         Message = e.ChatMessage.Message,
                         Sender = e.ChatMessage.Username,
@@ -329,52 +329,10 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                         Type = Data.Enums.ChatType.Twitch
                     };
                     commandService.handleCommand(inputargs,Data.Enums.ChatType.Twitch,e.ChatMessage.Username);
-                    /*
-                    if (CommandList != null)
-                    {
-                        foreach (IfCommand command in CommandList)
-                        {
-                            
-
-                            
-                            string CommandResult = await command.ExecuteCommandIfApplicable(inputargs, _scopeFactory);
-                            if (CommandResult != "")
-                            {
-                                var twitchchannel = client.JoinedChannels.Where(channel => channel.Channel == e.ChatMessage.Channel).FirstOrDefault();
-                                client.SendMessage(twitchchannel, CommandResult);
-                            }
-                            string WhisperCommandResult = await command.ExecuteWhisperCommandIfApplicable(inputargs, _scopeFactory);
-                            if (WhisperCommandResult != "")
-                            {
-                                client.SendWhisper(e.ChatMessage.Username, WhisperCommandResult);
-                            }
-                            CommandEventType EventType = await command.EventToBeTriggered(inputargs);
-                            switch (EventType)
-                            {
-                                case CommandEventType.None:
-                                    break;
-                                case CommandEventType.Strawpoll:
-                                    if (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
-                                    {
-                                        _eventBus.TriggerEvent(Eventbus.EventType.StrawPollRequested, new StrawPollRequestEventArgs { StreamName = e.ChatMessage.Channel, Type = StreamProviderTypes.Twitch, Message = e.ChatMessage.Message });
-                                    }
-                                    break;
-                                case CommandEventType.TwitchTitle:
-                                    if (e.ChatMessage.IsModerator || e.ChatMessage.IsBroadcaster)
-                                    {
-
-                                        //_eventBus.TriggerEvent(Eventbus.EventType.StreamTitleChangeRequested, PrepareStreamTitleChange(e.ChatMessage.Channel, e.ChatMessage.Message));
-                                    }
-                                    break;
-                            }
-                            
-                        }
-                    }*/
                 }
 
             }
         }
-        //TODO: Remove when  CommandService Fully Operational
         
         private string GetManualCommandResponse(string streamname, string message)
         {
@@ -457,6 +415,14 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                 MessageQueues.Add(name, new List<string>());
             }
         }
+        private void AddMessageToQueue(string name,string message)
+        {
+            if (!MessageQueues.ContainsKey(name))
+            {
+                AddMessageQueue(name);
+            }
+            MessageQueues[name].Add(message);
+        }
         private void RemoveMessageQueue(string name)
         {
             if (MessageQueues.ContainsKey(name))
@@ -503,6 +469,21 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                         savedtoken.RefreshToken = refresh.refresh_token;
                         _context.SaveChanges();
                     }
+                }
+            }
+        }
+        void handleCommandResponse(object sender, CommandResponseArgs e)
+        {
+            if (e.Chat == Data.Enums.ChatType.Twitch)
+            {
+                switch (e.MessageType)
+                {
+                    case Eventbus.MessageType.ChannelMessage:
+                        AddMessageToQueue(e.Channel, e.Message);
+                        break;
+                    case Eventbus.MessageType.PrivateMessage:
+                        client.SendWhisper(e.Sender, e.Message);
+                        break;
                 }
             }
         }

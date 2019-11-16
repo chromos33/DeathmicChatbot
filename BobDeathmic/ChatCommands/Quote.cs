@@ -14,7 +14,7 @@ using MoreLinq;
 
 namespace BobDeathmic.ChatCommands
 {
-    public class QuoteCommand : IfCommand
+    public class QuoteCommand : ICommand
     {
         public string Trigger => "!quote";
         public string Description => "Add a quote to the current streamer's quote database. !quote [add/delete] [quote/id]";
@@ -22,71 +22,6 @@ namespace BobDeathmic.ChatCommands
 
         public string Alias => "";
 
-        public async Task<string> ExecuteCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
-        {
-            return "";
-            /*if (!args["message"].ToLower().StartsWith(Trigger) || args["source"] != "twitch")
-            {
-                return string.Empty;
-            }
-
-            using (var scope = scopeFactory.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-                var saMessageSplit = args["message"].Split(" ");
-
-                // !quote without any arguments prints a random quote of the current streamer.
-                if (saMessageSplit.Length == 1)
-                {
-                    return await GetRandomQuoteFromStreamer(args["channel"], context);
-                }
-
-                // Non mods can only print quotes, not add or delete.
-                if (args["elevatedPermissions"] != "True")
-                {
-                    return string.Empty;
-                }
-
-                int iQuoteId;
-
-                switch (saMessageSplit[1].ToLower())
-                {
-                    case "add":
-                        if (saMessageSplit.Length == 2)
-                        {
-                            return "Usage: !quote add <add funny quote here>";
-                        }
-
-                        iQuoteId = await AddQuoteToStreamer(args["channel"], string.Join(" ", saMessageSplit.Skip(2)), context);
-                        return await GetQuoteFromStreamer(args["channel"], iQuoteId, context);
-
-                    case "delete":
-                        if (saMessageSplit.Length == 2)
-                        {
-                            return "Usage: !quote delete <quote ID here>";
-                        }
-
-                        if (!int.TryParse(saMessageSplit[2], out iQuoteId))
-                        {
-                            return $"'{saMessageSplit[2]}' is not a quote ID.";
-                        }
-
-                        return DeleteQuoteFromStreamer(args["channel"], iQuoteId, context)
-                            ? "Quote deleted."
-                            : $"Quote ID {iQuoteId} not found.";
-
-                    default:
-
-                        if (!int.TryParse(saMessageSplit[1], out iQuoteId))
-                        {
-                            return $"'{saMessageSplit[1]}' is not a quote ID.";
-                        }
-
-                        return GetQuoteFromStreamer(args["channel"], iQuoteId, context);
-                }
-            }*/
-        }
 
         private async Task<bool> DeleteQuoteFromStreamer(string sStreamer, int iQuoteId, ApplicationDbContext context)
         {
@@ -127,16 +62,6 @@ namespace BobDeathmic.ChatCommands
             return quote.Id;
         }
 
-        public async Task<string> ExecuteWhisperCommandIfApplicable(Dictionary<string, string> args, IServiceScopeFactory scopeFactory)
-        {
-            return string.Empty;
-        }
-
-        public async Task<CommandEventType> EventToBeTriggered(Dictionary<string, string> args)
-        {
-            return CommandEventType.None;
-        }
-
         public bool ChatSupported(ChatType chat)
         {
             return chat == ChatType.Twitch;
@@ -146,12 +71,12 @@ namespace BobDeathmic.ChatCommands
             return str.ToLower().StartsWith(Trigger) || str.ToLower().StartsWith(Alias);
         }
 
-        public async Task<ChatCommandOutput> execute(ChatCommandArguments args, IServiceScopeFactory scopeFactory)
+        public async Task<ChatCommandOutput> execute(ChatCommandInputArgs args, IServiceScopeFactory scopeFactory)
         {
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = false;
             output.Type = Eventbus.EventType.CommandResponseReceived;
-            output.EventData = new ChatCommandArguments()
+            output.EventData = new ChatCommandInputArgs()
             {
                 ChannelName = args.ChannelName,
                 elevatedPermissions = args.elevatedPermissions,
@@ -172,7 +97,7 @@ namespace BobDeathmic.ChatCommands
                 // !quote without any arguments prints a random quote of the current streamer.
                 if (saMessageSplit.Length == 1)
                 {
-                    output.EventData.Message = GetRandomQuoteFromStreamer(args.ChannelName, context);
+                    output.EventData.Message = await GetRandomQuoteFromStreamer(args.ChannelName, context);
                     return output;
                 }
 
@@ -194,7 +119,7 @@ namespace BobDeathmic.ChatCommands
                         else
                         {
                             iQuoteId = await AddQuoteToStreamer(args.ChannelName, string.Join(" ", saMessageSplit.Skip(2)), context);
-                            output.EventData.Message = GetQuoteFromStreamer(args.ChannelName, iQuoteId, context);
+                            output.EventData.Message = await GetQuoteFromStreamer(args.ChannelName, iQuoteId, context);
                         }
                         break;
                     case "delete":
@@ -218,7 +143,7 @@ namespace BobDeathmic.ChatCommands
                             output.EventData.Message = $"'{saMessageSplit[1]}' is not a quote ID.";
                         }
 
-                        output.EventData.Message = GetQuoteFromStreamer(args.ChannelName, iQuoteId, context);
+                        output.EventData.Message = await GetQuoteFromStreamer(args.ChannelName, iQuoteId, context);
                         break;
                 }
                 return output;
