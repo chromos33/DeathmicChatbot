@@ -43,7 +43,7 @@ namespace BobDeathmic
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 //.UseApplicationInsights()
-                .UseUrls("http://0.0.0.0:6000/")
+                .UseUrls("http://localhost:5001/")
                 .UseLibuv(opts => opts.ThreadCount = 3)
                 .UseStartup<Startup>()
                 .Build();
