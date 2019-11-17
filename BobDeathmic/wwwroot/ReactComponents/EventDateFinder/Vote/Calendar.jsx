@@ -6,7 +6,6 @@
     componentWillMount() {
         var thisreference = this;
         const xhr = new XMLHttpRequest();
-        console.log("/Events/GetEventDates/" + this.props.ID);
         xhr.open('GET', "/Events/GetEventDates/" + this.props.ID, true);
         xhr.onload = function () {
             thisreference.setState({ data: JSON.parse(xhr.responseText) });

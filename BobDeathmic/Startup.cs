@@ -71,6 +71,7 @@ namespace BobDeathmic
             // Add application services.
             services.AddMemoryCache();
             services.AddSingleton<IEventBus, EventBusLocal>();
+            
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchChecker>();
             services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DLiveChecker>();
             //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.MixerChecker>();
@@ -109,7 +110,7 @@ namespace BobDeathmic
             app.UseReact(config =>
             {
                 config.AllowJavaScriptPrecompilation = true;
-                config.SetLoadBabel(true);
+                config.SetLoadBabel(false);
                 config.SetLoadReact(true);
                 config.UseServerSideRendering = false;
 

@@ -145,12 +145,13 @@ namespace BobDeathmic.Controllers
         }
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<int> UpdateRequestState(string requestID, string state)
+        public async Task<int> UpdateRequestState(string requestID, string state,string comment)
         {
             var Request = _context.AppointmentRequests.Where(x => x.ID == requestID).FirstOrDefault();
             if (Request != null)
             {
                 Request.State = (AppointmentRequestState)Enum.Parse(typeof(AppointmentRequestState), state);
+                Request.Comment = comment;
                 return _context.SaveChanges();
             }
             return 0;
@@ -219,6 +220,7 @@ namespace BobDeathmic.Controllers
                             tmp.Date = request.EventDate.Date.ToString("dd.MM.yy");
                             tmp.Time = request.EventDate.StartTime.ToString("HH:mm") + "-" + request.EventDate.StopTime.ToString("HH:mm");
                             tmp.canEdit = request.Owner == user;
+                            tmp.Comment = request.Comment;
                             newData.Requests.Add(tmp);
                         }
                         ReactData.Header.Add(newData);

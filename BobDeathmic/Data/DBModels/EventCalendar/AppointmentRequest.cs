@@ -17,6 +17,7 @@ namespace BobDeathmic.Data.DBModels.EventCalendar
         public EventDate EventDate { get; set; }
         public ChatUserModel Owner { get; set; }
         public AppointmentRequestState State { get; set; }
+        public string Comment { get; set; }
         public AppointmentRequest()
         {
             State = 0;

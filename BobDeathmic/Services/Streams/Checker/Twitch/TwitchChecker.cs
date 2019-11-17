@@ -201,8 +201,15 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                         {
                             stream.DiscordRelayChannel = getRandomRelayChannel();
                         }
+                        int longDelayCounter = 0;
                         foreach(string username in stream.GetActiveSubscribers())
                         {
+                            longDelayCounter++;
+                            if(longDelayCounter == 5)
+                            {
+                                longDelayCounter = 0;
+                                await Task.Delay(2000);
+                            }
                             _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs() { Message = stream.StreamStartedMessage(streamdata.Title, GetStreamUrl(stream)), RecipientName = username });
                             await Task.Delay(100);
                         }

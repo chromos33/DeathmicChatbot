@@ -16,6 +16,7 @@ namespace BobDeathmic.ViewModels.ReactDataClasses.EventDateFinder.Vote
         public string Date { get; set; }
         public string Time { get; set; }
         public bool canEdit { get; set; }
+        public string Comment { get; set; }
 
         public string[] States
         {
