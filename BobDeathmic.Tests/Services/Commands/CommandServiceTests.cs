@@ -116,7 +116,7 @@ namespace BobDeathmic.Tests.Services.Commands
             CommandResponseArgs receivedEventsArgs = null;
             //eventbus.TriggerEvent(EventType.).For
             CommandService service = new CommandService(scopefactory, eventbus);
-            eventbus.CommandResponseReceived += delegate (object sender, CommandResponseArgs e)
+            eventbus.CommandOutputReceived += delegate (object sender, CommandResponseArgs e)
             {
                 receivedEventsArgs = e;
             };
@@ -150,7 +150,7 @@ namespace BobDeathmic.Tests.Services.Commands
             CommandResponseArgs receivedEventsArgs = null;
             //eventbus.TriggerEvent(EventType.).For
             CommandService service = new CommandService(scopefactory, eventbus);
-            eventbus.CommandResponseReceived += delegate (object sender, CommandResponseArgs e)
+            eventbus.CommandOutputReceived += delegate (object sender, CommandResponseArgs e)
             {
                 receivedEventsArgs = e;
             };
@@ -183,7 +183,7 @@ namespace BobDeathmic.Tests.Services.Commands
             CommandResponseArgs receivedEventsArgs = null;
             //eventbus.TriggerEvent(EventType.).For
             CommandService service = new CommandService(scopefactory, eventbus);
-            eventbus.CommandResponseReceived += delegate (object sender, CommandResponseArgs e)
+            eventbus.CommandOutputReceived += delegate (object sender, CommandResponseArgs e)
             {
                 receivedEventsArgs = e;
             };
@@ -216,7 +216,7 @@ namespace BobDeathmic.Tests.Services.Commands
             CommandResponseArgs receivedEventsArgs = null;
             //eventbus.TriggerEvent(EventType.).For
             CommandService service = new CommandService(scopefactory, eventbus);
-            eventbus.CommandResponseReceived += delegate (object sender, CommandResponseArgs e)
+            eventbus.CommandOutputReceived += delegate (object sender, CommandResponseArgs e)
             {
                 receivedEventsArgs = e;
             };
@@ -250,7 +250,7 @@ namespace BobDeathmic.Tests.Services.Commands
             CommandResponseArgs receivedEventsArgs = null;
             //eventbus.TriggerEvent(EventType.).For
             CommandService service = new CommandService(scopefactory, eventbus);
-            eventbus.CommandResponseReceived += delegate (object sender, CommandResponseArgs e)
+            eventbus.CommandOutputReceived += delegate (object sender, CommandResponseArgs e)
             {
                 receivedEventsArgs = e;
             };

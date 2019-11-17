@@ -62,7 +62,7 @@ namespace BobDeathmic.ChatCommands
                     message = "Already in the List";
                 }
             }
-            output.EventData = new CommandResponseArgs(args.Type, message, MessageType.PrivateMessage, EventType.CommandResponseReceived, args.Sender,args.ChannelName);
+            output.EventData = new CommandResponseArgs(args.Type, message, MessageType.PrivateMessage, args.Sender,args.ChannelName);
             return output;
         }
 
@@ -152,7 +152,7 @@ namespace BobDeathmic.ChatCommands
                         message = user.ChatUser;
                     }
                 }
-                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender,args.ChannelName);
+                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, args.Sender,args.ChannelName);
 
             }
             return output;
@@ -319,7 +319,7 @@ namespace BobDeathmic.ChatCommands
                         
                     }
                 }
-                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender, args.ChannelName);
+                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, args.Sender, args.ChannelName);
             }
             return output;
         }
@@ -394,7 +394,7 @@ namespace BobDeathmic.ChatCommands
                         }
                     }
                 }
-                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender, args.ChannelName);
+                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, args.Sender, args.ChannelName);
             }
             return output;
         }
@@ -453,7 +453,7 @@ namespace BobDeathmic.ChatCommands
                         }
                     }
                 }
-                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, EventType.CommandResponseReceived, args.Sender, args.ChannelName);
+                output.EventData = new CommandResponseArgs(args.Type, message, MessageType.ChannelMessage, args.Sender, args.ChannelName);
             }
             return output;
         }

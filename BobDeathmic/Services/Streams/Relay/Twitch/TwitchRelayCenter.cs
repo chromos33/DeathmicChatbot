@@ -63,7 +63,6 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
             this.commandService = commandService;
-            //CommandList = CommandBuilder.BuildCommands("twitch");
             random = new Random();
         }
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -182,9 +181,11 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
             client.Initialize(await GetTwitchCredentials());
         }
 
+        
         private void InitRelayBusEvents()
         {
             _eventBus.RelayMessageReceived += RelayMessageReceived;
+            _eventBus.CommandOutputReceived += handleCommandResponse;
         }
         private bool ConnectionChangeInProgress;
         private async Task Connect()
@@ -472,7 +473,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                 }
             }
         }
-        void handleCommandResponse(object sender, CommandResponseArgs e)
+        public void handleCommandResponse(object sender, CommandResponseArgs e)
         {
             if (e.Chat == Data.Enums.ChatType.Twitch)
             {

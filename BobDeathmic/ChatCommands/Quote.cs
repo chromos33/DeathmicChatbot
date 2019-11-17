@@ -11,6 +11,7 @@ using BobDeathmic.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MoreLinq;
+using BobDeathmic.Eventbus;
 
 namespace BobDeathmic.ChatCommands
 {
@@ -76,12 +77,12 @@ namespace BobDeathmic.ChatCommands
             ChatCommandOutput output = new ChatCommandOutput();
             output.ExecuteEvent = false;
             output.Type = Eventbus.EventType.CommandResponseReceived;
-            output.EventData = new ChatCommandInputArgs()
+            output.EventData = new CommandResponseArgs()
             {
-                ChannelName = args.ChannelName,
-                elevatedPermissions = args.elevatedPermissions,
-                Sender = args.Sender,
-                Type = args.Type
+                 Channel = args.ChannelName,
+                 Chat = args.Type,
+                 MessageType = MessageType.ChannelMessage,
+                 Sender = args.Sender
             };
             if (!args.Message.ToLower().StartsWith(Trigger) || args.Type != ChatType.Twitch)
             {
@@ -97,6 +98,7 @@ namespace BobDeathmic.ChatCommands
                 // !quote without any arguments prints a random quote of the current streamer.
                 if (saMessageSplit.Length == 1)
                 {
+                    output.ExecuteEvent = true;
                     output.EventData.Message = await GetRandomQuoteFromStreamer(args.ChannelName, context);
                     return output;
                 }

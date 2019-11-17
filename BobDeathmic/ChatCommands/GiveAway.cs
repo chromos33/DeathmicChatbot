@@ -78,7 +78,6 @@ namespace BobDeathmic.ChatCommands
                     ChatType.Discord,
                     message,
                     MessageType.PrivateMessage,
-                    EventType.CommandResponseReceived,
                     args.Sender,
                     args.ChannelName
                 );

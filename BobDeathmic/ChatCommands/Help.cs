@@ -80,7 +80,6 @@ namespace BobDeathmic.ChatCommands
                 args.Type,
                 getHelp(args.Type),
                 MessageType.PrivateMessage,
-                EventType.CommandResponseReceived,
                 args.Sender,
                 args.ChannelName
               );

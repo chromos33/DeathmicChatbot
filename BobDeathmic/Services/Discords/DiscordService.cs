@@ -52,7 +52,7 @@ namespace BobDeathmic.Services.Discords
             _eventBus.TwitchMessageReceived += TwitchMessageReceived;
             _eventBus.PasswordRequestReceived += PasswordRequestReceived;
             _eventBus.DiscordMessageSendRequested += SendMessage;
-            _eventBus.CommandResponseReceived += handleCommandResponse;
+            _eventBus.CommandOutputReceived += handleCommandResponse;
             this.commandService = commandService;
             SetupClient();
         }

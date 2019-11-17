@@ -15,7 +15,7 @@ namespace BobDeathmic.Eventbus
         public event EventHandler<TwitchMessageArgs> TwitchMessageReceived;
         public event EventHandler<RelayMessageArgs> RelayMessageReceived;
         public event EventHandler<StrawPollRequestEventArgs> StrawPollRequested;
-        public event EventHandler<CommandResponseArgs> CommandResponseReceived;
+        public event EventHandler<CommandResponseArgs> CommandOutputReceived;
 
         public void TriggerEvent(EventType @event, dynamic EventData)
         {
@@ -43,7 +43,7 @@ namespace BobDeathmic.Eventbus
                     DiscordMessageSendRequested(this, EventData);
                     break;
                 case EventType.CommandResponseReceived:
-                    CommandResponseReceived(this, EventData);
+                    CommandOutputReceived(this, EventData);
                     break;
             }
         }
