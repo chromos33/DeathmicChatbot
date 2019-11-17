@@ -1,4 +1,4 @@
-﻿@model BobDeathmic.Models.StreamViewModels.StreamListDataModel
+﻿@model BobDeathmic.ViewModels.StreamModels.StreamListDataModel
 
 @{
     ViewData["Title"] = "Status";
@@ -29,7 +29,7 @@
                 <td><a href="@Html.DisplayFor(modelItem => item.Url)">@Html.DisplayFor(modelItem => item.StreamName)</a></td>
                 <td>@Html.DisplayFor(modelItem => item.Type)</td>
                 <td><a asp-action="Edit" asp-route-id="@item.ID">Edit</a></td>
-                @if (item.Type == BobDeathmic.Models.Enum.StreamProviderTypes.Twitch)
+                @if (item.Type == BobDeathmic.Data.Enums.Stream.StreamProviderTypes.Twitch)
                 {
                     <td><a asp-action="TwitchOAuth" asp-route-id="@item.ID">Authorisieren</a></td>
                 }

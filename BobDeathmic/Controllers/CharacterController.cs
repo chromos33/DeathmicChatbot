@@ -1,5 +1,6 @@
 ﻿using BobDeathmic.Args;
 using BobDeathmic.Data;
+using BobDeathmic.Data.DBModels.User;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
 using Microsoft.AspNetCore.Authorization;

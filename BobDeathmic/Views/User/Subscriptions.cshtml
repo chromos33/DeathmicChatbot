@@ -1,4 +1,5 @@
-﻿@model BobDeathmic.Models.User.AddSubscriptionViewModel
+﻿@model BobDeathmic.ViewModels.User.AddSubscriptionViewModel
+@using BobDeathmic.Data.DBModels.StreamModels
 @*
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
@@ -60,7 +61,7 @@
                                 <td>
                                     <a class="subscriptionswitch" data-id="@sub.ID">
 
-                                        @if (@sub.Subscribed == BobDeathmic.Models.Enum.SubscriptionState.Subscribed)
+                                        @if (@sub.Subscribed == BobDeathmic.Data.Enums.Stream.SubscriptionState.Subscribed)
                                         {
                                             <i class="fa fa-power-off font_green"></i>
                                         }

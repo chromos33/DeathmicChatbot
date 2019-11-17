@@ -1,9 +1,10 @@
 ﻿using BobDeathmic.Args;
 using BobDeathmic.Data;
+using BobDeathmic.Data.DBModels.StreamModels;
+using BobDeathmic.Data.DBModels.User;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
-using BobDeathmic.Models.StreamModels;
-using BobDeathmic.Models.StreamViewModels;
+using BobDeathmic.ViewModels.StreamModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +38,7 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Status()
         {
-            Models.StreamViewModels.StreamListDataModel model = new Models.StreamViewModels.StreamListDataModel();
+            StreamListDataModel model = new StreamListDataModel();
             model.StreamList = await _context.StreamModels.ToListAsync();
             model.StatusMessage = StatusMessage;
             return View(model);
@@ -45,7 +46,7 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Verwaltung()
         {
-            Models.StreamViewModels.StreamListDataModel model = new Models.StreamViewModels.StreamListDataModel();
+            StreamListDataModel model = new StreamListDataModel();
             model.StreamList = await _context.StreamModels.ToListAsync();
             model.StatusMessage = StatusMessage;
             return View(model);
@@ -209,7 +210,7 @@ namespace BobDeathmic.Controllers
             {
                 return NotFound();
             }
-            BobDeathmic.Models.StreamViewModels.StreamOAuthDataModel model = new Models.StreamViewModels.StreamOAuthDataModel();
+            StreamOAuthDataModel model = new StreamOAuthDataModel();
             model.Id = stream.ID.ToString();
             string baseurl = _configuration.GetSection("WebServerWebAddress").Value;
             model.RedirectLinkForTwitch = $"{baseurl}/Stream/TwitchReturnUrlAction";
@@ -219,7 +220,7 @@ namespace BobDeathmic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> TwitchOAuth(int id, [Bind("Id,ClientId,Secret")] Models.StreamViewModels.StreamOAuthDataModel StreamOAuthData)
+        public async Task<IActionResult> TwitchOAuth(int id, [Bind("Id,ClientId,Secret")] StreamOAuthDataModel StreamOAuthData)
         {
             if (id != Int32.Parse(StreamOAuthData.Id))
             {
@@ -230,7 +231,7 @@ namespace BobDeathmic.Controllers
             {
                 var baseUrl = _configuration.GetSection("WebServerWebAddress").Value;
                 string state = StreamOAuthData.Id + StreamOAuthData.Secret;
-                Models.Stream stream = _context.StreamModels.Where(sm => sm.ID == Int32.Parse(StreamOAuthData.Id)).FirstOrDefault();
+                Stream stream = _context.StreamModels.Where(sm => sm.ID == Int32.Parse(StreamOAuthData.Id)).FirstOrDefault();
                 if (stream != null)
                 {
                     stream.Secret = StreamOAuthData.Secret;
@@ -247,7 +248,7 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> TwitchReturnUrlAction(string code, string scope, string state)
         {
             var client = new HttpClient();
-            Models.Stream stream = _context.StreamModels.Where(sm => state.Contains(sm.Secret)).FirstOrDefault();
+            Stream stream = _context.StreamModels.Where(sm => state.Contains(sm.Secret)).FirstOrDefault();
             if (stream != null)
             {
                 var baseUrl = _configuration.GetSection("WebServerWebAddress").Value;

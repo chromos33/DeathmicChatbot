@@ -1,8 +1,10 @@
 ﻿using BobDeathmic.Data;
+using BobDeathmic.Data.DBModels.User;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
-using BobDeathmic.Models.AccountViewModels;
 using BobDeathmic.Services;
+using BobDeathmic.ViewModels;
+using BobDeathmic.ViewModels.User;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
@@ -137,7 +139,7 @@ namespace BobDeathmic.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RequestPasswort(Models.User.RequestPasswordViewModel model)
+        public async Task<IActionResult> RequestPasswort(RequestPasswordViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -147,56 +149,18 @@ namespace BobDeathmic.Controllers
 
             if (user != null)
             {
-                string password = GeneratePassword();
-                //var result = await _userManager.ResetPasswordAsync(user, await _userManager.GeneratePasswordResetTokenAsync(user), password);
-                var result2 = await _userManager.RemovePasswordAsync(user);
-                if (result2.Succeeded)
+                var RemovePasswordResult = await _userManager.RemovePasswordAsync(user);
+                if (RemovePasswordResult.Succeeded)
                 {
-                    result2 = await _userManager.AddPasswordAsync(user, password);
-                    if (result2.Succeeded)
+                    string password = user.GeneratePassword();
+                    var AddPasswordResult = await _userManager.AddPasswordAsync(user, password);
+                    if (AddPasswordResult.Succeeded)
                     {
                         _eventBus.TriggerEvent(EventType.PasswordRequestReceived, new Args.PasswordRequestArgs { UserName = user.ChatUserName, TempPassword = password });
                     }
-
                 }
             }
             return RedirectToAction(nameof(Login));
-        }
-        private string GeneratePassword()
-        {
-            Random random = new Random(DateTime.Now.Second * DateTime.Now.Millisecond / DateTime.Now.Hour);
-            int passes = random.Next(1, 8);
-            string password = "";
-            for (int passcounter = 0; passcounter < passes; passcounter++)
-            {
-                string LoremIpsum = Helper.StaticHelper.GetLoremIpsum().Replace(" ", "").Replace(",", "").Replace(".", "");
-                password += LoremIpsum.Substring(0, random.Next(0, LoremIpsum.Length));
-                password += random.Next(5000);
-            }
-            int start = random.Next(password.Length);
-            int end = random.Next(random.Next(password.Length - start - 1));
-            password = password.Substring(start, end);
-            if (password.Length < 8)
-            {
-                password += random.Next(5000);
-            }
-            password = GeneratePasswordHash(password);
-            return password;
-        }
-        private string GeneratePasswordHash(string _password)
-        {
-            byte[] salt = new byte[128 / 8];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(salt);
-            }
-            string password = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-                    password: _password,
-                    salt: salt,
-                    prf: KeyDerivationPrf.HMACSHA1,
-                    iterationCount: 10000,
-                    numBytesRequested: 256 / 8));
-            return password;
         }
         #region Helpers
 

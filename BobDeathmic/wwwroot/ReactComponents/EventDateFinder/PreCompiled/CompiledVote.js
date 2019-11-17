@@ -43,7 +43,6 @@ var Calendar =
             value: function componentWillMount() {
                 var thisreference = this;
                 var xhr = new XMLHttpRequest();
-                console.log("/Events/GetEventDates/" + this.props.ID);
                 xhr.open('GET', "/Events/GetEventDates/" + this.props.ID, true);
 
                 xhr.onload = function () {
@@ -110,7 +109,8 @@ var EventDate =
                         canEdit: request.canEdit,
                         requestID: request.AppointmentRequestID,
                         possibleStates: request.States,
-                        state: request.State
+                        state: request.State,
+                        comment: request.Comment
                     }));
                 });
 
@@ -155,7 +155,8 @@ var StateSelect =
             _this3.state = {
                 possibleStates: props.possibleStates,
                 State: props.state,
-                RetryCount: 0
+                RetryCount: 0,
+                comment: props.comment
             }; //this.handleOnChange = this.handleOnChange.bind(this);
 
             _this3.handleClick = _this3.handleClick.bind(_assertThisInitialized(_this3));
@@ -169,23 +170,32 @@ var StateSelect =
                 var thisreference = this;
                 var tmpevent = event;
                 var element = event.target;
-                thisreference.SyncStateToServer(thisreference.props.requestID, tmpevent.target.getAttribute("data-value"), element);
+                var value = tmpevent.target.getAttribute("data-value");
+                var comment = "";
+
+                if (value === "3") {
+                    comment = prompt("Kommentar eingeben", "");
+                }
+
+                thisreference.SyncStateToServer(thisreference.props.requestID, value, element, comment);
             }
         }, {
             key: "SyncStateToServer",
-            value: function SyncStateToServer(ID, State, element) {
+            value: function SyncStateToServer(ID, State, element, comment) {
                 var thisreference = this;
                 $.ajax({
                     url: "/Events/UpdateRequestState/",
                     type: "GET",
                     data: {
                         requestID: ID,
-                        state: State
+                        state: State,
+                        comment: comment
                     },
                     success: function success(result) {
                         if (result > 0) {
                             thisreference.setState({
-                                State: parseInt(element.getAttribute("data-value"))
+                                State: parseInt(element.getAttribute("data-value")),
+                                comment: comment
                             });
                         } else {
                             if (thisreference.state.RetryCount === 3) {
@@ -206,22 +216,6 @@ var StateSelect =
                     }
                 });
             }
-            /*handleOnChange(event) {
-                this.setState({ State: event.target.value });
-                var thisreference = this;
-                var tmpevent = event;
-                $.ajax({
-                    url: "/Events/UpdateRequestState/",
-                    type: "GET",
-                    data: {
-                        requestID: thisreference.props.requestID,
-                        state: event.target.value
-                    },
-                    success: function (result) {
-                    }
-                });
-            }*/
-
         }, {
             key: "render",
             value: function render() {
@@ -244,6 +238,7 @@ var StateSelect =
                                         className: "voteoption",
                                         "data-value": "0",
                                         onClick: tmpthis.handleClick,
+                                        onTouchEnd: tmpthis.handleClick,
                                         key: tmpthis.props.key
                                     }, React.createElement("i", {
                                         className: "fas fa-minus"
@@ -269,6 +264,7 @@ var StateSelect =
                                         className: "voteoption greenbg",
                                         "data-value": "1",
                                         onClick: tmpthis.handleClick,
+                                        onTouchEnd: tmpthis.handleClick,
                                         key: tmpthis.props.key
                                     }, React.createElement("i", {
                                         className: "fas fa-check"
@@ -294,6 +290,7 @@ var StateSelect =
                                         className: "voteoption redbg",
                                         "data-value": "2",
                                         onClick: tmpthis.handleClick,
+                                        onTouchEnd: tmpthis.handleClick,
                                         key: tmpthis.props.key
                                     }, React.createElement("i", {
                                         className: "fas fa-times"
@@ -304,21 +301,30 @@ var StateSelect =
                             }
 
                             if (state === "IfNeedBe") {
+                                console.log(tmpthis.state);
+
                                 if (tmpthis.state.State === 3) {
                                     return React.createElement("span", {
                                         className: "voteoption yellowbg active",
                                         "data-value": "3",
-                                        key: tmpthis.props.key
+                                        key: tmpthis.props.key,
+                                        onClick: tmpthis.handleClick,
+                                        onTouchEnd: tmpthis.handleClick
                                     }, React.createElement("i", {
                                         className: "fas fa-question"
                                     }), React.createElement("span", {
                                         className: "lds-dual-ring"
-                                    }));
+                                    }), tmpthis.state.comment !== "" && tmpthis.state.comment !== undefined && tmpthis.state.comment !== null && React.createElement("i", {
+                                        className: "fas fa-info"
+                                    }), tmpthis.state.comment !== "" && tmpthis.state.comment !== undefined && tmpthis.state.comment !== null && React.createElement("span", {
+                                        className: "commentBox"
+                                    }, tmpthis.state.comment));
                                 } else {
                                     return React.createElement("span", {
                                         className: "voteoption yellowbg",
                                         "data-value": "3",
                                         onClick: tmpthis.handleClick,
+                                        onTouchEnd: tmpthis.handleClick,
                                         key: tmpthis.props.key
                                     }, React.createElement("i", {
                                         className: "fas fa-question"
@@ -387,7 +393,11 @@ var StateSelect =
                                 key: tmpthis.props.key
                             }, React.createElement("i", {
                                 className: "fas fa-question"
-                            }))));
+                            }), tmpthis.state.comment !== "" && tmpthis.state.comment !== undefined && tmpthis.state.comment !== null && React.createElement("i", {
+                                className: "fas fa-info"
+                            }), tmpthis.state.comment !== "" && tmpthis.state.comment !== undefined && tmpthis.state.comment !== null && React.createElement("span", {
+                                className: "commentBox"
+                            }, tmpthis.state.comment))));
                     }
                 }
 

@@ -1,9 +1,11 @@
 ﻿using BobDeathmic.Data;
+using BobDeathmic.Data.DBModels.EventCalendar;
+using BobDeathmic.Data.DBModels.EventCalendar.manymany;
+using BobDeathmic.Data.DBModels.User;
 using BobDeathmic.Models;
 using BobDeathmic.Models.Events;
-using BobDeathmic.Models.Events.ManyMany;
-using BobDeathmic.ReactDataClasses.Events.OverView;
-using BobDeathmic.ReactDataClasses.Events.Vote;
+using BobDeathmic.ViewModels.ReactDataClasses.EventDateFinder.OverView;
+using BobDeathmic.ViewModels.ReactDataClasses.EventDateFinder.Vote;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -43,20 +45,20 @@ namespace BobDeathmic.Controllers
             return Json(data);
         }
 
-        private List<ReactDataClasses.Events.OverView.Calendar> getRelevantCalendars(ChatUserModel user)
+        private List<Calendar> getRelevantCalendars(ChatUserModel user)
         {
 
-            List<ReactDataClasses.Events.OverView.Calendar> Calendars = new List<ReactDataClasses.Events.OverView.Calendar>();
+            List<Calendar> Calendars = new List<Calendar>();
             foreach (Models.Events.Event calendar in _context.Events.Include(x => x.Admin).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Admin.Id == user.Id || x.Members.Where(y => y.ChatUserModelID == user.Id).Count() > 0))
             {
                 //TODO make a custom CalendarMember object to facilitate better security (no need to lay open all data)
                 if (calendar.Admin == user)
                 {
-                    Calendars.Add(new ReactDataClasses.Events.OverView.Calendar { Id = calendar.Id, key = calendar.Id, DeleteLink = this.Url.Action("Delete", "Events", new { ID = calendar.Id }), EditLink = this.Url.Action("EditCalendar", "Events", new { ID = calendar.Id }), Name = calendar.Name, VoteLink = this.Url.Action("VoteOnCalendar", "Events", new { ID = calendar.Id }) });
+                    Calendars.Add(new Calendar { Id = calendar.Id, key = calendar.Id, DeleteLink = this.Url.Action("Delete", "Events", new { ID = calendar.Id }), EditLink = this.Url.Action("EditCalendar", "Events", new { ID = calendar.Id }), Name = calendar.Name, VoteLink = this.Url.Action("VoteOnCalendar", "Events", new { ID = calendar.Id }) });
                 }
                 else
                 {
-                    Calendars.Add(new ReactDataClasses.Events.OverView.Calendar { Id = calendar.Id, key = calendar.Id, DeleteLink = "", EditLink = "", Name = calendar.Name, VoteLink = this.Url.Action("VoteOnCalendar", "Events", new { ID = calendar.Id }) });
+                    Calendars.Add(new Calendar { Id = calendar.Id, key = calendar.Id, DeleteLink = "", EditLink = "", Name = calendar.Name, VoteLink = this.Url.Action("VoteOnCalendar", "Events", new { ID = calendar.Id }) });
                 }
             }
             return Calendars;
@@ -143,12 +145,13 @@ namespace BobDeathmic.Controllers
         }
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<int> UpdateRequestState(string requestID, string state)
+        public async Task<int> UpdateRequestState(string requestID, string state,string comment)
         {
             var Request = _context.AppointmentRequests.Where(x => x.ID == requestID).FirstOrDefault();
             if (Request != null)
             {
                 Request.State = (AppointmentRequestState)Enum.Parse(typeof(AppointmentRequestState), state);
+                Request.Comment = comment;
                 return _context.SaveChanges();
             }
             return 0;
@@ -217,6 +220,7 @@ namespace BobDeathmic.Controllers
                             tmp.Date = request.EventDate.Date.ToString("dd.MM.yy");
                             tmp.Time = request.EventDate.StartTime.ToString("HH:mm") + "-" + request.EventDate.StopTime.ToString("HH:mm");
                             tmp.canEdit = request.Owner == user;
+                            tmp.Comment = request.Comment;
                             newData.Requests.Add(tmp);
                         }
                         ReactData.Header.Add(newData);
@@ -266,7 +270,7 @@ namespace BobDeathmic.Controllers
             EventDateTemplate template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
             if (template != null)
             {
-                template.Day = (Models.Events.Day)Enum.ToObject(typeof(Models.Events.Day), Day);
+                template.Day = (Day)Enum.ToObject(typeof(Day), Day);
                 _context.SaveChanges();
                 return true;
             }
@@ -363,9 +367,9 @@ namespace BobDeathmic.Controllers
                 admin.AdministratedCalendars.Add(newCalendar);
                 if (admin.Calendars == null)
                 {
-                    admin.Calendars = new List<Models.Events.ManyMany.ChatUserModel_Event>();
+                    admin.Calendars = new List<ChatUserModel_Event>();
                 }
-                Models.Events.ManyMany.ChatUserModel_Event JoinTable = new Models.Events.ManyMany.ChatUserModel_Event();
+                ChatUserModel_Event JoinTable = new ChatUserModel_Event();
                 JoinTable.Calendar = newCalendar;
                 JoinTable.ChatUserModel = admin;
                 admin.Calendars.Add(JoinTable);

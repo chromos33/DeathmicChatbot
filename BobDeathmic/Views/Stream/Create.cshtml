@@ -1,4 +1,5 @@
-﻿@model BobDeathmic.Models.Stream
+﻿@model BobDeathmic.Data.DBModels.StreamModels.Stream
+@using BobDeathmic.Data.DBModels.Relay
 
 @{
     ViewData["Title"] = "Create";
@@ -97,7 +98,7 @@
                         {
                             <option>An</option>
                         }
-                        @foreach (var relaychannel in ViewData["RelayChannels"] as IEnumerable<BobDeathmic.Models.Discord.RelayChannels>)
+                        @foreach (var relaychannel in ViewData["RelayChannels"] as IEnumerable<RelayChannels>)
                         {
                             @if (ViewData["SelectedRelayChannel"] != null && relaychannel.Name == ViewData["SelectedRelayChannel"] as string)
                             {

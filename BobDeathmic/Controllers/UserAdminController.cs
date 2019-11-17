@@ -1,4 +1,6 @@
-﻿using BobDeathmic.Models;
+﻿using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Models;
+using BobDeathmic.ViewModels.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace BobDeathmic.Controllers
 {
@@ -25,10 +28,10 @@ namespace BobDeathmic.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            List<Models.User.UserRolesViewModel> UserList = new List<Models.User.UserRolesViewModel>();
+            List<UserRolesViewModel> UserList = new List<UserRolesViewModel>();
             foreach (ChatUserModel user in _context.Users)
             {
-                Models.User.UserRolesViewModel newUserRolesModel = new Models.User.UserRolesViewModel();
+                UserRolesViewModel newUserRolesModel = new UserRolesViewModel();
                 newUserRolesModel.User = user;
                 newUserRolesModel.Roles = await _userManager.GetRolesAsync(user);
                 UserList.Add(newUserRolesModel);

@@ -1,9 +1,11 @@
 ﻿using BobDeathmic.Args;
+using BobDeathmic.Data.DBModels.GiveAway;
+using BobDeathmic.Data.DBModels.GiveAway.manymany;
+using BobDeathmic.Data.DBModels.Relay;
+using BobDeathmic.Data.DBModels.User;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
-using BobDeathmic.Models.Discord;
-using BobDeathmic.Models.GiveAwayModels;
-using BobDeathmic.Models.ViewModels;
+using BobDeathmic.ViewModels.GiveAway;
 using Discord;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -266,7 +268,7 @@ namespace BobDeathmic.Controllers
                 var newitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.Receiver == null).FirstOrDefault();
                 foreach (var user in currentitem.Applicants.Where(x => x.UserID != tmpwinner.Id).ToList())
                 {
-                    var m_n_relation = new Models.GiveAway.User_GiveAwayItem(user.User, newitem);
+                    var m_n_relation = new User_GiveAwayItem(user.User, newitem);
                     newitem.Applicants.Add(m_n_relation);
                     user.User.AppliedTo.Add(m_n_relation);
                 }

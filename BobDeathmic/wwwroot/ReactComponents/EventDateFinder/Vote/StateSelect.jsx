@@ -1,7 +1,7 @@
 ﻿class StateSelect extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { possibleStates: props.possibleStates, State: props.state, RetryCount: 0};
+        this.state = { possibleStates: props.possibleStates, State: props.state, RetryCount: 0,comment: props.comment};
         //this.handleOnChange = this.handleOnChange.bind(this);
         this.handleClick = this.handleClick.bind(this);
     }
@@ -10,21 +10,30 @@
         var thisreference = this;
         var tmpevent = event;
         var element = event.target;
-        thisreference.SyncStateToServer(thisreference.props.requestID, tmpevent.target.getAttribute("data-value"), element);
+        let value = tmpevent.target.getAttribute("data-value");
+        let comment = "";
+        if (value === "3") {
+            comment = prompt("Kommentar eingeben", "");
+        }
+        thisreference.SyncStateToServer(thisreference.props.requestID, value, element,comment);
         
     }
-    SyncStateToServer(ID, State, element) {
+    SyncStateToServer(ID, State, element,comment) {
         var thisreference = this;
         $.ajax({
             url: "/Events/UpdateRequestState/",
             type: "GET",
             data: {
                 requestID: ID,
-                state: State
+                state: State,
+                comment: comment
             },
             success: function (result) {
                 if (result > 0) {
-                    thisreference.setState({ State: parseInt(element.getAttribute("data-value")) });
+                    thisreference.setState({
+                        State: parseInt(element.getAttribute("data-value")),
+                        comment: comment
+                    });
                 }
                 else {
                     if (thisreference.state.RetryCount === 3) {
@@ -44,25 +53,9 @@
             }
         });
     }
-    /*handleOnChange(event) {
-        this.setState({ State: event.target.value });
-        var thisreference = this;
-        var tmpevent = event;
-        $.ajax({
-            url: "/Events/UpdateRequestState/",
-            type: "GET",
-            data: {
-                requestID: thisreference.props.requestID,
-                state: event.target.value
-            },
-            success: function (result) {
-            }
-        });
-    }*/
     render() {
         var tmpthis = this;
         if (this.props.canEdit) {
-            
             if (this.state.possibleStates.length > 0) {
                 var states = this.state.possibleStates.map(function (state) {
                     if (state === "NotYetVoted") {
@@ -72,7 +65,7 @@
                             </span>);
                         }
                         else {
-                            return (<span className="voteoption" data-value="0" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                            return (<span className="voteoption" data-value="0" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
                                 <i className="fas fa-minus" />
                                 <span className="lds-dual-ring" />
                             </span>);
@@ -87,7 +80,7 @@
                             </span>);
                         }
                         else {
-                            return (<span className="voteoption greenbg" data-value="1" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                            return (<span className="voteoption greenbg" data-value="1" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
                                 <i className="fas fa-check" />
                                 <span className="lds-dual-ring" />
                             </span>);
@@ -101,21 +94,28 @@
                             </span>);
                         }
                         else {
-                            return (<span className="voteoption redbg" data-value="2" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                            return (<span className="voteoption redbg" data-value="2" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
                                 <i className="fas fa-times" />
                                 <span className="lds-dual-ring" />
                             </span>);
                         }
                     }
                     if (state === "IfNeedBe") {
+                        console.log(tmpthis.state);
                         if (tmpthis.state.State === 3) {
-                            return (<span className="voteoption yellowbg active" data-value="3" key={tmpthis.props.key}>
+                            return (<span className="voteoption yellowbg active" data-value="3" key={tmpthis.props.key} onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick}>
                                 <i className="fas fa-question" />
                                 <span className="lds-dual-ring" />
+                                {tmpthis.state.comment !== "" && tmpthis.state.comment !== undefined && tmpthis.state.comment !== null &&
+                                    <i className="fas fa-info" />
+                                }
+                                {tmpthis.state.comment !== "" && tmpthis.state.comment !== undefined && tmpthis.state.comment !== null &&
+                                    <span className="commentBox">{tmpthis.state.comment}</span>
+                                }
                             </span>);
                         }
                         else {
-                            return (<span className="voteoption yellowbg" data-value="3" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                            return (<span className="voteoption yellowbg" data-value="3" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
                                 <i className="fas fa-question" />
                                 <span className="lds-dual-ring" />
                             </span>);
@@ -169,6 +169,12 @@
                             <div className="d-flex">
                                 <span className="voteoption yellowbg voteoptionforeign" key={tmpthis.props.key}>
                                     <i className="fas fa-question" />
+                                    {tmpthis.state.comment !== "" && tmpthis.state.comment !== undefined && tmpthis.state.comment !== null &&
+                                        <i className="fas fa-info" />
+                                    }
+                                    {tmpthis.state.comment !== "" && tmpthis.state.comment !== undefined && tmpthis.state.comment !== null &&
+                                        <span className="commentBox">{tmpthis.state.comment}</span>
+                                    }
                                 </span>
                             </div>
                         </span>
