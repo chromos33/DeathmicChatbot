@@ -173,10 +173,14 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                 
                 foreach (Data.DBModels.StreamModels.Stream stream in Streams.Where(x => x.StreamState != StreamState.NotRunning && x.Type == StreamProviderTypes.Twitch))
                 {
-                    stream.StreamState = StreamState.NotRunning;
-                    if (RandomDiscordRelayChannels.Contains(stream.DiscordRelayChannel))
+                    if(DateTime.Now.Subtract(stream.Started) > TimeSpan.FromSeconds(600))
                     {
-                        stream.DiscordRelayChannel = "An";
+                        Console.WriteLine("Stream offline");
+                        stream.StreamState = StreamState.NotRunning;
+                        if (RandomDiscordRelayChannels.Contains(stream.DiscordRelayChannel))
+                        {
+                            stream.DiscordRelayChannel = "An";
+                        }
                     }
                 }
                 _context.SaveChanges();
@@ -184,6 +188,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
         }
         private async Task SetStreamsOnline(List<string> OnlineStreamIDs, GetStreamsResponse StreamsData)
         {
+            
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -202,7 +207,8 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                             stream.DiscordRelayChannel = getRandomRelayChannel();
                         }
                         int longDelayCounter = 0;
-                        foreach(string username in stream.GetActiveSubscribers())
+                        Console.WriteLine("Stream went online");
+                        foreach (string username in stream.GetActiveSubscribers())
                         {
                             longDelayCounter++;
                             if(longDelayCounter == 5)
