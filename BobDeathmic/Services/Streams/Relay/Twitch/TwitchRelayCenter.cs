@@ -206,6 +206,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                 _AutoCommandTimer = new System.Timers.Timer();
                 _AutoCommandTimer = new System.Timers.Timer(TimeSpan.FromMinutes(1).TotalMilliseconds);
                 _AutoCommandTimer.Elapsed += (autocommandsender, args) => ExecuteAutoCommands();
+                _AutoCommandTimer.Elapsed += (quotesender, args) => HandleAutoQuotes();
             }
             if (!_AutoCommandTimer.Enabled)
             {
@@ -228,15 +229,30 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                             messageQueue.Value.Add(command.response);
                             command.LastExecution = DateTime.Now;
                         }
-                        commands = _context.StreamCommand.Include(sc => sc.stream).Where(sc => sc.Mode == StreamCommandMode.Random && sc.stream.StreamName == messageQueue.Key && sc.AutoInverval > 0 && (DateTime.Now - sc.LastExecution).Minutes > sc.AutoInverval);
-                        foreach (StreamCommand command in commands)
-                        {
-                            string[] Zitate = command.response.Split("|");
-                            messageQueue.Value.Add(Zitate[random.Next(Zitate.Count() - 1)]);
-                            command.LastExecution = DateTime.Now;
-                        }
                     }
                     _context.SaveChanges();
+                }
+            }
+        }
+        private void HandleAutoQuotes()
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var streamsWithQuoteInterval = _context.StreamModels.Where(x => x.QuoteInterval > 0);
+                foreach(var stream in streamsWithQuoteInterval)
+                {
+                    if(DateTime.Now.Subtract(stream.LastRandomQuote) > TimeSpan.FromMinutes(stream.QuoteInterval))
+                    {
+                        var QuoteList = _context.Quotes.Where(x => x.Streamer.ToLower() == stream.StreamName.ToLower());
+                        var MessageQueue = MessageQueues.Where(x => x.Key == stream.StreamName).FirstOrDefault();
+                        if (!MessageQueue.Equals(default(KeyValuePair<string, List<string>>)))
+                        {
+                            MessageQueue.Value.Add(QuoteList.ToArray()[random.Next(QuoteList.Count() - 1)].Text);
+                            stream.LastRandomQuote = DateTime.Now;
+                            _context.SaveChanges();
+                        }
+                    }
                 }
             }
         }

@@ -24,6 +24,7 @@ namespace BobDeathmic.Data.DBModels.StreamModels
 
         public DateTime Started { get; set; }
         public DateTime Stopped { get; set; }
+        public DateTime LastNotice { get; set; }
 
         public StreamState StreamState { get; set; }
         public string DiscordRelayChannel { get; set; }
@@ -31,6 +32,8 @@ namespace BobDeathmic.Data.DBModels.StreamModels
         public ChatUserModel Owner { get; set; }
         public int UpTimeInterval { get; set; }
         public DateTime LastUpTime { get; set; }
+        public int QuoteInterval { get; set; }
+        public DateTime LastRandomQuote { get; set; }
         public List<StreamCommand> Commands { get; set; }
 
         public Stream()

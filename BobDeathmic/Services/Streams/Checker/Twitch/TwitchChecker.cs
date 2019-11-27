@@ -208,17 +208,21 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                         }
                         int longDelayCounter = 0;
                         Console.WriteLine("Stream went online");
-                        foreach (string username in stream.GetActiveSubscribers())
+                        if(DateTime.Now.Subtract(stream.LastNotice) > TimeSpan.FromSeconds(600))
                         {
-                            longDelayCounter++;
-                            if(longDelayCounter == 5)
+                            foreach (string username in stream.GetActiveSubscribers())
                             {
-                                longDelayCounter = 0;
-                                await Task.Delay(2000);
+                                longDelayCounter++;
+                                if (longDelayCounter == 5)
+                                {
+                                    longDelayCounter = 0;
+                                    await Task.Delay(2000);
+                                }
+                                _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs() { Message = stream.StreamStartedMessage(streamdata.Title, GetStreamUrl(stream)), RecipientName = username });
+                                await Task.Delay(100);
                             }
-                            _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs() { Message = stream.StreamStartedMessage(streamdata.Title, GetStreamUrl(stream)), RecipientName = username });
-                            await Task.Delay(100);
                         }
+                        stream.LastNotice = DateTime.Now;
                     }
 
                 }
