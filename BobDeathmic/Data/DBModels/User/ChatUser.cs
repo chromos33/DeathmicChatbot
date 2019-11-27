@@ -53,7 +53,7 @@ namespace BobDeathmic.Data.DBModels.User
         }
         public void SetInitialPassword()
         {
-            if(InitialPassword == "")
+            if(InitialPassword == "" || InitialPassword == null)
             {
                 InitialPassword = GeneratePassword();
             }
