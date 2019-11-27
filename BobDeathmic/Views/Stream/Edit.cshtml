@@ -107,6 +107,11 @@
                     <span asp-validation-for="stream.UpTimeInterval" class="text-danger"></span>
                 </div>
                 <div class="form-group">
+                    <label asp-for="stream.QuoteInterval" class="control-label"></label>
+                    <input asp-for="stream.QuoteInterval" class="form-control" />
+                    <span asp-validation-for="stream.QuoteInterval" class="text-danger"></span>
+                </div>
+                <div class="form-group">
                     <input type="submit" value="Save" class="btn btn-default" />
                 </div>
             </form>

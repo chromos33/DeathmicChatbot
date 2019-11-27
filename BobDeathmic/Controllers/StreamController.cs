@@ -84,7 +84,7 @@ namespace BobDeathmic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,StreamName,Game,UserID,Url,Type,Started,Stopped,DiscordRelayChannel,UpTimeInterval")] Stream stream)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,StreamName,Game,UserID,Url,Type,Started,Stopped,DiscordRelayChannel,UpTimeInterval,QuoteInterval")] Stream stream)
         {
             if (id != stream.ID)
             {
@@ -95,7 +95,7 @@ namespace BobDeathmic.Controllers
             {
                 try
                 {
-                    var _stream = _context.StreamModels.Where(x => x.ID == stream.ID).FirstOrDefault();
+                    var _stream = _context.StreamModels.AsNoTracking().Where(x => x.ID == stream.ID).FirstOrDefault();
                     if(_stream != null)
                     {
                         stream.AccessToken = _stream.AccessToken;
