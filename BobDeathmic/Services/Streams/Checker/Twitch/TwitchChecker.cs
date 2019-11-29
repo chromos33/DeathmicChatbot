@@ -107,17 +107,13 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                     {
                         await SetStreamsOnline(OnlineStreamIDs, StreamsData);
                     }
-                    else
-                    {
-                        _inProgress = false;
-                    }
+                    _inProgress = false;
                 }
             }
             catch (Exception ex)
             {
                 _inProgress = false;
             }
-            _inProgress = false;
             return;
         }
         private async Task FillClientIDs()
@@ -164,7 +160,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
             return null;
         }
         string[] RandomDiscordRelayChannels = { "stream_1", "stream_2", "stream_3" };
-        private async Task SetStreamsOffline(List<string> OnlineStreamIDs)
+        private async Task<bool> SetStreamsOffline(List<string> OnlineStreamIDs)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
@@ -185,8 +181,9 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                 }
                 _context.SaveChanges();
             }
+            return true;
         }
-        private async Task SetStreamsOnline(List<string> OnlineStreamIDs, GetStreamsResponse StreamsData)
+        private async Task<bool> SetStreamsOnline(List<string> OnlineStreamIDs, GetStreamsResponse StreamsData)
         {
             
             using (var scope = _scopeFactory.CreateScope())
@@ -206,24 +203,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                         {
                             stream.DiscordRelayChannel = getRandomRelayChannel();
                         }
-                        int longDelayCounter = 0;
-                        Console.WriteLine("Stream went online");
-                        if(DateTime.Now.Subtract(stream.LastNotice) > TimeSpan.FromSeconds(600))
-                        {
-                            foreach (string username in stream.GetActiveSubscribers())
-                            {
-                                longDelayCounter++;
-                                if (longDelayCounter == 5)
-                                {
-                                    longDelayCounter = 0;
-                                    await Task.Delay(2000);
-                                }
-                                _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs() { Message = stream.StreamStartedMessage(streamdata.Title, GetStreamUrl(stream)), RecipientName = username });
-                                await Task.Delay(100);
-                            }
-                            stream.LastNotice = DateTime.Now;
-                        }
-                        
+                        await NotifyUsers(stream);
                     }
 
                 }
@@ -232,6 +212,24 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                     _context.SaveChanges();
                 }
                 
+            }
+            return true;
+        }
+        private async Task NotifyUsers(Data.DBModels.StreamModels.Stream stream)
+        {
+            int longDelayCounter = 0;
+            Console.WriteLine("FUCK YOU TWITCH " + stream.StreamName);
+            foreach (string username in stream.GetActiveSubscribers())
+            {
+                longDelayCounter++;
+                if (longDelayCounter == 5)
+                {
+                    longDelayCounter = 0;
+                    await Task.Delay(2000);
+                }
+
+                //_eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs() { Message = stream.StreamStartedMessage(streamdata.Title, GetStreamUrl(stream)), RecipientName = username });
+                await Task.Delay(100);
             }
         }
         private string getRandomRelayChannel()
