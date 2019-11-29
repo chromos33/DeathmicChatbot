@@ -203,7 +203,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                         {
                             stream.DiscordRelayChannel = getRandomRelayChannel();
                         }
-                        await NotifyUsers(stream);
+                        await NotifyUsers(stream, streamdata);
                     }
 
                 }
@@ -215,7 +215,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
             }
             return true;
         }
-        private async Task NotifyUsers(Data.DBModels.StreamModels.Stream stream)
+        private async Task NotifyUsers(Data.DBModels.StreamModels.Stream stream, TwitchLib.Api.Helix.Models.Streams.Stream streamdata)
         {
             int longDelayCounter = 0;
             Console.WriteLine("FUCK YOU TWITCH " + stream.StreamName);
@@ -227,8 +227,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                     longDelayCounter = 0;
                     await Task.Delay(2000);
                 }
-
-                //_eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs() { Message = stream.StreamStartedMessage(streamdata.Title, GetStreamUrl(stream)), RecipientName = username });
+                _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs() { Message = stream.StreamStartedMessage(streamdata.Title, GetStreamUrl(stream)), RecipientName = username });
                 await Task.Delay(100);
             }
         }
