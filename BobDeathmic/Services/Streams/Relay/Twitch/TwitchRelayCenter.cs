@@ -248,7 +248,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                         var MessageQueue = MessageQueues.Where(x => x.Key == stream.StreamName).FirstOrDefault();
                         if (!MessageQueue.Equals(default(KeyValuePair<string, List<string>>)))
                         {
-                            MessageQueue.Value.Add(QuoteList.ToArray()[random.Next(QuoteList.Count() - 1)].Text);
+                            MessageQueue.Value.Add(QuoteList.ToArray()[random.Next(QuoteList.Count() - 1)].ToString());
                             stream.LastRandomQuote = DateTime.Now;
                             _context.SaveChanges();
                         }
