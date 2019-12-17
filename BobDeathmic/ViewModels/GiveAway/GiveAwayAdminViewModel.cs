@@ -11,8 +11,8 @@ namespace BobDeathmic.ViewModels.GiveAway
 {
     public class GiveAwayAdminViewModel
     {
-        public GiveAwayItem Item;
+        public string Item;
         public List<String> Channels;
-        public List<ChatUserModel> Applicants;
+        public List<string> Applicants;
     }
 }
