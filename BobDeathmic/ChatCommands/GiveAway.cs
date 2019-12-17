@@ -15,13 +15,13 @@ namespace BobDeathmic.ChatCommands
 {
     public class GiveAwayApply : ICommand
     {
-        public string Trigger => "!Gapply";
+        public string Trigger => "!DevGapply";
 
         public string Description => "Command um an momentaner Verlosung teilzunehmen";
 
         public string Category => "GiveAway";
 
-        public string Alias => "!Gapply";
+        public string Alias => "!DevGapply";
 
         public bool ChatSupported(ChatType chat)
         {
@@ -91,13 +91,13 @@ namespace BobDeathmic.ChatCommands
     }
     public class GiveAwayCease : ICommand
     {
-        public string Trigger => "!Gcease";
+        public string Trigger => "!DevGcease";
 
         public string Description => "Command um momentaner Teilnahme zurückzuziehen";
 
         public string Category => "GiveAway";
 
-        public string Alias => "!Gcease";
+        public string Alias => "!DevGcease";
 
         public bool ChatSupported(ChatType chat)
         {

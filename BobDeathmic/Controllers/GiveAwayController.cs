@@ -27,6 +27,7 @@ namespace BobDeathmic.Controllers
 
         private readonly Data.ApplicationDbContext _context;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IConfiguration _configuration;
         private readonly UserManager<ChatUserModel> _manager;
         private readonly IEventBus _eventBus;
@@ -36,10 +37,11 @@ namespace BobDeathmic.Controllers
         [TempData]
         public string StatusMessage { get; set; }
 
-        public GiveAwayController(Data.ApplicationDbContext context, IServiceProvider serviceProvider, IConfiguration configuration, UserManager<ChatUserModel> manager, IEventBus eventBus, IMemoryCache memoryCache)
+        public GiveAwayController(IServiceScopeFactory scopeFactory, Data.ApplicationDbContext context, IServiceProvider serviceProvider, IConfiguration configuration, UserManager<ChatUserModel> manager, IEventBus eventBus, IMemoryCache memoryCache)
         {
             _context = context;
             _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;
             _configuration = configuration;
             _manager = manager;
             _eventBus = eventBus;
@@ -235,7 +237,10 @@ namespace BobDeathmic.Controllers
             //Do Stuff
             await SetNextGiveAwayItem();
             _cache.Set("Channel", channel);
-            //_eventBus.TriggerEvent(EventType.GiveAwayMessage, new GiveAwayEventArgs { channel = channel });
+            if(_context.GiveAwayItems.Where(x => x.current).FirstOrDefault() != null)
+            {
+                _eventBus.TriggerEvent(EventType.CommandResponseReceived, new CommandResponseArgs { Channel = channel, MessageType = Eventbus.MessageType.ChannelMessage, Message = $"Zur Verlosung steht {_context.GiveAwayItems.Where(x => x.current).FirstOrDefault()?.Title} bitte mit !DevGapply teilnehmen" });
+            }
             return RedirectToAction(nameof(Admin));
         }
 
@@ -260,7 +265,7 @@ namespace BobDeathmic.Controllers
                 tmpwinner = winner.User;
                 currentitem.ReceiverID = winner.UserID;
                 _context.SaveChanges();
-                //_eventBus.TriggerEvent(EventType.GiveAwayMessage, new GiveAwayEventArgs { winner = winner.User, channel = channel });
+                _eventBus.TriggerEvent(EventType.CommandResponseReceived, new CommandResponseArgs {Channel = channel, MessageType = Eventbus.MessageType.ChannelMessage, Message = $"Gewonnen hat {winner.User.ChatUserName}"});
             }
             //Raffle again if Applicants and GiveAwayItems with same name > 0
             if (currentitem.Applicants.Count() > 1 && _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.Id != currentitem.Id && x.ReceiverID == null).Count() > 0)
