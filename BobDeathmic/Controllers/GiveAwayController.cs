@@ -96,8 +96,9 @@ namespace BobDeathmic.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+        [HttpGet()]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(string id)
         {
             var user = await _manager.GetUserAsync(HttpContext.User);
             user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
@@ -130,7 +131,7 @@ namespace BobDeathmic.Controllers
         }
 
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
             {
