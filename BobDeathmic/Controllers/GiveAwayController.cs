@@ -152,7 +152,7 @@ namespace BobDeathmic.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var giveawayitem = await _context.GiveAwayItems.FindAsync(id);
             _context.GiveAwayItems.Remove(giveawayitem);
