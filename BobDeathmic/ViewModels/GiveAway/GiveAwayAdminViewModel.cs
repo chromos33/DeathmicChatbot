@@ -14,5 +14,6 @@ namespace BobDeathmic.ViewModels.GiveAway
         public string Item;
         public List<String> Channels;
         public List<string> Applicants;
+        public string Link { get; set; }
     }
 }

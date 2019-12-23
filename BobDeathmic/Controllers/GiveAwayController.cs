@@ -1,4 +1,5 @@
 ﻿using BobDeathmic.Args;
+using BobDeathmic.Data;
 using BobDeathmic.Data.DBModels.GiveAway;
 using BobDeathmic.Data.DBModels.GiveAway.manymany;
 using BobDeathmic.Data.DBModels.Relay;
@@ -14,7 +15,9 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using MoreLinq;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +41,7 @@ namespace BobDeathmic.Controllers
         public string StatusMessage { get; set; }
 
         public GiveAwayController(IServiceScopeFactory scopeFactory, Data.ApplicationDbContext context, IServiceProvider serviceProvider, IConfiguration configuration, UserManager<ChatUserModel> manager, IEventBus eventBus, IMemoryCache memoryCache)
+
         {
             _context = context;
             _serviceProvider = serviceProvider;
@@ -159,21 +163,14 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "Admin,Dev")]
         public async Task<IActionResult> Admin()
         {
-            GiveAwayAdminViewModel model = new GiveAwayAdminViewModel();
-            model.Item = GetCurrentGiveAwayItem();
-            model.Channels = getChatChannels();
-            if (model.Item != null)
-            {
-                model.Applicants = getApplicants(model.Item);
-            }
-            return View(model);
+            return View();
         }
-        private List<ChatUserModel> getApplicants(GiveAwayItem item)
+        private List<string> getApplicants(GiveAwayItem item)
         {
-            List<ChatUserModel> result = new List<ChatUserModel>();
+            List<string> result = new List<string>();
             foreach (var applicant in item.Applicants)
             {
-                result.Add(_context.ChatUserModels.Where(u => u.Id == applicant.UserID).FirstOrDefault());
+                result.Add(_context.ChatUserModels.Where(u => u.Id == applicant.UserID).FirstOrDefault().ChatUserName);
             }
             return result;
         }
@@ -231,57 +228,120 @@ namespace BobDeathmic.Controllers
             }
             return Channels;
         }
+        [HttpGet, ActionName("InitialAdminData")]
         [Authorize(Roles = "Admin,Dev")]
-        public async Task<IActionResult> NextItem(string channel)
+        public async Task<string> InitialAdminData()
+        {
+            GiveAwayAdminViewModel model = new GiveAwayAdminViewModel();
+            if (GetCurrentGiveAwayItem() == null)
+            {
+                await SetNextGiveAwayItem();
+            }
+            model.Item = GetCurrentGiveAwayItem().Title;
+            model.Link = GetCurrentGiveAwayItem().Link;
+            model.Channels = getChatChannels();
+            if (model.Item != null)
+            {
+                model.Applicants = getApplicants(GetCurrentGiveAwayItem());
+            }
+            return JsonConvert.SerializeObject(model);
+        }
+        [HttpGet, ActionName("NextItem")]
+        [Authorize(Roles = "Admin,Dev")]
+        public async Task<string> NextItem(string channel)
         {
             //Do Stuff
             await SetNextGiveAwayItem();
             _cache.Set("Channel", channel);
-            if(_context.GiveAwayItems.Where(x => x.current).FirstOrDefault() != null)
+            GiveAwayAdminViewModel model = new GiveAwayAdminViewModel();
+            model.Item = GetCurrentGiveAwayItem().Title;
+            model.Link = GetCurrentGiveAwayItem().Link;
+            if (model.Item != null)
+            {
+                model.Applicants = getApplicants(GetCurrentGiveAwayItem());
+            }
+            if (_context.GiveAwayItems.Where(x => x.current).FirstOrDefault() != null)
             {
                 _eventBus.TriggerEvent(EventType.CommandResponseReceived, new CommandResponseArgs { Channel = channel, MessageType = Eventbus.MessageType.ChannelMessage, Message = $"Zur Verlosung steht {_context.GiveAwayItems.Where(x => x.current).FirstOrDefault()?.Title} bitte mit !DevGapply teilnehmen" });
             }
-            return RedirectToAction(nameof(Admin));
+            return JsonConvert.SerializeObject(model);
+
         }
 
-
+        [HttpGet, ActionName("Raffle")]
         [Authorize(Roles = "Admin,Dev")]
-        public async Task<IActionResult> Raffle(string channel)
+        public async Task<string> Raffle(string channel)
         {
             //Do Stuff
-            doRaffle(channel);
-            return RedirectToAction(nameof(Admin));
+            List<string> winners = doRaffle(channel);
+            return JsonConvert.SerializeObject(winners);
         }
-        private void doRaffle(string channel)
+        [HttpGet, ActionName("UpdateParticipantList")]
+        [Authorize(Roles = "Admin,Dev")]
+        public async Task<string> UpdateParticipantList()
         {
-            var currentitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.current).FirstOrDefault();
-            List<ChatUserModel> Applicants = null;
-            ChatUserModel tmpwinner = null;
-            if (currentitem != null && currentitem.Applicants.Count() > 0)
+            return JsonConvert.SerializeObject(getApplicants(GetCurrentGiveAwayItem()));
+        }
+        private List<string> doRaffle(string channel)
+        {
+            List<string> winners = new List<string>();
+            bool repeatRaffle = false;
+            using (var scope = _scopeFactory.CreateScope())
             {
-                int test = random.Next(currentitem.Applicants.Count());
-                var winner = currentitem.Applicants[test];
-                currentitem.Receiver = winner.User;
-                tmpwinner = winner.User;
-                currentitem.ReceiverID = winner.UserID;
-                _context.SaveChanges();
-                _eventBus.TriggerEvent(EventType.CommandResponseReceived, new CommandResponseArgs {Channel = channel, MessageType = Eventbus.MessageType.ChannelMessage, Message = $"Gewonnen hat {winner.User.ChatUserName}"});
-            }
-            //Raffle again if Applicants and GiveAwayItems with same name > 0
-            if (currentitem.Applicants.Count() > 1 && _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.Id != currentitem.Id && x.ReceiverID == null).Count() > 0)
-            {
-                var newitem = _context.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.Receiver == null).FirstOrDefault();
-                foreach (var user in currentitem.Applicants.Where(x => x.UserID != tmpwinner.Id).ToList())
+                var tmpcontext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var currentitem = tmpcontext.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).ThenInclude(x => x.ReceivedItems).Where(x => x.current).FirstOrDefault();
+                List<ChatUserModel> Applicants = null;
+                ChatUserModel tmpwinner = null;
+                if (currentitem != null && currentitem.Applicants.Count() > 0)
                 {
-                    var m_n_relation = new User_GiveAwayItem(user.User, newitem);
-                    newitem.Applicants.Add(m_n_relation);
-                    user.User.AppliedTo.Add(m_n_relation);
+                    int min = getLeastGiveAwayCount(currentitem.Applicants);
+                    var elligableUsers = currentitem.Applicants.Where(x => x.User.ReceivedItems.Count() == min);
+
+                    int winnerindex = random.Next(elligableUsers.Count());
+                    var winner = elligableUsers.ToArray()[winnerindex];
+                    winners.Add(winner.User.ChatUserName);
+                    currentitem.Receiver = winner.User;
+                    tmpwinner = winner.User;
+                    currentitem.ReceiverID = winner.UserID;
+                    tmpcontext.SaveChanges();
+                    _eventBus.TriggerEvent(EventType.CommandResponseReceived, new CommandResponseArgs { Channel = channel, MessageType = Eventbus.MessageType.ChannelMessage, Message = $"Gewonnen hat {winner.User.ChatUserName}" });
                 }
-                currentitem.current = false;
-                newitem.current = true;
-                _context.SaveChanges();
-                doRaffle(channel);
+                if (currentitem.Applicants.Count() > 1 && tmpcontext.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.Id != currentitem.Id && x.ReceiverID == null).Count() > 0)
+                {
+                    var newitem = tmpcontext.GiveAwayItems.Include(x => x.Applicants).ThenInclude(y => y.User).Where(x => x.Title == currentitem.Title && x.ReceiverID == null && x.current == false).FirstOrDefault();
+                    foreach (var user in currentitem.Applicants.Where(x => x.UserID != tmpwinner.Id).ToList())
+                    {
+                        var m_n_relation = new User_GiveAwayItem(user.User, newitem);
+                        newitem.Applicants.Add(m_n_relation);
+                        user.User.AppliedTo.Add(m_n_relation);
+                    }
+                    currentitem.current = false;
+                    newitem.current = true;
+                    tmpcontext.SaveChanges();
+                    repeatRaffle = true;
+                }
             }
+            if (repeatRaffle)
+            {
+                winners.AddRange(doRaffle(channel));
+            }
+            return winners;
+        }
+        private int getLeastGiveAwayCount(List<User_GiveAwayItem> items)
+        {
+            int value = 99999;
+            foreach (var item in items)
+            {
+                if (value > item.User.ReceivedItems.Count())
+                {
+                    value = item.User.ReceivedItems.Count();
+                }
+            }
+            if (value == 99999)
+            {
+                return 0;
+            }
+            return value;
         }
 
     }

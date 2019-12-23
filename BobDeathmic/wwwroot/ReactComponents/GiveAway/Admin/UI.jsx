@@ -1,7 +1,7 @@
 ﻿class UI extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { Game: "", Participants: [],Channels: [], CurrentChannel: "",CurrentWinners: [] };
+        this.state = { Game: "",Link: "", Participants: [],Channels: [], CurrentChannel: "",CurrentWinners: [] };
         this.NextItemCall = this.NextItemCall.bind(this);
         this.RaffleCall = this.RaffleCall.bind(this);
         this.changeSelectedChannel = this.changeSelectedChannel.bind(this);
@@ -16,6 +16,7 @@
             let data = JSON.parse(request.responseText);
             curthis.setState({
                 Game: data.Item,
+                Link: data.Link,
                 Participants: data.Applicants,
                 Channels: data.Channels,
                 CurrentChannel: data.Channels[0]
@@ -46,6 +47,7 @@
         let data = JSON.parse(request.responseText);
         this.setState({
             Game: data.Item,
+            Link: data.Link,
             Participants: data.Applicants
         });
     }
@@ -65,7 +67,7 @@
             <div>
                 <ChannelSelector changeSelectedChannel={this.changeSelectedChannel} Channels={this.state.Channels} />
                 <NextItemAction NextItemCall={this.NextItemCall} />
-                <CurrentItemInfo Game={this.state.Game} />
+                <CurrentItemInfo Game={this.state.Game} Link={this.state.Link} />
                 <ParticipantList currentWinners={this.state.CurrentWinners} Participants={this.state.Participants} />
                 <RaffleAction RaffleCall={this.RaffleCall} />
             </div>

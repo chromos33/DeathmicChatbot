@@ -15,7 +15,7 @@
         </div>
     </div>
 </div>
-
+@*
     //Use the jsx files on dev and comment out the Compiled Version
     //Dev use https://babeljs.io/repl to precompile scripts in jsx files
     <script src="@Url.Content("~/js/react.development.js")"></script>
@@ -26,11 +26,10 @@
     <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/RaffleAction.jsx")"></script>
     <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/ParticipantList.jsx")"></script>
     <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/ChannelSelector.jsx")"></script>
-
-@*
+*@
     <script src="@Url.Content("~/js/react.production.min.js")"></script>
     <script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
-*@
+    <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/PreCompiled/Admin.js")"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function (event) {

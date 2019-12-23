@@ -11,7 +11,7 @@
             box = this.props.Game;
         }
         return (
-            <h2 className="mb-4">{box}</h2>
+                <h2 className="mb-4"><a href={this.props.Link}>{box}</a></h2>
         );
     }
 }
