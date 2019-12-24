@@ -116,11 +116,18 @@ namespace BobDeathmic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Edit([Bind("GiveAwayItemId,Title,Key,SteamID,Link,Views,Owner,Receiver")] GiveAwayItem item)
+        public async Task<IActionResult> Edit([Bind("Id,Title,Key,SteamID,Link,Views,Owner,Receiver")] GiveAwayItem item)
         {
             if (ModelState.IsValid)
             {
-                _context.Update(item);
+                var storedItem = _context.GiveAwayItems.Where(x => x.Id == item.Id).FirstOrDefault();
+                if(storedItem != null)
+                {
+                    storedItem.Title = item.Title;
+                    storedItem.Key = item.Key;
+                    storedItem.SteamID = item.SteamID;
+                    storedItem.Link = item.Link;
+                }
                 await _context.SaveChangesAsync();
             }
             else
