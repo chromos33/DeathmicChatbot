@@ -45,10 +45,12 @@
         request.open("GET", "/GiveAway/NextItem?channel=" + this.state.CurrentChannel, false);
         request.send(null);
         let data = JSON.parse(request.responseText);
+        this.interval = setInterval(this.UpdateParticipantList, 5000);
         this.setState({
             Game: data.Item,
             Link: data.Link,
-            Participants: data.Applicants
+            Participants: data.Applicants,
+            CurrentWinners: []
         });
     }
     RaffleCall() {
@@ -57,6 +59,7 @@
         request.send(null);
         let data = JSON.parse(request.responseText);
         this.setState({ CurrentWinners: data });
+        clearInterval(this.interval);
     }
     changeSelectedChannel(e) {
         this.setState({ CurrentChannel: e});

@@ -283,10 +283,12 @@ var UI =
                 request.open("GET", "/GiveAway/NextItem?channel=" + this.state.CurrentChannel, false);
                 request.send(null);
                 var data = JSON.parse(request.responseText);
+                this.interval = setInterval(this.UpdateParticipantList, 5000);
                 this.setState({
                     Game: data.Item,
                     Link: data.Link,
-                    Participants: data.Applicants
+                    Participants: data.Applicants,
+                    CurrentWinners: []
                 });
             }
         }, {
@@ -299,6 +301,7 @@ var UI =
                 this.setState({
                     CurrentWinners: data
                 });
+                clearInterval(this.interval);
             }
         }, {
             key: "changeSelectedChannel",
