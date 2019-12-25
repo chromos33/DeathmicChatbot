@@ -270,7 +270,7 @@ namespace BobDeathmic.Controllers
             }
             if (_context.GiveAwayItems.Where(x => x.current).FirstOrDefault() != null)
             {
-                _eventBus.TriggerEvent(EventType.CommandResponseReceived, new CommandResponseArgs { Channel = channel, MessageType = Eventbus.MessageType.ChannelMessage, Message = $"Zur Verlosung steht {_context.GiveAwayItems.Where(x => x.current).FirstOrDefault()?.Title} bitte mit !DevGapply teilnehmen" });
+                _eventBus.TriggerEvent(EventType.CommandResponseReceived, new CommandResponseArgs { Channel = channel, MessageType = Eventbus.MessageType.ChannelMessage, Message = $"Zur Verlosung steht {_context.GiveAwayItems.Where(x => x.current).FirstOrDefault()?.Title} bitte mit !Gapply teilnehmen" });
             }
             return JsonConvert.SerializeObject(model);
 
