@@ -178,10 +178,25 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
             client.OnJoinedChannel += ChannelJoined;
             client.OnLeftChannel += ChannelLeft;
             client.OnMessageReceived += MessageReceived;
+            client.OnError += ErrorReceived;
+            client.OnMessageThrottled += MessageThrottled;
+            client.OnWhisperReceived += WhisperReceived;
             client.Initialize(await GetTwitchCredentials());
         }
+        void ErrorReceived(object sender, OnErrorEventArgs e)
+        {
+            Console.WriteLine(e.Exception);
+        }
+        void MessageThrottled(object sender, OnMessageThrottledEventArgs e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        void WhisperReceived(object sender, OnWhisperReceivedArgs e)
+        {
+            Console.WriteLine(e.WhisperMessage);
+        }
 
-        
+
         private void InitRelayBusEvents()
         {
             _eventBus.RelayMessageReceived += RelayMessageReceived;

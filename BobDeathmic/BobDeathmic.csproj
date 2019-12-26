@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <UserSecretsId>aspnet-BobDeathmic-5234634F-96CD-4565-9291-08E681C299DC</UserSecretsId>
   </PropertyGroup>
 
@@ -40,7 +40,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
 	<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
 	<PackageReference Include="React.AspNet" Version="4.1.1" />
-	<PackageReference Include="TwitchLib" Version="3.0.1" />
+	<PackageReference Include="TwitchLib" Version="3.1.0" />
 	<PackageReference Include="VroomJs" Version="1.2.3" />
   </ItemGroup>
 
