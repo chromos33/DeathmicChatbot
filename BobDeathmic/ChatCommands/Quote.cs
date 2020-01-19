@@ -121,7 +121,7 @@ namespace BobDeathmic.ChatCommands
                         else
                         {
                             iQuoteId = await AddQuoteToStreamer(args.ChannelName, string.Join(" ", saMessageSplit.Skip(2)), context);
-                            output.EventData.Message = await GetQuoteFromStreamer(args.ChannelName, iQuoteId, context);
+                            output.EventData.Message = "Quote '"+ string.Join(" ", saMessageSplit.Skip(2)) + "' added";
                         }
                         break;
                     case "delete":

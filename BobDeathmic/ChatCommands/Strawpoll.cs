@@ -16,7 +16,7 @@ namespace BobDeathmic.ChatCommands
     public class Strawpoll : ICommand
     {
         public string Trigger => "!strawpoll";
-        public string Alias => "!straw";
+        public string Alias => "!poll";
 
         public string Description => "Erstellt einen Strawpoll (!strawpoll q='Frage' o='Option1|Option2' [m='true/false'])";
 
