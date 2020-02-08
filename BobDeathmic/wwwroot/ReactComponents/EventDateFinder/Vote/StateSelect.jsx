@@ -65,10 +65,19 @@
                             </span>);
                         }
                         else {
-                            return (<span className="voteoption" data-value="0" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
-                                <i className="fas fa-minus" />
-                                <span className="lds-dual-ring" />
-                            </span>);
+                            if (tmpthis.props.mode === "default") {
+                                return (<span className="voteoption" data-value="0" onClick={tmpthis.handleClick} key={tmpthis.props.key}>
+                                    <i className="fas fa-minus" />
+                                    <span className="lds-dual-ring" />
+                                </span>);
+                            }
+                            else {
+                                return (<a href={"/Events/UpdateRequestState/?fallback=true&requestID=" + tmpthis.props.requestID+"&state=0"} target="_blank" className="voteoption" data-value="0"  key={tmpthis.props.key}>
+                                    <i className="fas fa-minus" />
+                                    <span className="lds-dual-ring" />
+                                </a>);
+                            }
+                            
                         }
                     }
                     if (state === "Available") {
@@ -80,10 +89,18 @@
                             </span>);
                         }
                         else {
-                            return (<span className="voteoption greenbg" data-value="1" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
-                                <i className="fas fa-check" />
-                                <span className="lds-dual-ring" />
-                            </span>);
+                            if (tmpthis.props.mode === "default") {
+                                return (<span className="voteoption greenbg" data-value="1" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
+                                    <i className="fas fa-check" />
+                                    <span className="lds-dual-ring" />
+                                    </span>);
+                            }
+                            else {
+                                return (<a href={"/Events/UpdateRequestState/?fallback=true&requestID=" + tmpthis.props.requestID + "&state=1"} target="_blank" className="voteoption greenbg" data-value="1" key={tmpthis.props.key}>
+                                    <i className="fas fa-check" />
+                                    <span className="lds-dual-ring" />
+                                </a>);
+                            }
                         }
                     }
                     if (state === "NotAvailable") {
@@ -94,10 +111,18 @@
                             </span>);
                         }
                         else {
-                            return (<span className="voteoption redbg" data-value="2" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
-                                <i className="fas fa-times" />
-                                <span className="lds-dual-ring" />
-                            </span>);
+                            if (tmpthis.props.mode === "default") {
+                                return (<span className="voteoption redbg" data-value="2" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
+                                    <i className="fas fa-times" />
+                                    <span className="lds-dual-ring" />
+                                    </span>);
+                                }
+                            else {
+                                return (<a href={"/Events/UpdateRequestState/?fallback=true&requestID=" + tmpthis.props.requestID + "&state=2"} target="_blank" className="voteoption redbg" data-value="2" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
+                                    <i className="fas fa-times" />
+                                    <span className="lds-dual-ring" />
+                                </a>);
+                            }
                         }
                     }
                     if (state === "IfNeedBe") {
@@ -115,10 +140,18 @@
                             </span>);
                         }
                         else {
+                            if (tmpthis.props.mode === "default") {
                             return (<span className="voteoption yellowbg" data-value="3" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
                                 <i className="fas fa-question" />
                                 <span className="lds-dual-ring" />
-                            </span>);
+                                </span>);
+                            }
+                            else {
+                                return (<a href={"/Events/UpdateRequestState/?fallback=true&requestID=" + tmpthis.props.requestID + "&state=3"} target="_blank" className="voteoption yellowbg" data-value="3" onClick={tmpthis.handleClick} onTouchEnd={tmpthis.handleClick} key={tmpthis.props.key}>
+                                    <i className="fas fa-question" />
+                                    <span className="lds-dual-ring" />
+                                </a>);
+                            }
                         }
                     }
                 });

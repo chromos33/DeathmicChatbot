@@ -11,7 +11,7 @@
             return (
                 <div className="row usernode mr-0 ml-0">
                     <span className="col-6 pt-0 pb-0 pl-0 pr-0">{request.UserName}</span>
-                    <StateSelect key={key} canEdit={request.canEdit} requestID={request.AppointmentRequestID} possibleStates={request.States} state={request.State} comment={request.Comment} />
+                    <StateSelect mode={tmpthis.props.mode} key={key} canEdit={request.canEdit} requestID={request.AppointmentRequestID} possibleStates={request.States} state={request.State} comment={request.Comment} />
                 </div>
                 );
         });

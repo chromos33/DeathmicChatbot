@@ -220,3 +220,12 @@
         transform: rotate(360deg);
     }
 }
+@media (max-width: 768px) {
+    .usernode span:nth-child(1)
+    {
+        order:2;
+    }
+    .usernode span:nth-child(2) {
+        order: 1;
+    }
+}

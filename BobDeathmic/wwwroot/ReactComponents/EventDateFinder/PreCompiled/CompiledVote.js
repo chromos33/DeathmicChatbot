@@ -2,7 +2,7 @@
 
 function _instanceof(left, right) { if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) { return !!right[Symbol.hasInstance](left); } else { return left instanceof right; } }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!_instanceof(instance, Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -12,9 +12,9 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -33,8 +33,10 @@ var Calendar =
             _this = _possibleConstructorReturn(this, _getPrototypeOf(Calendar).call(this, props));
             _this.state = {
                 data: [],
-                eventEmitter: new EventEmitter()
+                eventEmitter: new EventEmitter(),
+                mode: "default"
             };
+            _this.changeMode = _this.changeMode.bind(_assertThisInitialized(_this));
             return _this;
         }
 
@@ -54,19 +56,34 @@ var Calendar =
                 xhr.send();
             }
         }, {
+            key: "changeMode",
+            value: function changeMode(event) {
+                this.setState({
+                    mode: event.target.value
+                });
+            }
+        }, {
             key: "render",
             value: function render() {
                 if (this.state.data.Header !== undefined && this.state.data.Header.length > 0) {
                     var tempthis = this;
                     var headerNodes = this.state.data.Header.map(function (Header) {
                         return React.createElement(EventDate, {
+                            mode: tempthis.state.mode,
                             key: Header.Date + Header.Time,
                             Data: Header
                         });
                     });
-                    return React.createElement("div", {
+                    return React.createElement("div", null, React.createElement("select", {
+                        className: "ml-3 mb-5",
+                        onChange: this.changeMode
+                    }, React.createElement("option", {
+                        value: "default"
+                    }, "Standard"), React.createElement("option", {
+                        value: "fallback"
+                    }, "Mobile Fallback")), React.createElement("div", {
                         className: "EventDateContainer"
-                    }, headerNodes);
+                    }, headerNodes));
                 } else {
                     return React.createElement("span", null, "Loading");
                 }
@@ -105,6 +122,7 @@ var EventDate =
                     }, React.createElement("span", {
                         className: "col-6 pt-0 pb-0 pl-0 pr-0"
                     }, request.UserName), React.createElement(StateSelect, {
+                        mode: tmpthis.props.mode,
                         key: key,
                         canEdit: request.canEdit,
                         requestID: request.AppointmentRequestID,
@@ -234,17 +252,30 @@ var StateSelect =
                                         className: "fas fa-minus"
                                     }));
                                 } else {
-                                    return React.createElement("span", {
-                                        className: "voteoption",
-                                        "data-value": "0",
-                                        onClick: tmpthis.handleClick,
-                                        onTouchEnd: tmpthis.handleClick,
-                                        key: tmpthis.props.key
-                                    }, React.createElement("i", {
-                                        className: "fas fa-minus"
-                                    }), React.createElement("span", {
-                                        className: "lds-dual-ring"
-                                    }));
+                                    if (tmpthis.props.mode === "default") {
+                                        return React.createElement("span", {
+                                            className: "voteoption",
+                                            "data-value": "0",
+                                            onClick: tmpthis.handleClick,
+                                            key: tmpthis.props.key
+                                        }, React.createElement("i", {
+                                            className: "fas fa-minus"
+                                        }), React.createElement("span", {
+                                            className: "lds-dual-ring"
+                                        }));
+                                    } else {
+                                        return React.createElement("a", {
+                                            href: "/Events/UpdateRequestState/?fallback=true&requestID=" + tmpthis.props.requestID + "&state=0",
+                                            target: "_blank",
+                                            className: "voteoption",
+                                            "data-value": "0",
+                                            key: tmpthis.props.key
+                                        }, React.createElement("i", {
+                                            className: "fas fa-minus"
+                                        }), React.createElement("span", {
+                                            className: "lds-dual-ring"
+                                        }));
+                                    }
                                 }
                             }
 
@@ -260,17 +291,31 @@ var StateSelect =
                                         className: "lds-dual-ring"
                                     }));
                                 } else {
-                                    return React.createElement("span", {
-                                        className: "voteoption greenbg",
-                                        "data-value": "1",
-                                        onClick: tmpthis.handleClick,
-                                        onTouchEnd: tmpthis.handleClick,
-                                        key: tmpthis.props.key
-                                    }, React.createElement("i", {
-                                        className: "fas fa-check"
-                                    }), React.createElement("span", {
-                                        className: "lds-dual-ring"
-                                    }));
+                                    if (tmpthis.props.mode === "default") {
+                                        return React.createElement("span", {
+                                            className: "voteoption greenbg",
+                                            "data-value": "1",
+                                            onClick: tmpthis.handleClick,
+                                            onTouchEnd: tmpthis.handleClick,
+                                            key: tmpthis.props.key
+                                        }, React.createElement("i", {
+                                            className: "fas fa-check"
+                                        }), React.createElement("span", {
+                                            className: "lds-dual-ring"
+                                        }));
+                                    } else {
+                                        return React.createElement("a", {
+                                            href: "/Events/UpdateRequestState/?fallback=true&requestID=" + tmpthis.props.requestID + "&state=1",
+                                            target: "_blank",
+                                            className: "voteoption greenbg",
+                                            "data-value": "1",
+                                            key: tmpthis.props.key
+                                        }, React.createElement("i", {
+                                            className: "fas fa-check"
+                                        }), React.createElement("span", {
+                                            className: "lds-dual-ring"
+                                        }));
+                                    }
                                 }
                             }
 
@@ -286,17 +331,33 @@ var StateSelect =
                                         className: "lds-dual-ring"
                                     }));
                                 } else {
-                                    return React.createElement("span", {
-                                        className: "voteoption redbg",
-                                        "data-value": "2",
-                                        onClick: tmpthis.handleClick,
-                                        onTouchEnd: tmpthis.handleClick,
-                                        key: tmpthis.props.key
-                                    }, React.createElement("i", {
-                                        className: "fas fa-times"
-                                    }), React.createElement("span", {
-                                        className: "lds-dual-ring"
-                                    }));
+                                    if (tmpthis.props.mode === "default") {
+                                        return React.createElement("span", {
+                                            className: "voteoption redbg",
+                                            "data-value": "2",
+                                            onClick: tmpthis.handleClick,
+                                            onTouchEnd: tmpthis.handleClick,
+                                            key: tmpthis.props.key
+                                        }, React.createElement("i", {
+                                            className: "fas fa-times"
+                                        }), React.createElement("span", {
+                                            className: "lds-dual-ring"
+                                        }));
+                                    } else {
+                                        return React.createElement("a", {
+                                            href: "/Events/UpdateRequestState/?fallback=true&requestID=" + tmpthis.props.requestID + "&state=2",
+                                            target: "_blank",
+                                            className: "voteoption redbg",
+                                            "data-value": "2",
+                                            onClick: tmpthis.handleClick,
+                                            onTouchEnd: tmpthis.handleClick,
+                                            key: tmpthis.props.key
+                                        }, React.createElement("i", {
+                                            className: "fas fa-times"
+                                        }), React.createElement("span", {
+                                            className: "lds-dual-ring"
+                                        }));
+                                    }
                                 }
                             }
 
@@ -320,17 +381,33 @@ var StateSelect =
                                         className: "commentBox"
                                     }, tmpthis.state.comment));
                                 } else {
-                                    return React.createElement("span", {
-                                        className: "voteoption yellowbg",
-                                        "data-value": "3",
-                                        onClick: tmpthis.handleClick,
-                                        onTouchEnd: tmpthis.handleClick,
-                                        key: tmpthis.props.key
-                                    }, React.createElement("i", {
-                                        className: "fas fa-question"
-                                    }), React.createElement("span", {
-                                        className: "lds-dual-ring"
-                                    }));
+                                    if (tmpthis.props.mode === "default") {
+                                        return React.createElement("span", {
+                                            className: "voteoption yellowbg",
+                                            "data-value": "3",
+                                            onClick: tmpthis.handleClick,
+                                            onTouchEnd: tmpthis.handleClick,
+                                            key: tmpthis.props.key
+                                        }, React.createElement("i", {
+                                            className: "fas fa-question"
+                                        }), React.createElement("span", {
+                                            className: "lds-dual-ring"
+                                        }));
+                                    } else {
+                                        return React.createElement("a", {
+                                            href: "/Events/UpdateRequestState/?fallback=true&requestID=" + tmpthis.props.requestID + "&state=3",
+                                            target: "_blank",
+                                            className: "voteoption yellowbg",
+                                            "data-value": "3",
+                                            onClick: tmpthis.handleClick,
+                                            onTouchEnd: tmpthis.handleClick,
+                                            key: tmpthis.props.key
+                                        }, React.createElement("i", {
+                                            className: "fas fa-question"
+                                        }), React.createElement("span", {
+                                            className: "lds-dual-ring"
+                                        }));
+                                    }
                                 }
                             }
                         });
