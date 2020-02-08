@@ -39,7 +39,7 @@ namespace BobDeathmic.JSONObjects
         public DateTime? createdAt { get; set; }
         public DateTime? updatedAt { get; set; }
         public DateTime? deletedAt { get; set; }
-        public string thumbnail { get; set; }
+        
         public MixerType type { get; set; }
     }
     public class MixerType
