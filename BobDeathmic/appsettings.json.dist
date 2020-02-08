@@ -1,6 +1,6 @@
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;PORT=3307;Database=bobcoreef;User=root;Password=kermit22;"
+    "DefaultConnection": "Server=localhost;PORT=3306;Database=bobcoreef;User=root;Password=kermit22;"
   },
   "Logging": {
     "IncludeScopes": false,

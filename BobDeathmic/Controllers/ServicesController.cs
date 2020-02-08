@@ -15,12 +15,14 @@ namespace BobDeathmic.Controllers
     public class ServicesController : Controller
     {
         private readonly IEnumerable<Microsoft.Extensions.Hosting.IHostedService> _microservices;
-        public ServicesController(IEnumerable<Microsoft.Extensions.Hosting.IHostedService> microservices)
+        public ServicesController(IEnumerable<Microsoft.Extensions.Hosting.IHostedService> microservices, IServiceCollection services)
         {
             _microservices = microservices;
         }
         public IActionResult Index()
         {
+            //use this to enable killing service for "reboot" purposes
+            //services.Remove(services.FirstOrDefault(x => x.ImplementationType == typeof(TwitchRelayCenter)));
             return NotFound();
         }
         [Authorize(Roles = "User,Dev,Admin")]
