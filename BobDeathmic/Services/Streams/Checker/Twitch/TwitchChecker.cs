@@ -218,7 +218,6 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
         private async Task NotifyUsers(Data.DBModels.StreamModels.Stream stream, TwitchLib.Api.Helix.Models.Streams.Stream streamdata)
         {
             int longDelayCounter = 0;
-            Console.WriteLine("FUCK YOU TWITCH " + stream.StreamName);
             foreach (string username in stream.GetActiveSubscribers())
             {
                 longDelayCounter++;

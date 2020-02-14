@@ -250,7 +250,7 @@ namespace BobDeathmic.Services.Discords
                 {
                     user = await GenerateUser(arg);
                 }
-                string Message = "Adresse:";
+                string Message = "Adresse: ";
                 Message += Configuration.GetValue<string>("WebServerWebAddress");
                 if (usermanager.CheckPasswordAsync(user, user.InitialPassword).Result)
                 {
