@@ -30,16 +30,13 @@
                         <td><a class="button restartdiscord">Restart</a></td>
                     </tr>
                 }
-                @if (User.IsInRole("Dev"))
+                @if (User.IsInRole("Admin") || User.IsInRole("Dev"))
                 {
                     <tr>
                         <td>TwitchRelay</td>
                         <td></td>
                         <td>
-                            @if (User.IsInRole("Admin") || User.IsInRole("Dev"))
-                            {
-                                <a class="button stoptwitchrelay">Stop</a>
-                            }
+                            <a class="button stoptwitchrelay">Stop</a>
                         </td>
                         <td><a class="button restarttwitchrelay">Restart</a></td>
                     </tr>

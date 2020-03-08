@@ -11,8 +11,8 @@ namespace BobDeathmic.Controllers
 {
     public class HelpController : Controller
     {
-        private CommandService commandService;
-        public HelpController(CommandService commandService)
+        private ICommandService commandService;
+        public HelpController(ICommandService commandService)
         {
             this.commandService = commandService;
         }

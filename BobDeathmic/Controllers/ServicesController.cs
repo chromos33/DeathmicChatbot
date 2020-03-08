@@ -15,7 +15,7 @@ namespace BobDeathmic.Controllers
     public class ServicesController : Controller
     {
         private readonly IEnumerable<Microsoft.Extensions.Hosting.IHostedService> _microservices;
-        public ServicesController(IEnumerable<Microsoft.Extensions.Hosting.IHostedService> microservices, IServiceCollection services)
+        public ServicesController(IEnumerable<Microsoft.Extensions.Hosting.IHostedService> microservices)
         {
             _microservices = microservices;
         }
