@@ -1,4 +1,86 @@
-﻿header {
+﻿
+.Logo img
+{
+    width:100px !important;
+
+}
+header{
+    position:fixed;
+    left:10px;
+    top:60px;
+    transform:translateY(-50%);
+    z-index:50;
+}
+body
+{
+    min-height:2000px;
+}
+.body {
+    padding-left: 125px;
+}
+nav
+{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    margin-top:30px;
+}
+.navi_item {
+    padding: 10px;
+    background: #272c2e;
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+}
+.navi_subitem {
+    background: #272c2e;
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+}
+    .navi_subitem > span,
+    .navi_subitem a {
+        display: block;
+        padding: 10px;
+    }
+.navi_item:hover,
+.navi_item.open,
+.navi_item:hover .navi_submenu > .navi_item,
+.navi_item.open .navlabel {
+    background: black;
+}
+.navi_item_label {
+    width: 0;
+    left: 100%;
+    position: absolute;
+    top: 0;
+    transition: all 0.15s ease;
+    overflow: hidden;
+}
+.subnavicontainer {
+    height: 0;
+    width:100%;
+    transition: all 0.10s ease;
+    position:relative;
+    overflow:hidden;
+}
+    .subnavicontainer .navi_item {
+        display:block;
+    }
+.navlabel {
+    padding: 0 10px 10px 10px;
+    display:block;
+}
+.subnavicontainer .navi_link
+{
+    border-left:3px solid black;
+    border-bottom:1px solid black;
+}
+.subnavicontainer .navi_link:hover{
+    color:white !important;
+}
+/*
+header {
     background-color: #272c2e;
     display:flex;
 }
@@ -97,3 +179,4 @@ header .logo
         width: calc(100vw - 55px);
     }
 }
+    */

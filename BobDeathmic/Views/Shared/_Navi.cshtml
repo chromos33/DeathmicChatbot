@@ -1,0 +1,89 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<link rel="stylesheet" href="~/css/navi.css" />
+
+<header>
+    <a class="Logo" asp-area="" asp-controller="Main" asp-action="Index"><img src="~/images/BobDeathmicLogo.png" class="logo" /></a>
+    <nav>
+        <span class="navi_item has_children">
+            <i class="fas fa-user"></i>
+            <div class="navi_item_label">
+                <span class="navi_subitem">
+                    <span class="navlabel">Benutzer</span>
+                    <div class="subnavicontainer">
+                        <a class="navi_link">Test</a>
+                        <a class="navi_link">Test 2</a>
+                        <a class="navi_link">Test 3</a>
+                    </div>
+                </span>
+            </div>
+        </span>
+        <span class="navi_item">
+            <i class="fas fa-user"></i>
+            <div class="navi_item_label">
+                <span class="navi_subitem">
+                    <a class="navi_link">Benutzer</a>
+                </span>
+            </div>
+        </span>
+    </nav>
+</header>
+<script>
+    document.querySelectorAll(".subnavicontainer").forEach((node) => {
+        let height = 0;
+        node.querySelectorAll(".navi_link").forEach((subnode) => {
+            height += subnode.clientHeight;
+        })
+        node.setAttribute("data-height", height);
+    })
+    document.querySelectorAll("nav > .navi_item").forEach((node) => {
+        node.addEventListener("click", handlenavi_item);
+        node.addEventListener("mouseenter", handlenavi_item);
+    });
+    document.querySelector("nav").addEventListener("mouseleave", resetNavItems);
+    function handlenavi_item(e) {
+        let node = e.target;
+        resetNavItems(node);
+        
+        if (!node.classList.contains("navi_item")) {
+            node = node.closest(".navi_item");
+        }
+        if (node.querySelector(".navi_item_label").clientWidth == 0) {
+            node.classList.add("open");
+            node.querySelector(".navi_item_label").style.width = node.querySelector(".navi_subitem").clientWidth+"px";
+        }
+        else {
+            node.classList.remove("open");
+            node.querySelector(".navi_item_label").style.width = 0;
+        }
+        if (node.classList.contains("has_children")) {
+            setTimeout(handleSubNaviItem, 100,node);
+        }
+    }
+    function resetNavItems(node) {
+        if (node.type == "mouseleave" || !node.classList.contains("open")) {
+            document.querySelectorAll("nav > .navi_item").forEach((clearnode) => {
+                console.log(clearnode);
+                clearnode.classList.remove("open");
+                clearnode.querySelector(".navi_item_label").style.width = 0;
+                let containernode = clearnode.querySelector(".subnavicontainer");
+                if (containernode != null) {
+                    containernode.style.height = 0;
+                }
+            });
+        }
+    }
+    function handleSubNaviItem(node) {
+        let containernode = node.querySelector(".subnavicontainer");
+        if (containernode.clientHeight == 0) {
+            containernode.style.height = containernode.getAttribute("data-height") + "px";
+        }
+        else {
+            containernode.style.height = 0;
+        }
+        
+    }
+</script>
