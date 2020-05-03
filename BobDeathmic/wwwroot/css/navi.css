@@ -31,6 +31,8 @@ nav
     display: inline-block;
     cursor: pointer;
     position: relative;
+    min-width:40px;
+    text-align:center;
 }
 .navi_subitem {
     background: #272c2e;
@@ -78,6 +80,15 @@ nav
 }
 .subnavicontainer .navi_link:hover{
     color:white !important;
+}
+.navi_link
+{
+    white-space:nowrap;
+    text-align:left;
+}
+.navi_link i
+{
+    min-width:30px;
 }
 /*
 header {
