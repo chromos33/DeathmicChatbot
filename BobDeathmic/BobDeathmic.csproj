@@ -48,6 +48,7 @@
   <ItemGroup>
     <Folder Include="ChatCommands\Enums\" />
     <Folder Include="Migrations\" />
+    <Folder Include="ViewModels\ReactDataClasses\NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>

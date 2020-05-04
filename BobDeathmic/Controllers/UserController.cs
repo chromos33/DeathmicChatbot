@@ -15,6 +15,8 @@ using BobDeathmic.Data.DBModels.User;
 using BobDeathmic.Data.DBModels.StreamModels;
 using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.ViewModels.User;
+using BobDeathmic.ViewModels.ReactDataClasses.Table;
+using BobDeathmic.ViewModels.ReactDataClasses.Table.Columns;
 
 namespace BobDeathmic.Controllers
 {
@@ -63,6 +65,39 @@ namespace BobDeathmic.Controllers
             }
             model.Subscriptions = streamsubs;
             return View(model);
+        }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<IActionResult> AjaxSubscriptions()
+        {
+            return View();
+        }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<String> SubscriptionsData()
+        {
+            Table table = new Table();
+            Row row = new Row();
+            row.AddColumn(new TextColumn(0, "StreamName"));
+            row.AddColumn(new TextColumn(1, ""));
+            table.AddRow(row);
+
+            //TODO Second Request for Streams not yet added
+            foreach (var stream in _context.StreamModels)
+            {
+                Row newrow = new Row();
+                newrow.AddColumn(new TextColumn(0, stream.StreamName));
+                if (stream.StreamState == StreamState.Running)
+                {
+                    newrow.AddColumn(new TextColumn(0, "Läuft"));
+                }
+                else
+                {
+                    newrow.AddColumn(new TextColumn(0, "Läuft nicht"));
+                }
+                table.AddRow(newrow);
+            }
+            return table.getJson();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
