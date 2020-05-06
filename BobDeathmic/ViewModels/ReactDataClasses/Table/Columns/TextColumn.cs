@@ -11,10 +11,11 @@ namespace BobDeathmic.ViewModels.ReactDataClasses.Table.Columns
 
         public int key { get; set; }
         public string Text { get; set; }
-        public TextColumn(int key, string Text)
+        public TextColumn(int key, string Text, bool canSort = false)
         {
             this.key = key;
             this.Text = Text;
+            this.canSort = canSort;
         }
     }
 }

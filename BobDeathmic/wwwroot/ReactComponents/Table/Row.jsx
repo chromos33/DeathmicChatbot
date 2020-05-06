@@ -7,13 +7,13 @@
         const components = {
             TextColumn: TextColumn
         }
-        console.log(this.props);
         if (this.props.Columns.length > 0) {
-            let i = 0;
+            var i = 0;
+            var curthis = this;
             const Columns = this.props.Columns.map((column) => {
                 i++
                 const ColumnType = components[column.ReactComponentName];
-                return <ColumnType key={i} data={column} />;
+                return <ColumnType Sort={curthis.props.Sort} key={i} id={i} data={column} />;
             });
             return (<div>{Columns}</div>);
         }

@@ -77,8 +77,8 @@ namespace BobDeathmic.Controllers
         public async Task<String> SubscriptionsData()
         {
             Table table = new Table();
-            Row row = new Row();
-            row.AddColumn(new TextColumn(0, "StreamName"));
+            Row row = new Row(false,true);
+            row.AddColumn(new TextColumn(0, "StreamName",true));
             row.AddColumn(new TextColumn(1, ""));
             table.AddRow(row);
 
