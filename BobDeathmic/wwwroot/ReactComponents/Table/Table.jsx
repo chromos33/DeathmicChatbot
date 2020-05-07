@@ -31,7 +31,6 @@
                 sort = "desc";
                 break;
         }
-        console.log(sort);
         this.setState({SortColumn: field,Sort: sort});
     }
     render() {
@@ -40,10 +39,9 @@
             var curthis = this;
             var TableRows = this.state.Table.Rows;
             if (this.state.SortColumn !== 0 && this.state.Sort !== "init") {
-                console.log(TableRows);
                 TableRows.sort(function (a, b) {
                     let index = curthis.state.SortColumn - 1;
-                    console.log(a);
+                    //could solve this another way by filtering first row as header row but ...
                     if (a.isStatic) {
                         return 0;
                     }
@@ -74,9 +72,11 @@
             });
             return (<div>
                 <Search callback={this.Search} />
-                <div>
-                    {Rows}
-                </div>
+                <table>
+                    <tbody>
+                        {Rows}
+                        </tbody>
+                </table>
             </div>);
         }
         else {

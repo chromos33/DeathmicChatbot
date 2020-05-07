@@ -76,7 +76,7 @@ namespace BobDeathmic
             //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DLiveChecker>();
             //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.MixerChecker>();
 
-            //services.AddSingleton<ICommandService, CommandService>();
+            services.AddSingleton<ICommandService, CommandService>();
             //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DiscordService>();
             //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchRelayCenter>();
             //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchAPICalls>();

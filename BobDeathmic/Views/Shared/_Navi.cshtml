@@ -68,9 +68,12 @@
             <i class="fas fa-question"></i>
             <div class="navi_item_label">
                 <span class="navi_subitem">
-                    <a class="navi_link" asp-area="" asp-controller="Help" asp-action="Index">Benutzer</a>
+                    <a class="navi_link" asp-area="" asp-controller="Help" asp-action="Index">Hilfe</a>
                 </span>
             </div>
+            <script>
+                document.querySelector(".fas.fa-question").addEventListener("click", (e) => { window.location.href = "/Help" });
+            </script>
         </span>
         @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
         {
@@ -78,9 +81,12 @@
                 <i class="fas fa-cogs"></i>
                 <div class="navi_item_label">
                     <span class="navi_subitem">
-                        <a class="navi_link" asp-area="" asp-controller="Services" asp-action="ServiceControls">Benutzer</a>
+                        <a class="navi_link" asp-area="" asp-controller="Services" asp-action="ServiceControls">Hilfe</a>
                     </span>
                 </div>
+                <script>
+                    document.querySelector(".fas.fa-cogs").addEventListener("click", (e) => { window.location.href = "/Services/ServiceControls" });
+                </script>
             </span>
             <span class="navi_item has_children">
                 <i class="fas fa-screwdriver"></i>
@@ -133,7 +139,6 @@
     function resetNavItems(node) {
         if (node.type == "mouseleave" || !node.classList.contains("open")) {
             document.querySelectorAll("nav > .navi_item").forEach((clearnode) => {
-                console.log(clearnode);
                 clearnode.classList.remove("open");
                 clearnode.querySelector(".navi_item_label").style.width = 0;
                 let containernode = clearnode.querySelector(".subnavicontainer");

@@ -5,7 +5,8 @@
     
     render() {
         const components = {
-            TextColumn: TextColumn
+            TextColumn: TextColumn,
+            StreamSubColumn: StreamSubColumn
         }
         if (this.props.Columns.length > 0) {
             var i = 0;
@@ -15,10 +16,10 @@
                 const ColumnType = components[column.ReactComponentName];
                 return <ColumnType Sort={curthis.props.Sort} key={i} id={i} data={column} />;
             });
-            return (<div>{Columns}</div>);
+            return (<tr>{Columns}</tr>);
         }
         else {
-            return <span>ERROR</span>;
+            return <tr>ERROR</tr>;
         }
         
 

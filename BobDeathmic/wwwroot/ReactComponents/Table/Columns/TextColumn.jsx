@@ -8,10 +8,10 @@
     }
     render() {
         if (this.props.data.canSort) {
-            return <span onClick={this.handleClick}>{this.props.data.Text}</span>;
+            return <td onClick={this.handleClick}>{this.props.data.Text}</td>;
         }
         else {
-            return <span>{this.props.data.Text}</span>;
+            return <td>{this.props.data.Text}</td>;
         }
         
     }

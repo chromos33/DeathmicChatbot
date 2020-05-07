@@ -76,24 +76,26 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<String> SubscriptionsData()
         {
+            ChatUserModel usermodel = await _userManager.GetUserAsync(this.User);
+            List<StreamSubscription> streamsubs = _context.StreamSubscriptions.Include(ss => ss.User).Include(ss => ss.Stream).Where(ss => ss.User == usermodel).ToList();
             Table table = new Table();
             Row row = new Row(false,true);
             row.AddColumn(new TextColumn(0, "StreamName",true));
-            row.AddColumn(new TextColumn(1, ""));
+            row.AddColumn(new TextColumn(1, "Sub Status"));
             table.AddRow(row);
-
             //TODO Second Request for Streams not yet added
-            foreach (var stream in _context.StreamModels)
+
+            foreach (var streamsub in streamsubs)
             {
                 Row newrow = new Row();
-                newrow.AddColumn(new TextColumn(0, stream.StreamName));
-                if (stream.StreamState == StreamState.Running)
+                newrow.AddColumn(new TextColumn(0, streamsub.Stream.StreamName));
+                if (streamsub.Subscribed == SubscriptionState.Subscribed)
                 {
-                    newrow.AddColumn(new TextColumn(0, "Läuft"));
+                    newrow.AddColumn(new StreamSubColumn(1, true, streamsub.ID));
                 }
                 else
                 {
-                    newrow.AddColumn(new TextColumn(0, "Läuft nicht"));
+                    newrow.AddColumn(new StreamSubColumn(1, false, streamsub.ID));
                 }
                 table.AddRow(newrow);
             }
@@ -128,9 +130,10 @@ namespace BobDeathmic.Controllers
             return RedirectToAction(nameof(Subscriptions));
 
         }
-        public async Task<string> ChangeSubscription(int? id)
+        [HttpPost]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<string> ChangeSubscription(int id)
         {
-
             if (id == null)
             {
                 return "error";
