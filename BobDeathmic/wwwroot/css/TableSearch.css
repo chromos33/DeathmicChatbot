@@ -1,0 +1,18 @@
+﻿.tableSearch {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(-100%);
+    width: 100%;
+    background: #272c2e;
+}
+.tableSearch input {
+    max-width: calc(100% - 32px);
+    margin-left:10px;
+    border:1px solid black;
+    height:18px;
+}
+.tableSearch i
+{
+    margin-left:5px;
+}

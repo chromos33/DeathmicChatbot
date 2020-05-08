@@ -5,11 +5,22 @@
         this.state = { Rows: [], Filter: "" ,Sort: "init", SortColumn: 0};
         this.Search = this.Search.bind(this);
         this.Sort = this.Sort.bind(this);
+        this.handleUpdateEvent = this.handleUpdateEvent.bind(this);
+        
+    }
+    handleUpdateEvent(e) {
+        this.UpdateData();
+    }
+    componentDidMount() {
+        window.addEventListener('updateTable', this.handleUpdateEvent);
     }
     componentWillMount() {
+        this.UpdateData();
+    }
+    UpdateData() {
         var thisreference = this;
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', "/User/SubscriptionsData/", true);
+        xhr.open('GET', thisreference.props.DataLink, true);
         xhr.onload = function () {
             thisreference.setState({ Table: JSON.parse(xhr.responseText) });
         };
@@ -70,7 +81,7 @@
                 }
                 
             });
-            return (<div>
+            return (<div className="relative d-inline-block">
                 <Search callback={this.Search} />
                 <table>
                     <tbody>

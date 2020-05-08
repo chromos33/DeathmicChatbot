@@ -17,6 +17,8 @@ using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.ViewModels.User;
 using BobDeathmic.ViewModels.ReactDataClasses.Table;
 using BobDeathmic.ViewModels.ReactDataClasses.Table.Columns;
+using BobDeathmic.ViewModels.ReactDataClasses.Other;
+using Newtonsoft.Json;
 
 namespace BobDeathmic.Controllers
 {
@@ -38,6 +40,7 @@ namespace BobDeathmic.Controllers
         {
             return View();
         }
+        /*
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Subscriptions()
@@ -66,9 +69,10 @@ namespace BobDeathmic.Controllers
             model.Subscriptions = streamsubs;
             return View(model);
         }
+        */
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> AjaxSubscriptions()
+        public async Task<IActionResult> Subscriptions()
         {
             return View();
         }
@@ -101,16 +105,34 @@ namespace BobDeathmic.Controllers
             }
             return table.getJson();
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        
+        [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> AddSubscription(AddSubscriptionViewModel model)
+        public async Task<String> SubscribableStreamsData()
         {
-            if (!ModelState.IsValid)
+            ChatUserModel usermodel = await _userManager.GetUserAsync(this.User);
+            List<StreamSubscription> streamsubs = _context.StreamSubscriptions.Include(ss => ss.User).Include(ss => ss.Stream).Where(ss => ss.User == usermodel).ToList();
+            List<SubscribableStream> FilteredStreams = new List<SubscribableStream>();
+            foreach (var stream in _context.StreamModels)
             {
-                return View(model);
+                bool add = true;
+
+                if (streamsubs != null && streamsubs.Where(ss => ss.Stream.StreamName == stream.StreamName && ss.Stream.Type == stream.Type).Count() > 0)
+                {
+                    add = false;
+                }
+                if (add)
+                {
+                    FilteredStreams.Add(new SubscribableStream(stream.StreamName,stream.ID));
+                }
             }
-            var stream = _context.StreamModels.Where(s => s.StreamName.ToLower() == model.StreamNameForSubscription.ToLower() && s.Type == model.type).FirstOrDefault();
+            return JsonConvert.SerializeObject(FilteredStreams);
+        }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<bool> AddSubscription(int streamid)
+        {
+            var stream = _context.StreamModels.Where(s => s.ID == streamid).FirstOrDefault();
             ChatUserModel user = await _userManager.GetUserAsync(this.User);
             if (stream != null)
             {
@@ -126,8 +148,9 @@ namespace BobDeathmic.Controllers
 
                 user.StreamSubscriptions.Add(newsub);
                 await _context.SaveChangesAsync();
+                return true;
             }
-            return RedirectToAction(nameof(Subscriptions));
+            return false;
 
         }
         [HttpPost]

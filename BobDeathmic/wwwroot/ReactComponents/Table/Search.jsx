@@ -9,8 +9,8 @@
 
     render() {
         return (
-            <div>
-                <label>Suche</label>
+            <div className="tableSearch">
+                <i className="fas fa-search"></i>
                 <input type="text" name="search" onChange={this.handleChange} />
             </div>
             
