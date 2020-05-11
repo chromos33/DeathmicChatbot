@@ -2,8 +2,11 @@
 using BobDeathmic.Data;
 using BobDeathmic.Data.DBModels.StreamModels;
 using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
+using BobDeathmic.ViewModels.ReactDataClasses.Table;
+using BobDeathmic.ViewModels.ReactDataClasses.Table.Columns;
 using BobDeathmic.ViewModels.StreamModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -46,11 +49,40 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Verwaltung()
         {
+            return View();
             StreamListDataModel model = new StreamListDataModel();
             model.StreamList = await _context.StreamModels.ToListAsync();
             model.StatusMessage = StatusMessage;
             return View(model);
         }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<String> StreamsData()
+        {
+            Table table = new Table();
+            Row row = new Row(false, true);
+            row.AddColumn(new TextColumn(0, "StreamName", true));
+            row.AddColumn(new TextColumn(1, "Type"));
+            row.AddColumn(new TextColumn(2, ""));
+            row.AddColumn(new TextColumn(3, ""));
+            row.AddColumn(new TextColumn(4, ""));
+            table.AddRow(row);
+            //TODO Second Request for Streams not yet added
+
+            foreach (var stream in _context.StreamModels)
+            {
+                Row newrow = new Row();
+                newrow.AddColumn(new TextColumn(0, stream.StreamName));
+                newrow.AddColumn(new TextColumn(1, stream.Type.ToString()));
+                newrow.AddColumn(new TextColumn(2, "Edit"));
+                newrow.AddColumn(new LinkColumn(3, "Authorisieren", $"/Stream/TwitchOAuth/{stream.ID}"));
+                newrow.AddColumn(new TextColumn(4, "Delete"));
+                
+                table.AddRow(newrow);
+            }
+            return table.getJson();
+        }
+
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> QuoteList()
         {

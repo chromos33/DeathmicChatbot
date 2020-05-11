@@ -6,7 +6,8 @@
     render() {
         const components = {
             TextColumn: TextColumn,
-            StreamSubColumn: StreamSubColumn
+            StreamSubColumn: StreamSubColumn,
+            LinkColumn: LinkColumn
         }
         if (this.props.Columns.length > 0) {
             var i = 0;
