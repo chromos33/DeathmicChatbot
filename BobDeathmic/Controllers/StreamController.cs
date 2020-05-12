@@ -67,14 +67,12 @@ namespace BobDeathmic.Controllers
             row.AddColumn(new TextColumn(3, ""));
             row.AddColumn(new TextColumn(4, ""));
             table.AddRow(row);
-            //TODO Second Request for Streams not yet added
-
             foreach (var stream in _context.StreamModels)
             {
                 Row newrow = new Row();
                 newrow.AddColumn(new TextColumn(0, stream.StreamName));
                 newrow.AddColumn(new TextColumn(1, stream.Type.ToString()));
-                newrow.AddColumn(new TextColumn(2, "Edit"));
+                newrow.AddColumn(new StreamEditColumn(2, "Edit",stream));
                 newrow.AddColumn(new LinkColumn(3, "Authorisieren", $"/Stream/TwitchOAuth/{stream.ID}"));
                 newrow.AddColumn(new TextColumn(4, "Delete"));
                 

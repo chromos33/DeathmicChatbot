@@ -73,11 +73,11 @@
                 i++;
                 if (curthis.state.Filter !== "") {
                     if (!row.canFilter || row.canFilter && row.Filter.toLowerCase().includes(curthis.state.Filter.toLowerCase())) {
-                        return <Row Sort={curthis.Sort} key={i} Columns={row.Columns} />;
+                        return <Row ColumnTypes={this.props.Columns} Sort={curthis.Sort} key={i} Columns={row.Columns} />;
                     }
                 }
                 else {
-                    return <Row Sort={curthis.Sort} key={i} Columns={row.Columns} />;
+                    return <Row ColumnTypes={this.props.Columns} Sort={curthis.Sort} key={i} Columns={row.Columns} />;
                 }
                 
             });

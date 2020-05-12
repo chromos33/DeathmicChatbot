@@ -27,7 +27,12 @@
 <script>
     document.addEventListener("DOMContentLoaded", function (event) {
         var elem = React.createElement(Table, {
-            DataLink: "/User/SubscriptionsData/"});
+            DataLink: "/User/SubscriptionsData/",
+            Columns: {
+                TextColumn: TextColumn,
+                StreamSubColumn: StreamSubColumn
+            }
+        });
         ReactDOM.render(elem, document.getElementById('reactcontent'));
     });
     document.addEventListener("DOMContentLoaded", function (event) {

@@ -16,7 +16,7 @@
 <script src="@Url.Content("~/ReactComponents/Table/Row.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/Table/Columns/TextColumn.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/Table/Columns/LinkColumn.jsx")"></script>
-<script src="@Url.Content("~/ReactComponents/Table/Columns/StreamSubColumn.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Columns/StreamEditColumn.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/Table/Search.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/StreamsubAddComponent.jsx")"></script>
 
@@ -28,7 +28,12 @@
 <script>
     document.addEventListener("DOMContentLoaded", function (event) {
         var elem = React.createElement(Table, {
-            DataLink: "/Stream/StreamsData/"
+            DataLink: "/Stream/StreamsData/",
+            Columns: {
+                TextColumn: TextColumn,
+                LinkColumn: LinkColumn,
+                StreamEditColumn: StreamEditColumn
+            }
         });
         ReactDOM.render(elem, document.getElementById('reactcontent'));
     });
