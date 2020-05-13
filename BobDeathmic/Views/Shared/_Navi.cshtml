@@ -3,154 +3,164 @@
 *@
 @{
 }
-<link rel="stylesheet" href="~/css/navi.css" />
+@if (User.IsInRole("User") || User.IsInRole("Admin") || User.IsInRole("Dev"))
+{
+    <link rel="stylesheet" href="~/css/navi.css" />
 
-<header>
-    <a class="Logo" asp-area="" asp-controller="Main" asp-action="Index"><img src="~/images/BobDeathmicLogo.png" class="logo" /></a>
-    <nav>
-        <span class="navi_item has_children">
-            <i class="fas fa-user"></i>
-            <div class="navi_item_label">
-                <span class="navi_subitem">
-                    <span class="navlabel">Benutzer</span>
-                    <div class="subnavicontainer">
-                        <a class="navi_link" asp-area="" asp-controller="User" asp-action="Subscriptions"><i class="fab fa-affiliatetheme"></i> Subscriptions</a>
-                        <a class="navi_link" asp-area="" asp-controller="User" asp-action="ChangePassword"><i class="fas fa-key"></i> Passwort ändern</a>
-                        <a class="navi_link" asp-area="" asp-controller="User" asp-action="DeleteUser"><i class="fas fa-user-minus"></i> Nutzer löschen</a>
-                    </div>
-                </span>
-            </div>
-        </span>
-        <span class="navi_item has_children">
-            <i class="fas fa-film"></i>
-            <div class="navi_item_label">
-                <span class="navi_subitem">
-                    <span class="navlabel">Streams</span>
-                    <div class="subnavicontainer">
-                        <a class="navi_link" asp-area="" asp-controller="Stream" asp-action="Status"><i class="fas fa-signal"></i> Status</a>
-                        <a class="navi_link" asp-area="" asp-controller="Stream" asp-action="Verwaltung"><i class="fas fa-users-cog"></i> Verwaltung</a>
-                        <a class="navi_link" asp-area="" asp-controller="Stream" asp-action="Create"><i class="fa fa-plus"></i> Hinzufügen</a>
-                        <a class="navi_link" asp-area="" asp-controller="StreamCommands" asp-action="Index"><i class="fas fa-comments"></i> Commands</a>
-                        <a class="navi_link" asp-area="" asp-controller="Stream" asp-action="QuoteList"><i class="fas fa-quote-right"></i> Quotes</a>
-                    </div>
-                </span>
-            </div>
-        </span>
-        <span class="navi_item has_children">
-            <i class="fas fa-dice"></i>
-            <div class="navi_item_label">
-                <span class="navi_subitem">
-                    <span class="navlabel">Events</span>
-                    <div class="subnavicontainer">
-                        <a class="navi_link" asp-area="" asp-controller="Events" asp-action="Index"><i class="fas fa-calendar-alt"></i> Event Kalendar</a>
-                        <a class="navi_link" asp-area="" asp-controller="Character" asp-action="Index"><i class="fas fa-user-cog"></i> Character Rollen</a>
-                    </div>
-                </span>
-            </div>
-        </span>
-        <span class="navi_item has_children">
-            <i class="fas fa-gift"></i>
-            <div class="navi_item_label">
-                <span class="navi_subitem">
-                    <span class="navlabel">GiveAway</span>
-                    <div class="subnavicontainer">
-                        <a class="navi_link" asp-area="" asp-controller="GiveAway" asp-action="Index">Meine Geschenke</a>
-                        <a class="navi_link" asp-area="" asp-controller="GiveAway" asp-action="Winnings">Gewonne Geschenke</a>
-                        @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
-                        {
-                            <a class="navi_link" asp-area="" asp-controller="GiveAway" asp-action="Admin">Admin</a>
-                        }
-                    </div>
-                </span>
-            </div>
-        </span>
-        <span class="navi_item">
-            <i class="fas fa-question"></i>
-            <div class="navi_item_label">
-                <span class="navi_subitem">
-                    <a class="navi_link" asp-area="" asp-controller="Help" asp-action="Index">Benutzer</a>
-                </span>
-            </div>
-        </span>
-        @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
-        {
-            <span class="navi_item">
-                <i class="fas fa-cogs"></i>
-                <div class="navi_item_label">
-                    <span class="navi_subitem">
-                        <a class="navi_link" asp-area="" asp-controller="Services" asp-action="ServiceControls">Benutzer</a>
-                    </span>
-                </div>
-            </span>
+    <header>
+        <a class="Logo" asp-area="" asp-controller="Main" asp-action="Index"><img src="~/images/BobDeathmicLogo.png" class="logo" /></a>
+        <nav>
             <span class="navi_item has_children">
-                <i class="fas fa-screwdriver"></i>
+                <i class="fas fa-user"></i>
                 <div class="navi_item_label">
                     <span class="navi_subitem">
-                        <span class="navlabel">Admin</span>
+                        <span class="navlabel">Benutzer</span>
                         <div class="subnavicontainer">
-                            <a class="navi_link" asp-area="" asp-controller="Admin" asp-action="SecurityTokens">Meine Geschenke</a>
-                            <a class="navi_link" asp-area="" asp-controller="UserAdmin" asp-action="Index">User Manager</a>
-                            <a class="navi_link" asp-area="" asp-controller="DiscordBans" asp-action="Index">Discord Bans</a>
+                            <a class="navi_link" asp-area="" asp-controller="User" asp-action="Subscriptions"><i class="fab fa-affiliatetheme"></i> Subscriptions</a>
+                            <a class="navi_link" asp-area="" asp-controller="User" asp-action="ChangePassword"><i class="fas fa-key"></i> Passwort ändern</a>
+                            <a class="navi_link" asp-area="" asp-controller="User" asp-action="DeleteUser"><i class="fas fa-user-minus"></i> Nutzer löschen</a>
                         </div>
                     </span>
                 </div>
             </span>
-        }
-    </nav>
-</header>
-<script>
-    document.querySelectorAll(".subnavicontainer").forEach((node) => {
-        let height = 0;
-        node.querySelectorAll(".navi_link").forEach((subnode) => {
-            height += subnode.clientHeight;
+            <span class="navi_item has_children">
+                <i class="fas fa-film"></i>
+                <div class="navi_item_label">
+                    <span class="navi_subitem">
+                        <span class="navlabel">Streams</span>
+                        <div class="subnavicontainer">
+                            <a class="navi_link" asp-area="" asp-controller="Stream" asp-action="Verwaltung"><i class="fas fa-users-cog"></i> Verwaltung</a>
+                            <a class="navi_link" asp-area="" asp-controller="Stream" asp-action="Create"><i class="fa fa-plus"></i> Hinzufügen</a>
+                            <a class="navi_link" asp-area="" asp-controller="StreamCommands" asp-action="Index"><i class="fas fa-comments"></i> Commands</a>
+                            <a class="navi_link" asp-area="" asp-controller="Stream" asp-action="QuoteList"><i class="fas fa-quote-right"></i> Quotes</a>
+                        </div>
+                    </span>
+                </div>
+            </span>
+            <span class="navi_item has_children">
+                <i class="fas fa-dice"></i>
+                <div class="navi_item_label">
+                    <span class="navi_subitem">
+                        <span class="navlabel">Events</span>
+                        <div class="subnavicontainer">
+                            <a class="navi_link" asp-area="" asp-controller="Events" asp-action="Index"><i class="fas fa-calendar-alt"></i> Event Kalendar</a>
+                            <a class="navi_link" asp-area="" asp-controller="Character" asp-action="Index"><i class="fas fa-user-cog"></i> Character Rollen</a>
+                        </div>
+                    </span>
+                </div>
+            </span>
+            <span class="navi_item has_children">
+                <i class="fas fa-gift"></i>
+                <div class="navi_item_label">
+                    <span class="navi_subitem">
+                        <span class="navlabel">GiveAway</span>
+                        <div class="subnavicontainer">
+                            <a class="navi_link" asp-area="" asp-controller="GiveAway" asp-action="Index">Meine Geschenke</a>
+                            <a class="navi_link" asp-area="" asp-controller="GiveAway" asp-action="Winnings">Gewonne Geschenke</a>
+                            @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
+                            {
+                                <a class="navi_link" asp-area="" asp-controller="GiveAway" asp-action="Admin">Admin</a>
+                            }
+                        </div>
+                    </span>
+                </div>
+            </span>
+            <span class="navi_item">
+                <i class="fas fa-question"></i>
+                <div class="navi_item_label">
+                    <span class="navi_subitem">
+                        <a class="navi_link" asp-area="" asp-controller="Help" asp-action="Index">Hilfe</a>
+                    </span>
+                </div>
+                <script>
+                    document.querySelector(".fas.fa-question").addEventListener("click", (e) => { window.location.href = "/Help" });
+                </script>
+            </span>
+            @if (User.IsInRole("Dev") || User.IsInRole("Admin"))
+            {
+                <span class="navi_item">
+                    <i class="fas fa-cogs"></i>
+                    <div class="navi_item_label">
+                        <span class="navi_subitem">
+                            <a class="navi_link" asp-area="" asp-controller="Services" asp-action="ServiceControls">Dienste</a>
+                        </span>
+                    </div>
+                    <script>
+                        document.querySelector(".fas.fa-cogs").addEventListener("click", (e) => { window.location.href = "/Services/ServiceControls" });
+                    </script>
+                </span>
+                <span class="navi_item has_children">
+                    <i class="fas fa-screwdriver"></i>
+                    <div class="navi_item_label">
+                        <span class="navi_subitem">
+                            <span class="navlabel">Admin</span>
+                            <div class="subnavicontainer">
+                               @if (User.IsInRole("Dev")){
+                                    <a class="navi_link" asp-area="" asp-controller="Admin" asp-action="SecurityTokens">Tokens</a>
+                                }
+                                <a class="navi_link" asp-area="" asp-controller="UserAdmin" asp-action="Index">User Manager</a>
+                                <a class="navi_link" asp-area="" asp-controller="DiscordBans" asp-action="Index">Discord Bans</a>
+                            </div>
+                        </span>
+                    </div>
+                </span>
+            }
+        </nav>
+    </header>
+    <script>
+        document.querySelectorAll(".subnavicontainer").forEach((node) => {
+            let height = 0;
+            node.querySelectorAll(".navi_link").forEach((subnode) => {
+                height += subnode.clientHeight;
+            })
+            node.setAttribute("data-height", height);
         })
-        node.setAttribute("data-height", height);
-    })
-    document.querySelectorAll("nav > .navi_item").forEach((node) => {
-        node.addEventListener("click", handlenavi_item);
-        node.addEventListener("mouseenter", handlenavi_item);
-    });
-    document.querySelector("nav").addEventListener("mouseleave", resetNavItems);
-    function handlenavi_item(e) {
-        let node = e.target;
-        resetNavItems(node);
-        
-        if (!node.classList.contains("navi_item")) {
-            node = node.closest(".navi_item");
+        document.querySelectorAll("nav > .navi_item").forEach((node) => {
+            node.addEventListener("click", handlenavi_item);
+            node.addEventListener("mouseenter", handlenavi_item);
+        });
+        document.querySelector("nav").addEventListener("mouseleave", resetNavItems);
+        function handlenavi_item(e) {
+            let node = e.target;
+            resetNavItems(node);
+
+            if (!node.classList.contains("navi_item")) {
+                node = node.closest(".navi_item");
+            }
+            if (node.querySelector(".navi_item_label").clientWidth == 0) {
+                node.classList.add("open");
+                node.querySelector(".navi_item_label").style.width = node.querySelector(".navi_subitem").clientWidth + "px";
+            }
+            else {
+                node.classList.remove("open");
+                node.querySelector(".navi_item_label").style.width = 0;
+            }
+            if (node.classList.contains("has_children")) {
+                setTimeout(handleSubNaviItem, 100, node);
+            }
         }
-        if (node.querySelector(".navi_item_label").clientWidth == 0) {
-            node.classList.add("open");
-            node.querySelector(".navi_item_label").style.width = node.querySelector(".navi_subitem").clientWidth+"px";
+        function resetNavItems(node) {
+            if (node.type == "mouseleave" || !node.classList.contains("open")) {
+                document.querySelectorAll("nav > .navi_item").forEach((clearnode) => {
+                    clearnode.classList.remove("open");
+                    clearnode.querySelector(".navi_item_label").style.width = 0;
+                    let containernode = clearnode.querySelector(".subnavicontainer");
+                    if (containernode != null) {
+                        containernode.style.height = 0;
+                    }
+                });
+            }
         }
-        else {
-            node.classList.remove("open");
-            node.querySelector(".navi_item_label").style.width = 0;
+        function handleSubNaviItem(node) {
+            let containernode = node.querySelector(".subnavicontainer");
+            if (containernode.clientHeight == 0) {
+                containernode.style.height = containernode.getAttribute("data-height") + "px";
+            }
+            else {
+                containernode.style.height = 0;
+            }
+
         }
-        if (node.classList.contains("has_children")) {
-            setTimeout(handleSubNaviItem, 100,node);
-        }
-    }
-    function resetNavItems(node) {
-        if (node.type == "mouseleave" || !node.classList.contains("open")) {
-            document.querySelectorAll("nav > .navi_item").forEach((clearnode) => {
-                console.log(clearnode);
-                clearnode.classList.remove("open");
-                clearnode.querySelector(".navi_item_label").style.width = 0;
-                let containernode = clearnode.querySelector(".subnavicontainer");
-                if (containernode != null) {
-                    containernode.style.height = 0;
-                }
-            });
-        }
-    }
-    function handleSubNaviItem(node) {
-        let containernode = node.querySelector(".subnavicontainer");
-        if (containernode.clientHeight == 0) {
-            containernode.style.height = containernode.getAttribute("data-height") + "px";
-        }
-        else {
-            containernode.style.height = 0;
-        }
-        
-    }
-</script>
+    </script>
+
+}
