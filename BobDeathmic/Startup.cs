@@ -72,19 +72,19 @@ namespace BobDeathmic
             services.AddMemoryCache();
             services.AddSingleton<IEventBus, EventBusLocal>();
             
-            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchChecker>();
-            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DLiveChecker>();
-            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.MixerChecker>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchChecker>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DLiveChecker>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.MixerChecker>();
 
-            //services.AddSingleton<ICommandService, CommandService>();
-            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DiscordService>();
-            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchRelayCenter>();
-            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchAPICalls>();
-            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, StrawPollService>();
-            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, SchedulerHostService>();
+            services.AddSingleton<ICommandService, CommandService>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DiscordService>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchRelayCenter>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchAPICalls>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, StrawPollService>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, SchedulerHostService>();
             
 
-            //services.AddSingleton<IScheduledTask, EventCalendarTask>();
+            services.AddSingleton<IScheduledTask, EventCalendarTask>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddReact();
@@ -110,7 +110,7 @@ namespace BobDeathmic
             app.UseReact(config =>
             {
                 config.AllowJavaScriptPrecompilation = true;
-                config.SetLoadBabel(true);
+                config.SetLoadBabel(false);
                 config.SetLoadReact(true);
                 config.UseServerSideRendering = false;
 
