@@ -35,6 +35,16 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
             _scopeFactory = scopeFactory;
             _eventBus = eventBus;
             api = new TwitchAPI();
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var token = _context.SecurityTokens.Where(x => x.service == TokenType.Twitch).FirstOrDefault();
+                if(token != null)
+                {
+                    api.Settings.AccessToken = token.token;
+                    api.Settings.ClientId = token.ClientID;
+                }
+            }
         }
 
         public override Task StopAsync(CancellationToken cancellationToken)
