@@ -85,6 +85,7 @@ namespace BobDeathmic
             
 
             services.AddSingleton<IScheduledTask, EventCalendarTask>();
+            services.AddSingleton<IScheduledTask, TwitchTokenRefreshTask>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddReact();
