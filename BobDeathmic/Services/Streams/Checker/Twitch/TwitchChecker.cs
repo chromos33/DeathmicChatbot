@@ -162,6 +162,19 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                     }
                 }
             }
+            catch(TwitchLib.Api.Core.Exceptions.BadScopeException ex)
+            {
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var token = _context.SecurityTokens.Where(x => x.service == TokenType.Twitch).FirstOrDefault();
+                    if (token != null)
+                    {
+                        api.Settings.AccessToken = token.token;
+                        api.Settings.ClientId = token.ClientID;
+                    }
+                }
+            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
