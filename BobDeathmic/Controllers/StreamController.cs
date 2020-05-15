@@ -55,6 +55,50 @@ namespace BobDeathmic.Controllers
             model.StatusMessage = StatusMessage;
             return View(model);
         }
+        [HttpPost]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<bool> SaveStreamEdit(int StreamID, string StreamName,StreamProviderTypes Type,int UpTime,int Quote)
+        {
+            try
+            {
+                var stream = _context.StreamModels.Where(x => x.ID == StreamID).FirstOrDefault();
+                if (stream != null)
+                {
+                    stream.StreamName = StreamName;
+                    stream.Type = Type;
+                    stream.UpTimeInterval = UpTime;
+                    stream.QuoteInterval = Quote;
+                    _context.SaveChanges();
+                    return true;
+                }
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            return false;
+            
+        }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<String> GetStreamEditData(int streamID)
+        {
+            try
+            {
+                var stream = _context.StreamModels.Where(x => x.ID == streamID).FirstOrDefault();
+                if (stream != null)
+                {
+                    var data = new BobDeathmic.ViewModels.ReactDataClasses.Other.StreamEditData(stream);
+                    return data.ToJSON();
+                }
+                return "";
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "";
+            }
+           
+        }
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<String> StreamsData()
