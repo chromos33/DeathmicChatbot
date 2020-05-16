@@ -8,11 +8,17 @@
 .column-5 {
     grid-template-columns: 20px calc((100% - 40px)/3) calc((100% - 40px)/3) calc((100% - 40px)/3) 20px;
 }
+.column-4 {
+    grid-template-columns: 20px calc((100% - 40px)/2) calc((100% - 40px)/2) 20px;
+}
 .row-9 {
     grid-template-rows: 20px 40px 40px 40px 40px 70px 40px 40px 20px;
 }
 .row-2 {
     grid-template-rows: 30px 30px;
+}
+.row-3 {
+    grid-template-rows: 80px 40px 30px;
 }
 .column-2 {
     grid-template-columns:50% 50%;
@@ -112,4 +118,25 @@
     grid-column-end: 2;
     grid-row-start: 8;
     grid-row-end: 8;
+}
+.deletebtn {
+    grid-column-start: 2;
+    grid-column-end: 2;
+    grid-row-start: 2;
+    grid-row-end: 2;
+    margin-right:20px;
+}
+.canceldeletebtn {
+    grid-column-start: 3;
+    grid-column-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 2;
+    margin-left: 20px;
+}
+.deleteText {
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 1;
+    grid-row-end: 1;
+    margin-top:20px;
 }

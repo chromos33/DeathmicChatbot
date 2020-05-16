@@ -117,8 +117,15 @@ namespace BobDeathmic.Controllers
                 newrow.AddColumn(new TextColumn(0, stream.StreamName));
                 newrow.AddColumn(new TextColumn(1, stream.Type.ToString()));
                 newrow.AddColumn(new StreamEditColumn(2, "Edit",stream));
-                newrow.AddColumn(new LinkColumn(3, "Authorisieren", $"/Stream/TwitchOAuth/{stream.ID}"));
-                newrow.AddColumn(new TextColumn(4, "Delete"));
+                if(stream.Type == StreamProviderTypes.Twitch)
+                {
+                    newrow.AddColumn(new LinkColumn(3, "Authorisieren", $"/Stream/TwitchOAuth/{stream.ID}"));
+                }
+                else
+                {
+                    newrow.AddColumn(new TextColumn(3, ""));
+                }
+                newrow.AddColumn(new StreamDeleteColumn(4, "Delete", stream));
                 
                 table.AddRow(newrow);
             }
@@ -241,34 +248,25 @@ namespace BobDeathmic.Controllers
         [TempData]
         public string StatusMessage { get; set; }
         // GET: Streams2/Delete/5
+        [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<bool> DeleteStream(int? streamID)
         {
-            if (id == null)
+            if (streamID == null)
             {
-                return NotFound();
+                return false;
             }
 
             var stream = await _context.StreamModels
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefaultAsync(m => m.ID == streamID);
             if (stream == null)
             {
-                return NotFound();
+                return false;
             }
-
-            return View(stream);
-        }
-
-        // POST: Streams2/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var stream = await _context.StreamModels.FindAsync(id);
             _context.StreamModels.Remove(stream);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Verwaltung));
+            _context.SaveChanges();
+            return true;
+
         }
 
         [Authorize(Roles = "User,Dev,Admin")]

@@ -8,7 +8,7 @@
     }
     render() {
         if (this.props.data.canSort) {
-            return <td onClick={this.handleClick}>{this.props.data.Text}</td>;
+            return <td className="pointer" onClick={this.handleClick}>{this.props.data.Text} <i class="fas fa-sort"></i></td>;
         }
         else {
             return <td>{this.props.data.Text}</td>;

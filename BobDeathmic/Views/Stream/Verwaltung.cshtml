@@ -18,6 +18,7 @@
 <script src="@Url.Content("~/ReactComponents/Table/Columns/TextColumn.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/Table/Columns/LinkColumn.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/Table/Columns/StreamEditColumn.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Columns/StreamDeleteColumn.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/Table/Search.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/StreamsubAddComponent.jsx")"></script>
 
@@ -33,7 +34,8 @@
             Columns: {
                 TextColumn: TextColumn,
                 LinkColumn: LinkColumn,
-                StreamEditColumn: StreamEditColumn
+                StreamEditColumn: StreamEditColumn,
+                StreamDeleteColumn: StreamDeleteColumn
             }
         });
         ReactDOM.render(elem, document.getElementById('reactcontent'));

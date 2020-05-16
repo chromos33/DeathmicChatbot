@@ -36,12 +36,13 @@
                 sort = "asc";
                 break;
             case "desc":
-                sort = "init";
+                sort = "asc";
                 break;
             case "asc":
                 sort = "desc";
                 break;
         }
+        console.log(sort);
         this.setState({SortColumn: field,Sort: sort});
     }
     render() {
