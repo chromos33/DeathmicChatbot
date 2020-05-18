@@ -11,8 +11,8 @@
 .column-4 {
     grid-template-columns: 20px calc((100% - 40px)/2) calc((100% - 40px)/2) 20px;
 }
-.row-9 {
-    grid-template-rows: 20px 40px 40px 40px 40px 70px 40px 40px 20px;
+.row-11 {
+    grid-template-rows: 20px 40px 40px 40px 40px 70px 40px 40px 40px 40px 20px;
 }
 .row-2 {
     grid-template-rows: 30px 30px;
@@ -110,12 +110,24 @@
 .savebtn {
     grid-column-start: 4;
     grid-column-end: 4;
-    grid-row-start: 8;
-    grid-row-end: 8;
+    grid-row-start: 10;
+    grid-row-end: 10;
 }
 .cancelbtn {
     grid-column-start: 2;
     grid-column-end: 2;
+    grid-row-start: 10;
+    grid-row-end: 10;
+}
+.relaylabel {
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 7;
+    grid-row-end: 7;
+}
+.relayselect {
+    grid-column-start: 2;
+    grid-column-end: 4;
     grid-row-start: 8;
     grid-row-end: 8;
 }
@@ -124,7 +136,7 @@
     grid-column-end: 2;
     grid-row-start: 2;
     grid-row-end: 2;
-    margin-right:20px;
+    margin-right: 20px;
 }
 .canceldeletebtn {
     grid-column-start: 3;

@@ -6,6 +6,7 @@
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleUptimeChange = this.handleUptimeChange.bind(this);
         this.handleQuoteChange = this.handleQuoteChange.bind(this);
+        this.channelswitch = this.channelswitch.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleLoadEditForm = this.handleLoadEditForm.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
@@ -15,7 +16,9 @@
             StreamName: "",
             Type: "",
             UpTime: 0,
-            Quote: 0
+            Quote: 0,
+            RelayChannel: "",
+            Channels: []
         };
     }
     handleTypeClick(e) {
@@ -35,6 +38,10 @@
             });
         }
         
+    }
+    channelswitch(e) {
+        let index = e.nativeEvent.target.selectedIndex;
+        this.setState({ RelayChannel: this.state.Channels[index] });
     }
     handleUptimeChange(e) {
         this.setState({
@@ -67,9 +74,10 @@
                 }
             }
 
-            request.send("StreamID=" + this.props.data.StreamID+"&StreamName=" + this.state.StreamName + "&Type=" + this.state.Type + "&UpTime=" + this.state.UpTime + "&Quote=" + this.state.Quote);
+            request.send("StreamID=" + this.props.data.StreamID + "&StreamName=" + this.state.StreamName + "&Type=" + this.state.Type + "&UpTime=" + this.state.UpTime + "&Quote=" + this.state.Quote + "&Relay=" + this.state.RelayChannel);
         }
     }
+
     handleCancel(e) {
         this.setState({Open: false});
     }
@@ -85,7 +93,9 @@
                     StreamName: data.StreamName,
                     Type: data.Type.toLowerCase(),
                     UpTime: data.UpTime,
-                    Quote: data.Quote
+                    Quote: data.Quote,
+                    Channels: data.RelayChannels,
+                    RelayChannel: data.RelayChannel
                 });
             }
         };
@@ -93,10 +103,13 @@
     }
     render() {
         if (this.state.Open) {
+            const options = this.state.Channels.map((e) => {
+                return <option value={e}>{e}</option>
+            })
             return <td>
                 {this.props.data.Text}
                 <div className="shadowlayer"></div>
-                <div className="statictest grid column-5 row-9">
+                <div className="statictest grid column-5 row-11">
                     <label className="namelabel">Streamname</label>
                     <input className="namefield" name="streamname" value={this.state.StreamName} onChange={this.handleNameChange} type="text" />
                     <label className="typelabel">Type</label>
@@ -109,6 +122,8 @@
                         <label className="quotelabel">Quote Interval</label>
                         <input value={this.state.Quote} onChange={this.handleQuoteChange} className="quotefield" type="number" />
                     </div>
+                    <label className="relaylabel">Relay</label>
+                    <select className="relayselect" value={this.state.RelayChannel} onChange={this.channelswitch}>{options}</select>
                     <span onClick={this.handleSave} className="btn btn_primary savebtn">Speichern</span>
                     <span onClick={this.handleCancel} className="btn btn_primary cancelbtn">Abbrechen</span>
                 </div>

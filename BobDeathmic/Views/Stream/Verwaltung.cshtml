@@ -21,6 +21,7 @@
 <script src="@Url.Content("~/ReactComponents/Table/Columns/StreamDeleteColumn.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/Table/Search.jsx")"></script>
 <script src="@Url.Content("~/ReactComponents/StreamsubAddComponent.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/StreamAddComponent.jsx")"></script>
 
 @*
     <script src="@Url.Content("~/js/react.production.min.js")"></script>
@@ -29,6 +30,8 @@
 *@
 <script>
     document.addEventListener("DOMContentLoaded", function (event) {
+        var elem2 = React.createElement(StreamAddComponent, {});
+        ReactDOM.render(elem2, document.getElementById('streamAddContent'));
         var elem = React.createElement(Table, {
             DataLink: "/Stream/StreamsData/",
             Columns: {
@@ -41,4 +44,5 @@
         ReactDOM.render(elem, document.getElementById('reactcontent'));
     });
 </script>
-<div style="padding-top:150px;" id="reactcontent"></div>
+<div style="padding-top:150px;" id="streamAddContent"></div>
+<div style="padding-top:20px;" id="reactcontent"></div>

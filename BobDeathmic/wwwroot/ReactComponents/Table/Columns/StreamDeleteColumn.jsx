@@ -29,22 +29,27 @@
         this.setState({ Open: true });
     }
     render() {
-        if (this.state.Open) {
-            return <td>
-                {this.props.data.Text}
-                <div className="shadowlayer"></div>
-                <div className="statictest grid column-4 row-3">
-                    <h1 className="deleteText">Bist dir sicher den Stream löschen zu wollen?</h1>
-                    <span onClick={this.handleDeleteClick} className="btn btn_primary deletebtn">Endgültig löschen</span>
-                    <span onClick={this.handleCancel} className="btn btn_primary canceldeletebtn">Abbrechen</span>
-                </div>
-            </td>;
+        if (this.props.data !== undefined) {
+            if (this.state.Open) {
+                return <td>
+                    {this.props.data.Text}
+                    <div className="shadowlayer"></div>
+                    <div className="statictest grid column-4 row-3">
+                        <h1 className="deleteText">Bist dir sicher den Stream löschen zu wollen?</h1>
+                        <span onClick={this.handleDeleteClick} className="btn btn_primary deletebtn">Endgültig löschen</span>
+                        <span onClick={this.handleCancel} className="btn btn_primary canceldeletebtn">Abbrechen</span>
+                    </div>
+                </td>;
+            }
+            else {
+                return <td className="pointer" onClick={this.handleToggleDeleteForm}>
+                    {this.props.data.Text}
+                </td>;
+            }
+        } else {
+            return null;
         }
-        else {
-            return <td className="pointer" onClick={this.handleToggleDeleteForm}>
-                {this.props.data.Text}
-            </td>;
-        }
+        
 
 
     }

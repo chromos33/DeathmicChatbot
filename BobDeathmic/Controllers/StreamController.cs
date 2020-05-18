@@ -57,7 +57,7 @@ namespace BobDeathmic.Controllers
         }
         [HttpPost]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<bool> SaveStreamEdit(int StreamID, string StreamName,StreamProviderTypes Type,int UpTime,int Quote)
+        public async Task<bool> SaveStreamEdit(int StreamID, string StreamName,StreamProviderTypes Type,int UpTime,int Quote,string Relay)
         {
             try
             {
@@ -68,6 +68,7 @@ namespace BobDeathmic.Controllers
                     stream.Type = Type;
                     stream.UpTimeInterval = UpTime;
                     stream.QuoteInterval = Quote;
+                    stream.DiscordRelayChannel = Relay;
                     _context.SaveChanges();
                     return true;
                 }
@@ -87,7 +88,7 @@ namespace BobDeathmic.Controllers
                 var stream = _context.StreamModels.Where(x => x.ID == streamID).FirstOrDefault();
                 if (stream != null)
                 {
-                    var data = new BobDeathmic.ViewModels.ReactDataClasses.Other.StreamEditData(stream);
+                    var data = new BobDeathmic.ViewModels.ReactDataClasses.Other.StreamEditData(stream, _context.RelayChannels.Select(x => x.Name).ToList());
                     return data.ToJSON();
                 }
                 return "";
@@ -98,6 +99,16 @@ namespace BobDeathmic.Controllers
                 return "";
             }
            
+        }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<String> RelayChannels()
+        {
+            List<string> channels = new List<string>();
+            channels.Add("Aus");
+            channels.Add("An");
+            channels.AddRange(_context.RelayChannels.Select(x => x.Name).ToList());
+            return JsonConvert.SerializeObject(channels);
         }
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
@@ -137,6 +148,7 @@ namespace BobDeathmic.Controllers
         {
             return View(_context.Quotes.ToList());
         }
+        /*
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -157,81 +169,34 @@ namespace BobDeathmic.Controllers
             model.SelectedRelayChannel = stream.DiscordRelayChannel;
             model.StatusMessage = StatusMessage;
             return View(model);
-        }
-
-        // POST: Streams2/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,StreamName,Game,UserID,Url,Type,Started,Stopped,DiscordRelayChannel,UpTimeInterval,QuoteInterval")] Stream stream)
-        {
-            if (id != stream.ID)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var _stream = _context.StreamModels.AsNoTracking().Where(x => x.ID == stream.ID).FirstOrDefault();
-                    if(_stream != null)
-                    {
-                        stream.AccessToken = _stream.AccessToken;
-                        stream.ClientID = _stream.ClientID;
-                        stream.LastUpTime = _stream.LastUpTime;
-                        stream.RefreshToken = _stream.RefreshToken;
-                        stream.Secret = _stream.Secret;
-                        _context.Update(stream);
-                        await _context.SaveChangesAsync();
-                    }
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!StreamExists(stream.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                StatusMessage = "Stream angepasst";
-                return RedirectToAction(nameof(Edit));
-            }
-            StatusMessage = "Bitte nochmal versuchen eine Eingabe hat nicht gestimmt";
-            return RedirectToAction(nameof(Edit));
-        }
-
-        [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Create()
-        {
-            ViewData["StreamTypes"] = Stream.StaticEnumStreamTypes();
-            var relaychannels = await _context.RelayChannels.ToListAsync();
-            ViewData["RelayChannels"] = relaychannels;
-            ViewData["SelectedRelayChannel"] = "Aus";
-            return View();
-        }
+        }*/
 
         // POST: Streams2/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> Create([Bind("ID,StreamName,Game,UserID,Url,Type,AccessToken,Secret,ClientID,Started,Stopped,StreamState,DiscordRelayChannel,UpTimeInterval,LastUpTime")] Stream stream)
+        public async Task<bool> Create(string StreamName, StreamProviderTypes Type, int UpTime, int Quote, string Relay)
         {
-            if (ModelState.IsValid)
+            
+            try
             {
-                _context.Add(stream);
-                await _context.SaveChangesAsync();
-                handleCreated(stream);
-                return RedirectToAction(nameof(Index));
+                Stream newstream = new Stream();
+                newstream.StreamName = StreamName;
+                newstream.Type = Type;
+                newstream.UpTimeInterval = UpTime;
+                newstream.QuoteInterval = Quote;
+                newstream.DiscordRelayChannel = Relay;
+                _context.StreamModels.Add(newstream);
+                _context.SaveChanges();
+                //handleCreated(newstream);
+                return true;
             }
-            return RedirectToAction(nameof(Verwaltung));
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            return false;
         }
         private async Task handleCreated(Stream stream)
         {
