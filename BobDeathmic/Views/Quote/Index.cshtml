@@ -1,0 +1,37 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<link rel="stylesheet" href="~/css/User/Subscription.css" />
+<link rel="stylesheet" href="~/css/forms.css" />
+<link rel="stylesheet" href="~/css/table.css" />
+<link rel="stylesheet" href="~/css/Buttons.css" />
+<link rel="stylesheet" href="~/css/React.css" />
+<link rel="stylesheet" href="~/css/TableSearch.css" />
+<link rel="stylesheet" href="~/css/StreamEditColumn.css" />
+
+<!--Use the jsx files on dev and comment out the Compiled Version-->
+<!--Dev use https://babeljs.io/repl to precompile scripts in jsx files-->
+<script src="@Url.Content("~/js/react.development.js")"></script>
+<script src="@Url.Content("~/js/react-dom.development.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Table.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Row.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Columns/TextColumn.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Search.jsx")"></script>
+
+@*
+    <script src="@Url.Content("~/js/react.production.min.js")"></script>
+    <script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
+    <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/PreCompiled/Admin.js")"></script>
+*@
+<script>
+    document.addEventListener("DOMContentLoaded", function (event) {
+        var elem = React.createElement(Table, {
+            DataLink: "/Quote/QuotesData/",
+            Columns: {
+                TextColumn: TextColumn
+            }
+        });
+        ReactDOM.render(elem, document.getElementById('reactcontent'));
+    });
+</script>
+<div style="padding-top:150px;" id="reactcontent"></div>
