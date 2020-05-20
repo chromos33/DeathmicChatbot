@@ -1,6 +1,9 @@
 ﻿using BobDeathmic.Data;
 using BobDeathmic.Data.DBModels.StreamModels;
 using BobDeathmic.Models;
+using BobDeathmic.ViewModels.ReactDataClasses.Table;
+using BobDeathmic.ViewModels.ReactDataClasses.Table.Columns;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -23,27 +26,84 @@ namespace BobDeathmic.Controllers
         // GET: StreamCommands
         public async Task<IActionResult> Index()
         {
-            return View(await _context.StreamCommand.Include(sc => sc.stream).ToListAsync());
+            //await _context.StreamCommand.Include(sc => sc.stream).ToListAsync()
+            return View();
         }
 
-        // GET: StreamCommands/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<string> Data()
         {
-            if (id == null)
+            Table table = new Table();
+            Row Header = new Row(false, true);
+            Header.AddColumn(new TextColumn(0, "Command", true));
+            Header.AddColumn(new TextColumn(1, "Text", false));
+            Header.AddColumn(new TextColumn(2, "Mode", false));
+            Header.AddColumn(new TextColumn(3, "AutoInterval", false));
+            Header.AddColumn(new TextColumn(4, "Stream", true));
+            Header.AddColumn(new TextColumn(5, ""));
+            Header.AddColumn(new TextColumn(6, ""));
+            table.AddRow(Header);
+            foreach (var command in _context.StreamCommand.Include(sc => sc.stream))
             {
-                return NotFound();
+                Row commandrow = new Row();
+                commandrow.AddColumn(new TextColumn(0, command.name));
+                commandrow.AddColumn(new TextColumn(1, command.response));
+                commandrow.AddColumn(new TextColumn(2, command.Mode.ToString()));
+                commandrow.AddColumn(new TextColumn(3, command.AutoInverval.ToString()));
+                commandrow.AddColumn(new TextColumn(4, command.stream.StreamName));
+                commandrow.AddColumn(new ObjectDeleteColumn(5, "Löschen", command.DeleteLink(), command.DeleteText())) ;
+                commandrow.AddColumn(new StreamCommandEditColumn(6, "Edit",command.ID)) ;
+
+                table.AddRow(commandrow);
             }
 
-            var streamCommand = await _context.StreamCommand.Include(sc => sc.stream)
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (streamCommand == null)
-            {
-                return NotFound();
-            }
-
-            return View(streamCommand);
+            return table.getJson();
         }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<String> GetEditData(int streamCommandID)
+        {
+            try
+            {
+                var streamcommand = _context.StreamCommand.Where(x => x.ID == streamCommandID).Include(x => x.stream).FirstOrDefault();
+                if (streamcommand != null)
+                {
+                    var data = new BobDeathmic.ViewModels.ReactDataClasses.Other.StreamCommandEditData(streamcommand, _context.StreamModels.ToList());
+                    return data.ToJSON();
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "";
+            }
 
+        }
+        [HttpPost]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<bool> SaveCommand(int ID, string Name,string Response, StreamCommandMode Mode, int StreamID)
+        {
+            try
+            {
+                var command = _context.StreamCommand.Where(x => x.ID == ID).FirstOrDefault();
+                if (command != null)
+                {
+                    command.name = Name;
+                    command.response = Response;
+                    command.Mode = Mode;
+                    command.streamID = StreamID;
+                    _context.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            return false;
+
+        }
         // GET: StreamCommands/Create
         public IActionResult Create()
         {
@@ -128,32 +188,25 @@ namespace BobDeathmic.Controllers
         }
 
         // GET: StreamCommands/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<bool> Delete(int CommandID)
         {
-            if (id == null)
+            if (CommandID == null)
             {
-                return NotFound();
+                return false;
             }
 
-            var streamCommand = await _context.StreamCommand.Include(sc => sc.stream)
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (streamCommand == null)
+            var streamCommand = await _context.StreamCommand
+                .FirstOrDefaultAsync(m => m.ID == CommandID);
+            if (streamCommand != null)
             {
-                return NotFound();
+                _context.StreamCommand.Remove(streamCommand);
+                _context.SaveChanges();
+                return true;
             }
 
-            return View(streamCommand);
-        }
-
-        // POST: StreamCommands/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var streamCommand = await _context.StreamCommand.FindAsync(id);
-            _context.StreamCommand.Remove(streamCommand);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return false;
         }
 
         private bool StreamCommandExists(int id)

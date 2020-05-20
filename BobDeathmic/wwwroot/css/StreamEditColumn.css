@@ -12,7 +12,10 @@
     grid-template-columns: 20px calc((100% - 40px)/2) calc((100% - 40px)/2) 20px;
 }
 .row-11 {
-    grid-template-rows: 20px 40px 40px 40px 40px 70px 40px 40px 40px 40px 20px;
+    grid-template-rows: 20px 40px 40px 40px 40px 70px 40px 40px 40px 40px 40px 20px;
+}
+.row-9 {
+    grid-template-rows: 20px 40px 40px 40px 40px 40px 40px 40px 20px;
 }
 .row-2 {
     grid-template-rows: 30px 30px;
@@ -59,20 +62,23 @@
         background: green;
     }
 
-.typeswitch.twitch {
-    border-radius:5px 0 0 5px;
-    grid-column-start: 2;
-    grid-column-end: 2;
-}
-.typeswitch.dlive {
-    grid-column-start: 3;
-    grid-column-end: 3;
-}
-.typeswitch.mixer {
-    border-radius: 0 5px 5px 0;
-    grid-column-start: 4;
-    grid-column-end: 4;
-}
+    .typeswitch.twitch,
+    .typeswitch.Manual {
+        border-radius: 5px 0 0 5px;
+        grid-column-start: 2;
+        grid-column-end: 2;
+    }
+    .typeswitch.dlive,
+    .typeswitch.Auto {
+        grid-column-start: 3;
+        grid-column-end: 3;
+    }
+    .typeswitch.mixer,
+    .typeswitch.Random {
+        border-radius: 0 5px 5px 0;
+        grid-column-start: 4;
+        grid-column-end: 4;
+    }
 .uptimelabel {
     grid-column-start: 1;
     grid-column-end: 1;
@@ -101,7 +107,8 @@
     grid-row-end: 2;
     margin: 0 0 0 10px;
 }
-.timergrid {
+.timergrid,
+.intervallabel {
     grid-column-start: 2;
     grid-column-end: 5;
     grid-row-start: 6;
@@ -119,7 +126,8 @@
     grid-row-start: 10;
     grid-row-end: 10;
 }
-.relaylabel {
+.relaylabel,
+.intervalfield {
     grid-column-start: 2;
     grid-column-end: 4;
     grid-row-start: 7;

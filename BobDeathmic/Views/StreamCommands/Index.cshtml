@@ -1,68 +1,41 @@
-﻿@model IEnumerable<BobDeathmic.Data.DBModels.StreamModels.StreamCommand>
-
-@{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
+﻿@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<link rel="stylesheet" href="~/css/User/Subscription.css" />
+<link rel="stylesheet" href="~/css/forms.css" />
 <link rel="stylesheet" href="~/css/table.css" />
-<link rel="stylesheet" href="~/css/Stream/Status.css" />
 <link rel="stylesheet" href="~/css/Buttons.css" />
+<link rel="stylesheet" href="~/css/React.css" />
+<link rel="stylesheet" href="~/css/TableSearch.css" />
+<link rel="stylesheet" href="~/css/StreamCommandEditColumn.css" />
 
-<div class="breadcrumbs">
-    <span>Streams > Commands</span>
-</div>
-<div class="pa-35">
-    <p>
-        <a class="btn" asp-action="Create">Neuen erstellen</a>
-    </p>
-    <table class="table responsive">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.name)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.response)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Mode)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.AutoInverval)
-                </th>
-                <th>
-                    Stream
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.response)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Mode)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.AutoInverval)
-                    </td>
-                    <td>
-                        @item.stream.StreamName
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-                    </td>
-                </tr>
+<!--Use the jsx files on dev and comment out the Compiled Version-->
+<!--Dev use https://babeljs.io/repl to precompile scripts in jsx files-->
+<script src="@Url.Content("~/js/react.development.js")"></script>
+<script src="@Url.Content("~/js/react-dom.development.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Table.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Row.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Columns/TextColumn.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Columns/ObjectDeleteColumn.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Columns/StreamCommandEditColumn.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Search.jsx")"></script>
+
+@*
+    <script src="@Url.Content("~/js/react.production.min.js")"></script>
+    <script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
+    <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/PreCompiled/Admin.js")"></script>
+*@
+<script>
+    document.addEventListener("DOMContentLoaded", function (event) {
+        var elem = React.createElement(Table, {
+            DataLink: "/StreamCommands/Data/",
+            Columns: {
+                TextColumn: TextColumn,
+                ObjectDeleteColumn: ObjectDeleteColumn,
+                StreamCommandEditColumn: StreamCommandEditColumn,
             }
-        </tbody>
-    </table>
-</div>
+        });
+        ReactDOM.render(elem, document.getElementById('reactcontent'));
+    });
+</script>
+<div style="padding-top:150px;" id="reactcontent"></div>
