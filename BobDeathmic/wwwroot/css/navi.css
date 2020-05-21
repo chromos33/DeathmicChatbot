@@ -7,8 +7,7 @@
 header{
     position:fixed;
     left:10px;
-    top:60px;
-    transform:translateY(-50%);
+    top:10px;
     z-index:50;
 }
 body

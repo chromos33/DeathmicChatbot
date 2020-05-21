@@ -1,0 +1,162 @@
+﻿.grid
+{
+    display:grid;
+}
+.inline-grid{
+    display:inline-grid;
+}
+.column-5 {
+    grid-template-columns: 20px calc((100% - 40px)/3) calc((100% - 40px)/3) calc((100% - 40px)/3) 20px;
+}
+.column-4 {
+    grid-template-columns: 20px calc((100% - 40px)/2) calc((100% - 40px)/2) 20px;
+}
+.row-11 {
+    grid-template-rows: 20px 40px 40px 40px 40px 70px 40px 40px 40px 40px 40px 20px;
+}
+.row-9 {
+    grid-template-rows: 20px 40px 40px 40px 40px 40px 40px 40px 20px;
+}
+.row-2 {
+    grid-template-rows: 30px 30px;
+}
+.row-3 {
+    grid-template-rows: 80px 40px 30px;
+}
+.column-2 {
+    grid-template-columns:50% 50%;
+}
+
+
+.namelabel
+{
+    grid-column-start:2;
+    grid-column-end:4;
+    grid-row-start:2;
+    grid-row-end:2;
+}
+.namefield {
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 3;
+    grid-row-end: 3;
+    margin-bottom:10px;
+}
+.typelabel {
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 4;
+    grid-row-end: 4;
+}
+.typeswitch {
+    grid-row-start: 5;
+    grid-row-end: 5;
+    background: #272c2e;
+    text-align:center;
+    padding:3px 0;
+    cursor:pointer;
+    transition:0.5s ease all;
+    margin-bottom:10px;
+}
+    .typeswitch.active {
+        background: green;
+    }
+
+    .typeswitch.twitch,
+    .typeswitch.Manual {
+        border-radius: 5px 0 0 5px;
+        grid-column-start: 2;
+        grid-column-end: 2;
+    }
+    .typeswitch.dlive,
+    .typeswitch.Auto {
+        grid-column-start: 3;
+        grid-column-end: 3;
+    }
+    .typeswitch.mixer,
+    .typeswitch.Random {
+        border-radius: 0 5px 5px 0;
+        grid-column-start: 4;
+        grid-column-end: 4;
+    }
+.uptimelabel {
+    grid-column-start: 1;
+    grid-column-end: 1;
+    grid-row-start: 1;
+    grid-row-end: 1;
+    margin:0 10px 0 0;
+}
+.uptimefield {
+    grid-column-start: 1;
+    grid-column-end: 1;
+    grid-row-start: 2;
+    grid-row-end: 2;
+    margin: 0 10px 0 0;
+}
+.quotelabel {
+    grid-column-start: 2;
+    grid-column-end: 2;
+    grid-row-start: 1;
+    grid-row-end: 1;
+    margin: 0 0 0 10px;
+}
+.quotefield {
+    grid-column-start: 2;
+    grid-column-end: 2;
+    grid-row-start: 2;
+    grid-row-end: 2;
+    margin: 0 0 0 10px;
+}
+.timergrid,
+.intervallabel {
+    grid-column-start: 2;
+    grid-column-end: 5;
+    grid-row-start: 6;
+    grid-row-end: 6;
+}
+.savebtn {
+    grid-column-start: 4;
+    grid-column-end: 4;
+    grid-row-start: 10;
+    grid-row-end: 10;
+}
+.cancelbtn {
+    grid-column-start: 2;
+    grid-column-end: 2;
+    grid-row-start: 10;
+    grid-row-end: 10;
+}
+.relaylabel,
+.intervalfield {
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 7;
+    grid-row-end: 7;
+}
+.relayselect {
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 8;
+    grid-row-end: 8;
+}
+.deletebtn {
+    grid-column-start: 2;
+    grid-column-end: 2;
+    grid-row-start: 2;
+    grid-row-end: 2;
+    margin-right: 20px;
+}
+.canceldeletebtn {
+    grid-column-start: 3;
+    grid-column-end: 3;
+    grid-row-start: 2;
+    grid-row-end: 2;
+    margin-left: 20px;
+}
+.deleteText {
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 1;
+    grid-row-end: 1;
+    margin-top:20px;
+}

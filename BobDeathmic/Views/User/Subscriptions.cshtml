@@ -1,111 +1,44 @@
-﻿@model BobDeathmic.ViewModels.User.AddSubscriptionViewModel
-@using BobDeathmic.Data.DBModels.StreamModels
-@*
+﻿@*
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
 <link rel="stylesheet" href="~/css/User/Subscription.css" />
 <link rel="stylesheet" href="~/css/forms.css" />
 <link rel="stylesheet" href="~/css/table.css" />
 <link rel="stylesheet" href="~/css/Buttons.css" />
+<link rel="stylesheet" href="~/css/React.css" />
+<link rel="stylesheet" href="~/css/TableSearch.css" />
 
-<div class="breadcrumbs">
-    <span>Benutzer > Subscriptions</span>
-</div>
-<div class="pa-35">
-    @if (Model.SubscribableStreams != null)
-    {
-    <div class="mb-20">
-        <h2>Subscription hinzufügen</h2>
+<!--Use the jsx files on dev and comment out the Compiled Version-->
+<!--Dev use https://babeljs.io/repl to precompile scripts in jsx files-->
+<script src="@Url.Content("~/js/react.development.js")"></script>
+<script src="@Url.Content("~/js/react-dom.development.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Table.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Row.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Columns/TextColumn.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Columns/StreamSubColumn.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/Table/Search.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/StreamsubAddComponent.jsx")"></script>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="form-group">
-                    <form asp-controller="User" asp-action="AddSubscription" method="post" class="form-vertical">
-                        <label asp-for="StreamNameForSubscription" class="control-label"></label>
-                        <div class="clearfix"></div>
-                        <input class="typefield" type="hidden" asp-for="type" value="@Model.SubscribableStreams.FirstOrDefault().Type"/>
-                        <select asp-for="StreamNameForSubscription" class="form-control">
-                            @foreach (var stream in Model.SubscribableStreams)
-                            {
-                                <option data-type="@stream.Type">@stream.StreamName</option>
-                            }
-                        </select>
-                        <button type="submit" class="btn btn-default">Subscription hinzufügen</button>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-    </div>
-    }
-    <h2>Subscription List</h2>
-    <div class="row">
-        <div class="col-md-12">
-            <table class="responsive">
-                <thead>
-                    <tr>
-                        <th>
-                            StreamName
-                        </th>
-                        <th>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Subscriptions != null)
-                    {
-                        @foreach (StreamSubscription sub in Model.Subscriptions)
-                        {
-                            <tr>
-                                <td>@sub.Stream.StreamName (@sub.Stream.Type)</td>
-                                <td>
-                                    <a class="subscriptionswitch" data-id="@sub.ID">
-
-                                        @if (@sub.Subscribed == BobDeathmic.Data.Enums.Stream.SubscriptionState.Subscribed)
-                                        {
-                                            <i class="fa fa-power-off font_green"></i>
-                                        }
-                                        else
-                                        {
-                                            <i class="fa fa-power-off font_red"></i>
-                                        }
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-            @section Scripts {
-
-                <script>
-                    jQuery("#StreamNameForSubscription").change(function () { 
-                        var cur = this;
-                        jQuery(".typefield").val(jQuery(cur).find("option:selected").attr("data-type"));
-                    });
-            jQuery(document).ready(function(){
-                jQuery(".subscriptionswitch").click(function () {
-                    var cur = jQuery(this);
-                $.ajax({
-                    url: '@Url.Action("ChangeSubscription","User")',
-                    type: 'POST',
-                    data: {Id: jQuery(this).attr("data-id")},
-                    dataType: 'html',
-                    success: function (data) {
-                        if (data == "true") {
-                            jQuery(cur).find("i").removeClass("font_red").addClass("font_green");
-                        }
-                        else {
-                            jQuery(cur).find("i").removeClass("font_green").addClass("font_red");
-                        }
-                    }
-                })
-            });
-            })
-                </script>
+@*
+    <script src="@Url.Content("~/js/react.production.min.js")"></script>
+    <script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
+    <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/PreCompiled/Admin.js")"></script>
+*@
+<script>
+    document.addEventListener("DOMContentLoaded", function (event) {
+        var elem = React.createElement(Table, {
+            DataLink: "/User/SubscriptionsData/",
+            Columns: {
+                TextColumn: TextColumn,
+                StreamSubColumn: StreamSubColumn
             }
-
-        </div>
-    </div>
-
-</div>
+        });
+        ReactDOM.render(elem, document.getElementById('reactcontent'));
+    });
+    document.addEventListener("DOMContentLoaded", function (event) {
+        var elem = React.createElement(StreamsubAddComponent, {});
+        ReactDOM.render(elem, document.getElementById('streamsubs'));
+    });
+</script>
+<div style="padding-top:140px;" id="streamsubs"></div>
+<div style="padding-top:20px;" id="reactcontent"></div>
