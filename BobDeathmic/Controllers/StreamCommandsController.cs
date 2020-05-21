@@ -61,6 +61,22 @@ namespace BobDeathmic.Controllers
         }
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<String> GetCreateData()
+        {
+            try
+            {
+                var data = new BobDeathmic.ViewModels.ReactDataClasses.Other.StreamCommandEditData(_context.StreamModels.ToList());
+                return data.ToJSON();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return "";
+            }
+
+        }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
         public async Task<String> GetEditData(int streamCommandID)
         {
             try
@@ -78,6 +94,28 @@ namespace BobDeathmic.Controllers
                 Console.WriteLine(ex.ToString());
                 return "";
             }
+
+        }
+        [HttpPost]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<bool> CreateCommand(string Name, string Response, StreamCommandMode Mode, int StreamID)
+        {
+            try
+            {
+                var command = new StreamCommand();
+                command.name = Name;
+                command.response = Response;
+                command.Mode = Mode;
+                command.streamID = StreamID;
+                _context.StreamCommand.Add(command);
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            return false;
 
         }
         [HttpPost]

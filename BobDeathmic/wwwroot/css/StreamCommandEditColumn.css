@@ -1,9 +1,9 @@
 ﻿.grid {
     display: grid;
     grid-template-columns: calc(100% / 3) calc(100% / 3) calc(100% / 3);
-    grid-template-rows: 40px 40px 40px 40px 40px 40px 40px 40px;
+    grid-template-rows: 40px 40px 40px 40px 40px 40px 40px 80px 40px 40px;
     padding: 20px;
-    min-width:500px;
+    min-width: 500px;
 }
 .typeswitch {
     background: #272c2e;
@@ -12,6 +12,10 @@
     cursor: pointer;
     transition: 0.5s ease all;
     margin-bottom: 10px;
+}
+textarea {
+    color: #BAC6D1;
+    background:black;
 }
 .typeswitch.active {
     background: green;
@@ -85,15 +89,28 @@
 input{
     max-width:100%;
 }
+.grid .responselabel {
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 7;
+    grid-row-end: 7;
+}
+.grid .responsefield {
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 8;
+    grid-row-end: 8;
+}
+
 .grid .savebtn {
     grid-column-start: 1;
     grid-column-end: 2;
-    grid-row-start: 8;
-    grid-row-end: 8;
+    grid-row-start: 10;
+    grid-row-end: 10;
 }
 .grid .cancelbtn {
     grid-column-start: 3;
     grid-column-end: 4;
-    grid-row-start: 8;
-    grid-row-end: 8;
+    grid-row-start: 10;
+    grid-row-end: 10;
 }

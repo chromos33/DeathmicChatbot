@@ -1,4 +1,4 @@
-﻿class StreamCommandEditColumn extends React.Component {
+﻿class StreamCommandCreate extends React.Component {
     constructor(props) {
         super(props);
         this.handleTypeClick = this.handleTypeClick.bind(this);
@@ -10,12 +10,13 @@
         this.handleSave = this.handleSave.bind(this);
         this.handleLoadEditForm = this.handleLoadEditForm.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
+        this.responsechange = this.responsechange.bind(this);
         this.state = {
             Open: false,
             CanSave: true,
             Name: "",
             Response: "",
-            Mode: "",
+            Mode: "Manual",
             StreamID: 0,
             StreamName: "",
             Streams: [],
@@ -93,7 +94,7 @@
     handleSave(e) {
         if (this.state.CanSave && this.state.Change) {
             var request = new XMLHttpRequest();
-            request.open("POST", "/StreamCommands/SaveCommand", true);
+            request.open("POST", "/StreamCommands/CreateCommand", true);
             var curthis = this;
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             request.onreadystatechange = function () { // Call a function when the state changes.
@@ -107,8 +108,7 @@
                 streamID = this.state.Streams[0].ID
             }
             request.send(
-                "ID=" + this.props.data.CommandID +
-                "&Name=" + this.state.Name +
+                "Name=" + this.state.Name +
                 "&Response=" + this.state.Response +
                 "&Mode=" + this.state.Mode +
                 "&StreamID=" + streamID
@@ -126,19 +126,14 @@
         const xhr = new XMLHttpRequest();
         var thisreference = this;
         console.log(this.props);
-        xhr.open('GET', "/StreamCommands/GetEditData?streamCommandID=" + this.props.data.CommandID, true);
+        xhr.open('GET', "/StreamCommands/GetCreateData", true);
         xhr.onload = function () {
             if (xhr.responseText !== "") {
                 let data = JSON.parse(xhr.responseText);
                 console.log(data);
-                
+
                 thisreference.setState({
                     Open: true,
-                    Name: data.Name,
-                    Response: data.Response,
-                    Mode: data.Mode,
-                    StreamID: data.StreamID,
-                    StreamName: data.StreamName,
                     Streams: data.Streams
                 });
             }
@@ -150,8 +145,9 @@
             const options = this.state.Streams.map((e) => {
                 return <option value={e.ID}>{e.Name}</option>
             })
-            return <td>
-                {this.props.data.Text}
+            return (
+                <div>
+                    <span className="pointer btn btn_primary mb-3"><i className="fa fa-plus"></i> Erstellen</span>
                 <div className="shadowlayer"></div>
                 <div className="statictest grid">
                     <label className="namelabel">Name</label>
@@ -161,24 +157,25 @@
                     <span data-type="Auto" onClick={this.handleTypeClick} className={this.getTypeSwitchCSSClasses("Auto")}>Auto</span>
                     <span data-type="Random" onClick={this.handleTypeClick} className={this.getTypeSwitchCSSClasses("Random")}>Random</span>
                     {this.state.Mode === "Auto" &&
-                    <div className="autointerval">
-                        <label className="intervallabel">Auto Interval</label>
-                        <input value={this.state.AutoInterval} onChange={this.handleUptimeChange} className="intervalfield" type="number" />
-                    </div>
-                        }
+                        <div className="autointerval">
+                            <label className="intervallabel">Auto Interval</label>
+                            <input value={this.state.AutoInterval} onChange={this.handleUptimeChange} className="intervalfield" type="number" />
+                        </div>
+                    }
                     <label className="streamlabel">Stream</label>
                     <select className="streamselect" value={this.state.StreamID} onChange={this.channelswitch}>{options}</select>
-                    <label className="responselabel">Text</label>
-                    <textarea className="responsefield" value={this.state.reponse} onChange={this.responsechange} />
-                    <span onClick={this.handleSave} className="btn btn_primary savebtn">Speichern</span>
+                        <label className="responselabel">Text</label>
+                        <textarea className="responsefield" value={this.state.reponse} onChange={this.responsechange} />
+                    <span onClick={this.handleSave} className="btn btn_primary savebtn">Erstellen</span>
                     <span onClick={this.handleCancel} className="btn btn_primary cancelbtn">Abbrechen</span>
                 </div>
-            </td>;
+                </div>
+           );
         }
         else {
-            return <td className="pointer" onClick={this.handleLoadEditForm}>
-                {this.props.data.Text}
-            </td>;
+            return <span className="pointer btn btn_primary mb-3" onClick={this.handleLoadEditForm}>
+                Erstellen
+            </span>;
         }
 
 

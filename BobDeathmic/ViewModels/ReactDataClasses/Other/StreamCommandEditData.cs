@@ -33,6 +33,20 @@ namespace BobDeathmic.ViewModels.ReactDataClasses.Other
                 Streams.Add(new StreamData(stream.StreamName,stream.ID));
             }
         }
+        public StreamCommandEditData(IEnumerable<Stream> Streamlist)
+        {
+            Name = "";
+            Response = "";
+            Mode = "";
+            AutoInterval = 0;
+            StreamName = "";
+            StreamID = 0;
+            Streams = new List<StreamData>();
+            foreach (Stream stream in Streamlist)
+            {
+                Streams.Add(new StreamData(stream.StreamName, stream.ID));
+            }
+        }
         public string ToJSON()
         {
             return JsonConvert.SerializeObject(this);

@@ -25,3 +25,4 @@ bld/
 
 # IDEA based IDE settings
 .idea/
+/BobDeathmic/bundleconfig.json.bindings
