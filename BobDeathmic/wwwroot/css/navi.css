@@ -12,7 +12,7 @@ header{
 }
 body
 {
-    min-height:2000px;
+    padding-bottom:60px;
 }
 .body {
     padding-left: 125px;
