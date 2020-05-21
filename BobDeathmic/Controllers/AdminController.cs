@@ -51,14 +51,14 @@ namespace BobDeathmic.Controllers
             return true;
         }
 
-        [Authorize(Roles = "Dev")]
+        [Authorize(Roles = "Admin")]
         public IActionResult SecurityTokens()
         {
             ViewData["TokenTypes"] = new List<TokenType> { TokenType.Twitch, TokenType.Discord, TokenType.Mixer };
             return View();
         }
         [HttpPost]
-        [Authorize(Roles = "Dev")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddSecurityToken([Bind("ClientID,secret,service")] SecurityToken token)
         {
             switch (token.service)
