@@ -226,7 +226,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                         {
                             stream.DiscordRelayChannel = getRandomRelayChannel();
                         }
-                        await NotifyUsers(stream, streamdata);
+                        NotifyUsers(stream, streamdata);
                     }
 
                 }
