@@ -1,0 +1,116 @@
+﻿.grid {
+    display: grid;
+    grid-template-columns: calc(100% / 3) calc(100% / 3) calc(100% / 3);
+    grid-template-rows: 40px 40px 40px 40px 40px 40px 40px 80px 40px 40px;
+    padding: 20px;
+    min-width: 500px;
+}
+.typeswitch {
+    background: #272c2e;
+    text-align: center;
+    padding: 3px 0;
+    cursor: pointer;
+    transition: 0.5s ease all;
+    margin-bottom: 10px;
+}
+textarea {
+    color: #BAC6D1;
+    background:black;
+}
+.typeswitch.active {
+    background: green;
+}
+
+.typeswitch.Manual {
+    border-radius: 5px 0 0 5px;
+}
+
+
+.typeswitch.Random {
+    border-radius: 0 5px 5px 0;
+}
+.grid :nth-child(1) {
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 1;
+    grid-row-end: 1;
+}
+.grid :nth-child(2) {
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 2;
+    grid-row-end: 2;
+}
+.grid :nth-child(3) {
+    grid-column-start: 1;
+    grid-column-end: 1;
+    grid-row-start: 3;
+    grid-row-end: 3;
+}
+.grid :nth-child(4) {
+    grid-column-start: 1;
+    grid-column-end: 1;
+    grid-row-start: 4;
+    grid-row-end: 4;
+}
+.grid :nth-child(5) {
+    grid-column-start: 2;
+    grid-column-end: 2;
+    grid-row-start: 4;
+    grid-row-end: 4;
+}
+.grid :nth-child(6) {
+    grid-column-start: 3;
+    grid-column-end: 3;
+    grid-row-start: 4;
+    grid-row-end: 4;
+}
+.grid .autointerval {
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 5;
+    grid-row-end: 6;
+    margin-right:10px;
+}
+.grid .streamlabel {
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 5;
+    grid-row-end: 5;
+    margin-left:10px;
+}
+.grid .streamselect {
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 6;
+    grid-row-end: 6;
+    margin-left: 10px;
+}
+input{
+    max-width:100%;
+}
+.grid .responselabel {
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 7;
+    grid-row-end: 7;
+}
+.grid .responsefield {
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 8;
+    grid-row-end: 8;
+}
+
+.grid .savebtn {
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 10;
+    grid-row-end: 10;
+}
+.grid .cancelbtn {
+    grid-column-start: 3;
+    grid-column-end: 4;
+    grid-row-start: 10;
+    grid-row-end: 10;
+}
