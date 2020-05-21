@@ -7,23 +7,28 @@
 <link rel="stylesheet" href="~/css/Buttons.css" />
 <link rel="stylesheet" href="~/css/React.css" />
 <link rel="stylesheet" href="~/css/TableSearch.css" />
-
-<!--Use the jsx files on dev and comment out the Compiled Version-->
-<!--Dev use https://babeljs.io/repl to precompile scripts in jsx files-->
-<script src="@Url.Content("~/js/react.development.js")"></script>
-<script src="@Url.Content("~/js/react-dom.development.js")"></script>
-<script src="@Url.Content("~/ReactComponents/Table/Table.jsx")"></script>
-<script src="@Url.Content("~/ReactComponents/Table/Row.jsx")"></script>
-<script src="@Url.Content("~/ReactComponents/Table/Columns/TextColumn.jsx")"></script>
-<script src="@Url.Content("~/ReactComponents/Table/Columns/StreamSubColumn.jsx")"></script>
-<script src="@Url.Content("~/ReactComponents/Table/Search.jsx")"></script>
-<script src="@Url.Content("~/ReactComponents/StreamsubAddComponent.jsx")"></script>
-
 @*
-    <script src="@Url.Content("~/js/react.production.min.js")"></script>
-    <script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
-    <script src="@Url.Content("~/ReactComponents/GiveAway/Admin/PreCompiled/Admin.js")"></script>
+    <!--Use the jsx files on dev and comment out the Compiled Version-->
+    <!--Dev use https://babeljs.io/repl to precompile scripts in jsx files-->
+    <script src="@Url.Content("~/js/react.development.js")"></script>
+    <script src="@Url.Content("~/js/react-dom.development.js")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Table.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Row.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Columns/TextColumn.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Columns/StreamSubColumn.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Search.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/StreamsubAddComponent.jsx")"></script>
 *@
+
+<script src="@Url.Content("~/js/react.production.min.js")"></script>
+<script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Table.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Row.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Columns/TextColumn.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Columns/StreamSubColumn.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Search.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/StreamsubAddComponent.js")"></script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function (event) {
         var elem = React.createElement(Table, {
