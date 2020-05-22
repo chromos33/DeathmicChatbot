@@ -10,6 +10,7 @@
         this.handleSave = this.handleSave.bind(this);
         this.handleLoadEditForm = this.handleLoadEditForm.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
+        this.responsechange = this.responsechange.bind(this);
         this.state = {
             Open: false,
             CanSave: true,
