@@ -1,5 +1,6 @@
 ﻿using BobDeathmic.Data;
 using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Data.JSONModels;
 using BobDeathmic.Eventbus;
 using BobDeathmic.Models;
 using BobDeathmic.Services;
@@ -12,12 +13,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using static BobDeathmic.Controllers.UserController;
 
@@ -72,7 +76,19 @@ namespace BobDeathmic.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
-
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<String> LoginMobile()
+        {
+            using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
+            {
+                string json = await reader.ReadToEndAsync();
+                MobileLoginData data = JsonConvert.DeserializeObject<MobileLoginData>(json);
+                var result = await _signInManager.PasswordSignInAsync(data.user, data.pass, true, false);
+                return JsonConvert.SerializeObject(new MobileResponse() { Response = "true"});
+            }
+            return JsonConvert.SerializeObject(new MobileResponse() { Response = "false" });
+        }
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
