@@ -52,8 +52,7 @@ namespace BobDeathmic.Controllers
         [HttpGet]
         public IActionResult DownloadAPK()
         {
-            var filePath = env.WebRootPath;
-            filePath += "\\Downloads\\BobNative_1_0.apk";
+            var filePath = Path.Combine(new string[] { env.WebRootPath, "Downloads", "BobNative_1_0.apk" });
             return PhysicalFile(filePath, MimeTypes.GetMimeType(filePath), Path.GetFileName(filePath));
         }
 
