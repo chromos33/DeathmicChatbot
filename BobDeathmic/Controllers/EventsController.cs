@@ -7,12 +7,15 @@ using BobDeathmic.Models.Events;
 using BobDeathmic.ViewModels.ReactDataClasses.EventDateFinder.OverView;
 using BobDeathmic.ViewModels.ReactDataClasses.EventDateFinder.Vote;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using MimeKit;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,11 +26,13 @@ namespace BobDeathmic.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private UserManager<ChatUserModel> _userManager;
-        public EventsController(ApplicationDbContext context, IConfiguration configuration, UserManager<ChatUserModel> userManager)
+        private IHostingEnvironment env;
+        public EventsController(ApplicationDbContext context, IConfiguration configuration, UserManager<ChatUserModel> userManager, IHostingEnvironment env)
         {
             _context = context;
             _configuration = configuration;
             _userManager = userManager;
+            this.env = env;
         }
         [Authorize(Roles = "User,Dev,Admin")]
         public IActionResult Index()
@@ -43,6 +48,13 @@ namespace BobDeathmic.Controllers
             ChatUserModel user = await _userManager.GetUserAsync(this.User);
             data.Calendars = getRelevantCalendars(user);
             return Json(data);
+        }
+        [HttpGet]
+        public IActionResult DownloadAPK()
+        {
+            var filePath = env.WebRootPath;
+            filePath += "\\Downloads\\BobNative_1_0.apk";
+            return PhysicalFile(filePath, MimeTypes.GetMimeType(filePath), Path.GetFileName(filePath));
         }
 
         private List<Calendar> getRelevantCalendars(ChatUserModel user)
