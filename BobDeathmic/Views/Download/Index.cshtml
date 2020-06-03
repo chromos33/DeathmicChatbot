@@ -1,0 +1,47 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+    <div style="padding-top:150px;">
+        <form action="/Download/UploadAPKFile?handler=Upload"
+              enctype="multipart/form-data" onsubmit="AJAXSubmit(this);return false;"
+              method="post">
+            <dl>
+                <dt>
+                    <label for="FileUpload_FormFile">File</label>
+                </dt>
+                <dd>
+                    <input id="FileUpload_FormFile" type="file"
+                           name="Files" />
+                </dd>
+            </dl>
+
+            <input class="btn" type="submit" value="Upload" />
+
+            <div style="margin-top:15px">
+                <output name="result"></output>
+            </div>
+        </form>
+    </div>
+
+<script>
+    async function AJAXSubmit(oFormElement) {
+        console.log(oFormElement);
+        var resultElement = oFormElement.elements.namedItem("result");
+        const formData = new FormData(oFormElement);
+        console.log(formData);
+        try {
+            const response = await fetch(oFormElement.action, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+            }
+
+            resultElement.value = 'Result: ' + response.status + ' ' +
+                response.statusText;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+</script>

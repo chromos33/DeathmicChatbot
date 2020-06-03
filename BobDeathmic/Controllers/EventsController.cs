@@ -37,7 +37,7 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public IActionResult Index()
         {
-            return View();
+            return View("Index");
         }
         [Authorize(Roles = "User,Dev,Admin")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
@@ -52,8 +52,28 @@ namespace BobDeathmic.Controllers
         [HttpGet]
         public IActionResult DownloadAPK()
         {
-            var filePath = Path.Combine(new string[] { env.WebRootPath, "Downloads", "BobNative_1_0.apk" });
-            return PhysicalFile(filePath, MimeTypes.GetMimeType(filePath), Path.GetFileName(filePath));
+            DirectoryInfo info = new DirectoryInfo(Path.Combine(new string[] { env.WebRootPath, "Downloads", "APK" }));
+            FileInfo[] files = info.GetFiles().OrderByDescending(p => p.CreationTime).ToArray();
+            int i = 0;
+            FileInfo DownloadFile = null;
+            foreach (FileInfo file in files)
+            {
+                if(i == 0)
+                {
+                    DownloadFile = file;
+                }
+                i++;
+                if(i > 3)
+                {
+                    //keep last 3 versions
+                    file.Delete();
+                }
+            }
+            if(DownloadFile == null)
+            {
+                return Index();
+            }
+            return PhysicalFile(DownloadFile.FullName, MimeTypes.GetMimeType(DownloadFile.FullName), Path.GetFileName(DownloadFile.FullName));
         }
 
         private List<Calendar> getRelevantCalendars(ChatUserModel user)

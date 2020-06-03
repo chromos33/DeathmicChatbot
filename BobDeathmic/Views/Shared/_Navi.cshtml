@@ -101,6 +101,17 @@
                         </span>
                     </div>
                 </span>
+                <span class="navi_item">
+                    <i class="fas fa-upload"></i>
+                    <div class="navi_item_label">
+                        <span class="navi_subitem">
+                            <a class="navi_link" asp-area="" asp-controller="Download" asp-action="Index">APK Upload</a>
+                        </span>
+                    </div>
+                    <script>
+                        document.querySelector(".fas.fa-cogs").addEventListener("click", (e) => { window.location.href = "/Services/ServiceControls" });
+                    </script>
+                </span>
             }
         </nav>
     </header>
