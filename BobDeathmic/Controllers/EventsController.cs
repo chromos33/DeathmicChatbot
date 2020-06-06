@@ -50,6 +50,7 @@ namespace BobDeathmic.Controllers
             return Json(data);
         }
         [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
         public IActionResult DownloadAPK()
         {
             DirectoryInfo info = new DirectoryInfo(Path.Combine(new string[] { env.WebRootPath, "Downloads", "APK" }));
@@ -74,6 +75,51 @@ namespace BobDeathmic.Controllers
                 return Index();
             }
             return PhysicalFile(DownloadFile.FullName, MimeTypes.GetMimeType(DownloadFile.FullName), Path.GetFileName(DownloadFile.FullName));
+        }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public bool ISUpdateAvailable(int majorRevision, int minorRevision)
+        {
+            DirectoryInfo info = new DirectoryInfo(Path.Combine(new string[] { env.WebRootPath, "Downloads", "APK" }));
+            FileInfo[] files = info.GetFiles().OrderByDescending(p => p.CreationTime).ToArray();
+            FileInfo DownloadFile = files.FirstOrDefault();
+            int Major_Revision = 0;
+            int Minor_Revision = 0;
+            if(DownloadFile != null)
+            {
+                Tuple<int,int> VersionsFromFile = getVersionFromString(DownloadFile.FullName);
+                if(VersionsFromFile.Item1 > majorRevision)
+                {
+                    return true;
+                }
+                if(VersionsFromFile.Item1 == majorRevision && VersionsFromFile.Item2 > minorRevision)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        private Tuple<int,int> getVersionFromString(string version)
+        {
+            try
+            {
+                string[] versions = version.Split("__")[1].Split(".")[0].Split("_");
+
+                return new Tuple<int, int>(int.Parse(versions[0]), int.Parse(versions[1]));
+            }
+            catch( ArgumentNullException ex)
+            {
+                return new Tuple<int, int>(0,0);
+            }
+            catch (FormatException ex)
+            {
+                return new Tuple<int, int>(0, 0);
+            }
+            catch (OverflowException ex)
+            {
+                return new Tuple<int, int>(0, 0);
+            }
+
         }
 
         private List<Calendar> getRelevantCalendars(ChatUserModel user)
