@@ -38,7 +38,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var token = _context.SecurityTokens.Where(x => x.service == TokenType.Twitch).FirstOrDefault();
+                var token = _context.SecurityTokens.AsQueryable().Where(x => x.service == TokenType.Twitch).FirstOrDefault();
                 if(token != null)
                 {
                     api.Settings.AccessToken = token.token;
@@ -60,7 +60,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                 SecurityToken data = null;
                 while (data == null)
                 {
-                    data = _context.SecurityTokens.Where(securitykey => securitykey.service == TokenType.Twitch).FirstOrDefault();
+                    data = _context.SecurityTokens.AsQueryable().Where(securitykey => securitykey.service == TokenType.Twitch).FirstOrDefault();
                     if (data == null)
                     {
                         //Just to prevent if from sleeping when it has data
@@ -132,14 +132,14 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var Streams = _context.StreamModels;
-                var StreamNameList = Streams.Where(x => string.IsNullOrEmpty(x.UserID)).Select(x => x.StreamName).ToList();
+                var StreamNameList = Streams.AsQueryable().Where(x => string.IsNullOrEmpty(x.UserID)).Select(x => x.StreamName).ToList();
                 if (StreamNameList.Any())
                 {
                     var userdata = await api.Helix.Users.GetUsersAsync(logins: StreamNameList);
 
                     foreach (var user in userdata.Users)
                     {
-                        Data.DBModels.StreamModels.Stream stream = Streams.Where(x => x.StreamName.ToLower() == user.Login.ToLower()).FirstOrDefault();
+                        Data.DBModels.StreamModels.Stream stream = Streams.AsQueryable().Where(x => x.StreamName.ToLower() == user.Login.ToLower()).FirstOrDefault();
                         stream.UserID = user.Id;
                     }
                     _context.SaveChanges();
@@ -155,7 +155,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     var Streams = _context.StreamModels;
-                    List<string> StreamIdList = Streams.Where(x => !string.IsNullOrEmpty(x.UserID) && x.Type == StreamProviderTypes.Twitch).Select(x => x.UserID).ToList();
+                    List<string> StreamIdList = Streams.AsQueryable().Where(x => !string.IsNullOrEmpty(x.UserID) && x.Type == StreamProviderTypes.Twitch).Select(x => x.UserID).ToList();
                     if (StreamIdList.Any())
                     {
                         return await api.Helix.Streams.GetStreamsAsync(userIds: StreamIdList);
@@ -167,7 +167,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var token = _context.SecurityTokens.Where(x => x.service == TokenType.Twitch).FirstOrDefault();
+                    var token = _context.SecurityTokens.AsQueryable().Where(x => x.service == TokenType.Twitch).FirstOrDefault();
                     if (token != null)
                     {
                         api.Settings.AccessToken = token.token;
@@ -188,7 +188,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var Streams = _context.StreamModels.Where(s => !OnlineStreamIDs.Contains(s.UserID));
+                var Streams = _context.StreamModels.AsQueryable().Where(s => !OnlineStreamIDs.Contains(s.UserID));
                 
                 foreach (Data.DBModels.StreamModels.Stream stream in Streams.Where(x => x.StreamState != StreamState.NotRunning && x.Type == StreamProviderTypes.Twitch))
                 {
@@ -212,7 +212,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var Streams = _context.StreamModels.Where(s => OnlineStreamIDs.Contains(s.UserID) && s.Type == StreamProviderTypes.Twitch).Include(x => x.StreamSubscriptions).ThenInclude(y => y.User);
+                var Streams = _context.StreamModels.AsQueryable().Where(s => OnlineStreamIDs.Contains(s.UserID) && s.Type == StreamProviderTypes.Twitch).Include(x => x.StreamSubscriptions).ThenInclude(y => y.User);
                 Boolean write = false;
                 foreach (Data.DBModels.StreamModels.Stream stream in Streams)
                 {
@@ -258,7 +258,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                string[] occupiedchannels = _context.StreamModels.Where(x => RandomDiscordRelayChannels.Contains(x.DiscordRelayChannel)).Select(x => x.DiscordRelayChannel).ToArray();
+                string[] occupiedchannels = _context.StreamModels.AsQueryable().Where(x => RandomDiscordRelayChannels.Contains(x.DiscordRelayChannel)).Select(x => x.DiscordRelayChannel).ToArray();
                 return RandomDiscordRelayChannels.Except(occupiedchannels).FirstOrDefault();
             }
         }

@@ -132,7 +132,7 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<bool> AddSubscription(int streamid)
         {
-            var stream = _context.StreamModels.Where(s => s.ID == streamid).FirstOrDefault();
+            var stream = _context.StreamModels.AsQueryable().Where(s => s.ID == streamid).FirstOrDefault();
             ChatUserModel user = await _userManager.GetUserAsync(this.User);
             if (stream != null)
             {
@@ -163,7 +163,7 @@ namespace BobDeathmic.Controllers
                 //return NotFound();
             }
 
-            StreamSubscription sub = _context.StreamSubscriptions.Where(ss => ss.ID == id).FirstOrDefault();
+            StreamSubscription sub = _context.StreamSubscriptions.AsQueryable().Where(ss => ss.ID == id).FirstOrDefault();
 
             DateTime start = DateTime.Now;
             string @return = "error";

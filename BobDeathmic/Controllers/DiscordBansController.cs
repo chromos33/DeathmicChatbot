@@ -24,7 +24,7 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "Dev,Admin")]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.DiscordBans.ToListAsync());
+            return View(await _context.DiscordBans.AsQueryable().ToListAsync());
         }
         // GET: DiscordBans/Delete/5
         [Authorize(Roles = "Dev,Admin")]
@@ -35,7 +35,7 @@ namespace BobDeathmic.Controllers
                 return NotFound();
             }
 
-            var discordBan = await _context.DiscordBans
+            var discordBan = await _context.DiscordBans.AsQueryable()
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (discordBan == null)
             {

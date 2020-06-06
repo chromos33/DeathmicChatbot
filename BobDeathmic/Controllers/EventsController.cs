@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace BobDeathmic.Controllers
 {
@@ -146,7 +147,7 @@ namespace BobDeathmic.Controllers
         {
             if (Int32.TryParse(ID, out int _ID))
             {
-                var Calendar = _context.Events.Where(x => x.Id == _ID).FirstOrDefault();
+                var Calendar = _context.Events.AsQueryable().Where(x => x.Id == _ID).FirstOrDefault();
                 if (Calendar != null)
                 {
                     Calendar.Name = Title;
@@ -164,7 +165,7 @@ namespace BobDeathmic.Controllers
                 return NotFound();
             }
 
-            var calendar = await _context.Events
+            var calendar = await _context.Events.AsQueryable()
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (calendar == null)
             {
@@ -191,12 +192,12 @@ namespace BobDeathmic.Controllers
         {
             if (Int32.TryParse(ID, out int _ID))
             {
-                var Calendar = _context.Events.Where(x => x.Id == _ID).FirstOrDefault();
+                var Calendar = _context.Events.AsQueryable().Where(x => x.Id == _ID).FirstOrDefault();
                 if (Calendar != null)
                 {
                     if (Calendar.Members.Where(x => x.ChatUserModel.ChatUserName == ChatUser).Count() == 0)
                     {
-                        ChatUserModel user = _context.ChatUserModels.Where(x => x.ChatUserName.ToLower() == ChatUser.ToLower()).FirstOrDefault();
+                        ChatUserModel user = _context.ChatUserModels.AsQueryable().Where(x => x.ChatUserName.ToLower() == ChatUser.ToLower()).FirstOrDefault();
                         if (user != null)
                         {
                             ChatUserModel_Event newrelation = new ChatUserModel_Event();
@@ -224,7 +225,7 @@ namespace BobDeathmic.Controllers
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<int> UpdateRequestState(string requestID, string state,string comment)
         {
-            var Request = _context.AppointmentRequests.Where(x => x.ID == requestID).FirstOrDefault();
+            var Request = _context.AppointmentRequests.AsQueryable().Where(x => x.ID == requestID).FirstOrDefault();
             if (Request != null)
             {
                 Request.State = (AppointmentRequestState)Enum.Parse(typeof(AppointmentRequestState), state);
@@ -249,7 +250,7 @@ namespace BobDeathmic.Controllers
         }
         [Authorize(Roles = "User,Dev,Admin")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<JsonResult> InvitableUsers(int ID)
+        public async Task<string> InvitableUsers(int ID)
         {
             Models.Events.Event _calendar = _context.Events.Include(x => x.Members).Where(x => x.Id == ID).FirstOrDefault();
             if (_calendar != null)
@@ -261,13 +262,14 @@ namespace BobDeathmic.Controllers
                 {
                     ToFilterMembers.Add(temp.ChatUserModel);
                 }
-                List<ChatUserModel> FilteredMembers = _context.ChatUserModels.Where(x => !ToFilterMembers.Contains(x)).ToList();
+                List<ChatUserModel> FilteredMembers = _context.ChatUserModels.AsQueryable().Where(x => !ToFilterMembers.Contains(x)).ToList();
                 List<ChatUser> Members = new List<ChatUser>();
                 foreach (ChatUserModel Member in FilteredMembers)
                 {
                     Members.Add(new ChatUser { Name = Member.ChatUserName });
                 }
-                return Json(Members.ToArray());
+                var test = JsonConvert.SerializeObject(Members);
+                return test;
             }
             return null;
 
@@ -303,7 +305,7 @@ namespace BobDeathmic.Controllers
                         ReactData.Header.Add(newData);
                     }
                 }
-                var json = Json(ReactData, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore });
+                var json = Json(ReactData, new System.Text.Json.JsonSerializerOptions { });
                 return json;
             }
             return new JsonResult("");
@@ -334,7 +336,7 @@ namespace BobDeathmic.Controllers
             Models.Events.Event _calendar = _context.Events.Include(x => x.EventDateTemplates).Include(x => x.Members).ThenInclude(x => x.ChatUserModel).Where(x => x.Id == ID).FirstOrDefault();
             if (_calendar != null)
             {
-                return Json(_calendar.EventDateTemplates.Select(x => new { key = x.ID, Day = x.Day, Start = x.StartTime.ToString("HH:mm"), Stop = x.StopTime.ToString("HH:mm") }), new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore });
+                return Json(_calendar.EventDateTemplates.Select(x => new { key = x.ID, Day = x.Day, Start = x.StartTime.ToString("HH:mm"), Stop = x.StopTime.ToString("HH:mm") }), new System.Text.Json.JsonSerializerOptions {});
             }
             return null;
 
@@ -344,7 +346,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<bool> SetDayOfTemplate(string ID, int Day)
         {
-            EventDateTemplate template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            EventDateTemplate template = _context.EventDateTemplates.AsQueryable().Where(x => x.ID == ID).FirstOrDefault();
             if (template != null)
             {
                 template.Day = (Day)Enum.ToObject(typeof(Day), Day);
@@ -358,7 +360,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<bool> SetStartOfTemplate(string ID, string Start)
         {
-            EventDateTemplate template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            EventDateTemplate template = _context.EventDateTemplates.AsQueryable().Where(x => x.ID == ID).FirstOrDefault();
             if (template != null)
             {
                 template.StartTime = DateTime.ParseExact(Start, "HH:mm", System.Globalization.CultureInfo.InvariantCulture);
@@ -372,7 +374,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<bool> SetStopOfTemplate(string ID, string Stop)
         {
-            EventDateTemplate template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            EventDateTemplate template = _context.EventDateTemplates.AsQueryable().Where(x => x.ID == ID).FirstOrDefault();
             if (template != null)
             {
                 template.StopTime = DateTime.ParseExact(Stop, "HH:mm", System.Globalization.CultureInfo.InvariantCulture);
@@ -394,7 +396,7 @@ namespace BobDeathmic.Controllers
                 _calendar.EventDateTemplates.Add(item);
                 _context.EventDateTemplates.Add(item);
                 _context.SaveChanges();
-                return Json(new { key = item.ID, Day = item.Day, Start = item.StartTime, Stop = item.StopTime }, new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore });
+                return Json(new { key = item.ID, Day = item.Day, Start = item.StartTime, Stop = item.StopTime }, new System.Text.Json.JsonSerializerOptions {  });
             }
             return null;
 
@@ -403,8 +405,8 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public void RemoveTemplate(string ID, int CalendarID)
         {
-            var calendar = _context.Events.Where(x => x.Id == CalendarID).FirstOrDefault();
-            var template = _context.EventDateTemplates.Where(x => x.ID == ID).FirstOrDefault();
+            var calendar = _context.Events.AsQueryable().Where(x => x.Id == CalendarID).FirstOrDefault();
+            var template = _context.EventDateTemplates.AsQueryable().Where(x => x.ID == ID).FirstOrDefault();
             if (calendar != null && template != null)
             {
                 calendar.EventDateTemplates.Remove(template);
@@ -416,7 +418,7 @@ namespace BobDeathmic.Controllers
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> GetEvent(int ID)
         {
-            Models.Events.Event _calendar = _context.Events.Where(x => x.Id == ID).FirstOrDefault();
+            Models.Events.Event _calendar = _context.Events.AsQueryable().Where(x => x.Id == ID).FirstOrDefault();
             if (_calendar != null)
             {
                 if (_calendar.Name == null)
@@ -449,6 +451,7 @@ namespace BobDeathmic.Controllers
                 ChatUserModel_Event JoinTable = new ChatUserModel_Event();
                 JoinTable.Calendar = newCalendar;
                 JoinTable.ChatUserModel = admin;
+
                 admin.Calendars.Add(JoinTable);
                 newCalendar.Members.Add(JoinTable);
                 _context.Events.Add(newCalendar);

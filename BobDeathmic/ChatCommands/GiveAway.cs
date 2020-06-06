@@ -42,11 +42,11 @@ namespace BobDeathmic.ChatCommands
                 {
                     GiveAwayItem.Applicants = new List<User_GiveAwayItem>();
                 }
-                var user = _context.ChatUserModels.Where(x => x.ChatUserName.ToLower() == args.Sender.ToLower()).FirstOrDefault();
+                var user = _context.ChatUserModels.AsQueryable().Where(x => x.ChatUserName.ToLower() == args.Sender.ToLower()).FirstOrDefault();
                 if (GiveAwayItem.Applicants.Where(x => x.UserID == user.Id).Count() == 0)
                 {
 
-                    var item = _context.GiveAwayItems.Where(x => x.current).FirstOrDefault();
+                    var item = _context.GiveAwayItems.AsQueryable().Where(x => x.current).FirstOrDefault();
                     if (user != null && item != null)
                     {
                         User_GiveAwayItem relation = new User_GiveAwayItem(user, item);
@@ -113,8 +113,8 @@ namespace BobDeathmic.ChatCommands
             using (var scope = scopefactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var user = _context.ChatUserModels.Where(x => x.ChatUserName.ToLower() == args.Sender.ToLower()).FirstOrDefault();
-                var remove = _context.User_GiveAway.Where(x => x.UserID == user.Id).FirstOrDefault();
+                var user = _context.ChatUserModels.AsQueryable().Where(x => x.ChatUserName.ToLower() == args.Sender.ToLower()).FirstOrDefault();
+                var remove = _context.User_GiveAway.AsQueryable().Where(x => x.UserID == user.Id).FirstOrDefault();
                 if (remove != null)
                 {
                     _context.User_GiveAway.Remove(remove);

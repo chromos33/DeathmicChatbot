@@ -161,7 +161,7 @@ namespace BobDeathmic.Controllers
             {
                 return View(model);
             }
-            var user = _dbcontext.ChatUserModels.Where(cu => cu.ChatUserName.ToLower() == model.UserName.ToLower() || cu.UserName.ToLower() == model.UserName.ToLower()).FirstOrDefault();
+            var user = _dbcontext.ChatUserModels.AsQueryable().Where(cu => cu.ChatUserName.ToLower() == model.UserName.ToLower() || cu.UserName.ToLower() == model.UserName.ToLower()).FirstOrDefault();
 
             if (user != null)
             {

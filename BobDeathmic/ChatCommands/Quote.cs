@@ -26,7 +26,7 @@ namespace BobDeathmic.ChatCommands
 
         private async Task<bool> DeleteQuoteFromStreamer(string sStreamer, int iQuoteId, ApplicationDbContext context)
         {
-            var quote = await context.Quotes.FirstOrDefaultAsync(q => q.Streamer == sStreamer && q.Id == iQuoteId);
+            var quote = await context.Quotes.AsQueryable().FirstOrDefaultAsync(q => q.Streamer == sStreamer && q.Id == iQuoteId);
 
             if (quote == null)
             {
@@ -40,13 +40,13 @@ namespace BobDeathmic.ChatCommands
 
         private async Task<string> GetRandomQuoteFromStreamer(string sStreamer, ApplicationDbContext context)
         {
-            var quotes = context.Quotes.Where(q => q.Streamer == sStreamer).ToArray();
+            var quotes = context.Quotes.AsQueryable().Where(q => q.Streamer == sStreamer).ToArray();
             return quotes.Length == 0 ? $"Found no quotes from {sStreamer}." : quotes.RandomSubset(1).First().ToString();
         }
 
         private async Task<string> GetQuoteFromStreamer(string sStreamer, int iQuoteId, ApplicationDbContext context)
         {
-            var quote = await context.Quotes.FirstOrDefaultAsync(q => q.Streamer == sStreamer && q.Id == iQuoteId);
+            var quote = await context.Quotes.AsQueryable().FirstOrDefaultAsync(q => q.Streamer == sStreamer && q.Id == iQuoteId);
             return quote?.ToString() ?? $"Found no quote with ID {iQuoteId} from {sStreamer}.";
         }
 

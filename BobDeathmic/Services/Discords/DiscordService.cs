@@ -124,7 +124,7 @@ namespace BobDeathmic.Services.Discords
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var channel = _context.RelayChannels.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
+                var channel = _context.RelayChannels.AsQueryable().Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault();
                 if (channel != null)
                 {
                     _context.RelayChannels.Remove(channel);
@@ -149,7 +149,7 @@ namespace BobDeathmic.Services.Discords
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                if (_context.RelayChannels.Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault() == null)
+                if (_context.RelayChannels.AsQueryable().Where(x => x.Name.ToLower() == name.ToLower()).FirstOrDefault() == null)
                 {
                     _context.RelayChannels.Add(new RelayChannels(name.ToLower()));
                     _context.SaveChanges();
@@ -163,7 +163,7 @@ namespace BobDeathmic.Services.Discords
             {
                 var token = string.Empty;
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var tokens = _context.SecurityTokens.Where(st => st.service == Data.Enums.Stream.TokenType.Discord).FirstOrDefault();
+                var tokens = _context.SecurityTokens.AsQueryable().Where(st => st.service == Data.Enums.Stream.TokenType.Discord).FirstOrDefault();
                 if (tokens != null)
                 {
                     if (tokens.token == null)
@@ -209,7 +209,7 @@ namespace BobDeathmic.Services.Discords
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                List<ulong> blocked = _context.DiscordBans.Select(x => x.DiscordID).ToList();
+                List<ulong> blocked = _context.DiscordBans.AsQueryable().Select(x => x.DiscordID).ToList();
                 if (!blocked.Contains(arg.Author.Id))
                 {
                     string message = await GetUserLogin(arg);
@@ -228,7 +228,7 @@ namespace BobDeathmic.Services.Discords
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var stream = _context.StreamModels.Where(sm => sm.DiscordRelayChannel.ToLower() == arg.Channel.Name.ToLower()).FirstOrDefault();
+                    var stream = _context.StreamModels.AsQueryable().Where(sm => sm.DiscordRelayChannel.ToLower() == arg.Channel.Name.ToLower()).FirstOrDefault();
                     if (stream != null)
                     {
                         _eventBus.TriggerEvent(EventType.RelayMessageReceived, new RelayMessageArgs(arg.Channel.Name, stream.StreamName, stream.Type, arg.Author.Username + ": " + arg.Content));
@@ -244,7 +244,7 @@ namespace BobDeathmic.Services.Discords
             {
                 var usermanager = scope.ServiceProvider.GetRequiredService<UserManager<ChatUserModel>>();
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var user = _context.ChatUserModels.Where(cm => cm.ChatUserName.ToLower() == arg.Author.Username.ToLower()).FirstOrDefault();
+                var user = _context.ChatUserModels.AsQueryable().Where(cm => cm.ChatUserName.ToLower() == arg.Author.Username.ToLower()).FirstOrDefault();
                 var Configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                 if (user == null)
                 {
@@ -265,7 +265,7 @@ namespace BobDeathmic.Services.Discords
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                ChatUserModel newUser = new ChatUserModel(arg.Author.Username, _context.StreamModels.Where(x => x.StreamName != null));
+                ChatUserModel newUser = new ChatUserModel(arg.Author.Username, _context.StreamModels.AsQueryable().Where(x => x.StreamName != null));
                 newUser.SetInitialPassword();
                 var usermanager = scope.ServiceProvider.GetRequiredService<UserManager<ChatUserModel>>();
                 await usermanager.CreateAsync(newUser, newUser.InitialPassword);

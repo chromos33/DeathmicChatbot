@@ -42,7 +42,7 @@ namespace BobDeathmic.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(streamname) && sm.Type == StreamProviderTypes.Twitch).FirstOrDefault();
+                Stream stream = _context.StreamModels.AsQueryable().Where(sm => sm.StreamName.ToLower().Equals(streamname) && sm.Type == StreamProviderTypes.Twitch).FirstOrDefault();
                 if (stream != null && stream.RefreshToken != null && stream.RefreshToken != "")
                 {
                     var httpclient = new HttpClient();
@@ -67,7 +67,7 @@ namespace BobDeathmic.Services
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
+                Stream stream = _context.StreamModels.AsQueryable().Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
                 if (stream != null && stream.ClientID != null && stream.ClientID != "" && stream.AccessToken != null && stream.AccessToken != "")
                 {
                     TwitchAPI api = new TwitchAPI();

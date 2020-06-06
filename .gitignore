@@ -26,3 +26,5 @@ bld/
 # IDEA based IDE settings
 .idea/
 /BobDeathmic/bundleconfig.json.bindings
+/BobDeathmic/wwwroot/Downloads/APK/BobNative__1_0.apk
+/BobDeathmic/wwwroot/Downloads/APK/BobNative__1_12.apk

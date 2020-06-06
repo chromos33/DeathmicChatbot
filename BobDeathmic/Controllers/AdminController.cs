@@ -73,13 +73,13 @@ namespace BobDeathmic.Controllers
         }
         public async Task SaveDiscordToken(SecurityToken token)
         {
-            if (_context.SecurityTokens.Where(st => st.service == token.service).Count() == 0)
+            if (_context.SecurityTokens.AsQueryable().Where(st => st.service == token.service).Count() == 0)
             {
                 _context.SecurityTokens.Add(token);
             }
             else
             {
-                var oldtoken = _context.SecurityTokens.Where(st => st.service == token.service).FirstOrDefault();
+                var oldtoken = _context.SecurityTokens.AsQueryable().Where(st => st.service == token.service).FirstOrDefault();
                 oldtoken.token = token.ClientID;
             }
             await _context.SaveChangesAsync();
@@ -88,14 +88,14 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> AquireTwitchToken(SecurityToken token)
         {
             string baseUrl = _configuration.GetValue<string>("WebServerWebAddress");
-            if (_context.SecurityTokens.Where(st => st.service == token.service).Count() == 0)
+            if (_context.SecurityTokens.AsQueryable().Where(st => st.service == token.service).Count() == 0)
             {
                 _context.SecurityTokens.Add(token);
                 await _context.SaveChangesAsync();
             }
             else
             {
-                var oldtoken = _context.SecurityTokens.Where(st => st.service == token.service).FirstOrDefault();
+                var oldtoken = _context.SecurityTokens.AsQueryable().Where(st => st.service == token.service).FirstOrDefault();
                 oldtoken = token;
                 await _context.SaveChangesAsync();
             }
@@ -107,7 +107,7 @@ namespace BobDeathmic.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> TwitchReturnUrlAction(string code, string scope, string state)
         {
-            var savedtoken = _context.SecurityTokens.Where(st => st.service == TokenType.Twitch).FirstOrDefault();
+            var savedtoken = _context.SecurityTokens.AsQueryable().Where(st => st.service == TokenType.Twitch).FirstOrDefault();
             savedtoken.code = code;
             var client = new HttpClient();
             string baseUrl = _configuration.GetValue<string>("WebServerWebAddress");

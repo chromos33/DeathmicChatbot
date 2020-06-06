@@ -42,7 +42,7 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> Status()
         {
             StreamListDataModel model = new StreamListDataModel();
-            model.StreamList = await _context.StreamModels.ToListAsync();
+            model.StreamList = await _context.StreamModels.AsQueryable().ToListAsync();
             model.StatusMessage = StatusMessage;
             return View(model);
         }
@@ -51,7 +51,7 @@ namespace BobDeathmic.Controllers
         {
             return View();
             StreamListDataModel model = new StreamListDataModel();
-            model.StreamList = await _context.StreamModels.ToListAsync();
+            model.StreamList = await _context.StreamModels.AsQueryable().ToListAsync();
             model.StatusMessage = StatusMessage;
             return View(model);
         }
@@ -61,7 +61,7 @@ namespace BobDeathmic.Controllers
         {
             try
             {
-                var stream = _context.StreamModels.Where(x => x.ID == StreamID).FirstOrDefault();
+                var stream = _context.StreamModels.AsQueryable().Where(x => x.ID == StreamID).FirstOrDefault();
                 if (stream != null)
                 {
                     stream.StreamName = StreamName;
@@ -85,10 +85,10 @@ namespace BobDeathmic.Controllers
         {
             try
             {
-                var stream = _context.StreamModels.Where(x => x.ID == streamID).FirstOrDefault();
+                var stream = _context.StreamModels.AsQueryable().Where(x => x.ID == streamID).FirstOrDefault();
                 if (stream != null)
                 {
-                    var data = new BobDeathmic.ViewModels.ReactDataClasses.Other.StreamEditData(stream, _context.RelayChannels.Select(x => x.Name).ToList());
+                    var data = new BobDeathmic.ViewModels.ReactDataClasses.Other.StreamEditData(stream, _context.RelayChannels.AsQueryable().Select(x => x.Name).ToList());
                     return data.ToJSON();
                 }
                 return "";
@@ -107,7 +107,7 @@ namespace BobDeathmic.Controllers
             List<string> channels = new List<string>();
             channels.Add("Aus");
             channels.Add("An");
-            channels.AddRange(_context.RelayChannels.Select(x => x.Name).ToList());
+            channels.AddRange(_context.RelayChannels.AsQueryable().Select(x => x.Name).ToList());
             return JsonConvert.SerializeObject(channels);
         }
         [HttpGet]
@@ -217,7 +217,7 @@ namespace BobDeathmic.Controllers
                 return false;
             }
 
-            var stream = await _context.StreamModels
+            var stream = await _context.StreamModels.AsQueryable()
                 .FirstOrDefaultAsync(m => m.ID == streamID);
             if (stream == null)
             {
@@ -263,7 +263,7 @@ namespace BobDeathmic.Controllers
             {
                 var baseUrl = _configuration.GetSection("WebServerWebAddress").Value;
                 string state = StreamOAuthData.Id + StreamOAuthData.Secret;
-                Stream stream = _context.StreamModels.Where(sm => sm.ID == Int32.Parse(StreamOAuthData.Id)).FirstOrDefault();
+                Stream stream = _context.StreamModels.AsQueryable().Where(sm => sm.ID == Int32.Parse(StreamOAuthData.Id)).FirstOrDefault();
                 if (stream != null)
                 {
                     stream.Secret = StreamOAuthData.Secret;
@@ -280,7 +280,7 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> TwitchReturnUrlAction(string code, string scope, string state)
         {
             var client = new HttpClient();
-            Stream stream = _context.StreamModels.Where(sm => state.Contains(sm.Secret)).FirstOrDefault();
+            Stream stream = _context.StreamModels.AsQueryable().Where(sm => state.Contains(sm.Secret)).FirstOrDefault();
             if (stream != null)
             {
                 var baseUrl = _configuration.GetSection("WebServerWebAddress").Value;

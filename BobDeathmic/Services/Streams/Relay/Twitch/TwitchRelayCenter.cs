@@ -105,7 +105,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
         }
         private void handleUpTime(ApplicationDbContext _context)
         {
-            foreach(var stream in _context.StreamModels.Where(x => x.UpTimeQueued() && MessageQueues.Keys.Contains(x.StreamName)))
+            foreach(var stream in _context.StreamModels.AsQueryable().Where(x => x.UpTimeQueued() && MessageQueues.Keys.Contains(x.StreamName)))
             {
                 MessageQueues[stream.StreamName].Add(stream.UptimeMessage());
             }
@@ -113,7 +113,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
         }
         private void handleConnectionUpkeep(ApplicationDbContext _context)
         {
-            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == StreamState.Running && MessageQueues.Keys.Contains(x.StreamName.ToLower()) && x.DiscordRelayChannel != "Aus"))
+            foreach (var stream in _context.StreamModels.AsQueryable().Where(x => x.StreamState == StreamState.Running && MessageQueues.Keys.Contains(x.StreamName.ToLower()) && x.DiscordRelayChannel != "Aus"))
             {
                 if (client.JoinedChannels.Where(x => x.Channel.ToLower() == stream.StreamName.ToLower()).Count() == 0)
                 {
@@ -123,7 +123,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
         }
         private void handleRelayStart(ApplicationDbContext _context)
         {
-            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == StreamState.Running && !MessageQueues.Keys.Contains(x.StreamName.ToLower()) && (x.DiscordRelayChannel != "Aus" && x.DiscordRelayChannel != "" && x.DiscordRelayChannel != null )))
+            foreach (var stream in _context.StreamModels.AsQueryable().Where(x => x.StreamState == StreamState.Running && !MessageQueues.Keys.Contains(x.StreamName.ToLower()) && (x.DiscordRelayChannel != "Aus" && x.DiscordRelayChannel != "" && x.DiscordRelayChannel != null )))
             {
                 AddMessageQueue(stream.StreamName);
                 JoinChannel(stream.StreamName);
@@ -131,7 +131,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
         }
         private void handleRelayEnd(ApplicationDbContext _context)
         {
-            foreach (var stream in _context.StreamModels.Where(x => x.StreamState == StreamState.NotRunning && MessageQueues.Keys.Contains(x.StreamName.ToLower()) && x.DiscordRelayChannel != "Aus"))
+            foreach (var stream in _context.StreamModels.AsQueryable().Where(x => x.StreamState == StreamState.NotRunning && MessageQueues.Keys.Contains(x.StreamName.ToLower()) && x.DiscordRelayChannel != "Aus"))
             {
                 RemoveMessageQueue(stream.StreamName);
                 LeaveChannel(stream.StreamName);
@@ -254,12 +254,12 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var streamsWithQuoteInterval = _context.StreamModels.Where(x => x.QuoteInterval > 0);
+                var streamsWithQuoteInterval = _context.StreamModels.AsQueryable().Where(x => x.QuoteInterval > 0);
                 foreach(var stream in streamsWithQuoteInterval)
                 {
                     if(DateTime.Now.Subtract(stream.LastRandomQuote) > TimeSpan.FromMinutes(stream.QuoteInterval))
                     {
-                        var QuoteList = _context.Quotes.Where(x => x.Streamer.ToLower() == stream.StreamName.ToLower());
+                        var QuoteList = _context.Quotes.AsQueryable().Where(x => x.Streamer.ToLower() == stream.StreamName.ToLower());
                         var MessageQueue = MessageQueues.Where(x => x.Key == stream.StreamName).FirstOrDefault();
                         if (!MessageQueue.Equals(default(KeyValuePair<string, List<string>>)))
                         {
@@ -303,7 +303,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.Channel.ToLower()).FirstOrDefault();
+                var stream = _context.StreamModels.AsQueryable().Where(sm => sm.StreamName.ToLower() == e.Channel.ToLower()).FirstOrDefault();
                 if (stream != null)
                 {
                     target = stream.DiscordRelayChannel;
@@ -339,7 +339,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                     using (var scope = _scopeFactory.CreateScope())
                     {
                         var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                        var stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower() == e.ChatMessage.Channel.ToLower()).FirstOrDefault();
+                        var stream = _context.StreamModels.AsQueryable().Where(sm => sm.StreamName.ToLower() == e.ChatMessage.Channel.ToLower()).FirstOrDefault();
                         if (stream != null)
                         {
                             target = stream.DiscordRelayChannel;
@@ -398,7 +398,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var stream = _context.StreamModels.Where(x => x.StreamName.ToLower() == name.ToLower()).FirstOrDefault();
+                    var stream = _context.StreamModels.AsQueryable().Where(x => x.StreamName.ToLower() == name.ToLower()).FirstOrDefault();
                     if(stream != null)
                     {
                         _eventBus.TriggerEvent(EventType.TwitchMessageReceived, new TwitchMessageArgs { Message = $"Relay left ({stream.StreamName})", Target = stream.DiscordRelayChannel });
@@ -470,7 +470,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
                 SecurityToken token = null;
                 while (token == null || token != null && token.token == "")
                 {
-                    token = _context.SecurityTokens.Where(st => st.service == TokenType.Twitch).FirstOrDefault();
+                    token = _context.SecurityTokens.AsQueryable().Where(st => st.service == TokenType.Twitch).FirstOrDefault();
                     if (token == null || token != null && token.token == "")
                     {
                         await Task.Delay(1000);
@@ -486,7 +486,7 @@ namespace BobDeathmic.Services.Streams.Relay.Twitch
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var savedtoken = _context.SecurityTokens.Where(x => x.service == TokenType.Twitch).FirstOrDefault();
+                var savedtoken = _context.SecurityTokens.AsQueryable().Where(x => x.service == TokenType.Twitch).FirstOrDefault();
                 if (savedtoken != null && savedtoken.RefreshToken != null && savedtoken.RefreshToken != "")
                 {
                     var httpclient = new HttpClient();

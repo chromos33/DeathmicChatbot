@@ -56,14 +56,14 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _manager.GetUserAsync(HttpContext.User);
-            user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
+            user = _context.ChatUserModels.AsQueryable().Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
             return View("GiveAwayList", user);
         }
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Winnings()
         {
             var user = await _manager.GetUserAsync(HttpContext.User);
-            user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.ReceivedItems).ThenInclude(x => x.Owner).FirstOrDefault();
+            user = _context.ChatUserModels.AsQueryable().Where(x => x.Id == user.Id).Include(x => x.ReceivedItems).ThenInclude(x => x.Owner).FirstOrDefault();
             return View("Winnings", user);
         }
         [Authorize(Roles = "User,Dev,Admin")]
@@ -85,7 +85,7 @@ namespace BobDeathmic.Controllers
             {
                 //TODO: Attribute Verification aka if links are links and etc
                 var user = await _manager.GetUserAsync(HttpContext.User);
-                user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
+                user = _context.ChatUserModels.AsQueryable().Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
                 item.Owner = user;
                 _context.Add(item);
                 await _context.SaveChangesAsync();
@@ -101,8 +101,8 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> Edit(string id)
         {
             var user = await _manager.GetUserAsync(HttpContext.User);
-            user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
-            var item = _context.GiveAwayItems.Where(x => x.Id == id.ToString() && x.Owner == user).FirstOrDefault();
+            user = _context.ChatUserModels.AsQueryable().Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
+            var item = _context.GiveAwayItems.AsQueryable().Where(x => x.Id == id.ToString() && x.Owner == user).FirstOrDefault();
             if (item != null)
             {
                 return View(item);
@@ -120,7 +120,7 @@ namespace BobDeathmic.Controllers
         {
             if (ModelState.IsValid)
             {
-                var storedItem = _context.GiveAwayItems.Where(x => x.Id == item.Id).FirstOrDefault();
+                var storedItem = _context.GiveAwayItems.AsQueryable().Where(x => x.Id == item.Id).FirstOrDefault();
                 if(storedItem != null)
                 {
                     storedItem.Title = item.Title;
@@ -145,7 +145,7 @@ namespace BobDeathmic.Controllers
                 return NotFound();
             }
 
-            var stream = await _context.GiveAwayItems
+            var stream = await _context.GiveAwayItems.AsQueryable()
                 .FirstOrDefaultAsync(m => m.Id == id.ToString());
             if (stream == null)
             {
@@ -178,7 +178,7 @@ namespace BobDeathmic.Controllers
             List<string> result = new List<string>();
             foreach (var applicant in item.Applicants)
             {
-                result.Add(_context.ChatUserModels.Where(u => u.Id == applicant.UserID).FirstOrDefault().ChatUserName);
+                result.Add(_context.ChatUserModels.AsQueryable().Where(u => u.Id == applicant.UserID).FirstOrDefault().ChatUserName);
             }
             return result;
         }
@@ -196,7 +196,7 @@ namespace BobDeathmic.Controllers
         }
         private async Task ResetCurrentItem()
         {
-            var item = _context.GiveAwayItems.Where(x => x.current).FirstOrDefault();
+            var item = _context.GiveAwayItems.AsQueryable().Where(x => x.current).FirstOrDefault();
             if (item != null)
             {
                 item.current = false;
@@ -205,7 +205,7 @@ namespace BobDeathmic.Controllers
         }
         private GiveAwayItem GetCurrentGiveAwayItem()
         {
-            var GiveAwayItems = _context.GiveAwayItems.Where(x => x.current).Include(x => x.Applicants);
+            var GiveAwayItems = _context.GiveAwayItems.AsQueryable().Where(x => x.current).Include(x => x.Applicants);
             if (GiveAwayItems.Count() > 0)
             {
                 return GiveAwayItems.FirstOrDefault();
@@ -268,9 +268,9 @@ namespace BobDeathmic.Controllers
             {
                 model.Applicants = getApplicants(GetCurrentGiveAwayItem());
             }
-            if (_context.GiveAwayItems.Where(x => x.current).FirstOrDefault() != null)
+            if (_context.GiveAwayItems.AsQueryable().Where(x => x.current).FirstOrDefault() != null)
             {
-                _eventBus.TriggerEvent(EventType.CommandResponseReceived, new CommandResponseArgs { Channel = channel, MessageType = Eventbus.MessageType.ChannelMessage, Message = $"Zur Verlosung steht {_context.GiveAwayItems.Where(x => x.current).FirstOrDefault()?.Title} bitte mit !Gapply teilnehmen" });
+                _eventBus.TriggerEvent(EventType.CommandResponseReceived, new CommandResponseArgs { Channel = channel, MessageType = Eventbus.MessageType.ChannelMessage, Message = $"Zur Verlosung steht {_context.GiveAwayItems.AsQueryable().Where(x => x.current).FirstOrDefault()?.Title} bitte mit !Gapply teilnehmen" });
             }
             return JsonConvert.SerializeObject(model);
 

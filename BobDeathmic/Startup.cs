@@ -72,20 +72,20 @@ namespace BobDeathmic
             services.AddMemoryCache();
             services.AddSingleton<IEventBus, EventBusLocal>();
             
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchChecker>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DLiveChecker>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.MixerChecker>();
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchChecker>();
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DLiveChecker>();
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, Services.MixerChecker>();
 
             services.AddSingleton<ICommandService, CommandService>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DiscordService>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchRelayCenter>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchAPICalls>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, StrawPollService>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, SchedulerHostService>();
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, DiscordService>();
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchRelayCenter>();
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, TwitchAPICalls>();
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, StrawPollService>();
+            //services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, SchedulerHostService>();
             
 
-            services.AddSingleton<IScheduledTask, EventCalendarTask>();
-            services.AddSingleton<IScheduledTask, TwitchTokenRefreshTask>();
+            //services.AddSingleton<IScheduledTask, EventCalendarTask>();
+            //services.AddSingleton<IScheduledTask, TwitchTokenRefreshTask>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddReact();
@@ -100,7 +100,7 @@ namespace BobDeathmic
         {
             if (env.IsDevelopment())
             {
-                app.UseBrowserLink();
+                //app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
             }
@@ -111,7 +111,7 @@ namespace BobDeathmic
             app.UseReact(config =>
             {
                 config.AllowJavaScriptPrecompilation = true;
-                config.SetLoadBabel(false);
+                config.SetLoadBabel(true);
                 config.SetLoadReact(true);
                 config.UseServerSideRendering = false;
 
@@ -132,15 +132,17 @@ namespace BobDeathmic
                 //    .SetLoadBabel(false)
                 //    .AddScriptWithoutTransform("~/Scripts/bundle.server.js");
             });
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseAuthentication();
+            app.UseRouting();
 
-            app.UseMvc(routes =>
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Main}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("default", "{controller=Main}/{action=Index}/{id?}");
             });
         }
 

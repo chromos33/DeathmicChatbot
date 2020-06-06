@@ -39,7 +39,7 @@ namespace BobDeathmic.Cron
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 if (_context != null)
                 {
-                    SecurityToken token = _context.SecurityTokens.Where(t => t.service == Data.Enums.Stream.TokenType.Twitch).FirstOrDefault();
+                    SecurityToken token = _context.SecurityTokens.AsQueryable().Where(t => t.service == Data.Enums.Stream.TokenType.Twitch).FirstOrDefault();
                     if (token != null && token.RefreshToken != null && token.RefreshToken != "")
                     {
                         var httpclient = new HttpClient();

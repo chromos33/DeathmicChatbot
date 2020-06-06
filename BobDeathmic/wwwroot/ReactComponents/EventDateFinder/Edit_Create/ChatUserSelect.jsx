@@ -5,16 +5,19 @@
         this.handleOnClick = this.handleOnClick.bind(this);
         this.handleOnChange = this.handleOnChange.bind(this);
     }
-    componentWillMount() {
+    async componentWillMount() {
         var thisreference = this;
-        $.ajax({
-            url: "/Events/InvitableUsers/" + this.props.ID,
-            type: "GET",
-            data: {},
-            success: function (result) {
-                thisreference.setState({ chatUsers: result, selectedUser: result[0].name });
+        var users = await fetch("/Events/InvitableUsers/" + this.props.ID, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json'
             }
+        }).then((response) => {
+            return response.json();
+        }).then((json) => {
+            return JSON.parse(json);
         });
+        thisreference.setState({ chatUsers: users, selectedUser: users[0].Name });
     }
     handleOnClick(event) {
         
@@ -38,7 +41,7 @@
     render() {
         if (this.state.chatUsers.length > 0) {
             var chatUserNodes = this.state.chatUsers.map(function (chatUser) {
-                return <option key={chatUser.name} value={chatUser.name}>{chatUser.name}</option>;
+                return <option key={chatUser.Name} value={chatUser.Name}>{chatUser.Name}</option>;
             });
             return (
                 <div>

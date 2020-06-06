@@ -2,6 +2,10 @@
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
+    "iis": {
+      "applicationUrl": "http://localhost/BobDeathmic",
+      "sslPort": 0
+    },
     "iisExpress": {
       "applicationUrl": "http://localhost:62693/",
       "sslPort": 44347
@@ -19,10 +23,19 @@
     "BobDeathmic": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "http://192.168.50.108:5001/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Production"
       },
-      "applicationUrl": "http://localhost:62694/"
+      "applicationUrl": "http://192.168.50.108:5001/"
+    },
+    "IIS": {
+      "commandName": "IIS",
+      "launchBrowser": true,
+      "launchUrl": "https://192.168.50.108/",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
     }
   }
 }

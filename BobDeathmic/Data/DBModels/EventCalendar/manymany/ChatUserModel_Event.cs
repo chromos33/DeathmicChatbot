@@ -6,6 +6,7 @@ using BobDeathmic.Models.Events;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,6 +14,7 @@ namespace BobDeathmic.Data.DBModels.EventCalendar.manymany
 {
     public class ChatUserModel_Event
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string ChatUserModel_EventID { get; set; }
 
         public int CalendarID { get; set; }

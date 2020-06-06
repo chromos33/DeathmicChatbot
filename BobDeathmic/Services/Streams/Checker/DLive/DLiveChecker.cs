@@ -47,7 +47,7 @@ namespace BobDeathmic.Services
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     HttpClient client = new HttpClient();
                     string baseurl = "https://graphigo.prd.dlive.tv/";
-                    var Streams = _context.StreamModels.Where(x => x.Type == StreamProviderTypes.DLive).Include(x => x.StreamSubscriptions).ThenInclude(x => x.User);
+                    var Streams = _context.StreamModels.AsQueryable().Where(x => x.Type == StreamProviderTypes.DLive).Include(x => x.StreamSubscriptions).ThenInclude(x => x.User);
                     foreach (Stream stream in Streams)
                     {
                         var content = new StringContent("{\"query\":\"{ userByDisplayName(displayname: \\\""+stream.StreamName+"\\\") {livestream{id}}}\"}", Encoding.UTF8, "application/json");

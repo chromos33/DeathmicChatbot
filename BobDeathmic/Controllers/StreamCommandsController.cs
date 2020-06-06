@@ -81,7 +81,7 @@ namespace BobDeathmic.Controllers
         {
             try
             {
-                var streamcommand = _context.StreamCommand.Where(x => x.ID == streamCommandID).Include(x => x.stream).FirstOrDefault();
+                var streamcommand = _context.StreamCommand.AsQueryable().Where(x => x.ID == streamCommandID).Include(x => x.stream).FirstOrDefault();
                 if (streamcommand != null)
                 {
                     var data = new BobDeathmic.ViewModels.ReactDataClasses.Other.StreamCommandEditData(streamcommand, _context.StreamModels.ToList());
@@ -124,7 +124,7 @@ namespace BobDeathmic.Controllers
         {
             try
             {
-                var command = _context.StreamCommand.Where(x => x.ID == ID).FirstOrDefault();
+                var command = _context.StreamCommand.AsQueryable().Where(x => x.ID == ID).FirstOrDefault();
                 if (command != null)
                 {
                     command.name = Name;
@@ -179,7 +179,7 @@ namespace BobDeathmic.Controllers
             {
                 return NotFound();
             }
-            streamCommand.SetSelectableStreams(_context.StreamModels.Select(a => new SelectListItem()
+            streamCommand.SetSelectableStreams(_context.StreamModels.AsQueryable().Select(a => new SelectListItem()
             {
                 Value = a.ID.ToString(),
                 Text = a.StreamName
@@ -235,7 +235,7 @@ namespace BobDeathmic.Controllers
                 return false;
             }
 
-            var streamCommand = await _context.StreamCommand
+            var streamCommand = await _context.StreamCommand.AsQueryable()
                 .FirstOrDefaultAsync(m => m.ID == CommandID);
             if (streamCommand != null)
             {

@@ -87,7 +87,7 @@ namespace BobDeathmic.Data.DBModels.User
             {
                 throw new ArgumentException("StreamName must be not be null or empty");
             }
-            if (StreamSubscriptions != null && StreamSubscriptions.Where(ss => ss.Stream != null && ss.Stream.StreamName.ToLower() == streamname.ToLower() && ss.Subscribed == SubscriptionState.Subscribed).FirstOrDefault() != null)
+            if (StreamSubscriptions != null && StreamSubscriptions.AsQueryable().Where(ss => ss.Stream != null && ss.Stream.StreamName.ToLower() == streamname.ToLower() && ss.Subscribed == SubscriptionState.Subscribed).FirstOrDefault() != null)
             {
                 return true;
             }

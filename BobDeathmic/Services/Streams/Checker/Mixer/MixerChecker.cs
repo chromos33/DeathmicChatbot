@@ -54,7 +54,7 @@ namespace BobDeathmic.Services
                         string baseUrl = "https://mixer.com/api/v1/channels/";
                         IQueryable<Stream> GetStreams()
                         {
-                            return _context.StreamModels.Where(x => x.Type == StreamProviderTypes.Mixer).Include(x => x.StreamSubscriptions).ThenInclude(x => x.User);
+                            return _context.StreamModels.AsQueryable().Where(x => x.Type == StreamProviderTypes.Mixer).Include(x => x.StreamSubscriptions).ThenInclude(x => x.User);
                         }
                         foreach (Stream stream in GetStreams())
                         {

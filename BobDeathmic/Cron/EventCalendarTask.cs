@@ -55,7 +55,7 @@ namespace BobDeathmic.Cron
 
         private void NotifyAdmin(Event calendar)
         {
-            var NotifiableEventDates = calendar.EventDates.Where(x => x.Teilnahmen.Where(y => y.State == AppointmentRequestState.Available || y.State == AppointmentRequestState.IfNeedBe).Count() == x.Teilnahmen.Count());
+            var NotifiableEventDates = calendar.EventDates.AsQueryable().Where(x => x.Teilnahmen.Where(y => y.State == AppointmentRequestState.Available || y.State == AppointmentRequestState.IfNeedBe).Count() == x.Teilnahmen.Count());
             foreach (EventDate date in NotifiableEventDates)
             {
                 _eventBus.TriggerEvent(EventType.DiscordMessageSendRequested, new MessageArgs { RecipientName = calendar.Admin.ChatUserName, Message = date.AdminNotification(calendar.Name) });
@@ -66,7 +66,7 @@ namespace BobDeathmic.Cron
         {
             string address = _configuration.GetValue<string>("WebServerWebAddress");
             List<MutableTuple<string, string>> GroupedNotifications = new List<MutableTuple<string, string>>();
-            foreach (EventDate date in calendar.EventDates.Where(x => x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(5)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(2)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(1)).Date))
+            foreach (EventDate date in calendar.EventDates.AsQueryable().Where(x => x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(5)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(2)).Date || x.Date.Date == DateTime.Now.Add(TimeSpan.FromDays(1)).Date))
             {
                 foreach (AppointmentRequest request in date.Teilnahmen.Where(x => x.State == AppointmentRequestState.NotYetVoted))
                 {
@@ -92,7 +92,7 @@ namespace BobDeathmic.Cron
             using (var scope = _scopeFactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                var EventDatesToRemove = _context.EventDates.Where(x => x.Date < DateTime.Now);
+                var EventDatesToRemove = _context.EventDates.AsQueryable().Where(x => x.Date < DateTime.Now);
                 foreach (EventDate remove in EventDatesToRemove)
                 {
                     _context.EventDates.Remove(remove);
@@ -101,7 +101,7 @@ namespace BobDeathmic.Cron
                 _context.SaveChanges();
                 foreach (Event calendar in _context.Events)
                 {
-                    var EventDatesInCalendarToRemove = calendar.EventDates.Where(x => x.Date < DateTime.Now);
+                    var EventDatesInCalendarToRemove = calendar.EventDates.AsQueryable().Where(x => x.Date < DateTime.Now);
                     foreach (EventDate remove in EventDatesInCalendarToRemove)
                     {
                         calendar.EventDates.Remove(remove);
@@ -126,7 +126,7 @@ namespace BobDeathmic.Cron
                         {
                             EventDate eventdate = template.CreateEventDate(week);
                             eventdate.EventDateTemplateID = template.ID;
-                            if (calendar.EventDates.Where(x => x.Date == eventdate.Date).Count() == 0)
+                            if (calendar.EventDates.AsQueryable().Where(x => x.Date == eventdate.Date).Count() == 0)
                             {
                                 eventdate.Teilnahmen = calendar.GenerateAppointmentRequests(eventdate);
                                 _context.EventDates.Add(eventdate);
@@ -148,7 +148,7 @@ namespace BobDeathmic.Cron
                 {
                     foreach (EventDate update in calendar.EventDates)
                     {
-                        var template = _context.EventDateTemplates.Where(x => x.ID == update.EventDateTemplateID).FirstOrDefault();
+                        var template = _context.EventDateTemplates.AsQueryable().Where(x => x.ID == update.EventDateTemplateID).FirstOrDefault();
                         if (template != null)
                         {
                             update.StartTime = template.StartTime;

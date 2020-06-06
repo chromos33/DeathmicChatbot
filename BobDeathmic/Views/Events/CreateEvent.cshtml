@@ -18,24 +18,24 @@
         </div>
     </div>
 </div>
+
+        //Use the jsx files on dev and comment out the Compiled Version
+        //Dev use https://babeljs.io/repl to precompile scripts in jsx files
+<script src="@Url.Content("~/js/react.development.js")"></script>
+<script src="@Url.Content("~/js/react-dom.development.js")"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/ChatUserSelect.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/EditEvent.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/NameField.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/InvitedMemberList.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/TemplateList.jsx")"></script>
+<script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/Template.jsx")"></script>
 @*
-    //Use the jsx files on dev and comment out the Compiled Version
-    //Dev use https://babeljs.io/repl to precompile scripts in jsx files
-    <script src="@Url.Content("~/js/react.development.js")"></script>
-    <script src="@Url.Content("~/js/react-dom.development.js")"></script>
-    <script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/ChatUserSelect.jsx")"></script>
-    <script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/EditEvent.jsx")"></script>
-    <script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/NameField.jsx")"></script>
-    <script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/InvitedMemberList.jsx")"></script>
-    <script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/TemplateList.jsx")"></script>
-    <script src="@Url.Content("~/ReactComponents/EventDateFinder/Edit_Create/Template.jsx")"></script>
+    <script src="@Url.Content("~/js/react.production.min.js")"></script>
+    <script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
+
+
+    <script src="@Url.Content("~/ReactComponents/EventDateFinder/PreCompiled/CompiledEdit_Create.js")"></script>
 *@
-<script src="@Url.Content("~/js/react.production.min.js")"></script>
-<script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
-
-
-<script src="@Url.Content("~/ReactComponents/EventDateFinder/PreCompiled/CompiledEdit_Create.js")"></script>
-
 <script>
     document.addEventListener("DOMContentLoaded", function (event) {
         var elem = React.createElement(EditEvent, { ID: @Model});

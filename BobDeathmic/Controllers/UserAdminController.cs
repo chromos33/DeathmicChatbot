@@ -41,7 +41,7 @@ namespace BobDeathmic.Controllers
         }
         public async Task<bool> SaveUserRoles(string UserId, int isAdmin)
         {
-            var user = _context.ChatUserModels.Where(cum => cum.Id == UserId).FirstOrDefault();
+            var user = _context.ChatUserModels.AsQueryable().Where(cum => cum.Id == UserId).FirstOrDefault();
             IdentityResult result = null;
             if (isAdmin == 1)
             {

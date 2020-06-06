@@ -40,18 +40,18 @@ namespace BobDeathmic.ChatCommands
             using (var scope = scopefactory.CreateScope())
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                if (_context.RandomChatUser.Where(x => x.ChatUser.ToLower() == args.Sender.ToLower() && x.Stream.ToLower() == args.ChannelName.ToLower()).Count() == 0)
+                if (_context.RandomChatUser.AsQueryable().Where(x => x.ChatUser.ToLower() == args.Sender.ToLower() && x.Stream.ToLower() == args.ChannelName.ToLower()).Count() == 0)
                 {
                     RandomChatUser tmp = new RandomChatUser();
                     tmp.ChatUser = args.Sender;
                     tmp.Stream = args.ChannelName;
-                    if (_context.RandomChatUser.Where(x => x.Stream.ToLower() == args.ChannelName.ToLower()).Count() == 0)
+                    if (_context.RandomChatUser.AsQueryable().Where(x => x.Stream.ToLower() == args.ChannelName.ToLower()).Count() == 0)
                     {
                         tmp.Sort = 1;
                     }
                     else
                     {
-                        tmp.Sort = _context.RandomChatUser.Where(x => x.Stream.ToLower() == args.ChannelName.ToLower()).Max(t => t.Sort) + 1;
+                        tmp.Sort = _context.RandomChatUser.AsQueryable().Where(x => x.Stream.ToLower() == args.ChannelName.ToLower()).Max(t => t.Sort) + 1;
                     }
                     _context.RandomChatUser.Add(tmp);
                     _context.SaveChanges();
@@ -78,18 +78,18 @@ namespace BobDeathmic.ChatCommands
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    if(_context.RandomChatUser.Where(x => x.ChatUser == args["username"] && x.Stream == args["channel"]).Count() == 0)
+                    if(_context.RandomChatUser.AsQueryable().Where(x => x.ChatUser == args["username"] && x.Stream == args["channel"]).Count() == 0)
                     {
                         RandomChatUser tmp = new RandomChatUser();
                         tmp.ChatUser = args["username"];
                         tmp.Stream = args["channel"];
-                        if(_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() == 0)
+                        if(_context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"]).Count() == 0)
                         {
                             tmp.Sort = 1;
                         }
                         else
                         {
-                            tmp.Sort = _context.RandomChatUser.Where(x => x.Stream == args["channel"]).Max(t => t.Sort) + 1;
+                            tmp.Sort = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"]).Max(t => t.Sort) + 1;
                         }
                         _context.RandomChatUser.Add(tmp);
                         _context.SaveChanges();
@@ -138,15 +138,15 @@ namespace BobDeathmic.ChatCommands
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var delete = _context.RandomChatUser.Where(x => x.Stream == args.ChannelName && x.lastchecked).FirstOrDefault();
+                    var delete = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName && x.lastchecked).FirstOrDefault();
                     if (delete != null)
                     {
                         _context.RandomChatUser.Remove(delete);
                         _context.SaveChanges();
                     }
-                    if (_context.RandomChatUser.Where(x => x.Stream == args.ChannelName).Count() > 0)
+                    if (_context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName).Count() > 0)
                     {
-                        var user = _context.RandomChatUser.Where(x => x.Stream == args.ChannelName).OrderBy(s => s.Sort).First();
+                        var user = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName).OrderBy(s => s.Sort).First();
                         user.lastchecked = true;
                         _context.SaveChanges();
                         message = user.ChatUser;
@@ -165,15 +165,15 @@ namespace BobDeathmic.ChatCommands
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var delete = _context.RandomChatUser.Where(x => x.Stream == args["channel"] && x.lastchecked).FirstOrDefault();
+                    var delete = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"] && x.lastchecked).FirstOrDefault();
                     if (delete != null)
                     {
                         _context.RandomChatUser.Remove(delete);
                         _context.SaveChanges();
                     }
-                    if (_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() > 0)
+                    if (_context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"]).Count() > 0)
                     {
-                        var user = _context.RandomChatUser.Where(x => x.Stream == args["channel"]).OrderBy(s => s.Sort).First();
+                        var user = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"]).OrderBy(s => s.Sort).First();
                         user.lastchecked = true;
                         _context.SaveChanges();
                         return user.ChatUser;
@@ -218,21 +218,21 @@ namespace BobDeathmic.ChatCommands
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var delete = _context.RandomChatUser.Where(x => x.Stream == args["channel"] && x.lastchecked).FirstOrDefault();
+                    var delete = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"] && x.lastchecked).FirstOrDefault();
                     if(delete != null)
                     {
                         _context.RandomChatUser.Remove(delete);
                         _context.SaveChanges();
                     }
-                    if (_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() > 0)
+                    if (_context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"]).Count() > 0)
                     {
-                        if(_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() == 1)
+                        if(_context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"]).Count() == 1)
                         {
-                            _context.RandomChatUser.Where(x => x.Stream == args["channel"]).FirstOrDefault().lastchecked = true;
+                            _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"]).FirstOrDefault().lastchecked = true;
                             _context.SaveChanges();
-                            return _context.RandomChatUser.Where(x => x.Stream == args["channel"]).FirstOrDefault().ChatUser;
+                            return _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"]).FirstOrDefault().ChatUser;
                         }
-                        var users = _context.RandomChatUser.Where(x => x.Stream == args["channel"]);
+                        var users = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"]);
                         var count = users.Count();
                         List<string> Names = new List<string>();
                         foreach(RandomChatUser usertemplate in users)
@@ -246,7 +246,7 @@ namespace BobDeathmic.ChatCommands
                         var nextuser = Names[rnd.Next(Names.Count() + 1)];
                         try
                         {
-                            _context.RandomChatUser.Where(x => x.ChatUser == nextuser).First().lastchecked = true;
+                            _context.RandomChatUser.AsQueryable().Where(x => x.ChatUser == nextuser).First().lastchecked = true;
                             _context.SaveChanges();
                         }catch(Exception ex)
                         {
@@ -277,23 +277,23 @@ namespace BobDeathmic.ChatCommands
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var delete = _context.RandomChatUser.Where(x => x.Stream == args.ChannelName && x.lastchecked).FirstOrDefault();
+                    var delete = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName && x.lastchecked).FirstOrDefault();
                     if (delete != null)
                     {
                         _context.RandomChatUser.Remove(delete);
                         _context.SaveChanges();
                     }
-                    if (_context.RandomChatUser.Where(x => x.Stream == args.ChannelName).Count() > 0)
+                    if (_context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName).Count() > 0)
                     {
-                        if (_context.RandomChatUser.Where(x => x.Stream == args.ChannelName).Count() == 1)
+                        if (_context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName).Count() == 1)
                         {
-                            _context.RandomChatUser.Where(x => x.Stream == args.ChannelName).FirstOrDefault().lastchecked = true;
+                            _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName).FirstOrDefault().lastchecked = true;
                             _context.SaveChanges();
-                            message = _context.RandomChatUser.Where(x => x.Stream == args.ChannelName).FirstOrDefault().ChatUser;
+                            message = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName).FirstOrDefault().ChatUser;
                         }
                         else
                         {
-                            var users = _context.RandomChatUser.Where(x => x.Stream == args.ChannelName);
+                            var users = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName);
                             var count = users.Count();
                             List<string> Names = new List<string>();
                             foreach (RandomChatUser usertemplate in users)
@@ -307,7 +307,7 @@ namespace BobDeathmic.ChatCommands
                             var nextuser = Names[rnd.Next(Names.Count() + 1)];
                             try
                             {
-                                _context.RandomChatUser.Where(x => x.ChatUser == nextuser).First().lastchecked = true;
+                                _context.RandomChatUser.AsQueryable().Where(x => x.ChatUser == nextuser).First().lastchecked = true;
                                 _context.SaveChanges();
                             }
                             catch (Exception ex)
@@ -354,10 +354,10 @@ namespace BobDeathmic.ChatCommands
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    if (_context.RandomChatUser.Where(x => x.Stream == args["channel"]).Count() > 0)
+                    if (_context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"]).Count() > 0)
                     {
                         string message = "Users in List: ";
-                        foreach (var user in _context.RandomChatUser.Where(x => x.Stream == args["channel"]).OrderBy(s => s.Sort))
+                        foreach (var user in _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args["channel"]).OrderBy(s => s.Sort))
                         {
                             message += user.ChatUser + "\n";
                         }
@@ -385,10 +385,10 @@ namespace BobDeathmic.ChatCommands
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    if (_context.RandomChatUser.Where(x => x.Stream == args.ChannelName).Count() > 0)
+                    if (_context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName).Count() > 0)
                     {
                         message = "Users in List: ";
-                        foreach (var user in _context.RandomChatUser.Where(x => x.Stream == args.ChannelName).OrderBy(s => s.Sort))
+                        foreach (var user in _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName).OrderBy(s => s.Sort))
                         {
                             message += user.ChatUser + "\n";
                         }
@@ -429,22 +429,22 @@ namespace BobDeathmic.ChatCommands
                 using (var scope = scopeFactory.CreateScope())
                 {
                     var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    if (_context.RandomChatUser.Where(x => x.Stream == args.ChannelName && x.lastchecked).Count() > 0)
+                    if (_context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName && x.lastchecked).Count() > 0)
                     {
-                        var skippeduser = _context.RandomChatUser.Where(x => x.Stream == args.ChannelName && x.lastchecked).FirstOrDefault();
+                        var skippeduser = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName && x.lastchecked).FirstOrDefault();
                         if (skippeduser != null)
                         {
                             _context.RandomChatUser.Remove(skippeduser);
                             RandomChatUser tmp = new RandomChatUser();
                             tmp.ChatUser = skippeduser.ChatUser;
                             tmp.lastchecked = false;
-                            if (_context.RandomChatUser.Where(x => x.Stream == args.ChannelName).Count() == 0)
+                            if (_context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName).Count() == 0)
                             {
                                 tmp.Sort = 1;
                             }
                             else
                             {
-                                tmp.Sort = _context.RandomChatUser.Where(x => x.Stream == args.ChannelName).Max(t => t.Sort) + 1;
+                                tmp.Sort = _context.RandomChatUser.AsQueryable().Where(x => x.Stream == args.ChannelName).Max(t => t.Sort) + 1;
                             }
                             tmp.Stream = skippeduser.Stream;
                             _context.RandomChatUser.Add(tmp);
