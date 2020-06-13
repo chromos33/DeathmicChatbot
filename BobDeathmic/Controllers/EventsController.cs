@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using BobDeathmic.Data.JSONModels;
 
 namespace BobDeathmic.Controllers
 {
@@ -79,7 +80,7 @@ namespace BobDeathmic.Controllers
         }
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
-        public bool ISUpdateAvailable(int majorRevision, int minorRevision)
+        public String ISUpdateAvailable(int majorRevision, int minorRevision)
         {
             DirectoryInfo info = new DirectoryInfo(Path.Combine(new string[] { env.WebRootPath, "Downloads", "APK" }));
             FileInfo[] files = info.GetFiles().OrderByDescending(p => p.CreationTime).ToArray();
@@ -91,14 +92,14 @@ namespace BobDeathmic.Controllers
                 Tuple<int,int> VersionsFromFile = getVersionFromString(DownloadFile.FullName);
                 if(VersionsFromFile.Item1 > majorRevision)
                 {
-                    return true;
+                    return JsonConvert.SerializeObject(new MobileResponse() { Response = "true" });
                 }
                 if(VersionsFromFile.Item1 == majorRevision && VersionsFromFile.Item2 > minorRevision)
                 {
-                    return true;
+                    return JsonConvert.SerializeObject(new MobileResponse() { Response = "true" });
                 }
             }
-            return false;
+            return JsonConvert.SerializeObject(new MobileResponse() { Response = "false" });
         }
         private Tuple<int,int> getVersionFromString(string version)
         {
