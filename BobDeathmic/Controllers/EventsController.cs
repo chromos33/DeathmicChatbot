@@ -2,6 +2,7 @@
 using BobDeathmic.Data.DBModels.EventCalendar;
 using BobDeathmic.Data.DBModels.EventCalendar.manymany;
 using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Data.JSONModels;
 using BobDeathmic.Models;
 using BobDeathmic.Models.Events;
 using BobDeathmic.ViewModels.ReactDataClasses.EventDateFinder.OverView;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -78,26 +80,26 @@ namespace BobDeathmic.Controllers
         }
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
-        public bool ISUpdateAvailable(int majorRevision, int minorRevision)
+        public String ISUpdateAvailable(int majorRevision, int minorRevision)
         {
             DirectoryInfo info = new DirectoryInfo(Path.Combine(new string[] { env.WebRootPath, "Downloads", "APK" }));
             FileInfo[] files = info.GetFiles().OrderByDescending(p => p.CreationTime).ToArray();
             FileInfo DownloadFile = files.FirstOrDefault();
             int Major_Revision = 0;
             int Minor_Revision = 0;
-            if(DownloadFile != null)
+            if (DownloadFile != null)
             {
-                Tuple<int,int> VersionsFromFile = getVersionFromString(DownloadFile.FullName);
-                if(VersionsFromFile.Item1 > majorRevision)
+                Tuple<int, int> VersionsFromFile = getVersionFromString(DownloadFile.FullName);
+                if (VersionsFromFile.Item1 > majorRevision)
                 {
-                    return true;
+                    return JsonConvert.SerializeObject(new MobileResponse() { Response = "true" });
                 }
-                if(VersionsFromFile.Item1 == majorRevision && VersionsFromFile.Item2 > minorRevision)
+                if (VersionsFromFile.Item1 == majorRevision && VersionsFromFile.Item2 > minorRevision)
                 {
-                    return true;
+                    return JsonConvert.SerializeObject(new MobileResponse() { Response = "true" });
                 }
             }
-            return false;
+            return JsonConvert.SerializeObject(new MobileResponse() { Response = "false" });
         }
         private Tuple<int,int> getVersionFromString(string version)
         {
