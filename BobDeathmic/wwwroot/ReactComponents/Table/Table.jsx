@@ -42,7 +42,6 @@
                 sort = "desc";
                 break;
         }
-        console.log(sort);
         this.setState({SortColumn: field,Sort: sort});
     }
     render() {
@@ -54,7 +53,7 @@
                 TableRows.sort(function (a, b) {
                     let index = curthis.state.SortColumn - 1;
                     //could solve this another way by filtering first row as header row but ...
-                    if (a.isStatic) {
+                    if (a.isStatic || b.isStatic) {
                         return 0;
                     }
                     else {
