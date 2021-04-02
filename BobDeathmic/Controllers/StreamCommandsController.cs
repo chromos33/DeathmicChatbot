@@ -120,7 +120,7 @@ namespace BobDeathmic.Controllers
         }
         [HttpPost]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<bool> SaveCommand(int ID, string Name,string Response, StreamCommandMode Mode, int StreamID)
+        public async Task<bool> SaveCommand(int ID, string Name,string Response, StreamCommandMode Mode, int StreamID, int AutoInterval = 0)
         {
             try
             {
@@ -131,6 +131,10 @@ namespace BobDeathmic.Controllers
                     command.response = Response;
                     command.Mode = Mode;
                     command.streamID = StreamID;
+                    if (Mode == StreamCommandMode.Auto)
+                    {
+                        command.AutoInverval = AutoInterval;
+                    }
                     _context.SaveChanges();
                     return true;
                 }

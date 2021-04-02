@@ -64,7 +64,6 @@
     }
     channelswitch(e) {
         let index = e.nativeEvent.target.selectedIndex;
-        console.log(this.state.Streams[index]);
         this.setState({
             StreamID: this.state.Streams[index].ID,
             StreamName: this.state.Streams[index].Name,
@@ -73,7 +72,7 @@
     }
     handleUptimeChange(e) {
         this.setState({
-            UpTime: e.target.value,
+            AutoInterval: e.target.value,
             Change: true
         });
     }
@@ -112,7 +111,8 @@
                 "&Name=" + this.state.Name +
                 "&Response=" + this.state.Response +
                 "&Mode=" + this.state.Mode +
-                "&StreamID=" + streamID
+                "&StreamID=" + streamID + 
+                "&AutoInterval="+ this.state.AutoInterval
             );
         }
         else {
@@ -140,7 +140,8 @@
                     Mode: data.Mode,
                     StreamID: data.StreamID,
                     StreamName: data.StreamName,
-                    Streams: data.Streams
+                    Streams: data.Streams,
+                    AutoInterval: data.AutoInterval
                 });
             }
         };
@@ -170,7 +171,7 @@
                     <label className="streamlabel">Stream</label>
                     <select className="streamselect" value={this.state.StreamID} onChange={this.channelswitch}>{options}</select>
                     <label className="responselabel">Text</label>
-                    <textarea className="responsefield" value={this.state.reponse} onChange={this.responsechange} />
+                    <textarea className="responsefield" value={this.state.Response} onChange={this.responsechange} />
                     <span onClick={this.handleSave} className="btn btn_primary savebtn">Speichern</span>
                     <span onClick={this.handleCancel} className="btn btn_primary cancelbtn">Abbrechen</span>
                 </div>
