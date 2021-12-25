@@ -56,7 +56,7 @@ namespace BobDeathmic.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _manager.GetUserAsync(HttpContext.User);
-            user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.OwnedItems).FirstOrDefault();
+            user = _context.ChatUserModels.Where(x => x.Id == user.Id).Include(x => x.OwnedItems).ThenInclude(x => x.Receiver).FirstOrDefault();
             return View("GiveAwayList", user);
         }
         [Authorize(Roles = "User,Dev,Admin")]

@@ -21,6 +21,7 @@
         <tr>
             <th>Spiel</th>
             <th>Code</th>
+            <th>Gewinner</th>
             <th></th>
             <th></th>
         </tr>
@@ -31,6 +32,7 @@
             <tr>
                 <td>@item.Title</td>
                 <td>@item.Key</td>
+                <td>@item.Receiver.ChatUserName</td>
                 <td><a asp-action="Edit" asp-route-id="@item.Id">Edit</a></td>
                 <td><a asp-action="Delete" asp-route-id="@item.Id">Delete</a></td>
             </tr>
