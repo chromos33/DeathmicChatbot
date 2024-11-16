@@ -1,42 +1,56 @@
-﻿@model BobDeathmic.ViewModels.StreamModels.StreamListDataModel
-
-@{
-    ViewData["Title"] = "Status";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
+﻿@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<link rel="stylesheet" href="~/css/User/Subscription.css" />
+<link rel="stylesheet" href="~/css/forms.css" />
 <link rel="stylesheet" href="~/css/table.css" />
-<link rel="stylesheet" href="~/css/Stream/Status.css" />
+<link rel="stylesheet" href="~/css/Buttons.css" />
+<link rel="stylesheet" href="~/css/React.css" />
+<link rel="stylesheet" href="~/css/TableSearch.css" />
+<link rel="stylesheet" href="~/css/StreamEditColumn.css" />
+@*
+    <!--Use the jsx files on dev and comment out the Compiled Version-->
+    <!--Dev use https://babeljs.io/repl to precompile scripts in jsx files-->
+    <script src="@Url.Content("~/js/react.development.js")"></script>
+    <script src="@Url.Content("~/js/react-dom.development.js")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Table.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Row.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Columns/TextColumn.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Columns/LinkColumn.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Columns/StreamEditColumn.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Columns/StreamDeleteColumn.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/Table/Search.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/StreamsubAddComponent.jsx")"></script>
+    <script src="@Url.Content("~/ReactComponents/StreamAddComponent.jsx")"></script>
+*@
 
-<div class="breadcrumbs">
-    <span>Streams > Verwaltung</span>
-</div>
-@Html.PartialAsync("_StatusMessage", Model.StatusMessage).Result
-<table class="table responsive">
-    <thead>
-        <tr>
-            <th>Stream</th>
-            <th>Type</th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.StreamList)
-        {
-            <tr>
-                <td><a href="@Html.DisplayFor(modelItem => item.Url)">@Html.DisplayFor(modelItem => item.StreamName)</a></td>
-                <td>@Html.DisplayFor(modelItem => item.Type)</td>
-                <td><a asp-action="Edit" asp-route-id="@item.ID">Edit</a></td>
-                @if (item.Type == BobDeathmic.Data.Enums.Stream.StreamProviderTypes.Twitch)
-                {
-                    <td><a asp-action="TwitchOAuth" asp-route-id="@item.ID">Authorisieren</a></td>
-                }
+<script src="@Url.Content("~/js/react.production.min.js")"></script>
+<script src="@Url.Content("~/js/react-dom.production.min.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Table.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Row.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Columns/TextColumn.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Columns/LinkColumn.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Columns/StreamEditColumn.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Columns/StreamDeleteColumn.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/Table/Search.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/StreamsubAddComponent.js")"></script>
+<script src="@Url.Content("~/ReactComponents/Compiled/StreamAddComponent.js")"></script>
 
-                <td><a asp-action="Delete" asp-route-id="@item.ID">Delete</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
-
+<script>
+    document.addEventListener("DOMContentLoaded", function (event) {
+        var elem2 = React.createElement(StreamAddComponent, {});
+        ReactDOM.render(elem2, document.getElementById('streamAddContent'));
+        var elem = React.createElement(Table, {
+            DataLink: "/Stream/StreamsData/",
+            Columns: {
+                TextColumn: TextColumn,
+                LinkColumn: LinkColumn,
+                StreamEditColumn: StreamEditColumn,
+                StreamDeleteColumn: StreamDeleteColumn
+            }
+        });
+        ReactDOM.render(elem, document.getElementById('reactcontent'));
+    });
+</script>
+<div style="padding-top:150px;" id="streamAddContent"></div>
+<div style="padding-top:20px;" id="reactcontent"></div>

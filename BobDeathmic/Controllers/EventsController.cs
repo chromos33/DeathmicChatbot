@@ -2,17 +2,22 @@
 using BobDeathmic.Data.DBModels.EventCalendar;
 using BobDeathmic.Data.DBModels.EventCalendar.manymany;
 using BobDeathmic.Data.DBModels.User;
+using BobDeathmic.Data.JSONModels;
 using BobDeathmic.Models;
 using BobDeathmic.Models.Events;
 using BobDeathmic.ViewModels.ReactDataClasses.EventDateFinder.OverView;
 using BobDeathmic.ViewModels.ReactDataClasses.EventDateFinder.Vote;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using MimeKit;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,16 +28,18 @@ namespace BobDeathmic.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private UserManager<ChatUserModel> _userManager;
-        public EventsController(ApplicationDbContext context, IConfiguration configuration, UserManager<ChatUserModel> userManager)
+        private IHostingEnvironment env;
+        public EventsController(ApplicationDbContext context, IConfiguration configuration, UserManager<ChatUserModel> userManager, IHostingEnvironment env)
         {
             _context = context;
             _configuration = configuration;
             _userManager = userManager;
+            this.env = env;
         }
         [Authorize(Roles = "User,Dev,Admin")]
         public IActionResult Index()
         {
-            return View();
+            return View("Index");
         }
         [Authorize(Roles = "User,Dev,Admin")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
@@ -43,6 +50,78 @@ namespace BobDeathmic.Controllers
             ChatUserModel user = await _userManager.GetUserAsync(this.User);
             data.Calendars = getRelevantCalendars(user);
             return Json(data);
+        }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public IActionResult DownloadAPK()
+        {
+            DirectoryInfo info = new DirectoryInfo(Path.Combine(new string[] { env.WebRootPath, "Downloads", "APK" }));
+            FileInfo[] files = info.GetFiles().OrderByDescending(p => p.CreationTime).ToArray();
+            int i = 0;
+            FileInfo DownloadFile = null;
+            foreach (FileInfo file in files)
+            {
+                if(i == 0)
+                {
+                    DownloadFile = file;
+                }
+                i++;
+                if(i > 3)
+                {
+                    //keep last 3 versions
+                    file.Delete();
+                }
+            }
+            if(DownloadFile == null)
+            {
+                return Index();
+            }
+            return PhysicalFile(DownloadFile.FullName, MimeTypes.GetMimeType(DownloadFile.FullName), Path.GetFileName(DownloadFile.FullName));
+        }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public String ISUpdateAvailable(int majorRevision, int minorRevision)
+        {
+            DirectoryInfo info = new DirectoryInfo(Path.Combine(new string[] { env.WebRootPath, "Downloads", "APK" }));
+            FileInfo[] files = info.GetFiles().OrderByDescending(p => p.CreationTime).ToArray();
+            FileInfo DownloadFile = files.FirstOrDefault();
+            int Major_Revision = 0;
+            int Minor_Revision = 0;
+            if (DownloadFile != null)
+            {
+                Tuple<int, int> VersionsFromFile = getVersionFromString(DownloadFile.FullName);
+                if (VersionsFromFile.Item1 > majorRevision)
+                {
+                    return JsonConvert.SerializeObject(new MobileResponse() { Response = "true" });
+                }
+                if (VersionsFromFile.Item1 == majorRevision && VersionsFromFile.Item2 > minorRevision)
+                {
+                    return JsonConvert.SerializeObject(new MobileResponse() { Response = "true" });
+                }
+            }
+            return JsonConvert.SerializeObject(new MobileResponse() { Response = "false" });
+        }
+        private Tuple<int,int> getVersionFromString(string version)
+        {
+            try
+            {
+                string[] versions = version.Split("__")[1].Split(".")[0].Split("_");
+
+                return new Tuple<int, int>(int.Parse(versions[0]), int.Parse(versions[1]));
+            }
+            catch( ArgumentNullException ex)
+            {
+                return new Tuple<int, int>(0,0);
+            }
+            catch (FormatException ex)
+            {
+                return new Tuple<int, int>(0, 0);
+            }
+            catch (OverflowException ex)
+            {
+                return new Tuple<int, int>(0, 0);
+            }
+
         }
 
         private List<Calendar> getRelevantCalendars(ChatUserModel user)

@@ -4,7 +4,7 @@ tr {
     border: none !important;
 }
 table {
-    width: 100%;
+    width: auto;
 }
 tr:nth-child(even) {
     background: #272c2e;

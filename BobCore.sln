@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BobDeathmic", "BobDeathmic\BobDeathmic.csproj", "{B3E68F4B-D856-4F3A-A7BD-60EFCBADC0DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BobDeathmic.Tests", "BobDeathmic.Tests\BobDeathmic.Tests.csproj", "{BBE490AF-AD3F-4EB4-9C91-388B1F145282}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BobDeathmic.Tests", "BobDeathmic.Tests\BobDeathmic.Tests.csproj", "{BBE490AF-AD3F-4EB4-9C91-388B1F145282}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,7 +18,6 @@ Global
 		{B3E68F4B-D856-4F3A-A7BD-60EFCBADC0DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3E68F4B-D856-4F3A-A7BD-60EFCBADC0DC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BBE490AF-AD3F-4EB4-9C91-388B1F145282}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BBE490AF-AD3F-4EB4-9C91-388B1F145282}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBE490AF-AD3F-4EB4-9C91-388B1F145282}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBE490AF-AD3F-4EB4-9C91-388B1F145282}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

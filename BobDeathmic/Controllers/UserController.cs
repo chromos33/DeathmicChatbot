@@ -15,6 +15,10 @@ using BobDeathmic.Data.DBModels.User;
 using BobDeathmic.Data.DBModels.StreamModels;
 using BobDeathmic.Data.Enums.Stream;
 using BobDeathmic.ViewModels.User;
+using BobDeathmic.ViewModels.ReactDataClasses.Table;
+using BobDeathmic.ViewModels.ReactDataClasses.Table.Columns;
+using BobDeathmic.ViewModels.ReactDataClasses.Other;
+using Newtonsoft.Json;
 
 namespace BobDeathmic.Controllers
 {
@@ -36,6 +40,7 @@ namespace BobDeathmic.Controllers
         {
             return View();
         }
+        /*
         [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
         public async Task<IActionResult> Subscriptions()
@@ -64,16 +69,70 @@ namespace BobDeathmic.Controllers
             model.Subscriptions = streamsubs;
             return View(model);
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        */
+        [HttpGet]
         [Authorize(Roles = "User,Dev,Admin")]
-        public async Task<IActionResult> AddSubscription(AddSubscriptionViewModel model)
+        public async Task<IActionResult> Subscriptions()
         {
-            if (!ModelState.IsValid)
+            return View();
+        }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<String> SubscriptionsData()
+        {
+            ChatUserModel usermodel = await _userManager.GetUserAsync(this.User);
+            List<StreamSubscription> streamsubs = _context.StreamSubscriptions.Include(ss => ss.User).Include(ss => ss.Stream).Where(ss => ss.User == usermodel).ToList();
+            Table table = new Table();
+            Row row = new Row(false,true);
+            row.AddColumn(new TextColumn(0, "StreamName",true));
+            row.AddColumn(new TextColumn(1, "Sub Status"));
+            table.AddRow(row);
+            //TODO Second Request for Streams not yet added
+
+            foreach (var streamsub in streamsubs)
             {
-                return View(model);
+                Row newrow = new Row();
+                newrow.AddColumn(new TextColumn(0, streamsub.Stream.StreamName));
+                if (streamsub.Subscribed == SubscriptionState.Subscribed)
+                {
+                    newrow.AddColumn(new StreamSubColumn(1, true, streamsub.ID));
+                }
+                else
+                {
+                    newrow.AddColumn(new StreamSubColumn(1, false, streamsub.ID));
+                }
+                table.AddRow(newrow);
             }
-            var stream = _context.StreamModels.Where(s => s.StreamName.ToLower() == model.StreamNameForSubscription.ToLower() && s.Type == model.type).FirstOrDefault();
+            return table.getJson();
+        }
+        
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<String> SubscribableStreamsData()
+        {
+            ChatUserModel usermodel = await _userManager.GetUserAsync(this.User);
+            List<StreamSubscription> streamsubs = _context.StreamSubscriptions.Include(ss => ss.User).Include(ss => ss.Stream).Where(ss => ss.User == usermodel).ToList();
+            List<SubscribableStream> FilteredStreams = new List<SubscribableStream>();
+            foreach (var stream in _context.StreamModels)
+            {
+                bool add = true;
+
+                if (streamsubs != null && streamsubs.Where(ss => ss.Stream.StreamName == stream.StreamName && ss.Stream.Type == stream.Type).Count() > 0)
+                {
+                    add = false;
+                }
+                if (add)
+                {
+                    FilteredStreams.Add(new SubscribableStream(stream.StreamName,stream.ID));
+                }
+            }
+            return JsonConvert.SerializeObject(FilteredStreams);
+        }
+        [HttpGet]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<bool> AddSubscription(int streamid)
+        {
+            var stream = _context.StreamModels.Where(s => s.ID == streamid).FirstOrDefault();
             ChatUserModel user = await _userManager.GetUserAsync(this.User);
             if (stream != null)
             {
@@ -89,13 +148,15 @@ namespace BobDeathmic.Controllers
 
                 user.StreamSubscriptions.Add(newsub);
                 await _context.SaveChangesAsync();
+                return true;
             }
-            return RedirectToAction(nameof(Subscriptions));
+            return false;
 
         }
-        public async Task<string> ChangeSubscription(int? id)
+        [HttpPost]
+        [Authorize(Roles = "User,Dev,Admin")]
+        public async Task<string> ChangeSubscription(int id)
         {
-
             if (id == null)
             {
                 return "error";

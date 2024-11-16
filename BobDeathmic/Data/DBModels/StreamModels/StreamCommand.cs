@@ -32,6 +32,14 @@ namespace BobDeathmic.Data.DBModels.StreamModels
         {
             SelectableStreams = List;
         }
+        public string DeleteLink()
+        {
+            return "StreamCommands/Delete?CommandID=" + ID;
+        }
+        public string DeleteText()
+        {
+            return "Bist dir sicher den Command löschen zu wollen?";
+        }
     }
     public enum StreamCommandMode
     {
