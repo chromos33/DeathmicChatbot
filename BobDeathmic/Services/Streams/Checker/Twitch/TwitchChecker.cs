@@ -17,6 +17,7 @@ using BobDeathmic;
 using BobDeathmic.Data.DBModels.StreamModels;
 using BobDeathmic.Data.Enums.Stream;
 using TwitchLib.Api.Helix.Models.Streams;
+using TwitchLib.Api.Helix.Models.Streams.GetStreams;
 
 namespace BobDeathmic.Services.Streams.Checker.Twitch
 {
@@ -101,9 +102,9 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                     _inProgress = true;
                     await FillClientIDs();
                     GetStreamsResponse StreamsData = await GetStreamData();
-                    List<string> OnlineStreamIDs = StreamsData.Streams.Select(x => x.UserId).ToList();
+                    List<string> OnlineStreamIDs = StreamsData?.Streams.Select(x => x.UserId).ToList();
                     await SetStreamsOffline(OnlineStreamIDs);
-                    if (StreamsData.Streams.Count() > 0)
+                    if (StreamsData != null && StreamsData.Streams.Count() > 0)
                     {
                         await SetStreamsOnline(OnlineStreamIDs, StreamsData);
                     }
@@ -193,7 +194,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
                 Boolean write = false;
                 foreach (Data.DBModels.StreamModels.Stream stream in Streams)
                 {
-                    TwitchLib.Api.Helix.Models.Streams.Stream streamdata = StreamsData.Streams.Single(sd => sd.UserId == stream.UserID);
+                    TwitchLib.Api.Helix.Models.Streams.GetStreams.Stream streamdata = StreamsData.Streams.Single(sd => sd.UserId == stream.UserID);
                     if (stream.StreamState == StreamState.NotRunning)
                     {
                         stream.StreamState = StreamState.Running;

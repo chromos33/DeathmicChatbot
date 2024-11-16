@@ -10,6 +10,10 @@
     <WarningLevel>0</WarningLevel>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Remove="appsettings.json" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.1.0" />
@@ -32,15 +36,16 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.2.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.32" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" PrivateAssets="All" />
     <PackageReference Include="morelinq" Version="3.1.1" />
     <PackageReference Include="NCrontab" Version="3.3.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
 	<PackageReference Include="React.AspNet" Version="4.1.1" />
-	<PackageReference Include="TwitchLib" Version="3.1.0" />
+	<PackageReference Include="TwitchLib" Version="3.4.1" />
 	<PackageReference Include="VroomJs" Version="1.2.3" />
   </ItemGroup>
 
@@ -48,6 +53,11 @@
   <ItemGroup>
     <Folder Include="ChatCommands\Enums\" />
     <Folder Include="Migrations\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="appsettings.json" />
   </ItemGroup>
 
   <ItemGroup>
