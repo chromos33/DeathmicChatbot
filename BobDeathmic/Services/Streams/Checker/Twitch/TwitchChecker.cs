@@ -239,7 +239,7 @@ namespace BobDeathmic.Services.Streams.Checker.Twitch
             }
             return true;
         }
-        private async Task NotifyUsers(Data.DBModels.StreamModels.Stream stream, TwitchLib.Api.Helix.Models.Streams.Stream streamdata)
+        private async Task NotifyUsers(Data.DBModels.StreamModels.Stream stream, TwitchLib.Api.Helix.Models.Streams.GetStreams.Stream streamdata)
         {
             int longDelayCounter = 0;
             foreach (string username in stream.GetActiveSubscribers())

@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using TwitchLib.Api;
+using TwitchLib.Api.Helix.Models.Channels.ModifyChannelInformation;
 
 namespace BobDeathmic.Services
 {
@@ -68,7 +69,7 @@ namespace BobDeathmic.Services
             {
                 var _context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 Stream stream = _context.StreamModels.Where(sm => sm.StreamName.ToLower().Equals(e.StreamName.ToLower())).FirstOrDefault();
-                if (stream != null && stream.ClientID != null && stream.ClientID != "" && stream.AccessToken != null && stream.AccessToken != "")
+                if (stream != null && !string.IsNullOrEmpty(stream.ClientID) && !string.IsNullOrEmpty(stream.AccessToken))
                 {
                     TwitchAPI api = new TwitchAPI();
                     api.Settings.ClientId = stream.ClientID;
@@ -76,64 +77,69 @@ namespace BobDeathmic.Services
                     string message = "";
                     try
                     {
-                        if (e.Game != "" && e.Title != "")
+                        if (!string.IsNullOrEmpty(e.Game) && !string.IsNullOrEmpty(e.Title))
                         {
-                            var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title, game: e.Game);
-                            if (test.Game == e.Game && test.Status == e.Title)
+                            var gameId = (await api.Helix.Games.GetGamesAsync(gameNames: new List<string> { e.Game })).Games.FirstOrDefault()?.Id;
+                            var updateRequest = new ModifyChannelInformationRequest
                             {
-                                message = "Stream Updated";
-                            }
-                            else
-                            {
-                                message = "Error while updating";
-                            }
-
+                                Title = e.Title,
+                                GameId = gameId
+                            };
+                            await api.Helix.Channels.ModifyChannelInformationAsync(stream.UserID, updateRequest);
+                            message = "Stream Updated";
                         }
-                        if (e.Game != "" && e.Title == "")
+                        else if (!string.IsNullOrEmpty(e.Game))
                         {
-                            var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, game: e.Game);
-                            //Does not actually work as request just returns the entered game irrelevant of actual change (always returns true)
-                            if(test.Game == e.Game)
+                            var gameId = (await api.Helix.Games.GetGamesAsync(gameNames: new List<string> { e.Game })).Games.FirstOrDefault()?.Id;
+                            var updateRequest = new ModifyChannelInformationRequest
                             {
-                                message = "Game Updated";
-                            }
-                            else
-                            {
-                                message = "Twitch game mismatch";
-                            }
+                                GameId = gameId
+                            };
+                            await api.Helix.Channels.ModifyChannelInformationAsync(stream.UserID, updateRequest);
+                            message = "Game Updated";
                         }
-                        if (e.Game == "" && e.Title != "")
+                        else if (!string.IsNullOrEmpty(e.Title))
                         {
-                            var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title);
-                            if (test.Status == e.Title)
+                            var updateRequest = new ModifyChannelInformationRequest
                             {
-                                message = "Title Updated";
-                            }
-                            else
-                            {
-                                message = "Title not Updated";
-                            }
+                                Title = e.Title
+                            };
+                            await api.Helix.Channels.ModifyChannelInformationAsync(stream.UserID, updateRequest);
+                            message = "Title Updated";
                         }
-
                     }
                     catch (Exception ex) when (ex is TwitchLib.Api.Core.Exceptions.InvalidCredentialException || ex is TwitchLib.Api.Core.Exceptions.BadScopeException)
                     {
-
                         api.Settings.AccessToken = await RefreshToken(stream.StreamName);
 
-                        if (api.Settings.AccessToken != "")
+                        if (!string.IsNullOrEmpty(api.Settings.AccessToken))
                         {
-                            if (e.Game != "" && e.Title != "")
+                            if (!string.IsNullOrEmpty(e.Game) && !string.IsNullOrEmpty(e.Title))
                             {
-                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title, game: e.Game);
+                                var gameId = (await api.Helix.Games.GetGamesAsync(gameNames: new List<string> { e.Game })).Games.FirstOrDefault()?.Id;
+                                var updateRequest = new ModifyChannelInformationRequest
+                                {
+                                    Title = e.Title,
+                                    GameId = gameId
+                                };
+                                await api.Helix.Channels.ModifyChannelInformationAsync(stream.UserID, updateRequest);
                             }
-                            if (e.Game != "" && e.Title == "")
+                            else if (!string.IsNullOrEmpty(e.Game))
                             {
-                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, game: e.Game);
+                                var gameId = (await api.Helix.Games.GetGamesAsync(gameNames: new List<string> { e.Game })).Games.FirstOrDefault()?.Id;
+                                var updateRequest = new ModifyChannelInformationRequest
+                                {
+                                    GameId = gameId
+                                };
+                                await api.Helix.Channels.ModifyChannelInformationAsync(stream.UserID, updateRequest);
                             }
-                            if (e.Game == "" && e.Title != "")
+                            else if (!string.IsNullOrEmpty(e.Title))
                             {
-                                var test = await api.V5.Channels.UpdateChannelAsync(channelId: stream.UserID, status: e.Title);
+                                var updateRequest = new ModifyChannelInformationRequest
+                                {
+                                    Title = e.Title
+                                };
+                                await api.Helix.Channels.ModifyChannelInformationAsync(stream.UserID, updateRequest);
                             }
                         }
                     }
